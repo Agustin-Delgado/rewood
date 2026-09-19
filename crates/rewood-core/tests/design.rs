@@ -345,3 +345,88 @@ fn dimensions_typed_as_numbers_get_a_hint() {
     );
     assert!(findings(&json, "DESIGN-113").is_empty());
 }
+
+/// Apply every fix the plan offers, one at a time, and check each one
+/// makes its finding go away.
+#[test]
+fn fixes_resolve_the_findings_they_come_with() {
+    let json = cabinet(
+        r#", "width": 1300"#,
+        r#"}, { "type": "doors", "id": "do", "count": 1, "gap": 1, "edges": "none", "handle": { "hardware": ["handle_bar_128"], "fromEdge": 900 } }"#,
+    )
+    .replace(r#""back": { "material": "hdf_3" }"#, r#""bays": 1"#)
+    .replace(r#""edgeMaterial": "abs_1mm","#, "");
+    let plan = rewood_core::compile_json(&json);
+    let with_fix: Vec<_> = plan
+        .diagnostics
+        .items
+        .iter()
+        .filter(|d| d.fix.is_some())
+        .collect();
+    let mut codes: Vec<&str> = with_fix.iter().map(|d| d.code.as_str()).collect();
+    codes.sort();
+    assert_eq!(
+        codes,
+        [
+            "DESIGN-101",
+            "DESIGN-102",
+            "DESIGN-103",
+            "DESIGN-107",
+            "DESIGN-109",
+            "DESIGN-109",
+            "DESIGN-110"
+        ],
+        "{codes:?}"
+    );
+    for d in with_fix {
+        let fix = d.fix.as_ref().unwrap();
+        let mut v: serde_json::Value = serde_json::from_str(&json).unwrap();
+        rewood_core::spec::apply_fix(&mut v, fix).unwrap();
+        let after = rewood_core::compile_json(&v.to_string());
+        let same = after
+            .diagnostics
+            .items
+            .iter()
+            .filter(|x| x.code == d.code && x.entity == d.entity && x.message == d.message)
+            .count();
+        assert_eq!(
+            same, 0,
+            "{} '{}' did not resolve: {:#?}",
+            d.code, fix.label, after.diagnostics
+        );
+    }
+}
+
+#[test]
+fn a_slide_that_does_not_fit_offers_the_longest_that_does() {
+    let json = cabinet(
+        r#", "depth": 400"#,
+        r#"}, { "type": "drawers", "id": "dr", "count": 2,
+              "joint": { "hardware": ["dowel_8x30"] }, "slide": { "hardware": ["slide_ball_450"] } }"#,
+    )
+    .replace(
+        r#""material": "melamine_18","#,
+        r#""material": "melamine_18", "libraries": { "hardware": [
+            { "id": "slide_ball_350", "name": "Corredera 350", "kind": "slide", "compatibleThickness": [12, 25],
+              "placement": { "endOffset": 0, "maxSpacing": 1000, "fixed": [0] },
+              "slide": { "length": 350, "sideClearance": 12.7, "axisFromBoxBottom": 22.5 }, "holes": [] },
+            { "id": "slide_ball_300", "name": "Corredera 300", "kind": "slide", "compatibleThickness": [12, 25],
+              "placement": { "endOffset": 0, "maxSpacing": 1000, "fixed": [0] },
+              "slide": { "length": 300, "sideClearance": 12.7, "axisFromBoxBottom": 22.5 }, "holes": [] }
+        ] },"#,
+    );
+    let plan = rewood_core::compile_json(&json);
+    let d = plan
+        .diagnostics
+        .items
+        .iter()
+        .find(|d| d.code == "SPEC-307")
+        .unwrap();
+    let fix = d.fix.as_ref().unwrap();
+    assert_eq!(fix.field, "slide.hardware");
+    assert_eq!(fix.value, serde_json::json!(["slide_ball_350"]));
+    let mut v: serde_json::Value = serde_json::from_str(&json).unwrap();
+    rewood_core::spec::apply_fix(&mut v, fix).unwrap();
+    let after = rewood_core::compile_json(&v.to_string());
+    assert!(!after.manufacturing_blocked, "{:#?}", after.diagnostics);
+}

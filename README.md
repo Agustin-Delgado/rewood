@@ -423,6 +423,15 @@ servidor no emite la orden (422) y la UI deshabilita la descarga. Un `ERROR`
 deja exportar y avisa; la UI pide confirmación antes de emitir una orden con
 errores.
 
+**Arreglos con un click.** Cuando el motor sabe qué cambio resuelve un
+hallazgo, el hallazgo trae `fix` (`{ label, component, field, value }`: un
+campo de un componente —o del mueble— puesto a un valor; `null` lo quita).
+`rewood_core::spec::apply_fix` lo aplica sobre el JSON de la spec y la UI lo
+muestra como botón ("Dividir en 2 bahías", "Agregar fondo HDF 3 mm", "Usar
+corredera 350", "Pegar 'm2' a 'm1'"). No es un solver: se aplica uno, se
+recompila y se leen los hallazgos nuevos (partir en bahías puede destapar que
+dos estantes enfrentados se cruzan en el divisor).
+
 En la UI cada tarjeta de componente muestra sus hallazgos (los propios y los
 de las piezas que generó) con un contador por gravedad; el 3D tiñe de rojo
 las piezas con errores y de ámbar las que tienen avisos; y tocar un hallazgo

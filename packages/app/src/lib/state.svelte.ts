@@ -7,6 +7,7 @@ import {
 	loadEngine,
 	type Diagnostic,
 	type Engine,
+	type Fix,
 	type FurnitureSpec,
 	type LibrariesSnapshot,
 	type ManufacturingPlan,
@@ -184,6 +185,12 @@ class AppState {
 		this.specError = null;
 		this.dirty = true;
 		this.recompile();
+	}
+
+	/** A finding's one-click fix: the engine edits the spec, then recompiles. */
+	applyFix(fix: Fix) {
+		if (!this.engine) return;
+		this.applySpec(this.engine.applyFix(this.spec, fix));
 	}
 
 	/** A spec proposed by the assistant: replaces what is on screen. */

@@ -147,7 +147,18 @@ pub fn check(ctx: &mut BuildCtx<'_>) {
                     )
                     .entity(b.id.clone())
                     .location(a.id.clone())
-                    .suggestion("Corré el 'origin.x' del segundo módulo al ancho del primero."),
+                    .suggestion("Corré el 'origin.x' del segundo módulo al ancho del primero.")
+                    .fix(
+                        format!(
+                            "Pegar '{}' a '{}' (origin.x = {})",
+                            b.id,
+                            a.id,
+                            mm(a.origin.0 + a.width)
+                        ),
+                        b.id.clone(),
+                        "origin.x",
+                        serde_json::json!(a.origin.0 + a.width),
+                    ),
                 );
             } else if gap > EPS && gap <= RUN_GAP_MAX {
                 out.push(
@@ -165,6 +176,12 @@ pub fn check(ctx: &mut BuildCtx<'_>) {
                     .location(a.id.clone())
                     .suggestion(
                         "Si van pegados, el 'origin.x' del segundo es el ancho acumulado de los anteriores.",
+                    )
+                    .fix(
+                        format!("Pegar '{}' a '{}' (origin.x = {})", b.id, a.id, mm(a.origin.0 + a.width)),
+                        b.id.clone(),
+                        "origin.x",
+                        serde_json::json!(a.origin.0 + a.width),
                     ),
                 );
             }

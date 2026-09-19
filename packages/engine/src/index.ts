@@ -5,7 +5,7 @@
  * not committed. Browser builds use `pkg-web/` from `pnpm build:wasm:web`.
  */
 import * as wasm from '../pkg/rewood.js';
-import type { FurnitureSpec, LibrariesSnapshot, ManufacturingPlan, PackageFile } from './types.js';
+import type { Fix, FurnitureSpec, LibrariesSnapshot, ManufacturingPlan, PackageFile } from './types.js';
 
 export * from './types.js';
 
@@ -22,6 +22,10 @@ export function compileJson(specJson: string): ManufacturingPlan {
 /** The manufacturing package (DXF per part, CSVs, plan, manifest) as in-memory files. */
 export function packageFiles(spec: FurnitureSpec): PackageFile[] {
   return JSON.parse(wasm.package_files(JSON.stringify(spec))) as PackageFile[];
+}
+
+export function applyFix(spec: FurnitureSpec, fix: Fix): FurnitureSpec {
+  return JSON.parse(wasm.apply_fix(JSON.stringify(spec), JSON.stringify(fix))) as FurnitureSpec;
 }
 
 export function libraries(): LibrariesSnapshot {

@@ -62,12 +62,17 @@
 				<p class="muted">Sin hallazgos.</p>
 			{/if}
 			{#each diags as d, i (i)}
-				<button class="diag {d.severity}" onclick={() => selectEntity(d)}>
-					<b>{d.severity} {d.code}</b>
-					<span class="mono">{d.entity ?? ''}</span>
-					<span>{d.message}</span>
-					{#if d.suggestion}<i>{d.suggestion}</i>{/if}
-				</button>
+				<div class="diag {d.severity}">
+					<button class="text" onclick={() => selectEntity(d)}>
+						<b>{d.severity} {d.code}</b>
+						<span class="mono">{d.entity ?? ''}</span>
+						<span>{d.message}</span>
+						{#if d.suggestion}<i>{d.suggestion}</i>{/if}
+					</button>
+					{#if d.fix}
+						<button class="fix" title="Aplica el cambio a la spec y recompila" onclick={() => app.applyFix(d.fix!)}>{d.fix.label}</button>
+					{/if}
+				</div>
 			{/each}
 		{:else if tab === 'cut' && app.plan}
 			<table>
@@ -271,19 +276,45 @@
 		padding: 6px;
 	}
 	.diag {
-		display: grid;
-		grid-template-columns: 110px 60px 1fr;
+		display: flex;
+		align-items: flex-start;
 		gap: 8px;
-		width: 100%;
-		text-align: left;
-		border: none;
 		border-left: 4px solid #999;
 		background: #f6f6f6;
 		padding: 3px 8px;
 		margin: 2px 0;
+	}
+	.diag .text {
+		flex: 1 1 auto;
+		width: 100%;
+		min-width: 0;
+		display: grid;
+		grid-template-columns: 110px 60px 1fr;
+		gap: 8px;
+		text-align: left;
+		border: none;
+		background: none;
+		padding: 0;
 		font: inherit;
 		cursor: pointer;
 	}
+	.diag .fix {
+		flex: none;
+		font: inherit;
+		font-size: 12px;
+		padding: 1px 8px;
+		border: 1px solid #2a7;
+		border-radius: 3px;
+		background: #fff;
+		color: #2a7;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.diag .fix:hover {
+		background: #2a7;
+		color: #fff;
+	}
+
 	.diag i {
 		grid-column: 3;
 		color: #555;

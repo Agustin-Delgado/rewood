@@ -100,6 +100,11 @@ impl MaterialLibrary {
         self.materials.get(id)
     }
 
+    /// Edge materials, by id (sorted).
+    pub fn edges(&self) -> impl Iterator<Item = &EdgeMaterial> {
+        self.edge_materials.values()
+    }
+
     pub fn edge(&self, id: &str) -> Option<&EdgeMaterial> {
         self.edge_materials.get(id)
     }

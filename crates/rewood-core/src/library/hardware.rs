@@ -219,6 +219,11 @@ impl HardwareLibrary {
         self.items.get(id)
     }
 
+    /// Every item, by id (sorted).
+    pub fn iter(&self) -> impl Iterator<Item = &HardwareDef> {
+        self.items.values()
+    }
+
     pub fn upsert(&mut self, h: HardwareDef) {
         self.items.insert(h.id.clone(), h);
     }

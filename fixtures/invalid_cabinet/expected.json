@@ -2303,7 +2303,13 @@
         "severity": "WARNING",
         "entity": "carcass",
         "message": "tapa y base de 'carcass': 2964 mm de luz en Melamina 18 mm, que aguanta 900 sin pandear",
-        "suggestion": "Partí el ancho con un divisor (bays: 2) o usá una placa más gruesa."
+        "suggestion": "Partí el ancho con un divisor (bays: 2) o usá una placa más gruesa.",
+        "fix": {
+          "label": "Dividir en 2 bahías",
+          "component": "carcass",
+          "field": "bays",
+          "value": 2
+        }
       },
       {
         "code": "DESIGN-101",
@@ -2318,7 +2324,15 @@
         "severity": "WARNING",
         "entity": "carcass",
         "message": "la carcasa 'carcass' no tiene fondo: sin él no queda a escuadra y se deforma al cargarla",
-        "suggestion": "Agregá back: { material: \"hdf_3\" }, salvo que otra cosa la arriostre."
+        "suggestion": "Agregá back: { material: \"hdf_3\" }, salvo que otra cosa la arriostre.",
+        "fix": {
+          "label": "Agregar fondo HDF 3 mm",
+          "component": "carcass",
+          "field": "back",
+          "value": {
+            "material": "hdf_3"
+          }
+        }
       }
     ]
   }

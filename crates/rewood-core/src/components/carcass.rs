@@ -90,7 +90,13 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 ),
             )
             .entity(id)
-            .suggestion("Agregá back: { material: \"hdf_3\" }, salvo que otra cosa la arriostre."),
+            .suggestion("Agregá back: { material: \"hdf_3\" }, salvo que otra cosa la arriostre.")
+            .fix(
+                "Agregar fondo HDF 3 mm",
+                id,
+                "back",
+                serde_json::json!({ "material": "hdf_3" }),
+            ),
         );
     }
 
@@ -180,7 +186,13 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                     ),
                 )
                 .entity(id)
-                .suggestion("Partí el ancho con un divisor (bays: 2) o usá una placa más gruesa."),
+                .suggestion("Partí el ancho con un divisor (bays: 2) o usá una placa más gruesa.")
+                .fix(
+                    format!("Dividir en {} bahías", bay_count + 1),
+                    id,
+                    "bays",
+                    serde_json::json!(bay_count + 1),
+                ),
             );
         }
     }

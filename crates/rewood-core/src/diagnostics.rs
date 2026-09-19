@@ -30,6 +30,28 @@ pub struct Diagnostic {
     pub message: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub suggestion: Option<String>,
+    /// A concrete change to the spec that resolves the finding, when the
+    /// engine can name one. Applied with [`crate::spec::apply_fix`].
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub fix: Option<Fix>,
+}
+
+/// One field of one component (or of the furniture root) set to a value.
+/// Small on purpose: a fix is a suggestion the operator applies with one
+/// click and then reads the new findings, not a solver.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Fix {
+    /// Button text, Spanish: "Dividir en 2 bahías".
+    pub label: String,
+    /// Component id the field belongs to; empty = the furniture root.
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub component: String,
+    /// Dotted path inside the component: `bays`, `origin.x`,
+    /// `handle.fromEdge`, `slide.hardware`.
+    pub field: String,
+    /// New value; `null` removes the field.
+    pub value: serde_json::Value,
 }
 
 impl Diagnostic {
@@ -41,6 +63,7 @@ impl Diagnostic {
             location: None,
             message: message.into(),
             suggestion: None,
+            fix: None,
         }
     }
 
@@ -56,6 +79,30 @@ impl Diagnostic {
 
     pub fn suggestion(mut self, s: impl Into<String>) -> Diagnostic {
         self.suggestion = Some(s.into());
+        self
+    }
+
+    /// A fix the caller may or may not have found.
+    pub fn fix_opt(self, fix: Option<(String, String, String, serde_json::Value)>) -> Diagnostic {
+        match fix {
+            Some((label, component, field, value)) => self.fix(label, component, field, value),
+            None => self,
+        }
+    }
+
+    pub fn fix(
+        mut self,
+        label: impl Into<String>,
+        component: impl Into<String>,
+        field: impl Into<String>,
+        value: serde_json::Value,
+    ) -> Diagnostic {
+        self.fix = Some(Fix {
+            label: label.into(),
+            component: component.into(),
+            field: field.into(),
+            value,
+        });
         self
     }
 }

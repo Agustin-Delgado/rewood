@@ -432,6 +432,19 @@ export interface Diagnostic {
   location?: string;
   message: string;
   suggestion?: string;
+  /** A one-click change to the spec that resolves the finding. */
+  fix?: Fix;
+}
+
+export interface Fix {
+  /** Button text. */
+  label: string;
+  /** Component id; absent = the furniture root. */
+  component?: string;
+  /** Dotted path inside the component: `bays`, `origin.x`, `handle.fromEdge`. */
+  field: string;
+  /** New value; `null` removes the field. */
+  value: unknown;
 }
 
 export interface PartListRow {

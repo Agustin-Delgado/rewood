@@ -98,6 +98,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             .entity(id)
         })?;
 
+    let front_height_spec = front_height.as_ref();
     let front_height = match front_height {
         Some(v) => ctx.eval(id, "frontHeight", v)?,
         None => (zone_height - gap * (count as f64 + 1.0)) / count as f64,
@@ -148,7 +149,31 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             ),
         )
         .entity(id)
-        .suggestion("Elegí una corredera más corta o una carcasa más profunda."));
+        .suggestion("Elegí una corredera más corta o una carcasa más profunda.")
+        .fix_opt(
+            // The longest slide in the library that fits, if any.
+            ctx.libs
+                .hardware
+                .iter()
+                .filter(|h| h.kind == "slide")
+                .filter(|h| h.slide.as_ref().is_some_and(|s| s.length + 10.0 <= available_depth))
+                .max_by(|a, b| {
+                    a.slide
+                        .as_ref()
+                        .unwrap()
+                        .length
+                        .partial_cmp(&b.slide.as_ref().unwrap().length)
+                        .unwrap()
+                })
+                .map(|h| {
+                    (
+                        format!("Usar {}", h.name),
+                        id.to_string(),
+                        "slide.hardware".to_string(),
+                        serde_json::json!([h.id]),
+                    )
+                }),
+        ));
     }
     let inner_length = box_outer_width - 2.0 * tb;
     if inner_length <= 0.0 {
@@ -196,7 +221,15 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 ),
             )
             .entity(id)
-            .suggestion("Menos cajones, o una zona más alta."),
+            .suggestion("Menos cajones, o una zona más alta.")
+            .fix_opt((count > 1 && front_height_spec.is_none()).then(|| {
+                (
+                    format!("{} cajones", count - 1),
+                    id.to_string(),
+                    "count".to_string(),
+                    serde_json::json!(count - 1),
+                )
+            })),
         );
     }
     let slide_room = 2.0 * slide_def.axis_from_box_bottom + 15.0;
@@ -227,7 +260,13 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 ),
             )
             .entity(id)
-            .suggestion("Partí la carcasa en bahías."),
+            .suggestion("Partí la carcasa en bahías.")
+            .fix(
+                "Carcasa en 2 bahías",
+                carcass.id.clone(),
+                "bays",
+                serde_json::json!(2),
+            ),
         );
     }
     if gap < 1.5 {
@@ -241,7 +280,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 ),
             )
             .entity(id)
-            .suggestion("Usá 2–3 mm de luz."),
+            .suggestion("Usá 2–3 mm de luz.")
+            .fix("Luz de 2 mm", id, "gap", serde_json::json!(2)),
         );
     }
     if *edges == EdgeBanding::None {
@@ -252,7 +292,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 format!("'{id}': frentes sin canto; los bordes de placa quedan a la vista"),
             )
             .entity(id)
-            .suggestion("Sacá 'edges: none' o dejá 'all'."),
+            .suggestion("Sacá 'edges: none' o dejá 'all'.")
+            .fix("Cantear los frentes", id, "edges", serde_json::Value::Null),
         );
     }
 

@@ -428,3 +428,47 @@ impl FurnitureSpec {
         serde_json::from_str(json)
     }
 }
+
+/// Apply a [`Fix`](crate::diagnostics::Fix) to a spec as JSON: find the
+/// component by id (or take the root), walk the dotted path creating
+/// objects on the way, set the value (`null` removes the key). Works on
+/// the JSON and not on `FurnitureSpec` so the UI's own document, with its
+/// key order, is what changes.
+pub fn apply_fix(
+    spec: &mut serde_json::Value,
+    fix: &crate::diagnostics::Fix,
+) -> Result<(), String> {
+    let target = if fix.component.is_empty() {
+        spec
+    } else {
+        spec.get_mut("components")
+            .and_then(|c| c.as_array_mut())
+            .and_then(|list| {
+                list.iter_mut()
+                    .find(|c| c.get("id").and_then(|v| v.as_str()) == Some(&fix.component))
+            })
+            .ok_or_else(|| format!("no hay un componente '{}'", fix.component))?
+    };
+    let mut keys: Vec<&str> = fix.field.split('.').collect();
+    let last = keys.pop().ok_or("campo vacío")?;
+    let mut node = target;
+    for k in keys {
+        if !node.is_object() {
+            return Err(format!("'{k}' no es un objeto"));
+        }
+        node = node
+            .as_object_mut()
+            .unwrap()
+            .entry(k)
+            .or_insert_with(|| serde_json::json!({}));
+    }
+    let obj = node
+        .as_object_mut()
+        .ok_or_else(|| format!("'{}' no es un objeto", fix.field))?;
+    if fix.value.is_null() {
+        obj.remove(last);
+    } else {
+        obj.insert(last.to_string(), fix.value.clone());
+    }
+    Ok(())
+}

@@ -143,7 +143,20 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
                 Severity::Info,
                 "el mueble no tiene material de canto: todos los bordes de placa quedan a la vista",
             )
-            .suggestion("Declará edgeMaterial (por ejemplo abs_1mm)."),
+            .suggestion("Declará edgeMaterial (por ejemplo abs_1mm).")
+            .fix_opt(
+                libs.materials
+                    .edge("abs_1mm")
+                    .or_else(|| libs.materials.edges().next())
+                    .map(|e| {
+                        (
+                            format!("Cantear con {}", e.name),
+                            String::new(),
+                            "edgeMaterial".to_string(),
+                            serde_json::json!(e.id),
+                        )
+                    }),
+            ),
         );
     }
 

@@ -23,6 +23,20 @@ pub fn package_files(spec_json: &str) -> String {
     serde_json::to_string(&files).expect("files serialise")
 }
 
+/// Apply a diagnostic's `fix` to a spec (both JSON); returns the new spec,
+/// or the same spec when the fix does not apply.
+#[wasm_bindgen]
+pub fn apply_fix(spec_json: &str, fix_json: &str) -> String {
+    let mut spec: serde_json::Value = match serde_json::from_str(spec_json) {
+        Ok(v) => v,
+        Err(_) => return spec_json.to_string(),
+    };
+    if let Ok(fix) = serde_json::from_str::<rewood_core::diagnostics::Fix>(fix_json) {
+        let _ = rewood_core::spec::apply_fix(&mut spec, &fix);
+    }
+    serde_json::to_string(&spec).expect("spec serialises")
+}
+
 #[wasm_bindgen]
 pub fn engine_version() -> String {
     rewood_core::ENGINE_VERSION.to_string()

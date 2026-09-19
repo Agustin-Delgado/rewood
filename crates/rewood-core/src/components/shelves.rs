@@ -163,7 +163,15 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                     ),
                 )
                 .entity(id)
-                .suggestion("Menos estantes, o una zona más alta."),
+                .suggestion("Menos estantes, o una zona más alta.")
+                .fix_opt((!fixed && heights.len() > 1).then(|| {
+                    (
+                        format!("{} estantes", heights.len() - 1),
+                        id.to_string(),
+                        "count".to_string(),
+                        serde_json::json!(heights.len() - 1),
+                    )
+                })),
             );
         }
     }

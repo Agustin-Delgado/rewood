@@ -98,7 +98,22 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 ),
             )
             .entity(id)
-            .suggestion("Poné dos puertas por bahía, o más bahías."),
+            .suggestion("Poné dos puertas por bahía, o más bahías.")
+            .fix_opt(if count == 1 {
+                Some((
+                    "Dos puertas por bahía".to_string(),
+                    id.to_string(),
+                    "count".to_string(),
+                    serde_json::json!(2),
+                ))
+            } else {
+                Some((
+                    format!("Carcasa en {} bahías", carcass.bays.len() + 1),
+                    carcass.id.clone(),
+                    "bays".to_string(),
+                    serde_json::json!(carcass.bays.len() + 1),
+                ))
+            }),
         );
     } else if door_width < 200.0 {
         ctx.warn(
@@ -111,7 +126,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 ),
             )
             .entity(id)
-            .suggestion("Una puerta por bahía, o una bahía más ancha."),
+            .suggestion("Una puerta por bahía, o una bahía más ancha.")
+            .fix("Una puerta por bahía", id, "count", serde_json::json!(1)),
         );
     }
     if gap < 1.5 {
@@ -125,7 +141,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 ),
             )
             .entity(id)
-            .suggestion("Usá 2–3 mm de luz."),
+            .suggestion("Usá 2–3 mm de luz.")
+            .fix("Luz de 2 mm", id, "gap", serde_json::json!(2)),
         );
     }
     if let Some(handle) = handle {
@@ -142,7 +159,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                     ),
                 )
                 .entity(id)
-                .suggestion("Bajá 'handle.fromEdge' (40–60 mm es lo usual)."),
+                .suggestion("Bajá 'handle.fromEdge' (40–60 mm es lo usual).")
+                .fix("Manija a 40 mm del borde", id, "handle.fromEdge", serde_json::json!(40)),
             );
         }
     }
@@ -154,7 +172,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 format!("'{id}': puertas sin canto; los bordes de placa quedan a la vista"),
             )
             .entity(id)
-            .suggestion("Sacá 'edges: none' o dejá 'all'."),
+            .suggestion("Sacá 'edges: none' o dejá 'all'.")
+            .fix("Cantear las puertas", id, "edges", serde_json::Value::Null),
         );
     }
 

@@ -313,6 +313,7 @@
 					<div class="finding {d.severity}">
 						<b>{d.severity} {d.code}</b> {d.message}
 						{#if d.suggestion}<i>{d.suggestion}</i>{/if}
+						{#if d.fix}<button class="fix" onclick={() => app.applyFix(d.fix!)}>{d.fix.label}</button>{/if}
 					</div>
 				{/each}
 			{/if}
@@ -400,6 +401,18 @@
 		display: block;
 		color: #666;
 		font-style: normal;
+	}
+	.finding .fix {
+		display: inline-block;
+		margin-top: 2px;
+		font: inherit;
+		font-size: 11px;
+		padding: 0 6px;
+		border: 1px solid #2a7;
+		border-radius: 3px;
+		background: #fff;
+		color: #2a7;
+		cursor: pointer;
 	}
 	.head .badge {
 		border-radius: 8px;
