@@ -14,16 +14,18 @@ use crate::diagnostics::{Diagnostic, Severity};
 use crate::geometry::{Axis, Placement, Vec3};
 use crate::model::Grain;
 use crate::rules::mm;
-use crate::spec::{ComponentSpec, EdgeBanding};
+use crate::spec::{ComponentSpec, EdgeBanding, FrontMount};
 
 pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnostic> {
     let ComponentSpec::Doors {
         id,
         carcass,
         bay,
+        span,
         zone,
         count,
         gap,
+        mount,
         material,
         hinge,
         handle,
@@ -36,9 +38,57 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
 
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
     let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
+    let bays = ctx.span_bays(id, &carcass, bays, span.as_ref())?;
     let spec_zone = zone.as_ref();
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
-    ctx.occupy(id, OccupancyKind::Doors, &carcass, &bays, zone);
+    // An inset door lives inside the opening: between the top and bottom
+    // panels, not over them.
+    let zone = match mount {
+        FrontMount::Overlay => zone,
+        FrontMount::Inset => super::Zone {
+            z0: zone.z0.max(carcass.thickness),
+            z1: zone.z1.min(carcass.height - carcass.thickness),
+        },
+    };
+    if *mount == FrontMount::Inset && bays.iter().any(|b| b.spans > 1) {
+        return Err(Diagnostic::new(
+            "SPEC-317",
+            Severity::Fatal,
+            format!("'{id}': una puerta embutida no puede cubrir varias bahías; el divisor queda en su plano"),
+        )
+        .entity(id)
+        .suggestion("Usá 'mount: overlay' para el juego que cruza bahías, o una puerta por bahía."));
+    }
+    // Needed below for the front plane; the material decides the thickness.
+    let material_id = ctx.material_or_default(id, material.as_ref())?.to_string();
+    let t_front = ctx.thickness_of(&material_id);
+    let front_y = match mount {
+        FrontMount::Overlay => (carcass.depth, carcass.depth + t_front),
+        FrontMount::Inset => (carcass.depth - t_front, carcass.depth),
+    };
+    for b in &bays {
+        let covered: Vec<super::Bay> = carcass
+            .bays
+            .iter()
+            .filter(|cb| cb.index >= b.index && cb.index < b.index + b.spans)
+            .cloned()
+            .collect();
+        ctx.occupy_front(
+            id,
+            OccupancyKind::Doors,
+            &carcass,
+            &covered,
+            zone,
+            Some(front_y),
+        );
+    }
+    // The hinge has to match the mount: with the default hinge on an inset
+    // door, the library's inset hinge takes its place.
+    let hinge = match hinge {
+        None => None,
+        Some(h) => Some(ctx.hinge_for_mount(id, h, *mount)?),
+    };
+    let hinge = hinge.as_ref();
     if let Some(z) = spec_zone {
         ctx.note_literals(id, &[("zone.from", &z.from), ("zone.to", &z.to)]);
     }
@@ -68,9 +118,16 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let t = ctx.thickness_of(&material);
 
     let door_height = (zone.z1 - zone.z0) - 2.0 * gap;
+    let cover = |b: &super::Bay| match mount {
+        FrontMount::Overlay => (b.cover_x0, b.cover_x1),
+        FrontMount::Inset => (b.x0, b.x1),
+    };
     let min_span = bays
         .iter()
-        .map(|b| b.cover_x1 - b.cover_x0)
+        .map(|b| {
+            let (a, z) = cover(b);
+            z - a
+        })
         .fold(f64::INFINITY, f64::min);
     let door_width = (min_span - gap * (count as f64 + 1.0)) / count as f64;
     if door_width <= 0.0 || door_height <= 0.0 {
@@ -180,12 +237,20 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let all_edges = super::banded_axes(*edges, &[Axis::PosX, Axis::NegX, Axis::PosZ, Axis::NegZ]);
     let many = bays.len() > 1;
     let mut n = 0;
+    // Overlay: the door's back is on the carcass front (y = depth) and the
+    // panel stands in front of it. Inset: its front is flush with the
+    // carcass front and the panel sits inside.
+    let y_origin = match mount {
+        FrontMount::Overlay => carcass.depth + t,
+        FrontMount::Inset => carcass.depth,
+    };
     for bay in &bays {
-        let span = bay.cover_x1 - bay.cover_x0;
+        let (c0, c1) = cover(bay);
+        let span = c1 - c0;
         let width = (span - gap * (count as f64 + 1.0)) / count as f64;
         for i in 0..count {
             n += 1;
-            let x_left = bay.cover_x0 + gap + i as f64 * (width + gap);
+            let x_left = c0 + gap + i as f64 * (width + gap);
             let (name, role) = if many {
                 (
                     format!("Puerta {n} bahía {}", bay.index),
@@ -204,7 +269,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 grain: Grain::Length,
                 // Local X up, local Y towards -X, so local +Z = -Y (faces the carcass).
                 placement: Placement::new(
-                    Vec3(x_left + width, carcass.depth + t, zone.z0 + gap),
+                    Vec3(x_left + width, y_origin, zone.z0 + gap),
                     Axis::PosZ,
                     Axis::NegX,
                 ),

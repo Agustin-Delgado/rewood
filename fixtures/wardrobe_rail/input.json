@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0",
+  "id": "wardrobe_rail",
+  "name": "Placard 1200×2100 con barral, cajones interiores y puerta embutida",
+  "parameters": {
+    "width": 1200,
+    "height": 2100,
+    "depth": 560,
+    "drawer_zone_top": 500,
+    "door_gap": 2
+  },
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "bays": 2,
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
+    },
+    { "type": "rail", "id": "rail", "bay": 1 },
+    {
+      "type": "drawers",
+      "id": "drawers",
+      "bay": 1,
+      "zone": { "from": 0, "to": "drawer_zone_top" },
+      "count": 2,
+      "mount": "inset",
+      "setback": "carcass.thickness + door_gap",
+      "joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 40, "maxSpacing": 150 } },
+      "slide": { "hardware": ["slide_ball_450"] },
+      "handle": { "hardware": ["handle_bar_128"] }
+    },
+    {
+      "type": "shelves",
+      "id": "shelves",
+      "bay": 2,
+      "count": 4,
+      "joint": { "hardware": ["dowel_8x30"] }
+    },
+    {
+      "type": "doors",
+      "id": "door_left",
+      "bay": 1,
+      "count": 1,
+      "gap": "door_gap",
+      "mount": "inset",
+      "handle": { "hardware": ["handle_bar_128"] }
+    },
+    {
+      "type": "doors",
+      "id": "door_right",
+      "bay": 2,
+      "count": 1,
+      "gap": "door_gap",
+      "handle": { "hardware": ["handle_bar_128"] }
+    }
+  ],
+  "constraints": [
+    { "id": "hang", "expr": "rail.hang >= 1500", "severity": "WARNING", "message": "Bajo el barral tiene que entrar un tapado (1500 mm)" }
+  ]
+}

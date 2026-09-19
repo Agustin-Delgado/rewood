@@ -467,6 +467,7 @@ pub fn bom(
     nesting: &[crate::nesting::SheetLayout],
     machining_seconds: f64,
     libs: &Libraries,
+    extra: &[crate::components::ExtraBom],
 ) -> Bom {
     let mut sheets: BTreeMap<String, SheetLine> = BTreeMap::new();
     let mut total_weight = 0.0;
@@ -521,7 +522,7 @@ pub fn bom(
             *hardware.entry(f.hardware.clone()).or_default() += 1;
         }
     }
-    let hardware: Vec<HardwareLine> = hardware
+    let mut hardware: Vec<HardwareLine> = hardware
         .into_iter()
         .map(|(id, quantity)| {
             let def = libs.hardware.get(&id);
@@ -549,6 +550,40 @@ pub fn bom(
             }
         })
         .collect();
+    // Bars by the metre: one line per hardware id, metres summed.
+    let mut by_metre: BTreeMap<String, (usize, f64)> = BTreeMap::new();
+    for e in extra {
+        let entry = by_metre.entry(e.hardware.clone()).or_default();
+        entry.0 += e.quantity;
+        entry.1 += e.metres;
+    }
+    for (id, (quantity, metres)) in by_metre {
+        let def = libs.hardware.get(&id);
+        let metres = crate::units::round3(metres);
+        let items: Vec<BomItemLine> = def
+            .map(|d| {
+                d.bom_items
+                    .iter()
+                    .map(|i| BomItemLine {
+                        name: i.name.clone(),
+                        quantity: crate::units::round3(i.quantity * metres),
+                        cost: crate::units::round3(i.quantity * metres * i.unit_price),
+                    })
+                    .collect()
+            })
+            .unwrap_or_default();
+        if def.is_some_and(|d| d.bom_items.iter().any(|i| i.unit_price == 0.0)) {
+            unpriced.push(id.clone());
+        }
+        hardware.push(HardwareLine {
+            name: def.map(|d| d.name.clone()).unwrap_or_else(|| id.clone()),
+            cost: items.iter().map(|i| i.cost).sum(),
+            items,
+            hardware: id,
+            quantity,
+        });
+    }
+    hardware.sort_by(|a, b| a.hardware.cmp(&b.hardware));
 
     let mut consumables: BTreeMap<String, f64> = BTreeMap::new();
     for part in parts {

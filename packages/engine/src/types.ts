@@ -119,6 +119,10 @@ export interface ShelvesSpec {
 export interface DoorsSpec {
   type: 'doors';
   id: string;
+  /** Consecutive bays one door set covers, from `bay`; default 1. */
+  span?: NumOrExpr;
+  /** `inset`: inside the opening, with an inset hinge. Default overlay. */
+  mount?: FrontMount;
   carcass?: string;
   bay?: NumOrExpr;
   zone?: ZoneSpec;
@@ -134,6 +138,10 @@ export interface DoorsSpec {
 export interface DrawersSpec {
   type: 'drawers';
   id: string;
+  /** `inset` = inner drawer (behind a door). Default overlay. */
+  mount?: FrontMount;
+  /** Inner drawers: fronts set back from the carcass front. */
+  setback?: NumOrExpr;
   carcass?: string;
   bay?: NumOrExpr;
   zone?: ZoneSpec;
@@ -155,7 +163,7 @@ export interface DrawersSpec {
   edges?: EdgeBanding;
 }
 
-export type ComponentSpec = CarcassSpec | ShelvesSpec | DoorsSpec | DrawersSpec;
+export type ComponentSpec = CarcassSpec | ShelvesSpec | DoorsSpec | DrawersSpec | RailSpec;
 
 export interface ConstraintSpec {
   id: string;
@@ -216,6 +224,8 @@ export interface HardwareDef {
   supplier?: string;
   /** What one unit carries, kg (hinge: its share of the door; slide pair: the loaded drawer). */
   maxLoadKg?: number;
+  /** Hinges: which door mount the arm is made for. */
+  hinge?: { mount: FrontMount };
   id: string;
   name: string;
   kind: string;
@@ -414,7 +424,7 @@ export interface Fastener {
 
 export interface Joint {
   id: string;
-  kind: 'butt' | 'hinge' | 'slide' | 'face_to_face' | 'handle';
+  kind: 'butt' | 'hinge' | 'slide' | 'face_to_face' | 'handle' | 'fixture';
   component: string;
   edgePart: string;
   facePart: string;
@@ -423,6 +433,22 @@ export interface Joint {
   axis: Axis;
   length: number;
   fasteners: Fastener[];
+}
+
+export type FrontMount = 'overlay' | 'inset';
+
+export interface RailSpec {
+  type: 'rail';
+  id: string;
+  carcass?: string;
+  bay?: NumOrExpr;
+  zone?: ZoneSpec;
+  /** Rail centre below the top of its zone; default 60. */
+  fromTop?: NumOrExpr;
+  /** The bar (kind `rail`); default `["rail_oval_30"]`. */
+  hardware?: string[];
+  /** End supports; default `["rail_support_oval"]`. */
+  supports?: string[];
 }
 
 export interface Diagnostic {

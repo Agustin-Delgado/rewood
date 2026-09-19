@@ -73,6 +73,46 @@ pub fn check(ctx: &mut BuildCtx<'_>) {
                     }
                 }
             }
+            // Inner drawers behind an inset door share its plane unless
+            // they are set back: the door would hit the fronts.
+            for a in here.iter().filter(|o| o.kind == OccupancyKind::Doors) {
+                let Some((dy0, _)) = a.front_y else {
+                    continue;
+                };
+                for b in here
+                    .iter()
+                    .filter(|o| o.kind == OccupancyKind::InnerDrawers)
+                {
+                    let Some((_, by1)) = b.front_y else {
+                        continue;
+                    };
+                    let overlap = a.zone.z1.min(b.zone.z1) - a.zone.z0.max(b.zone.z0);
+                    if overlap > EPS && by1 > dy0 + EPS {
+                        out.push(
+                            Diagnostic::new(
+                                "SPEC-214",
+                                Severity::Error,
+                                format!(
+                                    "los cajones interiores de '{}' llegan hasta {} mm de profundidad y la puerta embutida de '{}' empieza en {}: se tocan en {bay_label}",
+                                    b.component,
+                                    mm(by1),
+                                    a.component,
+                                    mm(dy0)
+                                ),
+                            )
+                            .entity(b.component.clone())
+                            .location(a.component.clone())
+                            .suggestion("Retranqueá los cajones interiores ('setback') al menos el espesor de la puerta más la luz.")
+                            .fix(
+                                format!("Retranquear {} mm", mm((by1 - dy0 + 2.0).ceil())),
+                                b.component.clone(),
+                                "setback",
+                                serde_json::json!((by1 - dy0 + 2.0).ceil()),
+                            ),
+                        );
+                    }
+                }
+            }
             // A bay with fronts that do not reach all of its height.
             let mut fronts: Vec<(f64, f64)> = here
                 .iter()
@@ -201,10 +241,14 @@ impl OccupancyKind {
         match self {
             OccupancyKind::Doors => "las puertas",
             OccupancyKind::Drawers => "los cajones",
+            OccupancyKind::InnerDrawers => "los cajones interiores",
             OccupancyKind::Shelves => "los estantes",
+            OccupancyKind::Rail => "el barral (y lo colgado)",
         }
     }
 
+    /// What closes the bay from the front. Inner drawers sit behind a
+    /// door, so they do not count.
     pub fn is_front(self) -> bool {
         matches!(self, OccupancyKind::Doors | OccupancyKind::Drawers)
     }
@@ -214,11 +258,14 @@ impl OccupancyKind {
     /// panels really meet, the collision rule says so). Drawers against
     /// anything, and fronts against fronts, collide.
     pub fn clashes_with(self, other: OccupancyKind) -> bool {
-        matches!(
-            (self, other),
-            (OccupancyKind::Drawers, _)
-                | (_, OccupancyKind::Drawers)
-                | (OccupancyKind::Doors, OccupancyKind::Doors)
-        )
+        use OccupancyKind::*;
+        match (self, other) {
+            (Doors, Doors) | (Doors, Drawers) | (Drawers, Doors) => true,
+            // Doors close over shelves, inner drawers and rails.
+            (Doors, _) | (_, Doors) => false,
+            (Shelves, Shelves) => false,
+            // Drawers, inner drawers and rails take the height they cover.
+            _ => true,
+        }
     }
 }

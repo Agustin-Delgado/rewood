@@ -138,6 +138,9 @@ pub struct HardwareDef {
     /// Legs only: how tall they stand (the plinth is that tall too).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub leg: Option<LegSpec>,
+    /// Hinges only: which door mount the arm is made for.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hinge: Option<HingeSpec>,
     /// What one unit carries, kg: a hinge its share of the door, a slide
     /// (per pair) the drawer with its contents, a leg its share of the
     /// furniture. `None` = the library does not say, no check.
@@ -163,6 +166,13 @@ pub struct SlideSpec {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct HingeSpec {
+    /// `overlay` or `inset`, matching `FrontMount`.
+    pub mount: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct LegSpec {
     pub height: f64,
     /// Base plate diameter, for the edge-distance check and the drawing.
@@ -178,10 +188,12 @@ impl HardwareDef {
             JointKind::Hinge { .. } => self.kind == "hinge",
             JointKind::Slide => self.kind == "slide",
             JointKind::Handle { .. } => self.kind == "handle",
-            JointKind::Fixture { .. } => matches!(self.kind.as_str(), "leg" | "clip"),
+            JointKind::Fixture { .. } => {
+                matches!(self.kind.as_str(), "leg" | "clip" | "rail_support")
+            }
             JointKind::Butt | JointKind::FaceToFace => !matches!(
                 self.kind.as_str(),
-                "hinge" | "slide" | "handle" | "leg" | "clip"
+                "hinge" | "slide" | "handle" | "leg" | "clip" | "rail_support" | "rail"
             ),
         }
     }

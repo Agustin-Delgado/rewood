@@ -276,13 +276,38 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   a la izquierda. Una puerta que apoya sobre un divisor lo superpone a medias:
   el herraje correcto ahí es una bisagra de media superposición, y elegirlo es
   cosa del `hinge.hardware` de ese componente. `handle` agrega un tirador
-  vertical a `fromEdge` del canto de apertura.
+  vertical a `fromEdge` del canto de apertura. `span: 2` hace que el juego
+  cubra dos bahías consecutivas desde `bay` (una puerta ancha sobre dos
+  bahías angostas; las puertas cuelgan de los paneles exteriores y el
+  divisor queda atrás; `SPEC-204` si no hay tantas bahías). `mount: inset`
+  la **embute**: queda dentro del hueco, a ras del frente de la carcasa,
+  entre tapa y base; la bisagra por defecto se cambia sola por
+  `hinge_35_inset` (una elegida a mano de otro montaje es `SPEC-314`), y
+  una embutida no puede cruzar bahías porque el divisor queda en su plano
+  (`SPEC-317`).
 - Cajones: apilados desde el piso de su zona; el frente superpuesto, la caja
   (dos laterales, frente interior, trasera, fondo ranurado) y las correderas.
   La corredera define la profundidad de la caja (`slide.length`) y la holgura
   lateral (`slide.sideClearance`). `frontFixing` (por defecto
   `screw_4x30_face`) atornilla el frente desde adentro de la caja en una
   grilla de columnas × 2 filas; `handle` centra un tirador horizontal.
+  `mount: inset` los hace **cajones interiores**: el frente va dentro del
+  hueco (entre los paneles, con la luz) y una puerta puede cerrar sobre la
+  pila; `setback` los retranquea del frente de la carcasa —hace falta el
+  espesor de la puerta más la luz cuando la puerta es embutida, y si no se
+  pone el motor lo dice con `SPEC-214` y ofrece el valor—.
+- Barral: `{ "type": "rail", "bay": 1, "fromTop": 60 }` cuelga un barral a
+  `fromTop` bajo la tapa, centrado en la profundidad útil: dos soportes
+  (`supports`, por defecto `rail_support_oval`, uniones `fixture` sobre las
+  caras interiores de los paneles de la bahía) y la barra (`hardware`,
+  `rail_oval_30`) que va a la BOM por metro (`0.573 m`), sin pieza. Publica
+  `rail.height`, `rail.length` y `rail.hang` (altura libre debajo). Lo
+  colgado ocupa 1500 mm bajo el barral: estantes o cajones ahí son
+  `SPEC-210`; menos de 900 de altura libre es `DESIGN-114`. `SPEC-315` si
+  no queda altura, `SPEC-316` si el herraje no es un barral. El 3D lo
+  dibuja como barra entre sus dos soportes y el manual lo coloca al final.
+  `fixtures/wardrobe_rail` junta barral, cajones interiores retranqueados y
+  puerta embutida a la izquierda con puerta superpuesta a la derecha.
 
 ## Convenciones geométricas
 
@@ -404,7 +429,7 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 
 | familia | qué cubre |
 |---|---|
-| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo (`212`), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`) |
+| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo (`212`), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`), cajones interiores en el plano de una puerta embutida (`214`, con el retranqueo como arreglo) |
 | `PARAM-*` | ciclos o expresiones inválidas en parámetros |
 | `LIB-*` | material, canto o herraje desconocido |
 | `CON-001` | una restricción declarada no se cumple |
@@ -412,7 +437,7 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 | `FAB-1xx` | geometría: piezas superpuestas |
 | `FAB-2xx` | mecanizado: perforación fuera de cara, distancia al borde, profundidad, cruces de perforaciones, ranura, mecha inexistente, operación no admitida, perforación que cae dentro de una ranura (`208`: el tarugo iría donde corre el fondo) |
 | `FAB-3xx` | material/máquina: no sale de la placa, excede el área de trabajo, espesor incompatible con el herraje |
-| `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra; `111` carga: puerta más pesada que lo que aguantan sus bisagras, o cajón cuya caja más 10 kg de contenido supera la corredera (`maxLoadKg` del herraje; el peso sale de la densidad del material); `113` (info) medida escrita como número donde va un parámetro |
+| `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra; `111` carga: puerta más pesada que lo que aguantan sus bisagras, o cajón cuya caja más 10 kg de contenido supera la corredera (`maxLoadKg` del herraje; el peso sale de la densidad del material); `113` (info) medida escrita como número donde va un parámetro; `114` barral con menos de 900 mm libres debajo |
 | `CAM-2xx` | sin herramienta para una ranura o el contorno; perforación de canto sin taladro horizontal |
 | `STAGE-*` | aviso de algo que la etapa actual no cubre (ninguno activo hoy) |
 

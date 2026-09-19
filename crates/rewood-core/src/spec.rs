@@ -52,6 +52,18 @@ fn num(v: f64) -> NumOrExpr {
     ParamInput::Number(v)
 }
 
+/// Where a front (door, drawer front) sits relative to the carcass.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum FrontMount {
+    /// Over the carcass edges, covering them (the usual kitchen door).
+    #[default]
+    Overlay,
+    /// Inside the opening, flush with the carcass front. A door needs an
+    /// inset hinge; a drawer becomes an inner drawer (behind a door).
+    Inset,
+}
+
 /// Which edges of a component's panels get the default edge band.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -230,6 +242,10 @@ pub enum ComponentSpec {
         /// 1-based bay index; omitted = every bay.
         #[serde(default)]
         bay: Option<NumOrExpr>,
+        /// Consecutive bays one door set covers, from `bay` (a wide door
+        /// over two narrow bays). Default 1.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        span: Option<NumOrExpr>,
         #[serde(default)]
         zone: Option<ZoneSpec>,
         count: NumOrExpr,
@@ -237,8 +253,12 @@ pub enum ComponentSpec {
         #[serde(default = "door_gap")]
         gap: NumOrExpr,
         #[serde(default)]
+        mount: FrontMount,
+        #[serde(default)]
         material: Option<String>,
         /// Hinges hanging each door on its carcass side. `null` = none.
+        /// With `mount: inset` the default overlay hinge is swapped for
+        /// the library's inset one.
         #[serde(default = "door_hinge")]
         hinge: Option<JointSpec>,
         /// Vertical handle on the opening edge.
@@ -268,6 +288,14 @@ pub enum ComponentSpec {
         /// Gap between fronts and around the set.
         #[serde(default = "door_gap")]
         gap: NumOrExpr,
+        /// `inset` = inner drawer: the front sits inside the opening, so a
+        /// door can close over the whole stack.
+        #[serde(default)]
+        mount: FrontMount,
+        /// Inner drawers only: how far the fronts sit back from the carcass
+        /// front (room for an inset door). Default 0.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        setback: Option<NumOrExpr>,
         /// Box height. Default: front height minus 40 mm.
         #[serde(default)]
         box_height: Option<NumOrExpr>,
@@ -296,6 +324,51 @@ pub enum ComponentSpec {
         #[serde(default)]
         edges: EdgeBanding,
     },
+
+    /// A hanging rail across a bay: two supports on the panels bounding
+    /// the bay and a bar cut to its width. Generates no panel.
+    #[serde(rename_all = "camelCase")]
+    Rail {
+        id: String,
+        #[serde(default)]
+        carcass: Option<String>,
+        /// 1-based bay index; omitted = every bay.
+        #[serde(default)]
+        bay: Option<NumOrExpr>,
+        #[serde(default)]
+        zone: Option<ZoneSpec>,
+        /// Rail centre below the top of its zone (the carcass top).
+        #[serde(default = "rail_from_top")]
+        from_top: NumOrExpr,
+        /// The bar, for the BOM (kind `rail`).
+        #[serde(default = "default_rail")]
+        hardware: Vec<String>,
+        /// End supports screwed to the bay's panels.
+        #[serde(default = "default_rail_support")]
+        supports: Vec<String>,
+    },
+}
+
+fn rail_from_top() -> NumOrExpr {
+    num(60.0)
+}
+fn default_rail() -> Vec<String> {
+    vec!["rail_oval_30".into()]
+}
+fn default_rail_support() -> Vec<String> {
+    vec!["rail_support_oval".into()]
+}
+
+impl ComponentSpec {
+    pub fn kind(&self) -> &'static str {
+        match self {
+            ComponentSpec::Carcass { .. } => "carcass",
+            ComponentSpec::Shelves { .. } => "shelves",
+            ComponentSpec::Doors { .. } => "doors",
+            ComponentSpec::Drawers { .. } => "drawers",
+            ComponentSpec::Rail { .. } => "rail",
+        }
+    }
 }
 
 fn drawer_bottom_material() -> String {
@@ -336,7 +409,8 @@ impl ComponentSpec {
             ComponentSpec::Carcass { id, .. }
             | ComponentSpec::Shelves { id, .. }
             | ComponentSpec::Doors { id, .. }
-            | ComponentSpec::Drawers { id, .. } => id,
+            | ComponentSpec::Drawers { id, .. }
+            | ComponentSpec::Rail { id, .. } => id,
         }
     }
 }

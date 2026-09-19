@@ -181,6 +181,7 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
         joint_requests,
         derived,
         diagnostics: component_diags,
+        extra_bom,
         ..
     } = ctx;
     diags.extend(component_diags);
@@ -293,7 +294,14 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
     // nesting's; parts that fit no sheet were already reported by FAB-301.
     let nesting = nesting::nest(&parts, libs, &libs.profile.nesting);
     let part_list = plan::part_list(&parts, libs);
-    let bom = plan::bom(&parts, &joints, &nesting, machining.total_seconds, libs);
+    let bom = plan::bom(
+        &parts,
+        &joints,
+        &nesting,
+        machining.total_seconds,
+        libs,
+        &extra_bom,
+    );
     let purchasing = plan::purchasing(&bom, libs);
 
     diags.sort();

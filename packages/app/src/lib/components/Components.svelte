@@ -127,6 +127,9 @@
 					slide: { hardware: ['slide_ball_450'] }
 				};
 				break;
+			case 'rail':
+				c = { type: 'rail', id };
+				break;
 		}
 		app.spec.components.push(c);
 		app.touch();
@@ -239,8 +242,34 @@
 								{/if}
 							</span>
 						</label>
-						{#if c.type !== 'shelves' || !c.positions?.length}
+						{#if c.type === 'rail'}
+							<label class="row"><span>bajo la tapa</span><input value={show(c.fromTop ?? 60)} onchange={(e) => setField(c, 'fromTop', e.currentTarget.value)} /></label>
+							<div class="row"><span>barral</span>
+								<select value={c.hardware?.[0] ?? 'rail_oval_30'} onchange={(e) => { c.hardware = [e.currentTarget.value]; app.touch(); }}>
+									{#each byKind(['rail']) as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
+								</select>
+							</div>
+							<div class="row"><span>soportes</span>
+								<select value={c.supports?.[0] ?? 'rail_support_oval'} onchange={(e) => { c.supports = [e.currentTarget.value]; app.touch(); }}>
+									{#each byKind(['rail_support']) as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
+								</select>
+							</div>
+						{:else if c.type !== 'shelves' || !c.positions?.length}
 							<label class="row"><span>cantidad</span><input value={show(c.count)} onchange={(e) => setField(c, 'count', e.currentTarget.value, c.type === 'shelves')} /></label>
+						{/if}
+						{#if c.type === 'doors'}
+							<label class="row"><span>bahías que cubre</span><input placeholder="1" value={show(c.span)} onchange={(e) => setField(c, 'span', e.currentTarget.value, true)} /></label>
+						{/if}
+						{#if c.type === 'doors' || c.type === 'drawers'}
+							<label class="row"><span>montaje</span>
+								<select value={c.mount ?? 'overlay'} onchange={(e) => { const v = e.currentTarget.value; if (v === 'overlay') delete c.mount; else c.mount = 'inset'; app.touch(); }}>
+									<option value="overlay">superpuesto (cubre la carcasa)</option>
+									<option value="inset">{c.type === 'doors' ? 'embutido (dentro del hueco)' : 'interior (detrás de una puerta)'}</option>
+								</select>
+							</label>
+							{#if c.type === 'drawers' && c.mount === 'inset'}
+								<label class="row"><span>retranqueo</span><input placeholder="0" value={show(c.setback)} onchange={(e) => setField(c, 'setback', e.currentTarget.value, true)} /></label>
+							{/if}
 						{/if}
 					{/if}
 					{#if c.type === 'shelves'}
@@ -262,6 +291,7 @@
 							</select>
 						</div>
 					{/if}
+					{#if c.type !== 'rail'}
 					<label class="row"><span>material</span>
 						<select value={c.material ?? ''} onchange={(e) => setText(c, 'material', e.currentTarget.value, true)}>
 							<option value="">— el del mueble —</option>
@@ -273,7 +303,8 @@
 							<option value="default">por defecto</option><option value="none">ninguno</option><option value="front">frente</option><option value="all">todos</option>
 						</select>
 					</label>
-					{#if c.type !== 'doors'}
+					{/if}
+					{#if c.type !== 'doors' && c.type !== 'rail'}
 						<div class="row"><span>herrajes</span>
 							<span class="chips">
 								{#each fasteners as h (h.id)}
@@ -321,7 +352,7 @@
 	{/each}
 	<div class="add">
 		<select bind:value={newType}>
-			<option value="carcass">carcasa</option><option value="shelves">estantes</option><option value="doors">puertas</option><option value="drawers">cajones</option>
+			<option value="carcass">carcasa</option><option value="shelves">estantes</option><option value="doors">puertas</option><option value="drawers">cajones</option><option value="rail">barral</option>
 		</select>
 		<button onclick={addComponent}>+ agregar</button>
 	</div>

@@ -14,7 +14,7 @@ use crate::diagnostics::{Diagnostic, Severity};
 use crate::geometry::{Axis, Placement, Vec3};
 use crate::model::Grain;
 use crate::rules::mm;
-use crate::spec::{ComponentSpec, EdgeBanding};
+use crate::spec::{ComponentSpec, EdgeBanding, FrontMount};
 
 pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnostic> {
     let ComponentSpec::Drawers {
@@ -25,6 +25,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         count,
         front_height,
         gap,
+        mount,
+        setback,
         box_height,
         material,
         box_material,
@@ -45,7 +47,41 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
     let spec_zone = zone.as_ref();
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
-    ctx.occupy(id, OccupancyKind::Drawers, &carcass, &bays, zone);
+    // Inner drawers sit inside the opening, between top and bottom.
+    let inner = *mount == FrontMount::Inset;
+    let zone = if inner {
+        super::Zone {
+            z0: zone.z0.max(carcass.thickness),
+            z1: zone.z1.min(carcass.height - carcass.thickness),
+        }
+    } else {
+        zone
+    };
+    let setback = match setback {
+        Some(s) if inner => ctx.eval(id, "setback", s)?,
+        _ => 0.0,
+    };
+    // Front plane, from the carcass front: overlay fronts stand in front
+    // of it, inner fronts inside, set back or not.
+    let front_material_id = ctx.material_or_default(id, material.as_ref())?.to_string();
+    let tf_plane = ctx.thickness_of(&front_material_id);
+    let front_y = if inner {
+        (carcass.depth - setback - tf_plane, carcass.depth - setback)
+    } else {
+        (carcass.depth, carcass.depth + tf_plane)
+    };
+    ctx.occupy_front(
+        id,
+        if inner {
+            OccupancyKind::InnerDrawers
+        } else {
+            OccupancyKind::Drawers
+        },
+        &carcass,
+        &bays,
+        zone,
+        Some(front_y),
+    );
     {
         let mut fields: Vec<(&str, &crate::params::ParamInput)> = Vec::new();
         if let Some(z) = spec_zone {
@@ -107,9 +143,19 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         Some(v) => ctx.eval(id, "boxHeight", v)?,
         None => front_height - 40.0,
     };
+    let cover = |b: &super::Bay| {
+        if inner {
+            (b.x0, b.x1)
+        } else {
+            (b.cover_x0, b.cover_x1)
+        }
+    };
     let min_span = bays
         .iter()
-        .map(|b| b.cover_x1 - b.cover_x0)
+        .map(|b| {
+            let (a, z) = cover(b);
+            z - a
+        })
         .fold(f64::INFINITY, f64::min);
     let front_width = min_span - 2.0 * gap;
     if front_height <= 0.0 || box_height <= 2.0 * tbot + 20.0 || front_width <= 0.0 {
@@ -139,7 +185,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         .fold(f64::INFINITY, f64::min);
     let box_outer_width = min_bay - 2.0 * slide_def.side_clearance;
     let box_depth = slide_def.length;
-    let available_depth = carcass.depth - carcass.inner_y0;
+    // An inner drawer's front takes its own thickness off the depth.
+    let available_depth = carcass.depth - carcass.inner_y0 - if inner { tf + setback } else { 0.0 };
     if box_depth + 10.0 > available_depth {
         return Err(Diagnostic::new(
             "SPEC-307",
@@ -299,8 +346,21 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
 
     let front_edges = super::banded_axes(*edges, &[Axis::PosX, Axis::NegX, Axis::PosZ, Axis::NegZ]);
     let box_top = [Axis::PosZ];
-    let y_front = carcass.depth; // box front face, flush with the carcass front
+    // Box front face: flush with the carcass front, or behind an inner
+    // drawer's front panel.
+    let y_front = if inner {
+        carcass.depth - setback - tf
+    } else {
+        carcass.depth
+    };
     let y_back = y_front - box_depth;
+    // Front panel origin (its local +Z looks at the box, so it extends
+    // towards -Y from here).
+    let y_panel = if inner {
+        carcass.depth - setback
+    } else {
+        carcass.depth + tf
+    };
     let play = 0.5;
     let many = bays.len() > 1;
 
@@ -308,7 +368,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         let x0 = bay.x0 + slide_def.side_clearance; // box left outer face
         let box_outer_width = (bay.x1 - bay.x0) - 2.0 * slide_def.side_clearance;
         let inner_length = box_outer_width - 2.0 * tb;
-        let front_width = (bay.cover_x1 - bay.cover_x0) - 2.0 * gap;
+        let (c0, _) = cover(bay);
+        let front_width = min_span - 2.0 * gap;
         let tag = if many {
             format!(" bahía {}", bay.index)
         } else {
@@ -333,11 +394,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 width: front_height,
                 grain: Grain::Length,
                 // Local +Z = -Y: the back of the front panel looks at the box.
-                placement: Placement::new(
-                    Vec3(bay.cover_x0 + gap, carcass.depth + tf, z_front),
-                    Axis::PosX,
-                    Axis::PosZ,
-                ),
+                placement: Placement::new(Vec3(c0 + gap, y_panel, z_front), Axis::PosX, Axis::PosZ),
                 banded_edges: &front_edges,
             });
 
@@ -476,7 +533,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                     Some(p) => z_front + ctx.eval(id, "handle.position", p)?,
                     None => z_front + front_height / 2.0,
                 };
-                let centre = Vec3(bay.cover_x0 + gap + front_width / 2.0, carcass.depth, z);
+                let centre = Vec3(c0 + gap + front_width / 2.0, y_front, z);
                 let spec = crate::spec::JointSpec {
                     hardware: handle.hardware.clone(),
                     placement: None,

@@ -7,6 +7,7 @@ mod carcass;
 mod doors;
 mod drawers;
 mod layout;
+mod rail;
 mod shelves;
 
 use std::collections::BTreeMap;
@@ -110,6 +111,9 @@ pub struct Bay {
     pub cover_x1: f64,
     pub left_part: String,
     pub right_part: String,
+    /// How many consecutive carcass bays this (virtual) bay covers; 1 for
+    /// a real bay, more for a door set spanning several.
+    pub spans: usize,
 }
 
 /// A vertical range of a bay: [z0, z1] in furniture Z.
@@ -123,7 +127,21 @@ pub struct Zone {
 pub enum OccupancyKind {
     Doors,
     Drawers,
+    /// Inner drawers: inside the opening, a door closes over them.
+    InnerDrawers,
     Shelves,
+    /// The hanging height under a rail.
+    Rail,
+}
+
+/// Hardware bought by the metre or per component rather than per
+/// fastener (a rail bar): goes straight to the BOM.
+#[derive(Debug, Clone, PartialEq)]
+pub struct ExtraBom {
+    pub component: String,
+    pub hardware: String,
+    pub quantity: usize,
+    pub metres: f64,
 }
 
 /// What a dependent component took of a carcass bay, for the layout
@@ -135,6 +153,8 @@ pub struct Occupancy {
     pub carcass: String,
     pub bay: usize,
     pub zone: Zone,
+    /// Y range of the front panel (fronts only): where it sits in depth.
+    pub front_y: Option<(f64, f64)>,
 }
 
 pub struct BuildCtx<'a> {
@@ -151,6 +171,7 @@ pub struct BuildCtx<'a> {
     /// Component id → carcass id it belongs to (a carcass maps to itself).
     pub carcass_of: BTreeMap<String, String>,
     pub occupancy: Vec<Occupancy>,
+    pub extra_bom: Vec<ExtraBom>,
 }
 
 /// World axes whose facing edges get banded, from the component's choice
@@ -198,6 +219,7 @@ impl<'a> BuildCtx<'a> {
             carcasses: BTreeMap::new(),
             carcass_of: BTreeMap::new(),
             occupancy: Vec::new(),
+            extra_bom: Vec::new(),
         }
     }
 
@@ -210,6 +232,19 @@ impl<'a> BuildCtx<'a> {
         bays: &[Bay],
         zone: Zone,
     ) {
+        self.occupy_front(component, kind, carcass, bays, zone, None);
+    }
+
+    /// Like [`occupy`](Self::occupy), for a front that sits at a known depth.
+    pub fn occupy_front(
+        &mut self,
+        component: &str,
+        kind: OccupancyKind,
+        carcass: &CarcassInfo,
+        bays: &[Bay],
+        zone: Zone,
+        front_y: Option<(f64, f64)>,
+    ) {
         for bay in bays {
             self.occupancy.push(Occupancy {
                 component: component.to_string(),
@@ -217,6 +252,7 @@ impl<'a> BuildCtx<'a> {
                 carcass: carcass.id.clone(),
                 bay: bay.index,
                 zone,
+                front_y,
             });
         }
     }
@@ -451,6 +487,122 @@ impl<'a> BuildCtx<'a> {
         }
     }
 
+    /// Group consecutive bays into one virtual bay `span` wide, starting
+    /// at each listed bay: the opening a wide door set covers. The inner
+    /// range runs from the first bay's left panel to the last bay's right
+    /// panel; the dividers in between stay behind the doors.
+    pub fn span_bays(
+        &self,
+        component: &str,
+        carcass: &CarcassInfo,
+        bays: Vec<Bay>,
+        span: Option<&ParamInput>,
+    ) -> Result<Vec<Bay>, Diagnostic> {
+        let Some(span) = span else {
+            return Ok(bays);
+        };
+        let n = self.eval(component, "span", span)?;
+        if n < 1.0 || n.fract() != 0.0 {
+            return Err(Diagnostic::new(
+                "SPEC-303",
+                Severity::Fatal,
+                format!("'{component}.span' tiene que ser un entero ≥ 1, es {n}"),
+            )
+            .entity(component));
+        }
+        let n = n as usize;
+        let mut out = Vec::new();
+        let mut next_free = 0;
+        for first in bays {
+            if first.index < next_free {
+                // Already covered by the previous span (all-bays mode).
+                continue;
+            }
+            let last_index = first.index + n - 1;
+            let Some(last) = carcass.bays.iter().find(|b| b.index == last_index) else {
+                return Err(Diagnostic::new(
+                    "SPEC-204",
+                    Severity::Fatal,
+                    format!(
+                        "'{component}' cubre las bahías {}–{last_index} y la carcasa tiene {}",
+                        first.index,
+                        carcass.bays.len()
+                    ),
+                )
+                .entity(component));
+            };
+            next_free = last_index + 1;
+            out.push(Bay {
+                index: first.index,
+                x0: first.x0,
+                x1: last.x1,
+                cover_x0: first.cover_x0,
+                cover_x1: last.cover_x1,
+                left_part: first.left_part.clone(),
+                right_part: last.right_part.clone(),
+                spans: n,
+            });
+        }
+        Ok(out)
+    }
+
+    /// The hinge hardware for a door mount. The default overlay hinge on
+    /// an inset door is swapped for the library's inset hinge; anything
+    /// else that does not match is an error, because the arm geometry
+    /// decides where the plate goes.
+    pub fn hinge_for_mount(
+        &self,
+        component: &str,
+        hinge: &JointSpec,
+        mount: crate::spec::FrontMount,
+    ) -> Result<JointSpec, Diagnostic> {
+        let wanted = match mount {
+            crate::spec::FrontMount::Overlay => "overlay",
+            crate::spec::FrontMount::Inset => "inset",
+        };
+        let mut out = hinge.clone();
+        for h in &mut out.hardware {
+            let Some(def) = self.libs.hardware.get(h) else {
+                continue;
+            };
+            let Some(spec) = &def.hinge else {
+                continue;
+            };
+            if spec.mount == wanted {
+                continue;
+            }
+            if h == "hinge_35_overlay" && wanted == "inset" {
+                if let Some(alt) = self.libs.hardware.iter().find(|d| {
+                    d.kind == "hinge" && d.hinge.as_ref().is_some_and(|s| s.mount == "inset")
+                }) {
+                    *h = alt.id.clone();
+                    continue;
+                }
+            }
+            return Err(Diagnostic::new(
+                "SPEC-314",
+                Severity::Fatal,
+                format!(
+                    "'{component}': la bisagra '{}' es {} y la puerta va {}",
+                    def.name,
+                    if spec.mount == "inset" {
+                        "embutida"
+                    } else {
+                        "superpuesta"
+                    },
+                    if wanted == "inset" {
+                        "embutida"
+                    } else {
+                        "superpuesta"
+                    }
+                ),
+            )
+            .entity(component)
+            .suggestion("Elegí una bisagra del mismo montaje que la puerta ('mount')."));
+        }
+        Ok(out)
+    }
+
     /// The height range a component works in: the declared zone, clamped
     /// to the carcass, or the whole carcass.
     pub fn zone_for(
@@ -591,6 +743,7 @@ pub fn expand(ctx: &mut BuildCtx<'_>) {
             ComponentSpec::Shelves { .. } => shelves::build(ctx, component),
             ComponentSpec::Doors { .. } => doors::build(ctx, component),
             ComponentSpec::Drawers { .. } => drawers::build(ctx, component),
+            ComponentSpec::Rail { .. } => rail::build(ctx, component),
         };
         if let Err(d) = result {
             ctx.diagnostics.push(d);

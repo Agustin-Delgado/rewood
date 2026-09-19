@@ -299,6 +299,50 @@ pub fn steps(plan: &ManufacturingPlan) -> Vec<Step> {
             }
         }
     }
+    // Components with joints but no panels: a rail is supports screwed to
+    // panels that are already standing, so it goes last, with the doors.
+    let mut joint_only: Vec<String> = Vec::new();
+    for j in &plan.joints {
+        if !components.contains(&j.component) && !joint_only.contains(&j.component) {
+            joint_only.push(j.component.clone());
+        }
+    }
+    for component in &joint_only {
+        let ids: Vec<&str> = plan
+            .joints
+            .iter()
+            .filter(|j| &j.component == component)
+            .map(|j| j.id.as_str())
+            .collect();
+        let panels: Vec<String> = plan
+            .joints
+            .iter()
+            .filter(|j| &j.component == component)
+            .map(|j| part_label(plan, &j.face_part))
+            .collect::<std::collections::BTreeSet<_>>()
+            .into_iter()
+            .collect();
+        let rail = plan.bom.hardware.iter().find(|h| {
+            plan.joints.iter().any(|j| {
+                &j.component == component && j.hardware.iter().any(|x| x.starts_with("rail"))
+            }) && h.hardware.starts_with("rail_")
+                && !h.hardware.contains("support")
+        });
+        let bar = rail
+            .and_then(|h| h.items.first())
+            .map(|i| format!("{} ({} m)", i.name.replace(" (por metro)", ""), i.quantity))
+            .unwrap_or_else(|| "el barral".into());
+        push(
+            format!("Colocar el barral de '{component}'"),
+            panels,
+            count_hw(&ids),
+            vec![
+                format!("Atornillar un soporte en cada panel, a la altura marcada por las perforaciones, y calzar {bar} cortado al ancho de la bahía."),
+                "Con la carcasa parada: el barral se mide entre caras interiores, no entre ejes.".into(),
+            ],
+        );
+    }
+
     // Dowelled shelves sit between panels that are still loose: they go in
     // before the back and the top close the box.
     let shelf_steps: Vec<Step> = steps

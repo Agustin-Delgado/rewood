@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "_note": "Hole diameters, depths and offsets are indicative defaults for 18 mm panels (Minifix B34 / 35 mm cup hinge with 45/9.5 pilot pattern and 37 mm plate line). Verify against the supplier's catalog before manufacturing; the engine treats these as data. maxLoadKg is the load one unit carries (a hinge its share of the door, a slide pair the loaded drawer, a leg its share of the furniture); the design rules compare part weights against it.",
+  "_note": "Hole diameters, depths and offsets are indicative defaults for 18 mm panels (Minifix B34 / 35 mm cup hinge with 45/9.5 pilot pattern and 37 mm plate line). Verify against the supplier's catalog before manufacturing; the engine treats these as data. maxLoadKg is the load one unit carries (a hinge its share of the door, a slide pair the loaded drawer, a leg its share of the furniture); the design rules compare part weights against it. hinge_35_inset keeps the plate line 37 mm from the carcass front edge; its offsetFromEdge is measured from an 18 mm door's back plane. A rail's bomItems are per metre of bar.",
   "hardware": [
     {
       "id": "minifix_15",
@@ -213,7 +213,102 @@
           "quantity": 1
         }
       ],
-      "supplier": "hardware_supplier"
+      "supplier": "hardware_supplier",
+      "hinge": {
+        "mount": "overlay"
+      }
+    },
+    {
+      "id": "hinge_35_inset",
+      "name": "Bisagra cazoleta Ø35 embutida (codo 16)",
+      "kind": "hinge",
+      "maxLoadKg": 5,
+      "compatibleThickness": [
+        16,
+        22
+      ],
+      "placement": {
+        "endOffset": 100,
+        "maxSpacing": 750,
+        "countByLength": [
+          [
+            900,
+            2
+          ],
+          [
+            1500,
+            3
+          ],
+          [
+            2000,
+            4
+          ],
+          [
+            2400,
+            5
+          ]
+        ]
+      },
+      "holes": [
+        {
+          "label": "cup",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 22.5,
+          "diameter": 35,
+          "depth": 12.5
+        },
+        {
+          "label": "cup_pilot_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": 22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "cup_pilot_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": -22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "plate_a",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 19,
+          "offsetAlong": 16,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "plate_b",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 19,
+          "offsetAlong": -16,
+          "diameter": 5,
+          "depth": 11
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Bisagra cazoleta Ø35 embutida",
+          "quantity": 1
+        },
+        {
+          "name": "Base de bisagra cruz H0",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier",
+      "hinge": {
+        "mount": "inset"
+      }
     },
     {
       "id": "slide_ball_450",
@@ -492,6 +587,75 @@
         {
           "name": "Tornillo 4×16",
           "quantity": 2
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "rail_support_oval",
+      "name": "Soporte de barral ovalado",
+      "kind": "rail_support",
+      "compatibleThickness": [
+        15,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw_a",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -10,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_b",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 10,
+          "diameter": 3,
+          "depth": 12
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Soporte de barral ovalado",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 3,5×16",
+          "quantity": 2
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "rail_oval_30",
+      "name": "Barral ovalado 30×15 mm",
+      "kind": "rail",
+      "compatibleThickness": [
+        0,
+        100
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [],
+      "bomItems": [
+        {
+          "name": "Barral ovalado 30×15 mm (por metro)",
+          "quantity": 1
         }
       ],
       "supplier": "hardware_supplier"

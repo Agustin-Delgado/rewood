@@ -387,6 +387,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             cover_x1,
             left_part: left_part.clone(),
             right_part: right_part.clone(),
+            spans: 1,
         });
         left_part = right_part;
         x = x1 + t;

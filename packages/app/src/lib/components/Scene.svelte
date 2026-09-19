@@ -33,6 +33,30 @@
 	const target = $derived<[number, number, number]>([bounds[0] / 2, bounds[2] / 2, bounds[1] / 2]);
 	const distance = $derived(Math.max(bounds[0], bounds[2]) * 1.6 + bounds[1]);
 
+	/**
+	 * Rails have no panel: draw a bar between the two support fixtures of
+	 * each rail component (one pair per bay).
+	 */
+	const rails = $derived.by(() => {
+		const out: { id: string; pos: [number, number, number]; len: number }[] = [];
+		const joints = (app.plan?.joints ?? []).filter((j) => j.kind === 'fixture' && j.hardware.some((h) => h.startsWith('rail_support')));
+		const byComponent = new Map<string, typeof joints>();
+		for (const j of joints) byComponent.set(j.component, [...(byComponent.get(j.component) ?? []), j]);
+		for (const [component, list] of byComponent) {
+			for (let i = 0; i + 1 < list.length; i += 2) {
+				const a = list[i].fasteners[0]?.position;
+				const b = list[i + 1].fasteners[0]?.position;
+				if (!a || !b) continue;
+				out.push({
+					id: `${component}:${i}`,
+					pos: toThree([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2]),
+					len: Math.abs(b[0] - a[0])
+				});
+			}
+		}
+		return out;
+	});
+
 	function colourOf(part: Part): string {
 		if (part.id === app.selectedPart) return '#ff8c42';
 		// A part with a finding shows it: red for what blocks or should be
@@ -120,6 +144,13 @@
 <T.AmbientLight intensity={0.7} />
 <T.DirectionalLight position={[2000, 4000, 3000]} intensity={1.4} />
 <T.DirectionalLight position={[-2000, 1000, -1500]} intensity={0.5} />
+
+{#each rails as r (r.id)}
+	<T.Mesh position={r.pos} rotation={[0, 0, Math.PI / 2]}>
+		<T.CylinderGeometry args={[12, 12, r.len, 12]} />
+		<T.MeshStandardMaterial color="#9aa0a6" metalness={0.6} roughness={0.35} />
+	</T.Mesh>
+{/each}
 
 <T.GridHelper args={[Math.max(bounds[0], bounds[1]) * 2, 20, '#bbb', '#ddd']} position={[bounds[0] / 2, floor - 1, bounds[1] / 2]} />
 

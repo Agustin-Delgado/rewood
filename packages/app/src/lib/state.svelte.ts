@@ -28,9 +28,11 @@ import bookcase from '../../../../fixtures/bookcase_fixed/input.json';
 import kitchen from '../../../../fixtures/kitchen_run/input.json';
 import drawerUnit from '../../../../fixtures/drawer_unit/input.json';
 import wardrobe from '../../../../fixtures/wardrobe_1800/input.json';
+import wardrobeRail from '../../../../fixtures/wardrobe_rail/input.json';
 
 export const EXAMPLES: { id: string; name: string; spec: FurnitureSpec }[] = [
 	{ id: 'wardrobe_1800', name: 'Placard 1800 (3 módulos)', spec: wardrobe as FurnitureSpec },
+	{ id: 'wardrobe_rail', name: 'Placard 1200: barral, cajones interiores, puerta embutida', spec: wardrobeRail as unknown as FurnitureSpec },
 	{ id: 'basic_cabinet', name: 'Módulo básico 900×800', spec: basicCabinet as FurnitureSpec },
 	{ id: 'drawer_unit', name: 'Cajonera 600×700', spec: drawerUnit as FurnitureSpec },
 	{ id: 'bookcase_fixed', name: 'Biblioteca 800×2000 con estante fijo', spec: bookcase as FurnitureSpec },
