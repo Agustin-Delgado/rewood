@@ -1,7 +1,7 @@
 # rewood
 
 [![CI](https://github.com/Agustin-Delgado/rewood/actions/workflows/ci.yml/badge.svg)](https://github.com/Agustin-Delgado/rewood/actions/workflows/ci.yml)
-Licencia MIT.
+Licencia MIT. Demo (UI sola, motor en WASM, sin servidor): https://rewood-mu.vercel.app
 
 Compilador determinista de mobiliario: de una especificación paramétrica a un
 paquete de fabricación (piezas, uniones, perforaciones, ranuras, cantos,
