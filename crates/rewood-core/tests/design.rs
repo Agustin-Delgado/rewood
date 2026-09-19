@@ -273,3 +273,75 @@ fn a_clean_cabinet_has_nothing_to_say() {
     let plan = rewood_core::compile_json(&json);
     assert!(plan.diagnostics.items.is_empty(), "{:#?}", plan.diagnostics);
 }
+
+#[test]
+fn a_fastener_landing_in_the_back_groove_is_an_error() {
+    let json = cabinet("", "}").replace(
+        r#""joint": { "hardware": ["dowel_8x30"] }"#,
+        r#""joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 8, "maxSpacing": 300 } }"#,
+    );
+    let f = findings(&json, "FAB-208");
+    // Both sides and both horizontals: the dowel 8 mm from the back edge
+    // crosses the groove at 10 mm.
+    assert_eq!(f.len(), 8, "{f:?}");
+    assert!(f[0].1.contains("cae dentro de la ranura"));
+    assert!(findings(&cabinet("", "}"), "FAB-208").is_empty());
+}
+
+#[test]
+fn hinges_and_slides_are_checked_against_their_load() {
+    let door = cabinet(
+        r#", "width": 600, "height": 2400, "depth": 500"#,
+        r#"}, { "type": "doors", "id": "do", "count": 1,
+              "hinge": { "hardware": ["hinge_35_overlay"], "placement": { "endOffset": 100, "maxSpacing": 2000 } } }"#,
+    )
+    .replace(r#""material": "melamine_18","#, r#""material": "mdf_18","#);
+    let f = findings(&door, "DESIGN-111");
+    assert_eq!(f.len(), 1, "{f:?}");
+    assert!(
+        f[0].1.contains("19.3 kg colgados de 3 bisagras"),
+        "{}",
+        f[0].1
+    );
+    // The library's own count (4 hinges for 2396 mm) carries it.
+    let door = cabinet(
+        r#", "width": 600, "height": 2400, "depth": 500"#,
+        r#"}, { "type": "doors", "id": "do", "count": 1 }"#,
+    )
+    .replace(r#""material": "melamine_18","#, r#""material": "mdf_18","#);
+    assert!(findings(&door, "DESIGN-111").is_empty());
+
+    let drawer = cabinet(
+        r#", "width": 900, "depth": 500"#,
+        r#"}, { "type": "drawers", "id": "dr", "count": 1, "boxHeight": 300,
+              "joint": { "hardware": ["dowel_8x30"] }, "slide": { "hardware": ["slide_ball_450"] } }"#,
+    );
+    assert!(findings(&drawer, "DESIGN-111").is_empty());
+    let weak = drawer.replace(
+        r#""material": "melamine_18","#,
+        r#""material": "melamine_18", "libraries": { "hardware": [{ "id": "slide_ball_450", "maxLoadKg": 15 }] },"#,
+    );
+    let f = findings(&weak, "DESIGN-111");
+    assert_eq!(f.len(), 1, "{f:?}");
+    assert!(
+        f[0].1.contains("con 10 kg de contenido supera los 15 kg"),
+        "{}",
+        f[0].1
+    );
+}
+
+#[test]
+fn dimensions_typed_as_numbers_get_a_hint() {
+    let json =
+        cabinet("", "}").replace(r#""id": "c","#, r#""id": "c", "width": 700, "depth": 350,"#);
+    let f = findings(&json, "DESIGN-113");
+    assert_eq!(f.len(), 1, "{f:?}");
+    assert_eq!(f[0].0, Severity::Info);
+    assert!(f[0].1.contains("width = 700, depth = 350"), "{}", f[0].1);
+    // Zero and expressions are fine.
+    let json = cabinet(
+        "",
+        r#"}, { "type": "doors", "id": "do", "count": 1, "zone": { "from": 0, "to": "height" } }"#,
+    );
+    assert!(findings(&json, "DESIGN-113").is_empty());
+}

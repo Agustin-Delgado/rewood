@@ -31,8 +31,23 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
 
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
     let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
+    let spec_zone = zone.as_ref();
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
     ctx.occupy(id, OccupancyKind::Shelves, &carcass, &bays, zone);
+    {
+        let mut fields: Vec<(&str, &crate::params::ParamInput)> = Vec::new();
+        if let Some(z) = spec_zone {
+            fields.push(("zone.from", &z.from));
+            fields.push(("zone.to", &z.to));
+        }
+        let names: Vec<String> = (0..positions.len())
+            .map(|k| format!("positions[{k}]"))
+            .collect();
+        for (name, p) in names.iter().zip(positions) {
+            fields.push((name.as_str(), p));
+        }
+        ctx.note_literals(id, &fields);
+    }
     let fixed = !positions.is_empty();
     if fixed && count.is_some() {
         return Err(Diagnostic::new(

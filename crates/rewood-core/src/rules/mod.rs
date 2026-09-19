@@ -31,12 +31,14 @@ pub fn all_rules() -> Vec<Box<dyn Rule>> {
         Box::new(machining::HoleDepth),
         Box::new(machining::HoleCollision),
         Box::new(machining::GrooveDepth),
+        Box::new(machining::HoleThroughGroove),
         Box::new(machining::ToolAvailable),
         Box::new(machining::OperationAllowed),
         Box::new(material::PartFitsSheet),
         Box::new(material::PartFitsMachine),
         Box::new(material::HardwareThickness),
         Box::new(design::PanelSpan),
+        Box::new(design::HardwareLoad),
     ]
 }
 

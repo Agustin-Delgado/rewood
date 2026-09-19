@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "_note": "Hole diameters, depths and offsets are indicative defaults for 18 mm panels (Minifix B34 / 35 mm cup hinge with 45/9.5 pilot pattern and 37 mm plate line). Verify against the supplier's catalog before manufacturing; the engine treats these as data.",
+  "_note": "Hole diameters, depths and offsets are indicative defaults for 18 mm panels (Minifix B34 / 35 mm cup hinge with 45/9.5 pilot pattern and 37 mm plate line). Verify against the supplier's catalog before manufacturing; the engine treats these as data. maxLoadKg is the load one unit carries (a hinge its share of the door, a slide pair the loaded drawer, a leg its share of the furniture); the design rules compare part weights against it.",
   "hardware": [
     {
       "id": "minifix_15",
@@ -130,6 +130,7 @@
       "id": "hinge_35_overlay",
       "name": "Bisagra cazoleta Ø35 superpuesta (base cruz)",
       "kind": "hinge",
+      "maxLoadKg": 5,
       "compatibleThickness": [
         16,
         22
@@ -218,6 +219,7 @@
       "id": "slide_ball_450",
       "name": "Corredera telescópica a bolillas 450 mm (unidad)",
       "kind": "slide",
+      "maxLoadKg": 30,
       "compatibleThickness": [
         12,
         25
@@ -386,6 +388,7 @@
       "id": "leg_adjustable_100",
       "name": "Pata regulable 100 mm (base Ø50)",
       "kind": "leg",
+      "maxLoadKg": 100,
       "compatibleThickness": [
         15,
         25

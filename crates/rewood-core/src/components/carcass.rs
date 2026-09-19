@@ -31,6 +31,10 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     };
     let id = id.as_str();
 
+    ctx.note_literals(
+        id,
+        &[("width", width), ("height", height), ("depth", depth)],
+    );
     let width = ctx.eval(id, "width", width)?;
     let height = ctx.eval(id, "height", height)?;
     let depth = ctx.eval(id, "depth", depth)?;

@@ -227,6 +227,34 @@ impl<'a> BuildCtx<'a> {
         self.diagnostics.push(d);
     }
 
+    /// DESIGN-113: a dimension typed as a number where the spec expects a
+    /// parameter, so nothing else follows it when it changes. Zero is not
+    /// a dimension (`zone.from: 0`) and is left alone.
+    pub fn note_literals(&mut self, component: &str, fields: &[(&str, &ParamInput)]) {
+        let literals: Vec<String> = fields
+            .iter()
+            .filter_map(|(name, v)| match v {
+                ParamInput::Number(n) if *n != 0.0 => Some(format!("{name} = {n}")),
+                _ => None,
+            })
+            .collect();
+        if literals.is_empty() {
+            return;
+        }
+        self.warn(
+            Diagnostic::new(
+                "DESIGN-113",
+                Severity::Info,
+                format!(
+                    "'{component}' tiene medidas escritas a mano ({}); con un parámetro, el resto del mueble las sigue",
+                    literals.join(", ")
+                ),
+            )
+            .entity(component)
+            .suggestion("Declaralas en 'parameters' y referencialas por nombre."),
+        );
+    }
+
     pub fn scope(&self) -> Chain<'_> {
         Chain(&self.derived, self.params)
     }

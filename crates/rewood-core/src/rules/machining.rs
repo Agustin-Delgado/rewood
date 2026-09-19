@@ -425,6 +425,140 @@ impl Rule for OperationAllowed {
     }
 }
 
+/// A groove as an axis-aligned box in part space.
+struct Slot {
+    min: Vec3,
+    max: Vec3,
+    op_id: String,
+}
+
+fn slots(part: &Part) -> Vec<Slot> {
+    part.operations
+        .iter()
+        .filter_map(|op| match &op.geometry {
+            OpGeometry::Groove {
+                from,
+                to,
+                width,
+                depth,
+            } => {
+                let a = part.dims.uv_to_local(op.face, from[0], from[1]);
+                let b = part.dims.uv_to_local(op.face, to[0], to[1]);
+                let n = op.face.normal_local();
+                let (fu, fv) = op.face.uv_axes();
+                // The groove runs along one in-plane axis; it is `width`
+                // wide across the other and `depth` deep into the part.
+                let along = if (b - a).dot(fu.vec()).abs() >= (b - a).dot(fv.vec()).abs() {
+                    fu
+                } else {
+                    fv
+                };
+                let across = if along == fu { fv } else { fu };
+                let half = across.vec() * (width / 2.0);
+                let inward = n.vec() * (-depth);
+                let corners = [
+                    a,
+                    b,
+                    a + half,
+                    b + half,
+                    a - half,
+                    b - half,
+                    a + inward,
+                    b + inward,
+                ];
+                let mut min = a;
+                let mut max = a;
+                for c in corners {
+                    min = Vec3(min.0.min(c.0), min.1.min(c.1), min.2.min(c.2));
+                    max = Vec3(max.0.max(c.0), max.1.max(c.1), max.2.max(c.2));
+                }
+                Some(Slot {
+                    min,
+                    max,
+                    op_id: op.id.clone(),
+                })
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+/// Does an axis-aligned cylinder (its axis along one local axis) cut into
+/// an axis-aligned box? Interval overlap along the axis, circle against
+/// rectangle across it.
+fn cylinder_hits_box(c: &Cylinder, s: &Slot) -> bool {
+    let d = c.end - c.start;
+    let axis = [d.0.abs(), d.1.abs(), d.2.abs()]
+        .iter()
+        .enumerate()
+        .max_by(|a, b| a.1.partial_cmp(b.1).unwrap())
+        .map(|(i, _)| i)
+        .unwrap();
+    let (lo, hi) = (
+        c.start.component(axis).min(c.end.component(axis)),
+        c.start.component(axis).max(c.end.component(axis)),
+    );
+    if hi <= s.min.component(axis) + EPS || lo >= s.max.component(axis) - EPS {
+        return false;
+    }
+    let mut dist2 = 0.0;
+    for i in (0..3).filter(|i| *i != axis) {
+        let p = c.start.component(i);
+        let nearest = p.max(s.min.component(i)).min(s.max.component(i));
+        dist2 += (p - nearest) * (p - nearest);
+    }
+    dist2 < (c.radius - EPS) * (c.radius - EPS)
+}
+
+/// FAB-208: a hole cuts into a groove of the same part — the fastener
+/// would sit in the slot the back panel (or drawer bottom) runs in, and
+/// the panel would not go in.
+pub struct HoleThroughGroove;
+
+impl Rule for HoleThroughGroove {
+    fn id(&self) -> &'static str {
+        "FAB-208"
+    }
+
+    fn check(&self, input: &RuleInput<'_>) -> Vec<Diagnostic> {
+        let mut out = Vec::new();
+        for part in input.parts {
+            let slots = slots(part);
+            if slots.is_empty() {
+                continue;
+            }
+            let t = input
+                .libs
+                .materials
+                .material(&part.material)
+                .map(|m| m.actual_thickness)
+                .unwrap_or(part.dims.thickness);
+            for c in cylinders(part, t) {
+                for s in &slots {
+                    if cylinder_hits_box(&c, s) {
+                        out.push(
+                            Diagnostic::new(
+                                self.id(),
+                                Severity::Error,
+                                format!(
+                                    "{}: la perforación {} cae dentro de la ranura {}",
+                                    part.id, c.op_id, s.op_id
+                                ),
+                            )
+                            .entity(part.id.clone())
+                            .location(c.op_id.clone())
+                            .suggestion(
+                                "Corré el herraje con 'placement.endOffset' o alejá la ranura del borde ('groove.inset').",
+                            ),
+                        );
+                    }
+                }
+            }
+        }
+        out
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

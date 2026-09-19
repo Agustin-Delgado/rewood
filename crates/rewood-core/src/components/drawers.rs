@@ -43,8 +43,23 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
 
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
     let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
+    let spec_zone = zone.as_ref();
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
     ctx.occupy(id, OccupancyKind::Drawers, &carcass, &bays, zone);
+    {
+        let mut fields: Vec<(&str, &crate::params::ParamInput)> = Vec::new();
+        if let Some(z) = spec_zone {
+            fields.push(("zone.from", &z.from));
+            fields.push(("zone.to", &z.to));
+        }
+        if let Some(v) = front_height {
+            fields.push(("frontHeight", v));
+        }
+        if let Some(v) = box_height {
+            fields.push(("boxHeight", v));
+        }
+        ctx.note_literals(id, &fields);
+    }
     let zone_height = zone.z1 - zone.z0;
     let count = ctx.eval(id, "count", count)?;
     if count < 1.0 || count.fract() != 0.0 {

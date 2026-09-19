@@ -138,6 +138,11 @@ pub struct HardwareDef {
     /// Legs only: how tall they stand (the plinth is that tall too).
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub leg: Option<LegSpec>,
+    /// What one unit carries, kg: a hinge its share of the door, a slide
+    /// (per pair) the drawer with its contents, a leg its share of the
+    /// furniture. `None` = the library does not say, no check.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_load_kg: Option<f64>,
     pub holes: Vec<HoleSpec>,
     #[serde(default)]
     pub bom_items: Vec<BomItem>,

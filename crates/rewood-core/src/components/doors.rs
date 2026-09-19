@@ -36,8 +36,12 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
 
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
     let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
+    let spec_zone = zone.as_ref();
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
     ctx.occupy(id, OccupancyKind::Doors, &carcass, &bays, zone);
+    if let Some(z) = spec_zone {
+        ctx.note_literals(id, &[("zone.from", &z.from), ("zone.to", &z.to)]);
+    }
     let count = ctx.eval(id, "count", count)?;
     if count < 1.0 || count.fract() != 0.0 {
         return Err(Diagnostic::new(

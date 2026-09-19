@@ -214,6 +214,8 @@ export interface HoleSpec {
 export interface HardwareDef {
   /** Supplier id (`libraries.suppliers`); empty = none. */
   supplier?: string;
+  /** What one unit carries, kg (hinge: its share of the door; slide pair: the loaded drawer). */
+  maxLoadKg?: number;
   id: string;
   name: string;
   kind: string;
