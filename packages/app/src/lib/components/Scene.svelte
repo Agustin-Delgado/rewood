@@ -35,6 +35,11 @@
 
 	function colourOf(part: Part): string {
 		if (part.id === app.selectedPart) return '#ff8c42';
+		// A part with a finding shows it: red for what blocks or should be
+		// fixed, amber for what is probably wrong.
+		const level = app.severityOfPart(part.id);
+		if (level === 'ERROR' || level === 'FATAL') return '#d95f4b';
+		if (level === 'WARNING') return '#e3c25c';
 		if (part.material.startsWith('hdf')) return '#8a6a4a';
 		// Fronts (doors, drawer fronts) lighter than the carcass, so the
 		// furniture reads at a glance.

@@ -1,5 +1,6 @@
 {
   "version": "1.0",
+  "_note": "Indicative sheets; maxSpan is the unsupported span (mm) past which a loaded horizontal panel sags visibly, from common workshop practice (about 50 x thickness for particle board and MDF). A workshop replaces them through libraries.materials.",
   "materials": [
     {
       "id": "melamine_18",
@@ -11,6 +12,7 @@
       "grain": "directional",
       "density": 650,
       "wasteFactor": 1.15,
+      "maxSpan": 900,
       "supplier": "boards_supplier"
     },
     {
@@ -23,6 +25,7 @@
       "grain": "none",
       "density": 750,
       "wasteFactor": 1.15,
+      "maxSpan": 900,
       "supplier": "boards_supplier"
     },
     {
@@ -35,6 +38,7 @@
       "grain": "directional",
       "density": 600,
       "wasteFactor": 1.15,
+      "maxSpan": 1000,
       "supplier": "boards_supplier"
     },
     {
@@ -47,6 +51,7 @@
       "grain": "none",
       "density": 850,
       "wasteFactor": 1.1,
+      "maxSpan": 300,
       "supplier": "boards_supplier"
     }
   ],

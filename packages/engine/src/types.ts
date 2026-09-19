@@ -169,6 +169,8 @@ export type GrainKind = 'directional' | 'none';
 export interface Material {
   /** Supplier id (`libraries.suppliers`); empty = none. */
   supplier?: string;
+  /** Longest unsupported span (mm) a horizontal panel should bridge; default 50 × thickness. */
+  maxSpan?: number;
   /** Purchase price of one sheet, in the profile's currency; 0 = unknown. */
   pricePerSheet?: number;
   id: string;

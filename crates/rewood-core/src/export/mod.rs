@@ -685,6 +685,43 @@ Programas NC
 /// All files of the package, sorted by path. Deterministic.
 pub fn package(plan: &ManufacturingPlan) -> Vec<PackageFile> {
     let mut files = Vec::new();
+    // §33: a fatal finding blocks manufacturing. The package then carries
+    // what explains the block and nothing a workshop could cut from.
+    if plan.manufacturing_blocked {
+        let mut txt = String::from(
+            "FABRICACIÓN BLOQUEADA\n\nEste paquete no trae programas, DXF ni despiece: la especificación tiene hallazgos fatales.\nCorregilos y volvé a exportar.\n\n",
+        );
+        for d in &plan.diagnostics.items {
+            if d.severity == crate::diagnostics::Severity::Fatal {
+                let _ = writeln!(
+                    txt,
+                    "{} {}{}",
+                    d.code,
+                    d.entity
+                        .as_deref()
+                        .map(|e| format!("[{e}] "))
+                        .unwrap_or_default(),
+                    d.message
+                );
+                if let Some(s) = &d.suggestion {
+                    let _ = writeln!(txt, "    → {s}");
+                }
+            }
+        }
+        files.push(PackageFile {
+            path: "BLOQUEADO.txt".into(),
+            contents: txt,
+        });
+        files.push(PackageFile {
+            path: "documentation/report.html".into(),
+            contents: report_html(plan),
+        });
+        files.push(PackageFile {
+            path: "plan.json".into(),
+            contents: plan.to_json_pretty() + "\n",
+        });
+        return with_manifest(plan, files);
+    }
     for p in &plan.parts {
         files.push(PackageFile {
             path: format!("parts/{}.dxf", p.id),
@@ -791,7 +828,10 @@ pub fn package(plan: &ManufacturingPlan) -> Vec<PackageFile> {
         path: "plan.json".into(),
         contents: plan.to_json_pretty() + "\n",
     });
+    with_manifest(plan, files)
+}
 
+fn with_manifest(plan: &ManufacturingPlan, mut files: Vec<PackageFile>) -> Vec<PackageFile> {
     let manifest = serde_json::json!({
         "furniture": plan.furniture,
         "versions": plan.versions,
@@ -817,6 +857,27 @@ pub fn package(plan: &ManufacturingPlan) -> Vec<PackageFile> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_blocked_plan_packages_nothing_a_workshop_could_cut_from() {
+        let spec = include_str!("../../../../fixtures/invalid_cabinet/input.json");
+        let plan = crate::compile_json(spec);
+        assert!(plan.manufacturing_blocked);
+        let files = package(&plan);
+        let paths: Vec<&str> = files.iter().map(|f| f.path.as_str()).collect();
+        assert_eq!(
+            paths,
+            [
+                "BLOQUEADO.txt",
+                "documentation/report.html",
+                "manifest.json",
+                "plan.json"
+            ]
+        );
+        let txt = &files[0].contents;
+        assert!(txt.contains("LIB-101"), "{txt}");
+        assert!(txt.contains("SPEC-401"), "{txt}");
+    }
 
     #[test]
     fn package_has_one_dxf_per_part_and_is_deterministic() {

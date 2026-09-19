@@ -3,6 +3,7 @@
 //! a pure function; rules run in a fixed order and the result is sorted, so
 //! the findings for a given model never change between runs.
 
+mod design;
 mod geometry;
 mod machining;
 mod material;
@@ -35,6 +36,7 @@ pub fn all_rules() -> Vec<Box<dyn Rule>> {
         Box::new(material::PartFitsSheet),
         Box::new(material::PartFitsMachine),
         Box::new(material::HardwareThickness),
+        Box::new(design::PanelSpan),
     ]
 }
 
@@ -50,7 +52,7 @@ pub fn run_all(input: &RuleInput<'_>) -> Diagnostics {
 
 /// Format a millimetre value for a message: up to three decimals, no
 /// trailing zeros.
-pub(crate) fn mm(v: f64) -> String {
+pub fn mm(v: f64) -> String {
     let r = crate::units::round3(v);
     if r.fract() == 0.0 {
         format!("{}", r as i64)

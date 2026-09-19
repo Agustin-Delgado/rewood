@@ -5,10 +5,12 @@
  */
 import {
 	loadEngine,
+	type Diagnostic,
 	type Engine,
 	type FurnitureSpec,
 	type LibrariesSnapshot,
-	type ManufacturingPlan
+	type ManufacturingPlan,
+	type Severity
 } from '@rewood/engine/browser';
 
 import {
@@ -28,7 +30,7 @@ import wardrobe from '../../../../fixtures/wardrobe_1800/input.json';
 
 export const EXAMPLES: { id: string; name: string; spec: FurnitureSpec }[] = [
 	{ id: 'wardrobe_1800', name: 'Placard 1800 (3 módulos)', spec: wardrobe as FurnitureSpec },
-	{ id: 'basic_cabinet', name: 'Módulo básico 1000×800', spec: basicCabinet as FurnitureSpec },
+	{ id: 'basic_cabinet', name: 'Módulo básico 900×800', spec: basicCabinet as FurnitureSpec },
 	{ id: 'drawer_unit', name: 'Cajonera 600×700', spec: drawerUnit as FurnitureSpec },
 	{ id: 'bookcase_fixed', name: 'Biblioteca 800×2000 con estante fijo', spec: bookcase as FurnitureSpec },
 	{ id: 'kitchen_run', name: 'Bajo mesada 1800: 3 módulos', spec: kitchen as unknown as FurnitureSpec }
@@ -43,6 +45,8 @@ class AppState {
 	specError: string | null = $state(null);
 	plan: ManufacturingPlan | null = $state(null);
 	selectedPart: string | null = $state(null);
+	/** Component the editor should unfold and scroll to (from a finding). */
+	focusComponent: string | null = $state(null);
 	hiddenComponents: Set<string> = $state(new Set());
 	showHoles: boolean = $state(true);
 	/** Exploded view: 0 assembled, 1 the documentation's spread. */
@@ -215,6 +219,34 @@ class AppState {
 	get selected() {
 		return this.plan?.parts.find((p) => p.id === this.selectedPart) ?? null;
 	}
+
+	/**
+	 * Findings about a component: those naming it, and those naming one of
+	 * its parts (a hole too close to an edge belongs to the panel, and the
+	 * panel to the component that generated it).
+	 */
+	findingsFor(component: string): Diagnostic[] {
+		if (!this.plan) return [];
+		const parts = new Set(this.plan.parts.filter((p) => p.component === component).map((p) => p.id));
+		return this.plan.diagnostics.items.filter(
+			(d) => d.entity === component || (d.entity !== undefined && parts.has(d.entity))
+		);
+	}
+
+	/** The worst finding touching a part, for the viewer's tint. */
+	severityOfPart(part: string): Severity | null {
+		if (!this.plan) return null;
+		const p = this.plan.parts.find((x) => x.id === part);
+		if (!p) return null;
+		let worst: Severity | null = null;
+		for (const d of this.plan.diagnostics.items) {
+			if (d.entity !== part && d.location !== part && d.entity !== p.component) continue;
+			if (worst === null || RANK[d.severity] > RANK[worst]) worst = d.severity;
+		}
+		return worst;
+	}
 }
+
+const RANK: Record<Severity, number> = { INFO: 0, WARNING: 1, ERROR: 2, FATAL: 3 };
 
 export const app = new AppState();

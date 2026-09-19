@@ -72,7 +72,11 @@
 			</span>
 		{/if}
 		<button onclick={openReport} disabled={loading}>Informe</button>
-		<button class="primary" onclick={downloadPackage} disabled={loading}>Descargar paquete (.zip)</button>
+		{#if app.plan?.manufacturingBlocked}
+			<button class="primary" disabled title="Hay hallazgos fatales: el paquete no lleva programas ni DXF hasta corregirlos">Fabricación bloqueada</button>
+		{:else}
+			<button class="primary" onclick={downloadPackage} disabled={loading}>Descargar paquete (.zip)</button>
+		{/if}
 		{#if app.engine}
 			<span class="version">motor {app.engine.engineVersion()}</span>
 		{/if}

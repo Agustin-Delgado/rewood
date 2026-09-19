@@ -136,6 +136,16 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
     if diags.has_fatal() {
         return empty_plan(furniture, libs, diags);
     }
+    if spec.edge_material.is_none() {
+        diags.push(
+            Diagnostic::new(
+                "DESIGN-109",
+                Severity::Info,
+                "el mueble no tiene material de canto: todos los bordes de placa quedan a la vista",
+            )
+            .suggestion("Declará edgeMaterial (por ejemplo abs_1mm)."),
+        );
+    }
 
     // 1. Parameters.
     let params = match ParamGraph::build(&spec.parameters) {

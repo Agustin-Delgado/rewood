@@ -2,7 +2,7 @@
   "schemaVersion": "1.0",
   "furniture": {
     "id": "basic_cabinet",
-    "name": "Módulo básico 1000×800×400",
+    "name": "Módulo básico 900×800×400",
     "version": "1.0"
   },
   "versions": {
@@ -214,30 +214,30 @@
     "door_gap": 2.0,
     "height": 800.0,
     "shelf_count": 2.0,
-    "width": 1000.0
+    "width": 900.0
   },
   "derived": {
-    "carcass.back_length": 979.0,
+    "carcass.back_length": 879.0,
     "carcass.back_width": 779.0,
-    "carcass.bay_1_width": 964.0,
-    "carcass.bay_width": 964.0,
+    "carcass.bay_1_width": 864.0,
+    "carcass.bay_width": 864.0,
     "carcass.bays": 1.0,
     "carcass.depth": 400.0,
     "carcass.height": 800.0,
     "carcass.inner_height": 764.0,
-    "carcass.inner_width": 964.0,
+    "carcass.inner_width": 864.0,
     "carcass.origin_x": 0.0,
     "carcass.origin_y": 0.0,
     "carcass.origin_z": 0.0,
     "carcass.thickness": 18.0,
-    "carcass.width": 1000.0,
+    "carcass.width": 900.0,
     "doors.count": 2.0,
     "doors.door_height": 796.0,
-    "doors.door_width": 497.0,
+    "doors.door_width": 447.0,
     "shelves.bay_height": 242.667,
     "shelves.count": 2.0,
     "shelves.depth": 366.8,
-    "shelves.length": 964.0
+    "shelves.length": 864.0
   },
   "parts": [
     {
@@ -586,7 +586,7 @@
       },
       "placement": {
         "origin": [
-          1000.0,
+          900.0,
           0.0,
           0.0
         ],
@@ -595,12 +595,12 @@
       },
       "aabb": {
         "min": [
-          982.0,
+          882.0,
           0.0,
           0.0
         ],
         "max": [
-          1000.0,
+          900.0,
           400.0,
           800.0
         ]
@@ -897,12 +897,12 @@
       "role": "top",
       "material": "melamine_18",
       "dims": {
-        "length": 964.0,
+        "length": 864.0,
         "width": 400.0,
         "thickness": 18.0
       },
       "cut": {
-        "length": 964.0,
+        "length": 864.0,
         "width": 399.0
       },
       "grain": "length",
@@ -925,7 +925,7 @@
           782.0
         ],
         "max": [
-          982.0,
+          882.0,
           400.0,
           800.0
         ]
@@ -940,7 +940,7 @@
             388.4
           ],
           "to": [
-            964.0,
+            864.0,
             388.4
           ],
           "width": 3.2,
@@ -1046,7 +1046,7 @@
           "id": "P003-OP08",
           "face": "front",
           "type": "DRILL",
-          "u": 930.0,
+          "u": 830.0,
           "v": 350.0,
           "diameter": 15.0,
           "depth": 12.5,
@@ -1078,7 +1078,7 @@
           "id": "P003-OP10",
           "face": "front",
           "type": "DRILL",
-          "u": 930.0,
+          "u": 830.0,
           "v": 50.0,
           "diameter": 15.0,
           "depth": 12.5,
@@ -1144,7 +1144,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 964.0
+          "length": 864.0
         }
       ],
       "overlapExempt": [
@@ -1158,12 +1158,12 @@
       "role": "bottom",
       "material": "melamine_18",
       "dims": {
-        "length": 964.0,
+        "length": 864.0,
         "width": 400.0,
         "thickness": 18.0
       },
       "cut": {
-        "length": 964.0,
+        "length": 864.0,
         "width": 399.0
       },
       "grain": "length",
@@ -1186,7 +1186,7 @@
           0.0
         ],
         "max": [
-          982.0,
+          882.0,
           400.0,
           18.0
         ]
@@ -1201,7 +1201,7 @@
             11.6
           ],
           "to": [
-            964.0,
+            864.0,
             11.6
           ],
           "width": 3.2,
@@ -1307,7 +1307,7 @@
           "id": "P004-OP08",
           "face": "front",
           "type": "DRILL",
-          "u": 930.0,
+          "u": 830.0,
           "v": 50.0,
           "diameter": 15.0,
           "depth": 12.5,
@@ -1339,7 +1339,7 @@
           "id": "P004-OP10",
           "face": "front",
           "type": "DRILL",
-          "u": 930.0,
+          "u": 830.0,
           "v": 350.0,
           "diameter": 15.0,
           "depth": 12.5,
@@ -1405,7 +1405,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 964.0
+          "length": 864.0
         }
       ],
       "overlapExempt": [
@@ -1419,12 +1419,12 @@
       "role": "back",
       "material": "hdf_3",
       "dims": {
-        "length": 979.0,
+        "length": 879.0,
         "width": 779.0,
         "thickness": 3.0
       },
       "cut": {
-        "length": 979.0,
+        "length": 879.0,
         "width": 779.0
       },
       "grain": "none",
@@ -1445,7 +1445,7 @@
           10.5
         ],
         "max": [
-          989.5,
+          889.5,
           13.1,
           789.5
         ]
@@ -1465,12 +1465,12 @@
       "role": "shelf_1",
       "material": "melamine_18",
       "dims": {
-        "length": 964.0,
+        "length": 864.0,
         "width": 366.8,
         "thickness": 18.0
       },
       "cut": {
-        "length": 964.0,
+        "length": 864.0,
         "width": 365.8
       },
       "grain": "length",
@@ -1493,7 +1493,7 @@
           260.667
         ],
         "max": [
-          982.0,
+          882.0,
           380.0,
           278.667
         ]
@@ -1569,7 +1569,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 964.0
+          "length": 864.0
         }
       ]
     },
@@ -1580,12 +1580,12 @@
       "role": "shelf_2",
       "material": "melamine_18",
       "dims": {
-        "length": 964.0,
+        "length": 864.0,
         "width": 366.8,
         "thickness": 18.0
       },
       "cut": {
-        "length": 964.0,
+        "length": 864.0,
         "width": 365.8
       },
       "grain": "length",
@@ -1608,7 +1608,7 @@
           521.333
         ],
         "max": [
-          982.0,
+          882.0,
           380.0,
           539.333
         ]
@@ -1684,7 +1684,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 964.0
+          "length": 864.0
         }
       ]
     },
@@ -1696,12 +1696,12 @@
       "material": "melamine_18",
       "dims": {
         "length": 796.0,
-        "width": 497.0,
+        "width": 447.0,
         "thickness": 18.0
       },
       "cut": {
         "length": 794.0,
-        "width": 495.0
+        "width": 445.0
       },
       "grain": "length",
       "edges": {
@@ -1712,7 +1712,7 @@
       },
       "placement": {
         "origin": [
-          499.0,
+          449.0,
           418.0,
           2.0
         ],
@@ -1726,7 +1726,7 @@
           2.0
         ],
         "max": [
-          499.0,
+          449.0,
           418.0,
           798.0
         ]
@@ -1737,7 +1737,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 100.0,
-          "v": 474.5,
+          "v": 424.5,
           "diameter": 35.0,
           "depth": 12.5,
           "through": false,
@@ -1753,7 +1753,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 122.5,
-          "v": 465.0,
+          "v": 415.0,
           "diameter": 8.0,
           "depth": 11.0,
           "through": false,
@@ -1769,7 +1769,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 77.5,
-          "v": 465.0,
+          "v": 415.0,
           "diameter": 8.0,
           "depth": 11.0,
           "through": false,
@@ -1785,7 +1785,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 696.0,
-          "v": 474.5,
+          "v": 424.5,
           "diameter": 35.0,
           "depth": 12.5,
           "through": false,
@@ -1801,7 +1801,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 718.5,
-          "v": 465.0,
+          "v": 415.0,
           "diameter": 8.0,
           "depth": 11.0,
           "through": false,
@@ -1817,7 +1817,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 673.5,
-          "v": 465.0,
+          "v": 415.0,
           "diameter": 8.0,
           "depth": 11.0,
           "through": false,
@@ -1834,7 +1834,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 497.0
+          "length": 447.0
         },
         {
           "id": "P008-OP08",
@@ -1842,7 +1842,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 497.0
+          "length": 447.0
         },
         {
           "id": "P008-OP09",
@@ -1870,12 +1870,12 @@
       "material": "melamine_18",
       "dims": {
         "length": 796.0,
-        "width": 497.0,
+        "width": 447.0,
         "thickness": 18.0
       },
       "cut": {
         "length": 794.0,
-        "width": 495.0
+        "width": 445.0
       },
       "grain": "length",
       "edges": {
@@ -1886,7 +1886,7 @@
       },
       "placement": {
         "origin": [
-          998.0,
+          898.0,
           418.0,
           2.0
         ],
@@ -1895,12 +1895,12 @@
       },
       "aabb": {
         "min": [
-          501.0,
+          451.0,
           400.0,
           2.0
         ],
         "max": [
-          998.0,
+          898.0,
           418.0,
           798.0
         ]
@@ -2008,7 +2008,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 497.0
+          "length": 447.0
         },
         {
           "id": "P009-OP08",
@@ -2016,7 +2016,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 497.0
+          "length": 447.0
         },
         {
           "id": "P009-OP09",
@@ -2113,12 +2113,12 @@
       ],
       "contact": {
         "min": [
-          982.0,
+          882.0,
           0.0,
           782.0
         ],
         "max": [
-          982.0,
+          882.0,
           400.0,
           800.0
         ]
@@ -2130,7 +2130,7 @@
           "hardware": "minifix_15",
           "index": 0,
           "position": [
-            982.0,
+            882.0,
             50.0,
             791.0
           ]
@@ -2139,7 +2139,7 @@
           "hardware": "minifix_15",
           "index": 1,
           "position": [
-            982.0,
+            882.0,
             350.0,
             791.0
           ]
@@ -2148,7 +2148,7 @@
           "hardware": "dowel_8x30",
           "index": 0,
           "position": [
-            982.0,
+            882.0,
             120.0,
             791.0
           ]
@@ -2157,7 +2157,7 @@
           "hardware": "dowel_8x30",
           "index": 1,
           "position": [
-            982.0,
+            882.0,
             280.0,
             791.0
           ]
@@ -2239,12 +2239,12 @@
       ],
       "contact": {
         "min": [
-          982.0,
+          882.0,
           0.0,
           0.0
         ],
         "max": [
-          982.0,
+          882.0,
           400.0,
           18.0
         ]
@@ -2256,7 +2256,7 @@
           "hardware": "minifix_15",
           "index": 0,
           "position": [
-            982.0,
+            882.0,
             50.0,
             9.0
           ]
@@ -2265,7 +2265,7 @@
           "hardware": "minifix_15",
           "index": 1,
           "position": [
-            982.0,
+            882.0,
             350.0,
             9.0
           ]
@@ -2274,7 +2274,7 @@
           "hardware": "dowel_8x30",
           "index": 0,
           "position": [
-            982.0,
+            882.0,
             120.0,
             9.0
           ]
@@ -2283,7 +2283,7 @@
           "hardware": "dowel_8x30",
           "index": 1,
           "position": [
-            982.0,
+            882.0,
             280.0,
             9.0
           ]
@@ -2345,12 +2345,12 @@
       ],
       "contact": {
         "min": [
-          982.0,
+          882.0,
           13.2,
           260.667
         ],
         "max": [
-          982.0,
+          882.0,
           380.0,
           278.667
         ]
@@ -2362,7 +2362,7 @@
           "hardware": "dowel_8x30",
           "index": 0,
           "position": [
-            982.0,
+            882.0,
             133.2,
             269.667
           ]
@@ -2371,7 +2371,7 @@
           "hardware": "dowel_8x30",
           "index": 1,
           "position": [
-            982.0,
+            882.0,
             260.0,
             269.667
           ]
@@ -2433,12 +2433,12 @@
       ],
       "contact": {
         "min": [
-          982.0,
+          882.0,
           13.2,
           521.333
         ],
         "max": [
-          982.0,
+          882.0,
           380.0,
           539.333
         ]
@@ -2450,7 +2450,7 @@
           "hardware": "dowel_8x30",
           "index": 0,
           "position": [
-            982.0,
+            882.0,
             133.2,
             530.333
           ]
@@ -2459,7 +2459,7 @@
           "hardware": "dowel_8x30",
           "index": 1,
           "position": [
-            982.0,
+            882.0,
             260.0,
             530.333
           ]
@@ -2521,12 +2521,12 @@
       ],
       "contact": {
         "min": [
-          998.0,
+          898.0,
           400.0,
           2.0
         ],
         "max": [
-          998.0,
+          898.0,
           400.0,
           798.0
         ]
@@ -2538,7 +2538,7 @@
           "hardware": "hinge_35_overlay",
           "index": 0,
           "position": [
-            998.0,
+            898.0,
             400.0,
             102.0
           ]
@@ -2547,7 +2547,7 @@
           "hardware": "hinge_35_overlay",
           "index": 1,
           "position": [
-            998.0,
+            898.0,
             400.0,
             698.0
           ]
@@ -2597,15 +2597,15 @@
       "name": "Tapa",
       "quantity": 1,
       "material": "melamine_18",
-      "cutLength": 964.0,
+      "cutLength": 864.0,
       "cutWidth": 399.0,
-      "finishedLength": 964.0,
+      "finishedLength": 864.0,
       "finishedWidth": 400.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/abs_1mm/-",
       "operations": 14,
-      "weightKg": 4.512
+      "weightKg": 4.044
     },
     {
       "partIds": [
@@ -2614,15 +2614,15 @@
       "name": "Base",
       "quantity": 1,
       "material": "melamine_18",
-      "cutLength": 964.0,
+      "cutLength": 864.0,
       "cutWidth": 399.0,
-      "finishedLength": 964.0,
+      "finishedLength": 864.0,
       "finishedWidth": 400.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/-/abs_1mm",
       "operations": 14,
-      "weightKg": 4.512
+      "weightKg": 4.044
     },
     {
       "partIds": [
@@ -2631,15 +2631,15 @@
       "name": "Fondo",
       "quantity": 1,
       "material": "hdf_3",
-      "cutLength": 979.0,
+      "cutLength": 879.0,
       "cutWidth": 779.0,
-      "finishedLength": 979.0,
+      "finishedLength": 879.0,
       "finishedWidth": 779.0,
       "thickness": 3.0,
       "grain": "none",
       "edges": "-/-/-/-",
       "operations": 0,
-      "weightKg": 1.945
+      "weightKg": 1.746
     },
     {
       "partIds": [
@@ -2649,15 +2649,15 @@
       "name": "Estante 1",
       "quantity": 2,
       "material": "melamine_18",
-      "cutLength": 964.0,
+      "cutLength": 864.0,
       "cutWidth": 365.8,
-      "finishedLength": 964.0,
+      "finishedLength": 864.0,
       "finishedWidth": 366.8,
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/-/abs_1mm",
       "operations": 5,
-      "weightKg": 4.137
+      "weightKg": 3.708
     },
     {
       "partIds": [
@@ -2667,14 +2667,14 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 794.0,
-      "cutWidth": 495.0,
+      "cutWidth": 445.0,
       "finishedLength": 796.0,
-      "finishedWidth": 497.0,
+      "finishedWidth": 447.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
       "operations": 10,
-      "weightKg": 4.629
+      "weightKg": 4.163
     },
     {
       "partIds": [
@@ -2684,14 +2684,14 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 794.0,
-      "cutWidth": 495.0,
+      "cutWidth": 445.0,
       "finishedLength": 796.0,
-      "finishedWidth": 497.0,
+      "finishedWidth": 447.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
       "operations": 10,
-      "weightKg": 4.629
+      "weightKg": 4.163
     }
   ],
   "bom": {
@@ -2700,22 +2700,22 @@
         "material": "hdf_3",
         "name": "Fibrofácil HDF 3 mm",
         "parts": 1,
-        "netAreaM2": 0.763,
+        "netAreaM2": 0.685,
         "sheetLength": 2750.0,
         "sheetWidth": 1830.0,
         "estimatedSheets": 1,
-        "yieldRatio": 0.152,
+        "yieldRatio": 0.136,
         "cost": 0.0
       },
       {
         "material": "melamine_18",
         "name": "Melamina 18 mm",
         "parts": 8,
-        "netAreaM2": 2.899,
+        "netAreaM2": 2.667,
         "sheetLength": 2750.0,
         "sheetWidth": 1830.0,
         "estimatedSheets": 1,
-        "yieldRatio": 0.576,
+        "yieldRatio": 0.53,
         "cost": 0.0
       }
     ],
@@ -2774,11 +2774,11 @@
       {
         "material": "abs_1mm",
         "name": "Canto ABS 1 mm",
-        "lengthM": 10.628,
+        "lengthM": 10.028,
         "cost": 0.0
       }
     ],
-    "totalWeightKg": 35.987,
+    "totalWeightKg": 33.063,
     "materialsCost": 0.0,
     "machiningCost": 0.0,
     "totalCost": 0.0,
@@ -2804,12 +2804,12 @@
           "x": 10.0,
           "y": 10.0,
           "length": 779.0,
-          "width": 979.0,
+          "width": 879.0,
           "rotated": true
         }
       ],
-      "usedAreaM2": 0.763,
-      "wasteRatio": 0.848
+      "usedAreaM2": 0.685,
+      "wasteRatio": 0.864
     },
     {
       "material": "melamine_18",
@@ -2822,73 +2822,73 @@
           "x": 10.0,
           "y": 10.0,
           "length": 794.0,
-          "width": 495.0,
+          "width": 445.0,
           "rotated": false
         },
         {
           "part": "P009",
           "x": 10.0,
-          "y": 509.0,
+          "y": 459.0,
           "length": 794.0,
-          "width": 495.0,
+          "width": 445.0,
           "rotated": false
         },
         {
           "part": "P003",
           "x": 10.0,
-          "y": 1008.0,
-          "length": 964.0,
+          "y": 908.0,
+          "length": 864.0,
           "width": 399.0,
           "rotated": false
         },
         {
           "part": "P004",
           "x": 10.0,
-          "y": 1411.0,
-          "length": 964.0,
+          "y": 1311.0,
+          "length": 864.0,
           "width": 399.0,
-          "rotated": false
-        },
-        {
-          "part": "P006",
-          "x": 808.0,
-          "y": 10.0,
-          "length": 964.0,
-          "width": 365.8,
-          "rotated": false
-        },
-        {
-          "part": "P007",
-          "x": 1776.0,
-          "y": 10.0,
-          "length": 964.0,
-          "width": 365.8,
           "rotated": false
         },
         {
           "part": "P001",
           "x": 808.0,
-          "y": 379.8,
+          "y": 10.0,
           "length": 800.0,
           "width": 399.0,
           "rotated": false
         },
         {
           "part": "P002",
-          "x": 1612.0,
-          "y": 379.8,
+          "x": 808.0,
+          "y": 413.0,
           "length": 800.0,
           "width": 399.0,
           "rotated": false
+        },
+        {
+          "part": "P006",
+          "x": 1612.0,
+          "y": 10.0,
+          "length": 864.0,
+          "width": 365.8,
+          "rotated": false
+        },
+        {
+          "part": "P007",
+          "x": 1612.0,
+          "y": 379.8,
+          "length": 864.0,
+          "width": 365.8,
+          "rotated": false
         }
       ],
-      "usedAreaM2": 2.899,
-      "wasteRatio": 0.424
+      "usedAreaM2": 2.667,
+      "wasteRatio": 0.47
     }
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 1307.358,
+    "totalSeconds": 1259.832,
     "programs": [
       {
         "part": "P001",
@@ -2913,63 +2913,63 @@
         "setup": "A",
         "operations": 14,
         "toolChanges": 4,
-        "cutMm": 8861.5,
-        "rapidMm": 5222.81,
-        "seconds": 285.725
+        "cutMm": 8061.5,
+        "rapidMm": 4843.364,
+        "seconds": 265.087
       },
       {
         "part": "P004",
         "setup": "A",
         "operations": 14,
         "toolChanges": 4,
-        "cutMm": 8861.5,
-        "rapidMm": 4854.704,
-        "seconds": 284.621
+        "cutMm": 8061.5,
+        "rapidMm": 4467.173,
+        "seconds": 263.959
       },
       {
         "part": "P005",
         "setup": "A",
         "operations": 1,
         "toolChanges": 1,
-        "cutMm": 3570.5,
+        "cutMm": 3370.5,
         "rapidMm": 188.985,
-        "seconds": 35.492
+        "seconds": 33.992
       },
       {
         "part": "P006",
         "setup": "A",
         "operations": 5,
         "toolChanges": 2,
-        "cutMm": 2803.1,
+        "cutMm": 2603.1,
         "rapidMm": 203.985,
-        "seconds": 48.379
+        "seconds": 46.879
       },
       {
         "part": "P007",
         "setup": "A",
         "operations": 5,
         "toolChanges": 2,
-        "cutMm": 2803.1,
+        "cutMm": 2603.1,
         "rapidMm": 203.985,
-        "seconds": 48.379
+        "seconds": 46.879
       },
       {
         "part": "P008",
         "setup": "A",
         "operations": 7,
         "toolChanges": 3,
-        "cutMm": 2724.5,
-        "rapidMm": 3535.64,
-        "seconds": 64.043
+        "cutMm": 2624.5,
+        "rapidMm": 3460.27,
+        "seconds": 63.067
       },
       {
         "part": "P009",
         "setup": "A",
         "operations": 7,
         "toolChanges": 3,
-        "cutMm": 2724.5,
+        "cutMm": 2624.5,
         "rapidMm": 3033.268,
-        "seconds": 62.536
+        "seconds": 61.786
       }
     ]
   },
@@ -2983,7 +2983,7 @@
           "kind": "edge_band",
           "id": "abs_1mm",
           "name": "Canto ABS 1 mm",
-          "quantity": 10.628,
+          "quantity": 10.028,
           "unit": "m",
           "unitPrice": 0.0,
           "cost": 0.0

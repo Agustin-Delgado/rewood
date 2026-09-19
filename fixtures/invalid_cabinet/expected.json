@@ -2297,6 +2297,28 @@
         "location": "P005",
         "message": "J006: 'Tornillo con mecha inexistente y demasiado profundo' está pensado para 25–40 mm y P005 (Estante 1) tiene 18 mm",
         "suggestion": "Elegí un herraje compatible con ese espesor."
+      },
+      {
+        "code": "DESIGN-101",
+        "severity": "WARNING",
+        "entity": "carcass",
+        "message": "tapa y base de 'carcass': 2964 mm de luz en Melamina 18 mm, que aguanta 900 sin pandear",
+        "suggestion": "Partí el ancho con un divisor (bays: 2) o usá una placa más gruesa."
+      },
+      {
+        "code": "DESIGN-101",
+        "severity": "WARNING",
+        "entity": "shelves",
+        "location": "P005",
+        "message": "el panel P005 de 'shelves': 2964 mm de luz en Melamina 18 mm, que aguanta 900 sin pandear",
+        "suggestion": "Partí el ancho con un divisor (bays), agregá un estante fijo o usá una placa más gruesa."
+      },
+      {
+        "code": "DESIGN-107",
+        "severity": "WARNING",
+        "entity": "carcass",
+        "message": "la carcasa 'carcass' no tiene fondo: sin él no queda a escuadra y se deforma al cargarla",
+        "suggestion": "Agregá back: { material: \"hdf_3\" }, salvo que otra cosa la arriostre."
       }
     ]
   }

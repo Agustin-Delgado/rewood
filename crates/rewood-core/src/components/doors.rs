@@ -9,11 +9,12 @@
 //! to a divider overlays half of it, so two neighbouring doors meet in the
 //! middle of the divider with one gap between them.
 
-use super::{BuildCtx, JointKind, PartInit};
+use super::{BuildCtx, JointKind, OccupancyKind, PartInit};
 use crate::diagnostics::{Diagnostic, Severity};
 use crate::geometry::{Axis, Placement, Vec3};
 use crate::model::Grain;
-use crate::spec::ComponentSpec;
+use crate::rules::mm;
+use crate::spec::{ComponentSpec, EdgeBanding};
 
 pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnostic> {
     let ComponentSpec::Doors {
@@ -36,6 +37,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
     let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
+    ctx.occupy(id, OccupancyKind::Doors, &carcass, &bays, zone);
     let count = ctx.eval(id, "count", count)?;
     if count < 1.0 || count.fract() != 0.0 {
         return Err(Diagnostic::new(
@@ -78,6 +80,79 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     ctx.publish(id, "count", count as f64);
     ctx.publish(id, "door_width", door_width);
     ctx.publish(id, "door_height", door_height);
+
+    // What a cabinetmaker would say before cutting: none of it stops the
+    // doors from being generated.
+    if door_width > 600.0 {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-102",
+                Severity::Warning,
+                format!(
+                    "'{id}': puertas de {} mm de ancho; más de 600 fuerza las bisagras y barre mucho al abrir",
+                    mm(door_width)
+                ),
+            )
+            .entity(id)
+            .suggestion("Poné dos puertas por bahía, o más bahías."),
+        );
+    } else if door_width < 200.0 {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-102",
+                Severity::Warning,
+                format!(
+                    "'{id}': puertas de {} mm de ancho, demasiado angostas para bisagra y manija",
+                    mm(door_width)
+                ),
+            )
+            .entity(id)
+            .suggestion("Una puerta por bahía, o una bahía más ancha."),
+        );
+    }
+    if gap < 1.5 {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-103",
+                Severity::Warning,
+                format!(
+                    "'{id}': {} mm de luz entre frentes; con menos de 1,5 mm rozan al abrir",
+                    mm(gap)
+                ),
+            )
+            .entity(id)
+            .suggestion("Usá 2–3 mm de luz."),
+        );
+    }
+    if let Some(handle) = handle {
+        let from_edge = ctx.eval(id, "handle.fromEdge", &handle.from_edge)?;
+        if from_edge > door_width / 2.0 {
+            ctx.warn(
+                Diagnostic::new(
+                    "DESIGN-110",
+                    Severity::Warning,
+                    format!(
+                        "'{id}': la manija a {} mm del borde pasa la mitad de una puerta de {} mm y queda del lado de la bisagra",
+                        mm(from_edge),
+                        mm(door_width)
+                    ),
+                )
+                .entity(id)
+                .suggestion("Bajá 'handle.fromEdge' (40–60 mm es lo usual)."),
+            );
+        }
+    }
+    if *edges == EdgeBanding::None {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-109",
+                Severity::Warning,
+                format!("'{id}': puertas sin canto; los bordes de placa quedan a la vista"),
+            )
+            .entity(id)
+            .suggestion("Sacá 'edges: none' o dejá 'all'."),
+        );
+    }
 
     let all_edges = super::banded_axes(*edges, &[Axis::PosX, Axis::NegX, Axis::PosZ, Axis::NegZ]);
     let many = bays.len() > 1;

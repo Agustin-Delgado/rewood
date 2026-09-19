@@ -9,11 +9,12 @@
 //! What is not modelled yet: fixing the front panel to the box front (a
 //! face-to-face joint) and the handle.
 
-use super::{BuildCtx, JointKind, PartInit};
+use super::{BuildCtx, JointKind, OccupancyKind, PartInit};
 use crate::diagnostics::{Diagnostic, Severity};
 use crate::geometry::{Axis, Placement, Vec3};
 use crate::model::Grain;
-use crate::spec::ComponentSpec;
+use crate::rules::mm;
+use crate::spec::{ComponentSpec, EdgeBanding};
 
 pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnostic> {
     let ComponentSpec::Drawers {
@@ -43,6 +44,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
     let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
+    ctx.occupy(id, OccupancyKind::Drawers, &carcass, &bays, zone);
     let zone_height = zone.z1 - zone.z0;
     let count = ctx.eval(id, "count", count)?;
     if count < 1.0 || count.fract() != 0.0 {
@@ -167,6 +169,77 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     ctx.publish(id, "box_height", box_height);
     ctx.publish(id, "box_depth", box_depth);
     ctx.publish(id, "box_width", box_outer_width);
+
+    if front_height < 100.0 {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-104",
+                Severity::Warning,
+                format!(
+                    "'{id}': frentes de {} mm; con menos de 100 no entra la mano ni la manija",
+                    mm(front_height)
+                ),
+            )
+            .entity(id)
+            .suggestion("Menos cajones, o una zona más alta."),
+        );
+    }
+    let slide_room = 2.0 * slide_def.axis_from_box_bottom + 15.0;
+    if box_height < slide_room {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-104",
+                Severity::Warning,
+                format!(
+                    "'{id}': cajas de {} mm de alto; la corredera lleva su eje a {} mm del fondo y pide laterales de al menos {} mm",
+                    mm(box_height),
+                    mm(slide_def.axis_from_box_bottom),
+                    mm(slide_room)
+                ),
+            )
+            .entity(id)
+            .suggestion("Subí 'boxHeight' o el alto de los frentes."),
+        );
+    }
+    if box_outer_width > 900.0 {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-105",
+                Severity::Warning,
+                format!(
+                    "'{id}': cajones de {} mm de ancho; más de 900 pandean y traban las correderas",
+                    mm(box_outer_width)
+                ),
+            )
+            .entity(id)
+            .suggestion("Partí la carcasa en bahías."),
+        );
+    }
+    if gap < 1.5 {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-103",
+                Severity::Warning,
+                format!(
+                    "'{id}': {} mm de luz entre frentes; con menos de 1,5 mm rozan al abrir",
+                    mm(gap)
+                ),
+            )
+            .entity(id)
+            .suggestion("Usá 2–3 mm de luz."),
+        );
+    }
+    if *edges == EdgeBanding::None {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-109",
+                Severity::Warning,
+                format!("'{id}': frentes sin canto; los bordes de placa quedan a la vista"),
+            )
+            .entity(id)
+            .suggestion("Sacá 'edges: none' o dejá 'all'."),
+        );
+    }
 
     let front_edges = super::banded_axes(*edges, &[Axis::PosX, Axis::NegX, Axis::PosZ, Axis::NegZ]);
     let box_top = [Axis::PosZ];

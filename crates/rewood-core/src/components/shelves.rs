@@ -4,10 +4,11 @@
 //! (`positions`): fixed shelves that take the full inner depth — the
 //! horizontal divider between, say, a drawer zone and a door zone.
 
-use super::{BuildCtx, PartInit};
+use super::{BuildCtx, OccupancyKind, PartInit};
 use crate::diagnostics::{Diagnostic, Severity};
 use crate::geometry::{Axis, Placement, Vec3};
 use crate::model::Grain;
+use crate::rules::mm;
 use crate::spec::ComponentSpec;
 
 pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnostic> {
@@ -31,6 +32,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
     let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
+    ctx.occupy(id, OccupancyKind::Shelves, &carcass, &bays, zone);
     let fixed = !positions.is_empty();
     if fixed && count.is_some() {
         return Err(Diagnostic::new(
@@ -124,6 +126,32 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             .map(|i| z_lo + bay_height * (i as f64 + 1.0) + t * i as f64)
             .collect()
     };
+    // The clear height between neighbours (and against the carcass top
+    // and bottom): under 150 mm nothing fits on the shelf.
+    if !heights.is_empty() {
+        let mut floor = z_lo;
+        let mut clear = f64::INFINITY;
+        for z in &heights {
+            clear = clear.min(z - floor);
+            floor = z + t;
+        }
+        clear = clear.min(z_hi - floor);
+        if clear < 150.0 {
+            ctx.warn(
+                Diagnostic::new(
+                    "DESIGN-106",
+                    Severity::Warning,
+                    format!(
+                        "'{id}': {} estantes dejan {} mm libres entre uno y otro; con menos de 150 no entra nada",
+                        heights.len(),
+                        mm(clear)
+                    ),
+                )
+                .entity(id)
+                .suggestion("Menos estantes, o una zona más alta."),
+            );
+        }
+    }
     ctx.publish(id, "depth", shelf_depth);
     ctx.publish(
         id,

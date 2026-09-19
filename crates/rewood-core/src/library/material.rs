@@ -34,6 +34,10 @@ pub struct Material {
     /// Supplier id (`libraries.suppliers`); empty = no supplier.
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub supplier: String,
+    /// Longest unsupported span a horizontal panel of this sheet should
+    /// bridge before it sags visibly (mm); `None` = 50 × thickness.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_span: Option<f64>,
 }
 
 pub(crate) fn is_zero(v: &f64) -> bool {

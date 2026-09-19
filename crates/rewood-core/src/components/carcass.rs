@@ -8,6 +8,7 @@ use super::{Bay, BuildCtx, CarcassInfo, JointKind, PartInit};
 use crate::diagnostics::{Diagnostic, Severity};
 use crate::geometry::{Axis, Face, Placement, Vec3};
 use crate::model::Grain;
+use crate::rules::mm;
 use crate::spec::{ComponentSpec, JointSpec, LegsSpec};
 
 pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnostic> {
@@ -43,6 +44,50 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             format!("la carcasa '{id}' no tiene espacio interior: {width}×{height}×{depth} con paneles de {t} mm"),
         )
         .entity(id));
+    }
+
+    if width < 150.0 || height < 100.0 || depth < 100.0 {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-108",
+                Severity::Warning,
+                format!(
+                    "la carcasa '{id}' mide {}×{}×{} mm: ¿los valores están en milímetros?",
+                    mm(width),
+                    mm(height),
+                    mm(depth)
+                ),
+            )
+            .entity(id)
+            .suggestion("El motor trabaja en mm: 1,8 m se escribe 1800."),
+        );
+    }
+    if depth > 1000.0 {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-108",
+                Severity::Warning,
+                format!(
+                    "la carcasa '{id}' tiene {} mm de profundidad: no se llega al fondo con el brazo",
+                    mm(depth)
+                ),
+            )
+            .entity(id)
+            .suggestion("Placares 550–650 mm, bajomesadas 560–600, estanterías 300–400."),
+        );
+    }
+    if back.is_none() {
+        ctx.warn(
+            Diagnostic::new(
+                "DESIGN-107",
+                Severity::Warning,
+                format!(
+                    "la carcasa '{id}' no tiene fondo: sin él no queda a escuadra y se deforma al cargarla"
+                ),
+            )
+            .entity(id)
+            .suggestion("Agregá back: { material: \"hdf_3\" }, salvo que otra cosa la arriostre."),
+        );
     }
 
     let inner_width = width - 2.0 * t;
@@ -113,6 +158,28 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         .entity(id));
     }
     ctx.publish(id, "bays", bay_count as f64);
+    // Top and bottom rest on the sides and on every divider: their
+    // unsupported span is the widest bay, not the whole carcass.
+    let widest = widths.iter().cloned().fold(0.0, f64::max);
+    if let Some(m) = ctx.libs.materials.material(&material) {
+        let max_span = m.max_span.unwrap_or(50.0 * m.nominal_thickness);
+        if widest > max_span + crate::units::EPS {
+            ctx.warn(
+                Diagnostic::new(
+                    "DESIGN-101",
+                    Severity::Warning,
+                    format!(
+                        "tapa y base de '{id}': {} mm de luz en {}, que aguanta {} sin pandear",
+                        mm(widest),
+                        m.name,
+                        mm(max_span)
+                    ),
+                )
+                .entity(id)
+                .suggestion("Partí el ancho con un divisor (bays: 2) o usá una placa más gruesa."),
+            );
+        }
+    }
     ctx.publish(
         id,
         "bay_width",

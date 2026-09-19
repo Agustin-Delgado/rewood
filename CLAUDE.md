@@ -26,6 +26,13 @@ referencia es el PDF *CAD paramétrico y motor de fabricación para mobiliario*
   (§32) se deserializan con el modelo actual; sin default dejan de abrir.
 - **Los datos de herrajes son datos.** `data/hardware.json` trae defaults
   indicativos; ajustarlos es un cambio de datos, no de motor, y va con nota.
+  Lo mismo `maxSpan` en `materials.json`.
+- **El motor obliga; los avisos de diseño no bloquean.** Un `FATAL` deja el
+  paquete sin DXF ni programas. Lo que "probablemente está mal" (luz de
+  estantes, puertas anchas, bahías abiertas) es `DESIGN-*`/`SPEC-21x` con
+  `WARNING` o `INFO`: se genera igual y se explica con el número que lo
+  justifica. Un hallazgo nuevo lleva `entity` (componente o pieza) para que
+  la UI lo ubique.
 
 ## Idioma
 

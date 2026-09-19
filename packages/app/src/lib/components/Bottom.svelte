@@ -19,8 +19,16 @@
 		warning: diags.filter((d) => d.severity === 'WARNING').length
 	});
 
-	function selectEntity(entity: string | undefined) {
-		if (entity && /^P\d+$/.test(entity)) app.selectedPart = entity;
+	/** A finding names a part, a component or a constraint: go there. */
+	function selectEntity(d: { entity?: string; location?: string }) {
+		const part = [d.entity, d.location].find((e) => e && /^P\d+$/.test(e));
+		if (part) {
+			app.selectedPart = part;
+			const owner = app.plan?.parts.find((p) => p.id === part)?.component;
+			if (owner) app.focusComponent = owner;
+			return;
+		}
+		if (d.entity && app.spec.components.some((c) => c.id === d.entity)) app.focusComponent = d.entity;
 	}
 </script>
 
@@ -54,7 +62,7 @@
 				<p class="muted">Sin hallazgos.</p>
 			{/if}
 			{#each diags as d, i (i)}
-				<button class="diag {d.severity}" onclick={() => selectEntity(d.entity)}>
+				<button class="diag {d.severity}" onclick={() => selectEntity(d)}>
 					<b>{d.severity} {d.code}</b>
 					<span class="mono">{d.entity ?? ''}</span>
 					<span>{d.message}</span>

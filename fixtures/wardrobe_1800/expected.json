@@ -10134,6 +10134,13 @@
     }
   ],
   "diagnostics": {
-    "items": []
+    "items": [
+      {
+        "code": "SPEC-211",
+        "severity": "INFO",
+        "entity": "carcass",
+        "message": "la bahía 3 de 'carcass' está vacía: sin estantes, puertas ni cajones"
+      }
+    ]
   }
 }

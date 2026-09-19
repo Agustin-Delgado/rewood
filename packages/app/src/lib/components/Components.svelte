@@ -143,6 +143,19 @@
 		app.touch();
 	}
 	let open: Record<string, boolean> = $state({});
+	// A finding clicked in the bottom panel unfolds its component.
+	let cards: Record<string, HTMLElement> = $state({});
+	$effect(() => {
+		const id = app.focusComponent;
+		if (!id) return;
+		open[id] = true;
+		app.focusComponent = null;
+		requestAnimationFrame(() => cards[id]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
+	});
+	const RANK = { INFO: 0, WARNING: 1, ERROR: 2, FATAL: 3 } as const;
+	function worst(list: { severity: keyof typeof RANK }[]) {
+		return list.reduce<keyof typeof RANK | null>((w, d) => (w === null || RANK[d.severity] > RANK[w] ? d.severity : w), null);
+	}
 </script>
 
 <div class="comps">
@@ -163,11 +176,14 @@
 
 	<h3>Componentes</h3>
 	{#each app.spec.components as c, i (c.id)}
-		<div class="card">
+		{@const findings = app.findingsFor(c.id)}
+		{@const level = worst(findings)}
+		<div class="card" class:failing={level === 'ERROR' || level === 'FATAL'} class:warning={level === 'WARNING'} bind:this={cards[c.id]}>
 			<div class="head">
 				<button class="fold" onclick={() => (open[c.id] = !open[c.id])}>{open[c.id] ? '▾' : '▸'}</button>
 				<span class="type">{c.type}</span>
 				<input class="id" value={c.id} onchange={(e) => setText(c, 'id', e.currentTarget.value)} />
+				{#if level}<button class="badge {level}" title="ver hallazgos" onclick={() => (open[c.id] = true)}>{findings.length}</button>{/if}
 				<span class="spacer"></span>
 				<button title="subir" onclick={() => move(i, -1)}>↑</button>
 				<button title="bajar" onclick={() => move(i, 1)}>↓</button>
@@ -293,6 +309,12 @@
 						</div>
 					{/if}
 				</div>
+				{#each findings as d (d.code + (d.entity ?? '') + (d.location ?? '') + d.message)}
+					<div class="finding {d.severity}">
+						<b>{d.severity} {d.code}</b> {d.message}
+						{#if d.suggestion}<i>{d.suggestion}</i>{/if}
+					</div>
+				{/each}
 			{/if}
 		</div>
 	{/each}
@@ -355,12 +377,48 @@
 	.card.failing {
 		border-color: #c40;
 	}
+	.card.warning {
+		border-color: #d9a400;
+	}
 	.finding {
 		grid-column: 1 / -1;
 		color: #c40;
 		background: #fee8e0;
 		padding: 2px 6px;
 		margin-top: 4px;
+		font-size: 12px;
+	}
+	.finding.WARNING {
+		color: #7a5b00;
+		background: #fff4d6;
+	}
+	.finding.INFO {
+		color: #345;
+		background: #e8f0f8;
+	}
+	.finding i {
+		display: block;
+		color: #666;
+		font-style: normal;
+	}
+	.head .badge {
+		border-radius: 8px;
+		padding: 0 6px;
+		font-size: 11px;
+		font-weight: 600;
+		color: #fff;
+		border: none;
+		cursor: pointer;
+	}
+	.head .badge.ERROR,
+	.head .badge.FATAL {
+		background: #c40;
+	}
+	.head .badge.WARNING {
+		background: #d9a400;
+	}
+	.head .badge.INFO {
+		background: #6a8fb5;
 	}
 	.hint {
 		color: #666;

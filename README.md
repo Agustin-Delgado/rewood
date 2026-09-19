@@ -192,7 +192,7 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   "schemaVersion": "1.0",
   "id": "basic_cabinet",
   "name": "Módulo básico",
-  "parameters": { "width": 1000, "height": 800, "depth": 400, "door_count": "if(width > 600, 2, 1)" },
+  "parameters": { "width": 900, "height": 800, "depth": 400, "door_count": "if(width > 600, 2, 1)" },
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",
   "components": [
@@ -401,7 +401,7 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 
 | familia | qué cubre |
 |---|---|
-| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes) |
+| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo (`212`), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`) |
 | `PARAM-*` | ciclos o expresiones inválidas en parámetros |
 | `LIB-*` | material, canto o herraje desconocido |
 | `CON-001` | una restricción declarada no se cumple |
@@ -409,14 +409,27 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 | `FAB-1xx` | geometría: piezas superpuestas |
 | `FAB-2xx` | mecanizado: perforación fuera de cara, distancia al borde, profundidad, cruces de perforaciones, ranura, mecha inexistente, operación no admitida |
 | `FAB-3xx` | material/máquina: no sale de la placa, excede el área de trabajo, espesor incompatible con el herraje |
+| `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra |
 | `CAM-2xx` | sin herramienta para una ranura o el contorno; perforación de canto sin taladro horizontal |
 | `STAGE-*` | aviso de algo que la etapa actual no cubre (ninguno activo hoy) |
+
+**Un `FATAL` bloquea de verdad.** El paquete de un plan bloqueado trae sólo
+`BLOQUEADO.txt` (los hallazgos fatales), el informe, `plan.json` y el
+manifiesto: nada de DXF, programas ni despiece; el CLI sale con 1, el
+servidor no emite la orden (422) y la UI deshabilita la descarga. Un `ERROR`
+deja exportar y avisa; la UI pide confirmación antes de emitir una orden con
+errores.
+
+En la UI cada tarjeta de componente muestra sus hallazgos (los propios y los
+de las piezas que generó) con un contador por gravedad; el 3D tiñe de rojo
+las piezas con errores y de ámbar las que tienen avisos; y tocar un hallazgo
+en la pestaña Hallazgos selecciona la pieza y despliega el componente.
 
 ## Límites conocidos de esta etapa
 
 - Los componentes de una misma bahía no se reparten el espacio solos: si un
-  cajón y un estante comparten zona, la regla `FAB-101` acusa la
-  superposición y el que escribe la spec ajusta las zonas.
+  cajón y un estante comparten zona, `SPEC-210` lo dice a nivel componente y
+  `FAB-101` a nivel pieza; el que escribe la spec ajusta las zonas.
 - Un estante fijo (`positions`) cruza una bahía; no hay tapa intermedia que
   cruce varias bahías atravesando los divisores verticales (serían divisores
   partidos, que es otro componente).

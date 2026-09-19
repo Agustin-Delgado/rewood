@@ -6,6 +6,7 @@
 mod carcass;
 mod doors;
 mod drawers;
+mod layout;
 mod shelves;
 
 use std::collections::BTreeMap;
@@ -118,6 +119,24 @@ pub struct Zone {
     pub z1: f64,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OccupancyKind {
+    Doors,
+    Drawers,
+    Shelves,
+}
+
+/// What a dependent component took of a carcass bay, for the layout
+/// checks that run once everything is expanded.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Occupancy {
+    pub component: String,
+    pub kind: OccupancyKind,
+    pub carcass: String,
+    pub bay: usize,
+    pub zone: Zone,
+}
+
 pub struct BuildCtx<'a> {
     pub spec: &'a FurnitureSpec,
     pub params: &'a ParamGraph,
@@ -131,6 +150,7 @@ pub struct BuildCtx<'a> {
     pub carcasses: BTreeMap<String, CarcassInfo>,
     /// Component id → carcass id it belongs to (a carcass maps to itself).
     pub carcass_of: BTreeMap<String, String>,
+    pub occupancy: Vec<Occupancy>,
 }
 
 /// World axes whose facing edges get banded, from the component's choice
@@ -177,7 +197,34 @@ impl<'a> BuildCtx<'a> {
             diagnostics: Diagnostics::default(),
             carcasses: BTreeMap::new(),
             carcass_of: BTreeMap::new(),
+            occupancy: Vec::new(),
         }
+    }
+
+    /// Record what a component takes of its carcass, one entry per bay.
+    pub fn occupy(
+        &mut self,
+        component: &str,
+        kind: OccupancyKind,
+        carcass: &CarcassInfo,
+        bays: &[Bay],
+        zone: Zone,
+    ) {
+        for bay in bays {
+            self.occupancy.push(Occupancy {
+                component: component.to_string(),
+                kind,
+                carcass: carcass.id.clone(),
+                bay: bay.index,
+                zone,
+            });
+        }
+    }
+
+    /// A finding that does not stop the component: it is generated as
+    /// asked, and the operator reads why it is probably wrong.
+    pub fn warn(&mut self, d: Diagnostic) {
+        self.diagnostics.push(d);
     }
 
     pub fn scope(&self) -> Chain<'_> {
@@ -521,6 +568,7 @@ pub fn expand(ctx: &mut BuildCtx<'_>) {
             ctx.diagnostics.push(d);
         }
     }
+    layout::check(ctx);
     ctx.apply_origins();
 }
 
