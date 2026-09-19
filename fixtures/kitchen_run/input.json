@@ -1,0 +1,294 @@
+{
+  "schemaVersion": "1.0",
+  "id": "kitchen_run",
+  "name": "Bajo mesada 1800: 3 módulos de 600 con patas y zócalo",
+  "version": "1.0",
+  "parameters": {
+    "module": 600,
+    "height": 720,
+    "depth": 560,
+    "count": 3
+  },
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "m1",
+      "width": "module",
+      "joint": {
+        "hardware": [
+          "minifix_15",
+          "dowel_8x30"
+        ]
+      },
+      "back": {
+        "material": "hdf_3"
+      },
+      "legs": {
+        "plinth": {
+          "setback": 40
+        }
+      }
+    },
+    {
+      "type": "carcass",
+      "id": "m2",
+      "width": "module",
+      "origin": {
+        "x": "module"
+      },
+      "joint": {
+        "hardware": [
+          "minifix_15",
+          "dowel_8x30"
+        ]
+      },
+      "back": {
+        "material": "hdf_3"
+      },
+      "legs": {
+        "plinth": {
+          "setback": 40
+        }
+      }
+    },
+    {
+      "type": "carcass",
+      "id": "m3",
+      "width": "module",
+      "origin": {
+        "x": "2 * module"
+      },
+      "joint": {
+        "hardware": [
+          "minifix_15",
+          "dowel_8x30"
+        ]
+      },
+      "back": {
+        "material": "hdf_3"
+      },
+      "legs": {
+        "plinth": {
+          "setback": 40
+        }
+      }
+    },
+    {
+      "type": "shelves",
+      "id": "shelf_m1",
+      "carcass": "m1",
+      "count": 1,
+      "joint": {
+        "hardware": [
+          "dowel_8x30"
+        ]
+      }
+    },
+    {
+      "type": "doors",
+      "id": "door_m1",
+      "carcass": "m1",
+      "count": 1,
+      "handle": {
+        "hardware": [
+          "handle_bar_128"
+        ]
+      }
+    },
+    {
+      "type": "drawers",
+      "id": "drawers_m2",
+      "carcass": "m2",
+      "count": 3,
+      "joint": {
+        "hardware": [
+          "dowel_8x30"
+        ],
+        "placement": {
+          "endOffset": 40,
+          "maxSpacing": 150
+        }
+      },
+      "slide": {
+        "hardware": [
+          "slide_ball_450"
+        ]
+      },
+      "handle": {
+        "hardware": [
+          "handle_bar_128"
+        ]
+      }
+    },
+    {
+      "type": "shelves",
+      "id": "shelf_m3",
+      "carcass": "m3",
+      "count": 1,
+      "joint": {
+        "hardware": [
+          "dowel_8x30"
+        ]
+      }
+    },
+    {
+      "type": "doors",
+      "id": "door_m3",
+      "carcass": "m3",
+      "count": 1,
+      "handle": {
+        "hardware": [
+          "handle_bar_128"
+        ]
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "run_length",
+      "expr": "module * count <= 3000",
+      "message": "La línea no puede pasar los 3000 mm de la mesada"
+    }
+  ],
+  "libraries": {
+    "profile": {
+      "currency": "ARS",
+      "nesting": {
+        "mode": "guillotine"
+      },
+      "machine": {
+        "hourlyRate": 36000
+      }
+    },
+    "materials": [
+      {
+        "id": "melamine_18",
+        "pricePerSheet": 52000
+      },
+      {
+        "id": "hdf_3",
+        "pricePerSheet": 14000
+      }
+    ],
+    "edgeMaterials": [
+      {
+        "id": "abs_1mm",
+        "pricePerMetre": 420
+      }
+    ],
+    "hardware": [
+      {
+        "id": "minifix_15",
+        "bomItems": [
+          {
+            "name": "Excéntrica Minifix 15",
+            "quantity": 1,
+            "unitPrice": 140
+          },
+          {
+            "name": "Perno Minifix B34",
+            "quantity": 1,
+            "unitPrice": 95
+          }
+        ]
+      },
+      {
+        "id": "dowel_8x30",
+        "bomItems": [
+          {
+            "name": "Tarugo 8×30",
+            "quantity": 1,
+            "unitPrice": 12
+          }
+        ]
+      },
+      {
+        "id": "hinge_35_overlay",
+        "bomItems": [
+          {
+            "name": "Bisagra cazoleta Ø35 superpuesta",
+            "quantity": 1,
+            "unitPrice": 1800
+          },
+          {
+            "name": "Base de bisagra cruz H0",
+            "quantity": 1,
+            "unitPrice": 600
+          }
+        ]
+      },
+      {
+        "id": "slide_ball_450",
+        "bomItems": [
+          {
+            "name": "Corredera a bolillas 450 mm (unidad)",
+            "quantity": 1,
+            "unitPrice": 4800
+          },
+          {
+            "name": "Tornillo 4×15 cabeza plana",
+            "quantity": 6,
+            "unitPrice": 15
+          }
+        ]
+      },
+      {
+        "id": "handle_bar_128",
+        "bomItems": [
+          {
+            "name": "Tirador barra 128 mm",
+            "quantity": 1,
+            "unitPrice": 2600
+          },
+          {
+            "name": "Tornillo M4×25",
+            "quantity": 2,
+            "unitPrice": 20
+          }
+        ]
+      },
+      {
+        "id": "screw_4x30_face",
+        "bomItems": [
+          {
+            "name": "Tornillo 4×30 cabeza plana",
+            "quantity": 1,
+            "unitPrice": 18
+          }
+        ]
+      },
+      {
+        "id": "leg_adjustable_100",
+        "bomItems": [
+          {
+            "name": "Pata regulable 100 mm",
+            "quantity": 1,
+            "unitPrice": 900
+          },
+          {
+            "name": "Tornillo 4×16",
+            "quantity": 4,
+            "unitPrice": 15
+          }
+        ]
+      },
+      {
+        "id": "plinth_clip",
+        "bomItems": [
+          {
+            "name": "Clip de zócalo",
+            "quantity": 1,
+            "unitPrice": 350
+          },
+          {
+            "name": "Tornillo 4×16",
+            "quantity": 2,
+            "unitPrice": 15
+          }
+        ]
+      }
+    ]
+  }
+}

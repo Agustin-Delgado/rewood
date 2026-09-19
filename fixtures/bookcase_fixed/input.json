@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0",
+  "id": "bookcase_fixed",
+  "name": "Biblioteca 800×2000×300 con estante fijo",
+  "version": "1.0",
+  "parameters": {
+    "width": 800,
+    "height": 2000,
+    "depth": 300,
+    "divider_z": 1000
+  },
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" }
+    },
+    {
+      "type": "shelves",
+      "id": "divider",
+      "positions": ["divider_z"],
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] }
+    },
+    {
+      "type": "shelves",
+      "id": "shelves_low",
+      "zone": { "from": 0, "to": "divider_z" },
+      "count": 2,
+      "joint": { "hardware": ["dowel_8x30"] }
+    },
+    {
+      "type": "shelves",
+      "id": "shelves_high",
+      "zone": { "from": "divider_z + carcass.thickness", "to": "height" },
+      "count": 2,
+      "joint": { "hardware": ["dowel_8x30"] }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "divider_reachable",
+      "expr": "divider_z >= 600 and divider_z <= height - 600",
+      "severity": "WARNING",
+      "message": "El estante fijo conviene entre 600 mm y 600 mm bajo la tapa"
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "version": "1.0",
+  "materials": [
+    {
+      "id": "melamine_18",
+      "name": "Melamina 18 mm",
+      "nominalThickness": 18,
+      "actualThickness": 17.8,
+      "sheetLength": 2750,
+      "sheetWidth": 1830,
+      "grain": "directional",
+      "density": 650,
+      "wasteFactor": 1.15,
+      "supplier": "boards_supplier"
+    },
+    {
+      "id": "mdf_18",
+      "name": "MDF 18 mm",
+      "nominalThickness": 18,
+      "actualThickness": 18,
+      "sheetLength": 2750,
+      "sheetWidth": 1830,
+      "grain": "none",
+      "density": 750,
+      "wasteFactor": 1.15,
+      "supplier": "boards_supplier"
+    },
+    {
+      "id": "plywood_18",
+      "name": "Multilaminado 18 mm",
+      "nominalThickness": 18,
+      "actualThickness": 18,
+      "sheetLength": 2440,
+      "sheetWidth": 1220,
+      "grain": "directional",
+      "density": 600,
+      "wasteFactor": 1.15,
+      "supplier": "boards_supplier"
+    },
+    {
+      "id": "hdf_3",
+      "name": "Fibrofácil HDF 3 mm",
+      "nominalThickness": 3,
+      "actualThickness": 3,
+      "sheetLength": 2750,
+      "sheetWidth": 1830,
+      "grain": "none",
+      "density": 850,
+      "wasteFactor": 1.1,
+      "supplier": "boards_supplier"
+    }
+  ],
+  "edgeMaterials": [
+    {
+      "id": "abs_1mm",
+      "name": "Canto ABS 1 mm",
+      "thickness": 1.0,
+      "supplier": "boards_supplier"
+    },
+    {
+      "id": "abs_0_45mm",
+      "name": "Canto ABS 0,45 mm",
+      "thickness": 0.45,
+      "supplier": "boards_supplier"
+    },
+    {
+      "id": "pvc_2mm",
+      "name": "Canto PVC 2 mm",
+      "thickness": 2.0,
+      "supplier": "boards_supplier"
+    }
+  ]
+}

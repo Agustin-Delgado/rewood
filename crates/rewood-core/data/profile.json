@@ -1,0 +1,192 @@
+{
+  "id": "generic_cnc",
+  "name": "CNC genérico 2800×2070",
+  "version": "1.0",
+  "maxPartSize": [
+    2800,
+    2070
+  ],
+  "minPartSize": [
+    30,
+    30
+  ],
+  "minHoleDiameter": 3,
+  "tools": [
+    {
+      "id": "drill_3",
+      "number": 1,
+      "kind": "drill",
+      "diameter": 3,
+      "maxDepthPerPass": 20,
+      "feedXy": 1500,
+      "feedZ": 800,
+      "rpm": 6000
+    },
+    {
+      "id": "drill_4_5",
+      "number": 2,
+      "kind": "drill",
+      "diameter": 4.5,
+      "maxDepthPerPass": 20,
+      "feedXy": 1500,
+      "feedZ": 800,
+      "rpm": 6000
+    },
+    {
+      "id": "drill_5",
+      "number": 3,
+      "kind": "drill",
+      "diameter": 5,
+      "maxDepthPerPass": 20,
+      "feedXy": 1500,
+      "feedZ": 800,
+      "rpm": 6000
+    },
+    {
+      "id": "drill_6",
+      "number": 4,
+      "kind": "drill",
+      "diameter": 6,
+      "maxDepthPerPass": 20,
+      "feedXy": 1500,
+      "feedZ": 800,
+      "rpm": 6000
+    },
+    {
+      "id": "drill_7",
+      "number": 5,
+      "kind": "drill",
+      "diameter": 7,
+      "maxDepthPerPass": 20,
+      "feedXy": 1500,
+      "feedZ": 800,
+      "rpm": 6000
+    },
+    {
+      "id": "drill_8",
+      "number": 6,
+      "kind": "drill",
+      "diameter": 8,
+      "maxDepthPerPass": 20,
+      "feedXy": 1500,
+      "feedZ": 800,
+      "rpm": 6000
+    },
+    {
+      "id": "drill_10",
+      "number": 7,
+      "kind": "drill",
+      "diameter": 10,
+      "maxDepthPerPass": 20,
+      "feedXy": 1500,
+      "feedZ": 800,
+      "rpm": 6000
+    },
+    {
+      "id": "drill_15",
+      "number": 8,
+      "kind": "drill",
+      "diameter": 15,
+      "maxDepthPerPass": 10,
+      "feedXy": 1500,
+      "feedZ": 400,
+      "rpm": 4000
+    },
+    {
+      "id": "drill_20",
+      "number": 9,
+      "kind": "drill",
+      "diameter": 20,
+      "maxDepthPerPass": 10,
+      "feedXy": 1500,
+      "feedZ": 400,
+      "rpm": 4000
+    },
+    {
+      "id": "drill_26",
+      "number": 10,
+      "kind": "drill",
+      "diameter": 26,
+      "maxDepthPerPass": 10,
+      "feedXy": 1500,
+      "feedZ": 400,
+      "rpm": 4000
+    },
+    {
+      "id": "drill_35",
+      "number": 11,
+      "kind": "drill",
+      "diameter": 35,
+      "maxDepthPerPass": 10,
+      "feedXy": 1500,
+      "feedZ": 400,
+      "rpm": 4000
+    },
+    {
+      "id": "end_mill_3",
+      "number": 21,
+      "kind": "end_mill",
+      "diameter": 3,
+      "maxDepthPerPass": 3,
+      "feedXy": 2000,
+      "feedZ": 600,
+      "rpm": 18000
+    },
+    {
+      "id": "end_mill_6",
+      "number": 22,
+      "kind": "end_mill",
+      "diameter": 6,
+      "maxDepthPerPass": 6,
+      "feedXy": 4000,
+      "feedZ": 1000,
+      "rpm": 18000
+    },
+    {
+      "id": "end_mill_8",
+      "number": 23,
+      "kind": "end_mill",
+      "diameter": 8,
+      "maxDepthPerPass": 8,
+      "feedXy": 5000,
+      "feedZ": 1200,
+      "rpm": 18000
+    },
+    {
+      "id": "compression_12",
+      "number": 30,
+      "kind": "compression_bit",
+      "diameter": 12,
+      "maxDepthPerPass": 19,
+      "feedXy": 8000,
+      "feedZ": 2000,
+      "rpm": 18000
+    }
+  ],
+  "horizontalDrilling": true,
+  "postProcessor": "generic_iso",
+  "minEdgeDistance": 4,
+  "minHoleSpacing": 2,
+  "minRemainingThickness": 3,
+  "allowedOperations": [
+    "CUT",
+    "DRILL",
+    "GROOVE",
+    "EDGE_BAND"
+  ],
+  "tolerances": {
+    "length": 0.2,
+    "holePosition": 0.1,
+    "holeDiameter": 0.1
+  },
+  "nesting": {
+    "kerf": 4,
+    "margin": 10
+  },
+  "machine": {
+    "travelZ": 150,
+    "maxCutBelowBlank": 1,
+    "rapidFeed": 20000,
+    "toolChangeSeconds": 8
+  }
+}

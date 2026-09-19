@@ -1,0 +1,117 @@
+{
+  "schemaVersion": "1.0",
+  "id": "wardrobe_1800",
+  "name": "Placard 1800×2100×500: 3 módulos, 2 puertas, 4 estantes, 3 cajones",
+  "parameters": {
+    "width": 1800,
+    "height": 2100,
+    "depth": 500,
+    "drawer_zone_top": 800
+  },
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "bays": 3,
+      "joint": {
+        "hardware": [
+          "minifix_15",
+          "dowel_8x30"
+        ]
+      },
+      "back": {
+        "material": "hdf_3"
+      }
+    },
+    {
+      "type": "shelves",
+      "id": "shelves_left",
+      "bay": 1,
+      "count": 2,
+      "joint": {
+        "hardware": [
+          "dowel_8x30"
+        ]
+      }
+    },
+    {
+      "type": "shelves",
+      "id": "shelves_middle",
+      "bay": 2,
+      "zone": {
+        "from": "drawer_zone_top",
+        "to": "height"
+      },
+      "count": 2,
+      "joint": {
+        "hardware": [
+          "dowel_8x30"
+        ]
+      }
+    },
+    {
+      "type": "drawers",
+      "id": "drawers",
+      "bay": 2,
+      "zone": {
+        "from": 0,
+        "to": "drawer_zone_top"
+      },
+      "count": 3,
+      "joint": {
+        "hardware": [
+          "dowel_8x30"
+        ],
+        "placement": {
+          "endOffset": 40,
+          "maxSpacing": 150
+        }
+      },
+      "slide": {
+        "hardware": [
+          "slide_ball_450"
+        ]
+      },
+      "handle": {
+        "hardware": [
+          "handle_bar_128"
+        ]
+      }
+    },
+    {
+      "type": "doors",
+      "id": "door_left",
+      "bay": 1,
+      "count": 1,
+      "handle": {
+        "hardware": [
+          "handle_bar_128"
+        ]
+      }
+    },
+    {
+      "type": "doors",
+      "id": "door_middle_top",
+      "bay": 2,
+      "zone": {
+        "from": "drawer_zone_top",
+        "to": "height"
+      },
+      "count": 1,
+      "handle": {
+        "hardware": [
+          "handle_bar_128"
+        ]
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "shelf_span",
+      "expr": "carcass.bay_width <= 900",
+      "message": "Un estante de más de 900 mm de luz se pandea"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "_note": "Indicative suppliers so the purchasing split has somewhere to go; a workshop replaces them through libraries.suppliers and points each material/hardware item at its own with `supplier`.",
+  "suppliers": [
+    {
+      "id": "boards_supplier",
+      "name": "Distribuidora de placas (genérica)",
+      "leadDays": 5,
+      "notes": "Placas enteras; corte a medida no incluido."
+    },
+    {
+      "id": "hardware_supplier",
+      "name": "Ferretería de herrajes (genérica)",
+      "leadDays": 3
+    }
+  ]
+}

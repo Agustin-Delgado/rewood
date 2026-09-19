@@ -1,0 +1,497 @@
+{
+  "version": "1.0",
+  "_note": "Hole diameters, depths and offsets are indicative defaults for 18 mm panels (Minifix B34 / 35 mm cup hinge with 45/9.5 pilot pattern and 37 mm plate line). Verify against the supplier's catalog before manufacturing; the engine treats these as data.",
+  "hardware": [
+    {
+      "id": "minifix_15",
+      "name": "Minifix Ø15 con perno B34",
+      "kind": "cam_lock",
+      "compatibleThickness": [
+        16,
+        25
+      ],
+      "placement": {
+        "endOffset": 50,
+        "maxSpacing": 600
+      },
+      "holes": [
+        {
+          "label": "cam",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 34,
+          "diameter": 15,
+          "depth": 12.5
+        },
+        {
+          "label": "bolt",
+          "side": "edge_part",
+          "location": "edge",
+          "diameter": 8,
+          "depth": 34
+        },
+        {
+          "label": "bolt_thread",
+          "side": "face_part",
+          "location": "contact_face",
+          "diameter": 5,
+          "depth": 11.5
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Excéntrica Minifix 15",
+          "quantity": 1
+        },
+        {
+          "name": "Perno Minifix B34",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "dowel_8x30",
+      "name": "Tarugo de madera 8×30",
+      "kind": "dowel",
+      "compatibleThickness": [
+        15,
+        40
+      ],
+      "placement": {
+        "endOffset": 120,
+        "maxSpacing": 300
+      },
+      "holes": [
+        {
+          "label": "dowel_edge",
+          "side": "edge_part",
+          "location": "edge",
+          "diameter": 8,
+          "depth": 18
+        },
+        {
+          "label": "dowel_face",
+          "side": "face_part",
+          "location": "contact_face",
+          "diameter": 8,
+          "depth": 13
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Tarugo 8×30",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "confirmat_7x50",
+      "name": "Tornillo Confirmat 7×50",
+      "kind": "screw",
+      "compatibleThickness": [
+        16,
+        25
+      ],
+      "placement": {
+        "endOffset": 40,
+        "maxSpacing": 250
+      },
+      "holes": [
+        {
+          "label": "through",
+          "side": "face_part",
+          "location": "contact_face",
+          "diameter": 7,
+          "depth": null,
+          "countersink": {
+            "diameter": 10,
+            "depth": 2
+          }
+        },
+        {
+          "label": "thread",
+          "side": "edge_part",
+          "location": "edge",
+          "diameter": 5,
+          "depth": 35
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Confirmat 7×50",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "hinge_35_overlay",
+      "name": "Bisagra cazoleta Ø35 superpuesta (base cruz)",
+      "kind": "hinge",
+      "compatibleThickness": [
+        16,
+        22
+      ],
+      "placement": {
+        "endOffset": 100,
+        "maxSpacing": 750,
+        "countByLength": [
+          [
+            900,
+            2
+          ],
+          [
+            1500,
+            3
+          ],
+          [
+            2000,
+            4
+          ],
+          [
+            2400,
+            5
+          ]
+        ]
+      },
+      "holes": [
+        {
+          "label": "cup",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 22.5,
+          "diameter": 35,
+          "depth": 12.5
+        },
+        {
+          "label": "cup_pilot_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": 22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "cup_pilot_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": -22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "plate_a",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": 16,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "plate_b",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": -16,
+          "diameter": 5,
+          "depth": 11
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Bisagra cazoleta Ø35 superpuesta",
+          "quantity": 1
+        },
+        {
+          "name": "Base de bisagra cruz H0",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_450",
+      "name": "Corredera telescópica a bolillas 450 mm (unidad)",
+      "kind": "slide",
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 450,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 165,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 293,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 165,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 293,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 450 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "screw_4x30_face",
+      "name": "Tornillo 4×30 cabeza plana (frente de cajón)",
+      "kind": "screw",
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 40,
+        "maxSpacing": 250
+      },
+      "holes": [
+        {
+          "label": "through",
+          "side": "edge_part",
+          "location": "contact_face",
+          "diameter": 4.5,
+          "depth": null
+        },
+        {
+          "label": "pilot",
+          "side": "face_part",
+          "location": "contact_face",
+          "diameter": 3,
+          "depth": 12
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Tornillo 4×30 cabeza plana",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "handle_bar_128",
+      "name": "Tirador barra 128 mm entre centros",
+      "kind": "handle",
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 64,
+          "diameter": 4.5,
+          "depth": null
+        },
+        {
+          "label": "screw_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": -64,
+          "diameter": 4.5,
+          "depth": null
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Tirador barra 128 mm",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo M4×25",
+          "quantity": 2
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "leg_adjustable_100",
+      "name": "Pata regulable 100 mm (base Ø50)",
+      "kind": "leg",
+      "compatibleThickness": [
+        15,
+        25
+      ],
+      "placement": {
+        "endOffset": 50,
+        "maxSpacing": 600
+      },
+      "leg": {
+        "height": 100,
+        "baseDiameter": 50
+      },
+      "holes": [
+        {
+          "label": "screw_fl",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -16,
+          "offsetAcross": -16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_fr",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 16,
+          "offsetAcross": -16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_bl",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -16,
+          "offsetAcross": 16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_br",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 16,
+          "offsetAcross": 16,
+          "diameter": 3,
+          "depth": 12
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Pata regulable 100 mm",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×16",
+          "quantity": 4
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "plinth_clip",
+      "name": "Clip de zócalo para pata",
+      "kind": "clip",
+      "compatibleThickness": [
+        15,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw_a",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -12,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "screw_b",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 12,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Clip de zócalo",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×16",
+          "quantity": 2
+        }
+      ],
+      "supplier": "hardware_supplier"
+    }
+  ]
+}

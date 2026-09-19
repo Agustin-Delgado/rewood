@@ -1,0 +1,501 @@
+//! Carcass: left side, right side, top, bottom, optional back in a groove.
+//!
+//! Frames are chosen so every panel's local +Z (its `Front` face) looks
+//! into the cabinet — that is where the fastener holes go — and the grain
+//! runs vertically on the sides and horizontally on top and bottom.
+
+use super::{Bay, BuildCtx, CarcassInfo, JointKind, PartInit};
+use crate::diagnostics::{Diagnostic, Severity};
+use crate::geometry::{Axis, Face, Placement, Vec3};
+use crate::model::Grain;
+use crate::spec::{ComponentSpec, JointSpec, LegsSpec};
+
+pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnostic> {
+    let ComponentSpec::Carcass {
+        id,
+        width,
+        height,
+        depth,
+        material,
+        joint,
+        back,
+        bays,
+        bay_widths,
+        edges,
+        legs,
+        origin,
+    } = spec
+    else {
+        unreachable!()
+    };
+    let id = id.as_str();
+
+    let width = ctx.eval(id, "width", width)?;
+    let height = ctx.eval(id, "height", height)?;
+    let depth = ctx.eval(id, "depth", depth)?;
+    let material = ctx.material_or_default(id, material.as_ref())?.to_string();
+    let t = ctx.thickness_of(&material);
+
+    if width <= 2.0 * t || height <= 2.0 * t || depth <= 0.0 {
+        return Err(Diagnostic::new(
+            "SPEC-301",
+            Severity::Fatal,
+            format!("la carcasa '{id}' no tiene espacio interior: {width}×{height}×{depth} con paneles de {t} mm"),
+        )
+        .entity(id));
+    }
+
+    let inner_width = width - 2.0 * t;
+    let inner_height = height - 2.0 * t;
+    // Bay layout: explicit widths win over the count; one "auto" entry
+    // absorbs whatever the others leave.
+    let widths: Vec<f64> = if bay_widths.is_empty() {
+        let bay_count = ctx.eval(id, "bays", bays)?;
+        if bay_count < 1.0 || bay_count.fract() != 0.0 {
+            return Err(Diagnostic::new(
+                "SPEC-303",
+                Severity::Fatal,
+                format!("'{id}.bays' tiene que ser un entero ≥ 1, es {bay_count}"),
+            )
+            .entity(id));
+        }
+        let n = bay_count as usize;
+        vec![(inner_width - (n as f64 - 1.0) * t) / n as f64; n]
+    } else {
+        let n = bay_widths.len();
+        let mut fixed = Vec::with_capacity(n);
+        let mut auto: Option<usize> = None;
+        for (k, w) in bay_widths.iter().enumerate() {
+            match w {
+                crate::params::ParamInput::Expr(s) if s.trim() == "auto" => {
+                    if auto.replace(k).is_some() {
+                        return Err(Diagnostic::new(
+                            "SPEC-309",
+                            Severity::Fatal,
+                            format!("'{id}.bayWidths' admite un solo \"auto\""),
+                        )
+                        .entity(id));
+                    }
+                    fixed.push(0.0);
+                }
+                other => fixed.push(ctx.eval(id, &format!("bayWidths[{k}]"), other)?),
+            }
+        }
+        let dividers = (n as f64 - 1.0) * t;
+        let used: f64 = fixed.iter().sum::<f64>() + dividers;
+        match auto {
+            Some(k) => fixed[k] = inner_width - used,
+            None if (used - inner_width).abs() > 0.01 => {
+                return Err(Diagnostic::new(
+                    "SPEC-309",
+                    Severity::Fatal,
+                    format!(
+                        "'{id}.bayWidths' suma {} mm más {} de divisores = {}, y el interior mide {inner_width} mm",
+                        crate::units::round3(fixed.iter().sum::<f64>()),
+                        crate::units::round3(dividers),
+                        crate::units::round3(used)
+                    ),
+                )
+                .entity(id)
+                .suggestion("Poné \"auto\" en una bahía para que absorba la diferencia."));
+            }
+            None => {}
+        }
+        fixed
+    };
+    let bay_count = widths.len();
+    if widths.iter().any(|w| *w <= 0.0) {
+        return Err(Diagnostic::new(
+            "SPEC-301",
+            Severity::Fatal,
+            format!("{bay_count} bahías no entran en {inner_width} mm interiores"),
+        )
+        .entity(id));
+    }
+    ctx.publish(id, "bays", bay_count as f64);
+    ctx.publish(
+        id,
+        "bay_width",
+        widths.iter().cloned().fold(f64::INFINITY, f64::min),
+    );
+    for (k, w) in widths.iter().enumerate() {
+        ctx.publish(id, &format!("bay_{}_width", k + 1), *w);
+    }
+    ctx.publish(id, "width", width);
+    ctx.publish(id, "height", height);
+    ctx.publish(id, "depth", depth);
+    ctx.publish(id, "thickness", t);
+    ctx.publish(id, "inner_width", inner_width);
+    ctx.publish(id, "inner_height", inner_height);
+
+    let front = super::banded_axes(*edges, &[Axis::PosY]);
+
+    let side_left = ctx.add_part(PartInit {
+        name: "Lateral izquierdo".into(),
+        component: id,
+        role: "side_left",
+        material: &material,
+        length: height,
+        width: depth,
+        grain: Grain::Length,
+        // Local +Z = +X (inside). Local +Y = -Y, so v = 0 is the front edge.
+        placement: Placement::new(Vec3(0.0, depth, 0.0), Axis::PosZ, Axis::NegY),
+        banded_edges: &front,
+    });
+    let side_right = ctx.add_part(PartInit {
+        name: "Lateral derecho".into(),
+        component: id,
+        role: "side_right",
+        material: &material,
+        length: height,
+        width: depth,
+        grain: Grain::Length,
+        // Local +Z = -X (inside).
+        placement: Placement::new(Vec3(width, 0.0, 0.0), Axis::PosZ, Axis::PosY),
+        banded_edges: &front,
+    });
+    let top = ctx.add_part(PartInit {
+        name: "Tapa".into(),
+        component: id,
+        role: "top",
+        material: &material,
+        length: inner_width,
+        width: depth,
+        grain: Grain::Length,
+        // Local +Z = -Z (inside, looking down).
+        placement: Placement::new(Vec3(t, depth, height), Axis::PosX, Axis::NegY),
+        banded_edges: &front,
+    });
+    let bottom = ctx.add_part(PartInit {
+        name: "Base".into(),
+        component: id,
+        role: "bottom",
+        material: &material,
+        length: inner_width,
+        width: depth,
+        grain: Grain::Length,
+        // Local +Z = +Z (inside, looking up).
+        placement: Placement::new(Vec3(t, 0.0, 0.0), Axis::PosX, Axis::PosY),
+        banded_edges: &front,
+    });
+
+    for horizontal in [&top, &bottom] {
+        for side in [&side_left, &side_right] {
+            ctx.request_joint(id, horizontal, side, joint);
+        }
+    }
+
+    let mut inner_y0 = 0.0;
+    if let Some(back) = back {
+        let back_material = ctx
+            .material_or_default(id, Some(&back.material))?
+            .to_string();
+        let tb = ctx.thickness_of(&back_material);
+        let inset = ctx.eval(id, "back.groove.inset", &back.groove.inset)?;
+        let groove_depth = ctx.eval(id, "back.groove.depth", &back.groove.depth)?;
+        let clearance = ctx.eval(id, "back.groove.clearance", &back.groove.clearance)?;
+        let groove_width = tb + clearance;
+        if groove_depth >= t {
+            return Err(Diagnostic::new(
+                "SPEC-302",
+                Severity::Fatal,
+                format!(
+                    "la ranura del fondo de '{id}' ({groove_depth} mm) atraviesa paneles de {t} mm"
+                ),
+            )
+            .entity(id));
+        }
+        inner_y0 = inset + groove_width;
+
+        // The back sits in the groove with 0.5 mm of play on each side so
+        // it never forces the carcass open.
+        let play = 0.5;
+        let back_len = inner_width + 2.0 * groove_depth - 2.0 * play;
+        let back_wid = inner_height + 2.0 * groove_depth - 2.0 * play;
+        let back_id = ctx.add_part(PartInit {
+            name: "Fondo".into(),
+            component: id,
+            role: "back",
+            material: &back_material,
+            length: back_len,
+            width: back_wid,
+            grain: Grain::None,
+            // Local +Z = -Y (outside, looking backwards).
+            placement: Placement::new(
+                Vec3(
+                    t - groove_depth + play,
+                    inset + clearance / 2.0 + tb,
+                    t - groove_depth + play,
+                ),
+                Axis::PosX,
+                Axis::PosZ,
+            ),
+            banded_edges: &[],
+        });
+        ctx.publish(id, "back_length", back_len);
+        ctx.publish(id, "back_width", back_wid);
+
+        // Through groove on the inside face of the four carcass panels, at
+        // `inset` from the back edge, running the full length of each.
+        let y_groove = inset + groove_width / 2.0;
+        let grooved: [(&str, Vec3, Vec3); 4] = [
+            (
+                &side_left,
+                Vec3(t, y_groove, 0.0),
+                Vec3(t, y_groove, height),
+            ),
+            (
+                &side_right,
+                Vec3(width - t, y_groove, 0.0),
+                Vec3(width - t, y_groove, height),
+            ),
+            (
+                &top,
+                Vec3(t, y_groove, height - t),
+                Vec3(width - t, y_groove, height - t),
+            ),
+            (&bottom, Vec3(t, y_groove, t), Vec3(width - t, y_groove, t)),
+        ];
+        for (part_id, from, to) in grooved {
+            ctx.groove(part_id, from, to, groove_width, groove_depth);
+            ctx.part_mut(part_id).overlap_exempt.push(back_id.clone());
+        }
+        ctx.part_mut(&back_id).overlap_exempt = vec![
+            side_left.clone(),
+            side_right.clone(),
+            top.clone(),
+            bottom.clone(),
+        ];
+    }
+
+    // Dividers between the bays: full inner height, stopping short of the
+    // back panel, joined to top and bottom like the sides are.
+    let mut bays = Vec::new();
+    let mut left_part = side_left.clone();
+    let mut x = t;
+    for k in 1..=bay_count {
+        let is_last = k == bay_count;
+        let x1 = x + widths[k - 1];
+        let (right_part, cover_x1) = if is_last {
+            (side_right.clone(), width)
+        } else {
+            let divider = ctx.add_part(PartInit {
+                name: format!("Divisor {k}"),
+                component: id,
+                role: &format!("divider_{k}"),
+                material: &material,
+                length: inner_height,
+                width: depth - inner_y0,
+                grain: Grain::Length,
+                // Same frame as the left side: local +Z looks to +X, so the
+                // bay on its right sees `front` and the one on its left `back`.
+                placement: Placement::new(Vec3(x1, depth, t), Axis::PosZ, Axis::NegY),
+                banded_edges: &front,
+            });
+            ctx.request_joint(id, &divider, &top, joint);
+            ctx.request_joint(id, &divider, &bottom, joint);
+            (divider, x1 + t / 2.0)
+        };
+        bays.push(Bay {
+            index: k,
+            x0: x,
+            x1,
+            cover_x0: if k == 1 { 0.0 } else { x - t / 2.0 },
+            cover_x1,
+            left_part: left_part.clone(),
+            right_part: right_part.clone(),
+        });
+        left_part = right_part;
+        x = x1 + t;
+    }
+
+    if let Some(legs) = legs {
+        build_legs(ctx, id, legs, width, depth, t, &bottom)?;
+    }
+
+    let origin = match origin {
+        Some(o) => Vec3(
+            ctx.eval(id, "origin.x", &o.x)?,
+            ctx.eval(id, "origin.y", &o.y)?,
+            ctx.eval(id, "origin.z", &o.z)?,
+        ),
+        None => Vec3(0.0, 0.0, 0.0),
+    };
+    ctx.publish(id, "origin_x", origin.0);
+    ctx.publish(id, "origin_y", origin.1);
+    ctx.publish(id, "origin_z", origin.2);
+    ctx.carcass_of.insert(id.to_string(), id.to_string());
+    ctx.carcasses.insert(
+        id.to_string(),
+        CarcassInfo {
+            id: id.to_string(),
+            origin,
+            width,
+            height,
+            depth,
+            thickness: t,
+            material,
+            inner_y0,
+            side_left,
+            side_right,
+            bays,
+        },
+    );
+    Ok(())
+}
+
+/// Legs under the bottom panel, in two rows (front and back) at `inset`
+/// from the carcass edges, spread along the width by the leg hardware's
+/// placement rule (its `endOffset` replaced by `inset`, its `maxSpacing`
+/// by the spec's). Each leg is a fixture joint on the bottom's underside;
+/// the plinth, when asked for, is a panel clipped to the front legs.
+fn build_legs(
+    ctx: &mut BuildCtx<'_>,
+    id: &str,
+    legs: &LegsSpec,
+    width: f64,
+    depth: f64,
+    t: f64,
+    bottom: &str,
+) -> Result<(), Diagnostic> {
+    let inset = ctx.eval(id, "legs.inset", &legs.inset)?;
+    let max_spacing = ctx.eval(id, "legs.maxSpacing", &legs.max_spacing)?;
+    let Some(leg_id) = legs.hardware.first() else {
+        return Err(Diagnostic::new(
+            "SPEC-312",
+            Severity::Fatal,
+            format!("'{id}.legs' no dice qué pata usar"),
+        )
+        .entity(id));
+    };
+    let Some(leg) = ctx.libs.hardware.get(leg_id).cloned() else {
+        return Err(Diagnostic::new(
+            "LIB-102",
+            Severity::Fatal,
+            format!("'{id}.legs': el herraje '{leg_id}' no existe en la biblioteca"),
+        )
+        .entity(id));
+    };
+    let Some(leg_data) = leg.leg.clone() else {
+        return Err(Diagnostic::new(
+            "LIB-103",
+            Severity::Fatal,
+            format!("'{id}.legs': '{leg_id}' no es una pata (no tiene 'leg')"),
+        )
+        .entity(id));
+    };
+    let base_r = leg_data.base_diameter / 2.0;
+    if inset < base_r || inset > depth / 2.0 || inset > width / 2.0 {
+        return Err(Diagnostic::new(
+            "SPEC-312",
+            Severity::Fatal,
+            format!(
+                "'{id}.legs.inset' = {inset} mm: tiene que ser al menos el radio de la base ({base_r}) y menos de media carcasa"
+            ),
+        )
+        .entity(id));
+    }
+    // The bottom panel runs from t to width − t: a leg has to sit under it.
+    if inset - base_r < t {
+        return Err(Diagnostic::new(
+            "SPEC-312",
+            Severity::Fatal,
+            format!(
+                "'{id}.legs.inset' = {inset} mm deja la base de la pata (Ø{}) fuera de la base de la carcasa, que empieza en {t}",
+                leg_data.base_diameter
+            ),
+        )
+        .entity(id));
+    }
+    let rule = crate::library::hardware::PlacementRule {
+        end_offset: inset,
+        max_spacing,
+        count_by_length: leg.placement.count_by_length.clone(),
+        fixed: Vec::new(),
+    };
+    let xs = rule.positions(width);
+    let ys = [inset, depth - inset];
+    let joint = JointSpec {
+        hardware: vec![leg_id.clone()],
+        placement: None,
+    };
+    for y in ys {
+        for x in &xs {
+            ctx.request(
+                JointKind::Fixture {
+                    centre: Vec3(*x, y, 0.0),
+                    face: Face::Back,
+                    along: Axis::PosX,
+                },
+                id,
+                bottom,
+                bottom,
+                &joint,
+            );
+        }
+    }
+    ctx.publish(id, "legs", (xs.len() * 2) as f64);
+    ctx.publish(id, "leg_height", leg_data.height);
+
+    if let Some(plinth) = &legs.plinth {
+        let setback = ctx.eval(id, "legs.plinth.setback", &plinth.setback)?;
+        let material = ctx
+            .material_or_default(id, plinth.material.as_ref())?
+            .to_string();
+        let tp = ctx.thickness_of(&material);
+        if setback + tp > inset + base_r || setback < 0.0 {
+            return Err(Diagnostic::new(
+                "SPEC-313",
+                Severity::Fatal,
+                format!(
+                    "'{id}.legs.plinth.setback' = {setback} mm: el zócalo ({tp} mm) tiene que quedar contra las patas delanteras (a {inset} del frente)"
+                ),
+            )
+            .entity(id));
+        }
+        let h = leg_data.height;
+        // Between the sides, its inner face looking back at the legs:
+        // origin at the bottom-left-front, local +Z = −Y.
+        let banded = super::banded_axes(plinth.edges, &[]);
+        let plinth_id = ctx.add_part(PartInit {
+            name: "Zócalo".into(),
+            component: id,
+            role: "plinth",
+            material: &material,
+            length: width - 2.0 * t,
+            width: h,
+            grain: Grain::Length,
+            placement: Placement::new(Vec3(t, depth - setback, -h), Axis::PosX, Axis::PosZ),
+            banded_edges: &banded,
+        });
+        let Some(clip_id) = plinth.clips.first() else {
+            return Err(Diagnostic::new(
+                "SPEC-313",
+                Severity::Fatal,
+                format!("'{id}.legs.plinth' no dice qué clip usar"),
+            )
+            .entity(id));
+        };
+        let clips = JointSpec {
+            hardware: vec![clip_id.clone()],
+            placement: None,
+        };
+        let y_inner = depth - setback - tp;
+        for x in &xs {
+            ctx.request(
+                JointKind::Fixture {
+                    centre: Vec3(*x, y_inner, -h / 2.0),
+                    face: Face::Front,
+                    along: Axis::PosX,
+                },
+                id,
+                &plinth_id,
+                &plinth_id,
+                &clips,
+            );
+        }
+        ctx.publish(id, "plinth_length", width - 2.0 * t);
+        ctx.publish(id, "plinth_height", h);
+    }
+    Ok(())
+}

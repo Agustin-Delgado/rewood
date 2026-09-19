@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "1.0",
+  "id": "basic_cabinet",
+  "name": "Módulo básico 1000×800×400",
+  "version": "1.0",
+  "parameters": {
+    "width": 1000,
+    "height": 800,
+    "depth": 400,
+    "shelf_count": 2,
+    "door_count": "if(width > 600, 2, 1)",
+    "door_gap": 2
+  },
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3", "groove": { "inset": 10, "depth": 8 } }
+    },
+    {
+      "type": "shelves",
+      "id": "shelves",
+      "count": "shelf_count",
+      "setback": 20,
+      "joint": { "hardware": ["dowel_8x30"] }
+    },
+    {
+      "type": "doors",
+      "id": "doors",
+      "count": "door_count",
+      "gap": "door_gap"
+    }
+  ],
+  "constraints": [
+    { "id": "max_width", "expr": "width <= 2400", "message": "El ancho máximo de un módulo es 2400 mm" },
+    { "id": "door_min_width", "expr": "doors.door_width >= 250", "severity": "WARNING", "message": "Puertas de menos de 250 mm quedan muy angostas" },
+    { "id": "shelf_span", "expr": "carcass.inner_width <= 1000", "message": "Un estante de más de 1000 mm de luz se pandea en melamina de 18" }
+  ]
+}

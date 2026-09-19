@@ -1,0 +1,15 @@
+{
+  "name": "rewood",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.5.2",
+  "scripts": {
+    "build:wasm": "wasm-pack build crates/rewood-wasm --target nodejs --out-dir ../../packages/engine/pkg --out-name rewood",
+    "build:wasm:web": "wasm-pack build crates/rewood-wasm --target web --out-dir ../../packages/engine/pkg-web --out-name rewood",
+    "test": "pnpm -r test",
+    "test:rust": "cargo test --workspace",
+    "dev": "pnpm --filter app dev",
+    "build:app": "pnpm build:wasm:web && pnpm --filter app build",
+    "check": "pnpm --filter @rewood/engine typecheck && pnpm --filter app check"
+  }
+}

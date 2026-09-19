@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "1.0",
+  "id": "invalid_cabinet",
+  "name": "Módulo inválido: dispara reglas a propósito",
+  "parameters": {
+    "width": 3000,
+    "height": 800,
+    "depth": 400
+  },
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "libraries": {
+    "hardware": [
+      {
+        "id": "dowel_clashing",
+        "name": "Tarugo con el reparto del Minifix",
+        "kind": "dowel",
+        "compatibleThickness": [15, 40],
+        "placement": { "endOffset": 50, "maxSpacing": 600 },
+        "holes": [
+          { "label": "edge", "side": "edge_part", "location": "edge", "diameter": 8, "depth": 18 },
+          { "label": "face", "side": "face_part", "location": "contact_face", "diameter": 8, "depth": 13 }
+        ]
+      },
+      {
+        "id": "bad_screw",
+        "name": "Tornillo con mecha inexistente y demasiado profundo",
+        "kind": "screw",
+        "compatibleThickness": [25, 40],
+        "placement": { "endOffset": 30, "maxSpacing": 150 },
+        "holes": [
+          { "label": "face", "side": "face_part", "location": "contact_face", "diameter": 9, "depth": 17 }
+        ]
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "joint": { "hardware": ["minifix_15", "dowel_clashing"] }
+    },
+    {
+      "type": "shelves",
+      "id": "shelves",
+      "count": 1,
+      "joint": { "hardware": ["bad_screw"] }
+    },
+    {
+      "type": "doors",
+      "id": "doors",
+      "count": 2,
+      "material": "oak_veneer_19"
+    }
+  ],
+  "constraints": [
+    { "id": "max_width", "expr": "width <= 2400", "message": "El ancho máximo de un módulo es 2400 mm" },
+    { "id": "broken", "expr": "width + 1" }
+  ]
+}

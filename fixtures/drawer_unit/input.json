@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "1.0",
+  "id": "drawer_unit",
+  "name": "Cajonera 600×700×500, 3 cajones",
+  "parameters": {
+    "width": 600,
+    "height": 700,
+    "depth": 500,
+    "drawer_count": 3
+  },
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "joint": {
+        "hardware": [
+          "minifix_15",
+          "dowel_8x30"
+        ]
+      },
+      "back": {
+        "material": "hdf_3"
+      },
+      "legs": {
+        "hardware": [
+          "leg_adjustable_100"
+        ],
+        "plinth": {
+          "setback": 40
+        }
+      }
+    },
+    {
+      "type": "drawers",
+      "id": "drawers",
+      "count": "drawer_count",
+      "joint": {
+        "hardware": [
+          "dowel_8x30"
+        ],
+        "placement": {
+          "endOffset": 40,
+          "maxSpacing": 150
+        }
+      },
+      "slide": {
+        "hardware": [
+          "slide_ball_450"
+        ]
+      }
+    }
+  ]
+}

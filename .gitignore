@@ -1,0 +1,10 @@
+/target
+node_modules
+/packages/engine/pkg
+/packages/engine/pkg-web
+/packages/app/.svelte-kit
+/packages/app/build
+/packages/engine/dist
+*.log
+/.playwright-mcp
+/data

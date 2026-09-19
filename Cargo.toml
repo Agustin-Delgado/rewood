@@ -1,0 +1,17 @@
+[workspace]
+resolver = "2"
+members = ["crates/rewood-core", "crates/rewood-cli", "crates/rewood-wasm", "crates/rewood-server"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "UNLICENSED"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+thiserror = "2"
+
+[profile.release]
+opt-level = "s"
+lto = true
