@@ -156,10 +156,18 @@ pnpm build:app                      # estático en packages/app/build
 ```
 
 Árbol de componentes y piezas (mostrar/ocultar por componente), vista 3D con
-cada pieza como caja en su `aabb`, perforaciones como cilindros y ranuras como
-huecos (calculados desde el mismo (u, v) del plan, no geometría propia), un
-deslizador de vista explotada (misma regla que `export/explode.rs`), panel
-de parámetros que recompila en vivo, valores derivados, detalle y operaciones de
+cada pieza como caja en su `aabb` con su contorno, perforaciones como cilindros
+y ranuras como huecos (calculados desde el mismo (u, v) del plan, no geometría
+propia), y **los herrajes dibujados como lo que son** donde el plan puso sus
+agujeros (`lib/hardware3d.ts`, a partir del `source` de cada operación):
+tarugo, excéntrica con su perno, tornillo, cazoleta con brazo y base, dos
+guías por corredera, tirador o botón, pata, cierre y su placa, pasador de
+estante; clickeables como antes. Un deslizador de vista explotada (misma regla
+que `export/explode.rs`) en la que cada herraje viaja con la pieza que lo
+lleva, lo que une dos piezas flota entre ambas y una línea guía une los dos
+agujeros que aparea. Botones de vista: perspectiva, alzados frontal y
+posterior, laterales y planta (sin perspectiva, como los planos; se pueden
+orbitar igual). Panel de parámetros que recompila en vivo, valores derivados, detalle y operaciones de
 la pieza seleccionada, editor de componentes por formulario (agregar, quitar,
 reordenar; bahía, zona, cantidades, materiales, cantos, herrajes, bisagras,
 correderas y tiradores elegidos de las bibliotecas que expone el motor con

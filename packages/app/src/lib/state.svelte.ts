@@ -54,6 +54,16 @@ export const EXAMPLES: { id: string; name: string; spec: FurnitureSpec }[] = [
 	{ id: 'sideboard', name: 'Aparador 1600: push-open, cierre suave, patas 120', spec: sideboard as unknown as FurnitureSpec }
 ];
 
+export type ViewName = 'iso' | 'front' | 'back' | 'left' | 'right' | 'top';
+export const VIEWS: { id: ViewName; name: string; title: string }[] = [
+	{ id: 'iso', name: '3D', title: 'perspectiva' },
+	{ id: 'front', name: 'frente', title: 'alzado frontal' },
+	{ id: 'back', name: 'atrás', title: 'alzado posterior' },
+	{ id: 'left', name: 'izq.', title: 'lateral izquierdo' },
+	{ id: 'right', name: 'der.', title: 'lateral derecho' },
+	{ id: 'top', name: 'planta', title: 'vista superior' }
+];
+
 class AppState {
 	engine: Engine | null = $state(null);
 	libraries: LibrariesSnapshot | null = $state(null);
@@ -73,6 +83,15 @@ class AppState {
 	showHardware: boolean = $state(true);
 	/** Exploded view: 0 assembled, 1 the documentation's spread. */
 	explode: number = $state(0);
+	/** Where the camera looks from: a perspective corner, or a flat elevation. */
+	view: ViewName = $state('iso');
+	/** Bumped on every view request so asking for the current view re-frames it. */
+	viewTick: number = $state(0);
+
+	setView(view: ViewName) {
+		this.view = view;
+		this.viewTick += 1;
+	}
 
 	// --- server (optional) -------------------------------------------------
 	server: ServerClient = $state(new ServerClient(''));
@@ -162,6 +181,7 @@ class AppState {
 		this.current = { id: f.id, projectId: f.projectId, version: f.version };
 		this.dirty = false;
 		this.recompile();
+		this.viewTick += 1;
 	}
 
 	/** Freeze the saved version as an order. Unsaved edits are saved first. */
@@ -193,6 +213,7 @@ class AppState {
 		this.current = null;
 		this.dirty = false;
 		this.recompile();
+		this.viewTick += 1;
 	}
 
 	/** Set a top-level parameter from the properties panel. */
