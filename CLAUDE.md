@@ -51,7 +51,7 @@ pnpm build:wasm:web && pnpm dev          # UI (packages/app) en http://localhost
 cargo run -p rewood-server -- --data ./data --static packages/app/build   # API + UI en :8080
 ANTHROPIC_API_KEY=... cargo run -p rewood-server                          # con asistente (§43)
 pnpm check                               # svelte-check + tsc
-pnpm build:app && (cd packages/app/build && npx vercel deploy --prod --yes --scope agustindelgados-projects)  # demo rewood-mu.vercel.app (sólo UI)
+pnpm build:app && (cd packages/app/build && npx vercel link --project rewood --yes --scope agustindelgados-projects && npx vercel deploy --prod --yes --scope agustindelgados-projects)  # demo rewood-mu.vercel.app (sólo UI). El `link` es obligatorio: el build borra `build/.vercel` y sin él la CLI deploya a un proyecto llamado `build`
 ```
 
 La UI no calcula geometría: dibuja `placement`/`aabb`/operaciones del plan.
