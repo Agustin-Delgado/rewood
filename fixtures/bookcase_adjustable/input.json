@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "1.0",
+  "id": "bookcase_adjustable",
+  "name": "Biblioteca 900×2000×320: estante fijo al medio y regulables con soportes",
+  "parameters": {
+    "width": 900,
+    "height": 2000,
+    "depth": 320,
+    "fixed_z": 1000,
+    "low_count": 2,
+    "high_count": 3
+  },
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "joint": {
+        "hardware": [
+          "minifix_15",
+          "dowel_8x30"
+        ]
+      },
+      "back": {
+        "material": "hdf_3"
+      },
+      "legs": {
+        "plinth": {
+          "setback": 30
+        }
+      }
+    },
+    {
+      "type": "shelves",
+      "id": "fixed",
+      "positions": [
+        "fixed_z"
+      ],
+      "joint": {
+        "hardware": [
+          "minifix_15",
+          "dowel_8x30"
+        ]
+      }
+    },
+    {
+      "type": "shelves",
+      "id": "low",
+      "zone": {
+        "from": 0,
+        "to": "fixed_z"
+      },
+      "count": "low_count",
+      "support": "pins"
+    },
+    {
+      "type": "shelves",
+      "id": "high",
+      "zone": {
+        "from": "fixed_z + carcass.thickness",
+        "to": "height"
+      },
+      "count": "high_count",
+      "support": "pins"
+    }
+  ],
+  "constraints": [
+    {
+      "id": "span",
+      "expr": "carcass.inner_width <= 900",
+      "message": "Un estante de más de 900 mm de luz en melamina de 18 se pandea"
+    }
+  ]
+}

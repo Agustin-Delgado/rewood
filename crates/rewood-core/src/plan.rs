@@ -550,7 +550,8 @@ pub fn bom(
             }
         })
         .collect();
-    // Bars by the metre: one line per hardware id, metres summed.
+    // Items no joint counts: bars by the metre (metres summed) or loose
+    // pieces by count (shelf pins). One line per hardware id.
     let mut by_metre: BTreeMap<String, (usize, f64)> = BTreeMap::new();
     for e in extra {
         let entry = by_metre.entry(e.hardware.clone()).or_default();
@@ -560,14 +561,19 @@ pub fn bom(
     for (id, (quantity, metres)) in by_metre {
         let def = libs.hardware.get(&id);
         let metres = crate::units::round3(metres);
+        let factor = if metres > 0.0 {
+            metres
+        } else {
+            quantity as f64
+        };
         let items: Vec<BomItemLine> = def
             .map(|d| {
                 d.bom_items
                     .iter()
                     .map(|i| BomItemLine {
                         name: i.name.clone(),
-                        quantity: crate::units::round3(i.quantity * metres),
-                        cost: crate::units::round3(i.quantity * metres * i.unit_price),
+                        quantity: crate::units::round3(i.quantity * factor),
+                        cost: crate::units::round3(i.quantity * factor * i.unit_price),
                     })
                     .collect()
             })

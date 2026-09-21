@@ -281,7 +281,17 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 (Axis::PosX, &bay.right_part)
             };
             if let Some(hinge) = hinge {
-                ctx.request(JointKind::Hinge { hinge_edge }, id, &door, panel, hinge);
+                // Cups half a pitch off the System 32 grid: the plate's two
+                // holes, 16 above and below, land on the shelf-pin rows.
+                ctx.request_snapped(
+                    JointKind::Hinge { hinge_edge },
+                    id,
+                    &door,
+                    panel,
+                    hinge,
+                    carcass.origin.2 + super::GRID_ORIGIN + super::PIN_PITCH / 2.0,
+                    super::PIN_PITCH,
+                );
             }
             if let Some(handle) = handle {
                 // Vertical, on the opening edge (opposite the hinge).

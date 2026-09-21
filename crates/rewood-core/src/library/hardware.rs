@@ -81,6 +81,11 @@ pub struct PlacementRule {
     /// with `offset_along`.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub fixed: Vec<f64>,
+    /// A fixed pitch from the first position (a System 32 row of shelf
+    /// pin holes): fasteners every `pitch` from `end_offset` as long as
+    /// they stay `end_offset` clear of the far end. Overrides `max_spacing`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub pitch: Option<f64>,
 }
 
 impl PlacementRule {
@@ -91,6 +96,15 @@ impl PlacementRule {
     pub fn positions(&self, len: f64) -> Vec<f64> {
         if !self.fixed.is_empty() {
             return self.fixed.clone();
+        }
+        if let Some(pitch) = self.pitch.filter(|p| *p > 0.0) {
+            let mut out = Vec::new();
+            let mut x = self.end_offset;
+            while x <= len - self.end_offset + crate::units::EPS {
+                out.push(x);
+                x += pitch;
+            }
+            return out;
         }
         let usable = len - 2.0 * self.end_offset;
         if usable < 0.0 {
@@ -189,11 +203,24 @@ impl HardwareDef {
             JointKind::Slide => self.kind == "slide",
             JointKind::Handle { .. } => self.kind == "handle",
             JointKind::Fixture { .. } => {
-                matches!(self.kind.as_str(), "leg" | "clip" | "rail_support")
+                matches!(
+                    self.kind.as_str(),
+                    "leg" | "clip" | "rail_support" | "hanger"
+                )
             }
+            JointKind::Row { .. } => self.kind == "pin_row",
             JointKind::Butt | JointKind::FaceToFace => !matches!(
                 self.kind.as_str(),
-                "hinge" | "slide" | "handle" | "leg" | "clip" | "rail_support" | "rail"
+                "hinge"
+                    | "slide"
+                    | "handle"
+                    | "leg"
+                    | "clip"
+                    | "rail_support"
+                    | "rail"
+                    | "hanger"
+                    | "pin_row"
+                    | "pin"
             ),
         }
     }
@@ -252,6 +279,7 @@ mod tests {
             max_spacing: 600.0,
             count_by_length: vec![],
             fixed: vec![],
+            pitch: None,
         };
         assert_eq!(r.positions(400.0), vec![50.0, 350.0]);
         assert_eq!(r.positions(964.0), vec![50.0, 482.0, 914.0]);
@@ -261,6 +289,7 @@ mod tests {
             max_spacing: 300.0,
             count_by_length: vec![],
             fixed: vec![],
+            pitch: None,
         };
         assert_eq!(r.positions(400.0), vec![120.0, 280.0]);
         assert_eq!(r.positions(964.0).len(), 4);
@@ -269,6 +298,7 @@ mod tests {
             max_spacing: 800.0,
             count_by_length: vec![[900.0, 2.0], [1500.0, 3.0], [2000.0, 4.0]],
             fixed: vec![],
+            pitch: None,
         };
         assert_eq!(hinges.positions(796.0), vec![100.0, 696.0]);
         assert_eq!(hinges.positions(1200.0), vec![100.0, 600.0, 1100.0]);

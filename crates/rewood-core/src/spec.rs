@@ -201,6 +201,10 @@ pub enum ComponentSpec {
         /// (shelves, doors, drawers) moves with it.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         origin: Option<OriginSpec>,
+        /// Hangers on the inner faces of the sides, top back corner, for a
+        /// wall-hung cabinet (no legs: it does not stand on anything).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        hanging: Option<HangingSpec>,
     },
     /// `count` shelves spread evenly inside a carcass bay, or shelves at
     /// explicit heights (`positions`): a fixed shelf / horizontal divider.
@@ -228,7 +232,17 @@ pub enum ComponentSpec {
         setback: Option<NumOrExpr>,
         #[serde(default)]
         material: Option<String>,
-        joint: JointSpec,
+        /// How the shelves hold: joined to the panels (dowels, cams) or
+        /// resting on pins in System 32 rows, so they can be moved.
+        #[serde(default)]
+        support: ShelfSupport,
+        /// Fasteners for `support: joint`; ignored for pins.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        joint: Option<JointSpec>,
+        /// For `support: pins`: the row pattern (`kind: pin_row`) and the
+        /// pins themselves; defaults to the library's Ø5 pins.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pins: Option<PinsSpec>,
         #[serde(default)]
         edges: EdgeBanding,
     },
@@ -347,6 +361,79 @@ pub enum ComponentSpec {
         #[serde(default = "default_rail_support")]
         supports: Vec<String>,
     },
+    /// A panel over one or more carcasses (a desk top on two pedestals),
+    /// overhanging as asked and screwed from inside through their tops.
+    #[serde(rename_all = "camelCase")]
+    Worktop {
+        id: String,
+        /// Carcass ids it rests on; empty = every carcass.
+        #[serde(default, skip_serializing_if = "Vec::is_empty")]
+        carcasses: Vec<String>,
+        #[serde(default)]
+        overhang: OverhangSpec,
+        #[serde(default)]
+        material: Option<String>,
+        /// Screws through each carcass top into the worktop.
+        #[serde(default = "worktop_fixing")]
+        fixing: JointSpec,
+        #[serde(default)]
+        edges: EdgeBanding,
+    },
+}
+
+/// How far a worktop sticks out past the carcasses under it, mm.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct OverhangSpec {
+    #[serde(default = "overhang_front")]
+    pub front: NumOrExpr,
+    #[serde(default = "zero")]
+    pub back: NumOrExpr,
+    #[serde(default = "zero")]
+    pub sides: NumOrExpr,
+}
+
+impl Default for OverhangSpec {
+    fn default() -> Self {
+        OverhangSpec {
+            front: overhang_front(),
+            back: zero(),
+            sides: zero(),
+        }
+    }
+}
+
+fn overhang_front() -> NumOrExpr {
+    num(20.0)
+}
+/// Screws 80 mm in from the top panel's edges: its own cams sit 34 mm
+/// in, on the same fastener lines, and a screw at the default 40 would
+/// run into them.
+fn worktop_fixing() -> JointSpec {
+    JointSpec {
+        hardware: vec!["screw_4x30_face".into()],
+        placement: Some(crate::library::hardware::PlacementRule {
+            end_offset: 80.0,
+            max_spacing: 300.0,
+            count_by_length: Vec::new(),
+            fixed: Vec::new(),
+            pitch: None,
+        }),
+    }
+}
+
+/// Cabinet hangers: one per side, screwed to the inner face at the top
+/// back corner; the hook comes out through the back and takes a wall
+/// rail.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct HangingSpec {
+    #[serde(default = "default_hanger")]
+    pub hardware: Vec<String>,
+}
+
+fn default_hanger() -> Vec<String> {
+    vec!["cabinet_hanger".into()]
 }
 
 fn rail_from_top() -> NumOrExpr {
@@ -367,8 +454,46 @@ impl ComponentSpec {
             ComponentSpec::Doors { .. } => "doors",
             ComponentSpec::Drawers { .. } => "drawers",
             ComponentSpec::Rail { .. } => "rail",
+            ComponentSpec::Worktop { .. } => "worktop",
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ShelfSupport {
+    /// Butted into the bay panels with the `joint` hardware.
+    #[default]
+    Joint,
+    /// Resting on four pins; the panels get System 32 rows.
+    Pins,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PinsSpec {
+    /// The drilling pattern, `kind: pin_row`. Default `shelf_pin_row_5`.
+    #[serde(default = "default_pin_row")]
+    pub row: Vec<String>,
+    /// The loose pins, `kind: pin`, four per shelf. Default `shelf_pin_5`.
+    #[serde(default = "default_pins")]
+    pub hardware: Vec<String>,
+}
+
+impl Default for PinsSpec {
+    fn default() -> Self {
+        PinsSpec {
+            row: default_pin_row(),
+            hardware: default_pins(),
+        }
+    }
+}
+
+fn default_pin_row() -> Vec<String> {
+    vec!["shelf_pin_row_5".into()]
+}
+fn default_pins() -> Vec<String> {
+    vec!["shelf_pin_5".into()]
 }
 
 fn drawer_bottom_material() -> String {
@@ -410,7 +535,8 @@ impl ComponentSpec {
             | ComponentSpec::Shelves { id, .. }
             | ComponentSpec::Doors { id, .. }
             | ComponentSpec::Drawers { id, .. }
-            | ComponentSpec::Rail { id, .. } => id,
+            | ComponentSpec::Rail { id, .. }
+            | ComponentSpec::Worktop { id, .. } => id,
         }
     }
 }

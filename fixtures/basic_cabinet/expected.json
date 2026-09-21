@@ -492,7 +492,7 @@
           "id": "P001-OP14",
           "face": "front",
           "type": "DRILL",
-          "u": 118.0,
+          "u": 133.0,
           "v": 37.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -508,7 +508,7 @@
           "id": "P001-OP15",
           "face": "front",
           "type": "DRILL",
-          "u": 86.0,
+          "u": 101.0,
           "v": 37.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -524,7 +524,7 @@
           "id": "P001-OP16",
           "face": "front",
           "type": "DRILL",
-          "u": 714.0,
+          "u": 709.0,
           "v": 37.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -540,7 +540,7 @@
           "id": "P001-OP17",
           "face": "front",
           "type": "DRILL",
-          "u": 682.0,
+          "u": 677.0,
           "v": 37.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -817,7 +817,7 @@
           "id": "P002-OP14",
           "face": "front",
           "type": "DRILL",
-          "u": 118.0,
+          "u": 133.0,
           "v": 363.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -833,7 +833,7 @@
           "id": "P002-OP15",
           "face": "front",
           "type": "DRILL",
-          "u": 86.0,
+          "u": 101.0,
           "v": 363.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -849,7 +849,7 @@
           "id": "P002-OP16",
           "face": "front",
           "type": "DRILL",
-          "u": 714.0,
+          "u": 709.0,
           "v": 363.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -865,7 +865,7 @@
           "id": "P002-OP17",
           "face": "front",
           "type": "DRILL",
-          "u": 682.0,
+          "u": 677.0,
           "v": 363.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -1736,7 +1736,7 @@
           "id": "P008-OP01",
           "face": "front",
           "type": "DRILL",
-          "u": 100.0,
+          "u": 115.0,
           "v": 424.5,
           "diameter": 35.0,
           "depth": 12.5,
@@ -1752,7 +1752,7 @@
           "id": "P008-OP02",
           "face": "front",
           "type": "DRILL",
-          "u": 122.5,
+          "u": 137.5,
           "v": 415.0,
           "diameter": 8.0,
           "depth": 11.0,
@@ -1768,7 +1768,7 @@
           "id": "P008-OP03",
           "face": "front",
           "type": "DRILL",
-          "u": 77.5,
+          "u": 92.5,
           "v": 415.0,
           "diameter": 8.0,
           "depth": 11.0,
@@ -1784,7 +1784,7 @@
           "id": "P008-OP04",
           "face": "front",
           "type": "DRILL",
-          "u": 696.0,
+          "u": 691.0,
           "v": 424.5,
           "diameter": 35.0,
           "depth": 12.5,
@@ -1800,7 +1800,7 @@
           "id": "P008-OP05",
           "face": "front",
           "type": "DRILL",
-          "u": 718.5,
+          "u": 713.5,
           "v": 415.0,
           "diameter": 8.0,
           "depth": 11.0,
@@ -1816,7 +1816,7 @@
           "id": "P008-OP06",
           "face": "front",
           "type": "DRILL",
-          "u": 673.5,
+          "u": 668.5,
           "v": 415.0,
           "diameter": 8.0,
           "depth": 11.0,
@@ -1910,7 +1910,7 @@
           "id": "P009-OP01",
           "face": "front",
           "type": "DRILL",
-          "u": 100.0,
+          "u": 115.0,
           "v": 22.5,
           "diameter": 35.0,
           "depth": 12.5,
@@ -1926,7 +1926,7 @@
           "id": "P009-OP02",
           "face": "front",
           "type": "DRILL",
-          "u": 122.5,
+          "u": 137.5,
           "v": 32.0,
           "diameter": 8.0,
           "depth": 11.0,
@@ -1942,7 +1942,7 @@
           "id": "P009-OP03",
           "face": "front",
           "type": "DRILL",
-          "u": 77.5,
+          "u": 92.5,
           "v": 32.0,
           "diameter": 8.0,
           "depth": 11.0,
@@ -1958,7 +1958,7 @@
           "id": "P009-OP04",
           "face": "front",
           "type": "DRILL",
-          "u": 696.0,
+          "u": 691.0,
           "v": 22.5,
           "diameter": 35.0,
           "depth": 12.5,
@@ -1974,7 +1974,7 @@
           "id": "P009-OP05",
           "face": "front",
           "type": "DRILL",
-          "u": 718.5,
+          "u": 713.5,
           "v": 32.0,
           "diameter": 8.0,
           "depth": 11.0,
@@ -1990,7 +1990,7 @@
           "id": "P009-OP06",
           "face": "front",
           "type": "DRILL",
-          "u": 673.5,
+          "u": 668.5,
           "v": 32.0,
           "diameter": 8.0,
           "depth": 11.0,
@@ -2496,7 +2496,7 @@
           "position": [
             2.0,
             400.0,
-            102.0
+            117.0
           ]
         },
         {
@@ -2505,7 +2505,7 @@
           "position": [
             2.0,
             400.0,
-            698.0
+            693.0
           ]
         }
       ]
@@ -2540,7 +2540,7 @@
           "position": [
             898.0,
             400.0,
-            102.0
+            117.0
           ]
         },
         {
@@ -2549,7 +2549,7 @@
           "position": [
             898.0,
             400.0,
-            698.0
+            693.0
           ]
         }
       ]
@@ -2888,7 +2888,7 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 1259.832,
+    "totalSeconds": 1259.483,
     "programs": [
       {
         "part": "P001",
@@ -2896,8 +2896,8 @@
         "operations": 18,
         "toolChanges": 4,
         "cutMm": 7485.5,
-        "rapidMm": 7993.925,
-        "seconds": 239.337
+        "rapidMm": 7990.917,
+        "seconds": 239.328
       },
       {
         "part": "P002",
@@ -2905,8 +2905,8 @@
         "operations": 18,
         "toolChanges": 4,
         "cutMm": 7485.5,
-        "rapidMm": 7830.442,
-        "seconds": 238.846
+        "rapidMm": 7827.434,
+        "seconds": 238.837
       },
       {
         "part": "P003",
@@ -2959,8 +2959,8 @@
         "operations": 7,
         "toolChanges": 3,
         "cutMm": 2624.5,
-        "rapidMm": 3460.27,
-        "seconds": 63.067
+        "rapidMm": 3400.498,
+        "seconds": 62.887
       },
       {
         "part": "P009",
@@ -2968,8 +2968,8 @@
         "operations": 7,
         "toolChanges": 3,
         "cutMm": 2624.5,
-        "rapidMm": 3033.268,
-        "seconds": 61.786
+        "rapidMm": 2982.838,
+        "seconds": 61.635
       }
     ]
   },

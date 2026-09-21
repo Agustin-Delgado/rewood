@@ -3,13 +3,21 @@
 //! back and sit back from the front), or shelves at explicit heights
 //! (`positions`): fixed shelves that take the full inner depth — the
 //! horizontal divider between, say, a drawer zone and a door zone.
+//!
+//! With `support: pins` the shelves are not joined at all: each bay panel
+//! gets two System 32 rows over the zone (37 mm from the front edge and
+//! from the back panel), the shelves are a millimetre short on each side
+//! and rest on four pins that go to the BOM by count.
 
-use super::{BuildCtx, OccupancyKind, PartInit};
+use super::{BuildCtx, ExtraBom, JointKind, OccupancyKind, PartInit, GRID_ORIGIN, ROW_INSET};
 use crate::diagnostics::{Diagnostic, Severity};
-use crate::geometry::{Axis, Placement, Vec3};
+use crate::geometry::{Axis, Face, Placement, Vec3};
 use crate::model::Grain;
 use crate::rules::mm;
-use crate::spec::ComponentSpec;
+use crate::spec::{ComponentSpec, JointSpec, PinsSpec, ShelfSupport};
+
+/// Side play of a pin-supported shelf, per side.
+const PIN_PLAY: f64 = 1.0;
 
 pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnostic> {
     let ComponentSpec::Shelves {
@@ -21,13 +29,39 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         positions,
         setback,
         material,
+        support,
         joint,
+        pins,
         edges,
     } = spec
     else {
         unreachable!()
     };
     let id = id.as_str();
+    let on_pins = *support == ShelfSupport::Pins;
+    let joint = match (on_pins, joint) {
+        (true, _) => None,
+        (false, Some(j)) => Some(j),
+        (false, None) => {
+            return Err(Diagnostic::new(
+                "SPEC-318",
+                Severity::Fatal,
+                format!("'{id}' no dice con qué herrajes va unido ('joint') ni que apoya en soportes ('support: pins')"),
+            )
+            .entity(id)
+            .suggestion("Agregá joint: { hardware: [\"dowel_8x30\"] } o support: \"pins\"."));
+        }
+    };
+    let default_pins = PinsSpec::default();
+    let pins = pins.as_ref().unwrap_or(&default_pins);
+    if on_pins && fixed_positions(positions) {
+        return Err(Diagnostic::new(
+            "SPEC-318",
+            Severity::Fatal,
+            format!("'{id}': un estante fijo ('positions') no puede apoyar en soportes; va unido"),
+        )
+        .entity(id));
+    }
 
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
     let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
@@ -186,8 +220,18 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let many = bays.len() > 1;
     let kind = if fixed { "Estante fijo" } else { "Estante" };
     let role_kind = if fixed { "fixed_shelf" } else { "shelf" };
+    let play = if on_pins { PIN_PLAY } else { 0.0 };
     for bay in &bays {
-        let length = bay.x1 - bay.x0;
+        if on_pins {
+            pin_rows(ctx, id, &carcass, bay, z_lo, z_hi, pins)?;
+            ctx.extra_bom.push(ExtraBom {
+                component: id.to_string(),
+                hardware: pins.hardware.first().cloned().unwrap_or_default(),
+                quantity: 4 * heights.len(),
+                metres: 0.0,
+            });
+        }
+        let length = bay.x1 - bay.x0 - 2.0 * play;
         for (i, z) in heights.iter().enumerate() {
             let z = *z;
             let n = i + 1;
@@ -209,15 +253,113 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 grain: Grain::Length,
                 // Same frame as the carcass bottom: local +Z looks up.
                 placement: Placement::new(
-                    Vec3(bay.x0, carcass.inner_y0, z),
+                    Vec3(bay.x0 + play, carcass.inner_y0, z),
                     Axis::PosX,
                     Axis::PosY,
                 ),
                 banded_edges: &banded,
             });
-            ctx.request_joint(id, &part, &bay.left_part, joint);
-            ctx.request_joint(id, &part, &bay.right_part, joint);
+            if let Some(joint) = joint {
+                ctx.request_joint(id, &part, &bay.left_part, joint);
+                ctx.request_joint(id, &part, &bay.right_part, joint);
+            }
         }
     }
+    Ok(())
+}
+
+fn fixed_positions(positions: &[crate::params::ParamInput]) -> bool {
+    !positions.is_empty()
+}
+
+/// Two System 32 rows on each panel bounding the bay, over the zone: the
+/// front row [`ROW_INSET`] from the carcass front, the back row the same
+/// distance in front of the back panel. Holes start at [`GRID_ORIGIN`]
+/// from the carcass floor and repeat every pitch while a shelf's pin can
+/// still sit on them (a hole less than a pin's reach from the zone ends
+/// holds nothing).
+fn pin_rows(
+    ctx: &mut BuildCtx<'_>,
+    id: &str,
+    carcass: &super::CarcassInfo,
+    bay: &super::Bay,
+    z_lo: f64,
+    z_hi: f64,
+    pins: &PinsSpec,
+) -> Result<(), Diagnostic> {
+    let Some(row_id) = pins.row.first() else {
+        return Err(Diagnostic::new(
+            "SPEC-318",
+            Severity::Fatal,
+            format!("'{id}.pins.row' no dice qué patrón de perforación usar"),
+        )
+        .entity(id));
+    };
+    let Some(row) = ctx.libs.hardware.get(row_id) else {
+        return Err(Diagnostic::new(
+            "SPEC-318",
+            Severity::Fatal,
+            format!("'{id}.pins.row': '{row_id}' no está en la biblioteca"),
+        )
+        .entity(id));
+    };
+    let pitch = row.placement.pitch.unwrap_or(super::PIN_PITCH);
+    // First and last hole on the grid inside the zone, one pitch clear
+    // of its ends so the lowest shelf still has room under it.
+    let origin = carcass.origin.2 + GRID_ORIGIN;
+    let first = origin + ((z_lo + pitch - origin) / pitch).ceil() * pitch;
+    let last = origin + ((z_hi - pitch - origin) / pitch).floor() * pitch;
+    if last < first {
+        return Err(Diagnostic::new(
+            "SPEC-318",
+            Severity::Fatal,
+            format!(
+                "'{id}': la zona de {} mm no tiene lugar para una hilera de soportes",
+                mm(z_hi - z_lo)
+            ),
+        )
+        .entity(id));
+    }
+    // The back row stops under the hangers of a wall-hung carcass.
+    let last_back = match carcass.hanger_clear_z {
+        Some(z) => origin + ((z.min(z_hi - pitch) - origin) / pitch).floor() * pitch,
+        None => last,
+    };
+    let ys = [
+        (carcass.depth - ROW_INSET, last),
+        (carcass.inner_y0 + ROW_INSET, last_back),
+    ];
+    let spec = JointSpec {
+        hardware: vec![row_id.clone()],
+        placement: None,
+    };
+    for (x, part_id, looks) in [
+        (bay.x0, &bay.left_part, Axis::PosX),
+        (bay.x1, &bay.right_part, Axis::NegX),
+    ] {
+        let face: Face = ctx.part_mut(part_id).face_facing(looks);
+        for (y, last) in ys {
+            if last < first {
+                continue;
+            }
+            ctx.request(
+                JointKind::Row {
+                    from: Vec3(x, y, first),
+                    to: Vec3(x, y, last),
+                    face,
+                },
+                id,
+                part_id,
+                part_id,
+                &spec,
+            );
+        }
+    }
+    ctx.publish(id, "pin_rows", 4.0);
+    ctx.publish(
+        id,
+        "pin_holes_per_row",
+        ((last - first) / pitch).round() + 1.0,
+    );
     Ok(())
 }

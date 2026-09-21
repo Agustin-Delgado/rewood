@@ -397,6 +397,92 @@
       "supplier": "hardware_supplier"
     },
     {
+      "id": "slide_ball_350",
+      "name": "Corredera telescópica a bolillas 350 mm (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 350,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 133,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 229,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 133,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 229,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 350 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
       "id": "screw_4x30_face",
       "name": "Tornillo 4×30 cabeza plana (frente de cajón)",
       "kind": "screw",
@@ -659,6 +745,112 @@
         }
       ],
       "supplier": "hardware_supplier"
+    },
+    {
+      "id": "shelf_pin_row_5",
+      "name": "Hilera Sistema 32 para soportes Ø5",
+      "kind": "pin_row",
+      "supplier": "hardware_supplier",
+      "compatibleThickness": [
+        15,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 32,
+        "pitch": 32
+      },
+      "holes": [
+        {
+          "label": "pin",
+          "side": "face_part",
+          "location": "contact_face",
+          "diameter": 5,
+          "depth": 12
+        }
+      ],
+      "bomItems": []
+    },
+    {
+      "id": "shelf_pin_5",
+      "name": "Soporte de estante Ø5",
+      "kind": "pin",
+      "supplier": "hardware_supplier",
+      "compatibleThickness": [
+        15,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [],
+      "bomItems": [
+        {
+          "name": "Soporte de estante Ø5 con clavija",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "id": "cabinet_hanger",
+      "name": "Colgador de alacena regulable",
+      "kind": "hanger",
+      "supplier": "hardware_supplier",
+      "maxLoadKg": 60,
+      "compatibleThickness": [
+        15,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw_top",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 18,
+          "offsetAcross": 0,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_bottom",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -18,
+          "offsetAcross": 0,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 0,
+          "offsetAcross": 22,
+          "diameter": 3,
+          "depth": 12
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Colgador de alacena regulable (par izq/der)",
+          "quantity": 0.5
+        },
+        {
+          "name": "Tornillo 4×16",
+          "quantity": 3
+        }
+      ]
     }
   ]
 }

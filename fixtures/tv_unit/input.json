@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "1.0",
+  "id": "tv_unit",
+  "name": "Mueble de TV 1800×450×420: cajones a los lados, hueco al medio",
+  "parameters": {
+    "width": 1800,
+    "height": 450,
+    "depth": 420,
+    "middle": 800,
+    "t": 18
+  },
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "bays": 3,
+      "bayWidths": [
+        "auto",
+        "middle",
+        "(width - 4 * t - middle) / 2"
+      ],
+      "joint": {
+        "hardware": [
+          "minifix_15",
+          "dowel_8x30"
+        ]
+      },
+      "back": {
+        "material": "hdf_3"
+      },
+      "legs": {}
+    },
+    {
+      "type": "drawers",
+      "id": "drawers_left",
+      "bay": 1,
+      "count": 1,
+      "joint": {
+        "hardware": [
+          "dowel_8x30"
+        ],
+        "placement": {
+          "endOffset": 40,
+          "maxSpacing": 150
+        }
+      },
+      "slide": {
+        "hardware": [
+          "slide_ball_350"
+        ]
+      },
+      "handle": {
+        "hardware": [
+          "handle_bar_128"
+        ]
+      }
+    },
+    {
+      "type": "shelves",
+      "id": "middle_shelf",
+      "bay": 2,
+      "count": 1,
+      "support": "pins"
+    },
+    {
+      "type": "drawers",
+      "id": "drawers_right",
+      "bay": 3,
+      "count": 1,
+      "joint": {
+        "hardware": [
+          "dowel_8x30"
+        ],
+        "placement": {
+          "endOffset": 40,
+          "maxSpacing": 150
+        }
+      },
+      "slide": {
+        "hardware": [
+          "slide_ball_350"
+        ]
+      },
+      "handle": {
+        "hardware": [
+          "handle_bar_128"
+        ]
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "tv_height",
+      "expr": "height <= 500",
+      "severity": "WARNING",
+      "message": "Más de 500 mm deja la pantalla alta para mirar sentado"
+    }
+  ]
+}

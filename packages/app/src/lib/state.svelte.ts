@@ -32,6 +32,11 @@ import kitchen from '../../../../fixtures/kitchen_run/input.json';
 import drawerUnit from '../../../../fixtures/drawer_unit/input.json';
 import wardrobe from '../../../../fixtures/wardrobe_1800/input.json';
 import wardrobeRail from '../../../../fixtures/wardrobe_rail/input.json';
+import nightstand from '../../../../fixtures/nightstand/input.json';
+import wallCabinet from '../../../../fixtures/wall_cabinet/input.json';
+import bookcaseAdjustable from '../../../../fixtures/bookcase_adjustable/input.json';
+import tvUnit from '../../../../fixtures/tv_unit/input.json';
+import desk from '../../../../fixtures/desk/input.json';
 
 export const EXAMPLES: { id: string; name: string; spec: FurnitureSpec }[] = [
 	{ id: 'wardrobe_1800', name: 'Placard 1800 (3 módulos)', spec: wardrobe as FurnitureSpec },
@@ -39,7 +44,12 @@ export const EXAMPLES: { id: string; name: string; spec: FurnitureSpec }[] = [
 	{ id: 'basic_cabinet', name: 'Módulo básico 900×800', spec: basicCabinet as FurnitureSpec },
 	{ id: 'drawer_unit', name: 'Cajonera 600×700', spec: drawerUnit as FurnitureSpec },
 	{ id: 'bookcase_fixed', name: 'Biblioteca 800×2000 con estante fijo', spec: bookcase as FurnitureSpec },
-	{ id: 'kitchen_run', name: 'Bajo mesada 1800: 3 módulos', spec: kitchen as unknown as FurnitureSpec }
+	{ id: 'kitchen_run', name: 'Bajo mesada 1800: 3 módulos', spec: kitchen as unknown as FurnitureSpec },
+	{ id: 'nightstand', name: 'Mesa de luz 450×550: cajón y puerta', spec: nightstand as unknown as FurnitureSpec },
+	{ id: 'wall_cabinet', name: 'Alacena colgante 900×720', spec: wallCabinet as unknown as FurnitureSpec },
+	{ id: 'bookcase_adjustable', name: 'Biblioteca 900×2000 con estantes regulables', spec: bookcaseAdjustable as unknown as FurnitureSpec },
+	{ id: 'tv_unit', name: 'Mueble de TV 1800×450', spec: tvUnit as unknown as FurnitureSpec },
+	{ id: 'desk', name: 'Escritorio 1400 con tapa', spec: desk as unknown as FurnitureSpec }
 ];
 
 class AppState {
@@ -329,6 +339,7 @@ export interface HardwareRow {
 /** Joint kinds as the workshop calls them. */
 export const JOINT_KIND_ES: Record<Joint['kind'], string> = {
 	butt: 'unión a tope',
+	row: 'hilera de soportes',
 	hinge: 'bisagra',
 	slide: 'corredera',
 	face_to_face: 'cara contra cara',

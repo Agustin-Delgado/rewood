@@ -35,7 +35,9 @@
 		else rec[key] = raw;
 		app.touch();
 	}
-	function toggleHardware(joint: JointSpec, id: string) {
+	function toggleHardware(c: { joint?: JointSpec }, id: string) {
+		// Shelves may carry no joint yet (they were on pins): make one.
+		const joint = (c.joint ??= { hardware: [] });
 		const i = joint.hardware.indexOf(id);
 		if (i >= 0) joint.hardware.splice(i, 1);
 		else joint.hardware.push(id);
@@ -129,6 +131,9 @@
 				break;
 			case 'rail':
 				c = { type: 'rail', id };
+				break;
+			case 'worktop':
+				c = { type: 'worktop', id, overhang: { front: 20 } };
 				break;
 		}
 		app.spec.components.push(c);
@@ -230,7 +235,7 @@
 								</span>
 							</label>
 						{/if}
-					{:else}
+					{:else if c.type !== 'worktop'}
 						<label class="row"><span>bahía</span><input placeholder="todas" value={show(c.bay)} onchange={(e) => setField(c, 'bay', e.currentTarget.value, true)} /></label>
 						<label class="row"><span>zona</span>
 							<span class="inline">
@@ -273,6 +278,12 @@
 						{/if}
 					{/if}
 					{#if c.type === 'shelves'}
+						<label class="row"><span>apoyo</span>
+							<select value={c.support ?? 'joint'} onchange={(e) => { const v = e.currentTarget.value; if (v === 'pins') { c.support = 'pins'; } else { delete c.support; c.joint ??= { hardware: ['dowel_8x30'] }; } app.touch(); }}>
+								<option value="joint">unido con herrajes</option>
+								<option value="pins">regulable con soportes (Sistema 32)</option>
+							</select>
+						</label>
 						<label class="row"><span>fijos en</span>
 							<input placeholder="alturas · ej. 1000, divider_z" value={(c.positions ?? []).map(show).join(', ')}
 								onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) { c.positions = raw.split(',').map((x) => numOrExpr(x)); delete c.count; } else { delete c.positions; c.count ??= 2; } app.touch(); }} />
@@ -291,6 +302,14 @@
 							</select>
 						</div>
 					{/if}
+					{#if c.type === 'worktop'}
+						<label class="row"><span>vuelo frente</span><input value={show(c.overhang?.front ?? 20)} onchange={(e) => { c.overhang ??= {}; c.overhang.front = numOrExpr(e.currentTarget.value); app.touch(); }} /></label>
+						<label class="row"><span>vuelo lados</span><input value={show(c.overhang?.sides ?? 0)} onchange={(e) => { c.overhang ??= {}; c.overhang.sides = numOrExpr(e.currentTarget.value); app.touch(); }} /></label>
+						<label class="row"><span>sobre</span><input placeholder="todas las carcasas" value={(c.carcasses ?? []).join(', ')} onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) c.carcasses = raw.split(',').map((x) => x.trim()); else delete c.carcasses; app.touch(); }} /></label>
+					{/if}
+					{#if c.type === 'carcass'}
+						<label class="row"><span>colgada</span><input type="checkbox" checked={!!c.hanging} onchange={(e) => { if (e.currentTarget.checked) { c.hanging = {}; delete c.legs; } else delete c.hanging; app.touch(); }} /></label>
+					{/if}
 					{#if c.type !== 'rail'}
 					<label class="row"><span>material</span>
 						<select value={c.material ?? ''} onchange={(e) => setText(c, 'material', e.currentTarget.value, true)}>
@@ -304,12 +323,13 @@
 						</select>
 					</label>
 					{/if}
-					{#if c.type !== 'doors' && c.type !== 'rail'}
+					{#if c.type !== 'doors' && c.type !== 'rail' && c.type !== 'worktop' && !(c.type === 'shelves' && c.support === 'pins')}
+						{@const hw = c.joint?.hardware ?? []}
 						<div class="row"><span>herrajes</span>
 							<span class="chips">
 								{#each fasteners as h (h.id)}
-									<label class="chip" class:on={c.joint.hardware.includes(h.id)}>
-										<input type="checkbox" checked={c.joint.hardware.includes(h.id)} onchange={() => toggleHardware(c.joint, h.id)} />{h.name}
+									<label class="chip" class:on={hw.includes(h.id)}>
+										<input type="checkbox" checked={hw.includes(h.id)} onchange={() => toggleHardware(c, h.id)} />{h.name}
 									</label>
 								{/each}
 							</span>
@@ -352,7 +372,7 @@
 	{/each}
 	<div class="add">
 		<select bind:value={newType}>
-			<option value="carcass">carcasa</option><option value="shelves">estantes</option><option value="doors">puertas</option><option value="drawers">cajones</option><option value="rail">barral</option>
+			<option value="carcass">carcasa</option><option value="shelves">estantes</option><option value="doors">puertas</option><option value="drawers">cajones</option><option value="rail">barral</option><option value="worktop">tapa de trabajo</option>
 		</select>
 		<button onclick={addComponent}>+ agregar</button>
 	</div>

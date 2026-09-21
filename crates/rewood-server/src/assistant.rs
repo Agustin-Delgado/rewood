@@ -79,8 +79,9 @@ Si el usuario pide algo que el formato no puede expresar, decilo en una línea y
 Formato (schemaVersion \"1.0\"): { id, name, version?, parameters: { nombre: número | expresión }, material, edgeMaterial?, components: [...], constraints?: [...] }.\n\
 Todo campo numérico acepta una expresión sobre los parámetros (\"width - 2 * 18\", \"if(width > 600, 2, 1)\").\n\
 Componentes (campo `type`):\n\
-- carcass: { id, width?, height?, depth? (por defecto \"width\"/\"height\"/\"depth\"), material?, joint: { hardware: [ids] }, back?: { material, groove?: { inset, depth, clearance } }, bays? (N bahías, N-1 divisores verticales), bayWidths?: [500, \"auto\"], edges? }\n\
-- shelves: { id, carcass?, bay? (1-based; omitido = todas), zone?: { from, to } (mm desde la base), count? (reparto parejo) o positions?: [alturas de estantes fijos], setback?, material?, joint, edges? }\n\
+- carcass: { id, width?, height?, depth? (por defecto \"width\"/\"height\"/\"depth\"), material?, joint: { hardware: [ids] }, back?: { material, groove?: { inset, depth, clearance } }, bays? (N bahías, N-1 divisores verticales), bayWidths?: [500, \"auto\"], legs?: { plinth?: { setback } }, hanging?: {} (alacena colgada), edges? }\n\
+- shelves: { id, carcass?, bay? (1-based; omitido = todas), zone?: { from, to } (mm desde la base), count? (reparto parejo) o positions?: [alturas de estantes fijos], setback?, material?, support?: \"joint\" | \"pins\" (regulables sobre hileras Sistema 32, sin joint), joint (si support es joint), edges? }\n\
+- worktop: { id, carcasses?: [ids] (vacío = todas), overhang?: { front, back, sides }, material?, fixing?, edges? } — una tapa sobre una o varias carcasas (escritorio sobre dos cajoneras)\n\
 - doors: { id, carcass?, bay?, zone?, count (1 o 2 por bahía), gap?, material?, hinge?: { hardware: [id] } | null, handle?: { hardware: [id], fromEdge?, position? }, edges? }\n\
 - drawers: { id, carcass?, bay?, zone?, count, frontHeight?, gap?, boxHeight?, material?, boxMaterial?, bottomMaterial?, joint, slide: { hardware: [id] }, frontFixing?, handle?, edges? }\n\
 edges: \"default\" | \"none\" | \"front\" | \"all\". constraints: [{ id, expr (booleana), severity?: INFO|WARNING|ERROR|FATAL, message? }].\n\

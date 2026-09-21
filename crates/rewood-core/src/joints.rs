@@ -152,6 +152,29 @@ fn fixture_contact(parts: &[Part], ip: usize, centre: Vec3, face: Face, along: A
     }
 }
 
+/// A row of holes on one face of one part: the joint line is the segment
+/// itself, every fastener one hole.
+fn row_contact(parts: &[Part], ip: usize, from: Vec3, to: Vec3, face: Face) -> Contact {
+    let p = &parts[ip];
+    let normal = p.placement.world_axis(face.normal_local());
+    let d = to - from;
+    let axis = Axis::from_vec(d * (1.0 / d.length()));
+    Contact {
+        rect: Aabb {
+            min: Vec3(from.0.min(to.0), from.1.min(to.1), from.2.min(to.2)),
+            max: Vec3(from.0.max(to.0), from.1.max(to.1), from.2.max(to.2)),
+        },
+        face_part: ip,
+        face_part_face: face,
+        edge_part: ip,
+        edge_part_face: face,
+        into_edge_part: normal.negate(),
+        axis,
+        inset_dir: normal.negate(),
+        across: None,
+    }
+}
+
 /// A hinge joint line: the door's hinge edge, on the door's back plane.
 fn hinge_contact(parts: &[Part], door: usize, side: usize, hinge_edge: Axis) -> Contact {
     let d = &parts[door];
@@ -339,6 +362,7 @@ pub fn resolve(
                 face,
                 along,
             } => fixture_contact(parts, ia, centre, face, along),
+            JointKind::Row { from, to, face } => row_contact(parts, ia, from, to, face),
             JointKind::FaceToFace => match face_to_face_contact(parts, ia, ib) {
                 Ok(c) => c,
                 Err(_) => {
@@ -430,7 +454,17 @@ pub fn resolve(
                 }
                 None => vec![0.0],
             };
-            let along_positions = placement.positions(length);
+            let mut along_positions = placement.positions(length);
+            if let Some((reference, pitch)) = req.snap {
+                // Nearest grid line, then clamped back inside the joint so
+                // an end fastener never leaves its part.
+                for pos in &mut along_positions {
+                    let world = start + *pos * contact.axis.sign();
+                    let snapped = reference + ((world - reference) / pitch).round() * pitch;
+                    let back = (snapped - start) * contact.axis.sign();
+                    *pos = back.clamp(0.0, length);
+                }
+            }
             let grid = rows
                 .iter()
                 .flat_map(|row| along_positions.iter().map(move |offset| (*row, *offset)));
@@ -467,6 +501,29 @@ pub fn resolve(
                     };
                     let part = &mut parts[part_index];
                     let (u, v) = part.world_point_to_face_uv(face, at);
+                    // A hole on a System 32 row is not drilled twice: a
+                    // hinge plate's holes that land on the row are the
+                    // row's holes. Only rows merge; two other fasteners at
+                    // one spot stay a clash for FAB-205 to report. The
+                    // existing hole keeps its source and grows to the
+                    // deeper of the two.
+                    let is_row =
+                        |id: &str| libs.hardware.get(id).is_some_and(|h| h.kind == "pin_row");
+                    let same = part.operations.iter_mut().find(|o| {
+                        o.face == face
+                            && (is_row(hw_id)
+                                || o.source.as_ref().is_some_and(|s| is_row(&s.hardware)))
+                            && matches!(&o.geometry, OpGeometry::Drill { u: ou, v: ov, diameter, .. }
+                                if (ou - u).abs() < 0.05 && (ov - v).abs() < 0.05 && (diameter - hole.diameter).abs() < 0.05)
+                    });
+                    if let Some(existing) = same {
+                        if let OpGeometry::Drill { depth, .. } = &mut existing.geometry {
+                            if let (Some(d), Some(h)) = (depth.as_mut(), hole.depth) {
+                                *d = d.max(h);
+                            }
+                        }
+                        continue;
+                    }
                     let op = Operation {
                         id: part.next_op_id(),
                         face,

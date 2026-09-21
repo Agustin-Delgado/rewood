@@ -153,6 +153,13 @@ export function explodeOffsets(parts: Part[], factor: number): Map<string, Vec3>
 		];
 		let m = mods[0];
 		for (const x of mods) if (Math.abs(x.centre[0] - c[0]) < Math.abs(m.centre[0] - c[0])) m = x;
+		// A part over several modules (a worktop) explodes from the
+		// furniture's centre and does not drift with any one module.
+		const covered = mods.filter((x) => p.aabb.min[0] <= x.centre[0] && x.centre[0] <= p.aabb.max[0]).length;
+		if (covered > 1) {
+			const n = mods.length;
+			m = { centre: [0, 1, 2].map((i) => mods.reduce((s, x) => s + x.centre[i], 0) / n) as Vec3, spread: 0 };
+		}
 		const centre = m.centre;
 		const normal = zAxis(p.placement);
 		const d = (c[0] - centre[0]) * normal[0] + (c[1] - centre[1]) * normal[1] + (c[2] - centre[2]) * normal[2];

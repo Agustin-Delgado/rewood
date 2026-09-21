@@ -190,7 +190,10 @@ fn a_single_door_hangs_on_the_left_and_a_tall_one_gets_three_hinges() {
             _ => None,
         })
         .collect();
-    assert_eq!(cups, vec![100.0, 698.0, 1296.0]);
+    // Spread by the rule (100 from each end, one in the middle), then
+    // snapped to the System 32 grid so the plates land on shelf-pin rows:
+    // world z = 53 + 32k, the door starting 2 mm up.
+    assert_eq!(cups, vec![115.0, 691.0, 1299.0]);
 }
 
 #[test]
@@ -333,6 +336,7 @@ fn placement_override_changes_fastener_count() {
                 max_spacing: 60.0,
                 count_by_length: vec![],
                 fixed: vec![],
+                pitch: None,
             });
         }
     }

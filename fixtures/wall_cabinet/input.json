@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "1.0",
+  "id": "wall_cabinet",
+  "name": "Alacena colgante 900×720×350: dos puertas y estante regulable",
+  "parameters": {
+    "width": 900,
+    "height": 720,
+    "depth": 350,
+    "shelf_count": 1
+  },
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "joint": {
+        "hardware": [
+          "minifix_15",
+          "dowel_8x30"
+        ]
+      },
+      "back": {
+        "material": "hdf_3"
+      },
+      "hanging": {}
+    },
+    {
+      "type": "shelves",
+      "id": "shelves",
+      "count": "shelf_count",
+      "support": "pins"
+    },
+    {
+      "type": "doors",
+      "id": "doors",
+      "count": 2,
+      "handle": {
+        "hardware": [
+          "handle_bar_128"
+        ]
+      }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "hang_depth",
+      "expr": "depth <= 400",
+      "severity": "WARNING",
+      "message": "Una alacena de más de 400 mm de profundidad tapa la mesada"
+    }
+  ]
+}

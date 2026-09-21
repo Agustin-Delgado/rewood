@@ -20,6 +20,8 @@ export interface PlacementRule {
   countByLength?: [number, number][];
   /** Explicit positions from the joint start; overrides the rules above. */
   fixed?: number[];
+  /** Fixed pitch from `endOffset` (a System 32 row); overrides `maxSpacing`. */
+  pitch?: number;
 }
 
 export interface JointSpec {
@@ -74,6 +76,8 @@ export interface CarcassSpec {
   legs?: LegsSpec;
   /** Where the carcass stands (bottom-left-back corner); modules side by side. */
   origin?: { x?: NumOrExpr; y?: NumOrExpr; z?: NumOrExpr };
+  /** Wall-hung: a hanger on each side's inner face, top back corner. */
+  hanging?: { hardware?: string[] };
 }
 
 export interface LegsSpec {
@@ -112,7 +116,24 @@ export interface ShelvesSpec {
   /** Default 20, or 0 with `positions`. */
   setback?: NumOrExpr;
   material?: string;
-  joint: JointSpec;
+  /** `joint` (default): butted with `joint` hardware. `pins`: on System 32 rows, movable. */
+  support?: 'joint' | 'pins';
+  /** Required for `support: joint`. */
+  joint?: JointSpec;
+  /** For `support: pins`: the row pattern and the loose pins; library defaults. */
+  pins?: { row?: string[]; hardware?: string[] };
+  edges?: EdgeBanding;
+}
+
+export interface WorktopSpec {
+  type: 'worktop';
+  id: string;
+  /** Carcass ids it rests on; empty = all. */
+  carcasses?: string[];
+  overhang?: { front?: NumOrExpr; back?: NumOrExpr; sides?: NumOrExpr };
+  material?: string;
+  /** Screws through each carcass top; default `screw_4x30_face`, 80 mm in. */
+  fixing?: JointSpec;
   edges?: EdgeBanding;
 }
 
@@ -163,7 +184,7 @@ export interface DrawersSpec {
   edges?: EdgeBanding;
 }
 
-export type ComponentSpec = CarcassSpec | ShelvesSpec | DoorsSpec | DrawersSpec | RailSpec;
+export type ComponentSpec = CarcassSpec | ShelvesSpec | DoorsSpec | DrawersSpec | RailSpec | WorktopSpec;
 
 export interface ConstraintSpec {
   id: string;
@@ -424,7 +445,7 @@ export interface Fastener {
 
 export interface Joint {
   id: string;
-  kind: 'butt' | 'hinge' | 'slide' | 'face_to_face' | 'handle' | 'fixture';
+  kind: 'butt' | 'hinge' | 'slide' | 'face_to_face' | 'handle' | 'fixture' | 'row';
   component: string;
   edgePart: string;
   facePart: string;

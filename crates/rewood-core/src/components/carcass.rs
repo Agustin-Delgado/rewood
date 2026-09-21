@@ -24,6 +24,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         bay_widths,
         edges,
         legs,
+        hanging,
         origin,
     } = spec
     else {
@@ -393,8 +394,12 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         x = x1 + t;
     }
 
+    if let Some(h) = hanging {
+        build_hangers(ctx, id, h, height, t, inner_y0, &side_left, &side_right)?;
+    }
     if let Some(legs) = legs {
-        build_legs(ctx, id, legs, width, depth, t, &bottom)?;
+        let dividers: Vec<f64> = bays.windows(2).map(|w| (w[0].x1 + w[1].x0) / 2.0).collect();
+        build_legs(ctx, id, legs, width, depth, t, &bottom, &dividers)?;
     }
 
     let origin = match origin {
@@ -420,6 +425,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             thickness: t,
             material,
             inner_y0,
+            hanger_clear_z: hanging.as_ref().map(|_| height - t - HANGER_ZONE),
             side_left,
             side_right,
             bays,
@@ -428,11 +434,83 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     Ok(())
 }
 
+/// Height a cabinet hanger takes on the side's inner face, from the top
+/// panel down: its body and screws, with room to reach the wall rail.
+const HANGER_ZONE: f64 = 70.0;
+
+/// Cabinet hangers: one on each side's inner face, its body up against
+/// the top panel and the back, so the hook reaches the wall rail through
+/// the back. Nothing else needs that corner. The rail itself goes to the
+/// BOM by the metre, one length per cabinet.
+#[allow(clippy::too_many_arguments)]
+fn build_hangers(
+    ctx: &mut BuildCtx<'_>,
+    id: &str,
+    hanging: &crate::spec::HangingSpec,
+    height: f64,
+    t: f64,
+    inner_y0: f64,
+    side_left: &str,
+    side_right: &str,
+) -> Result<(), Diagnostic> {
+    let Some(hw_id) = hanging.hardware.first() else {
+        return Err(Diagnostic::new(
+            "SPEC-320",
+            Severity::Fatal,
+            format!("'{id}.hanging' no dice qué colgador usar"),
+        )
+        .entity(id));
+    };
+    let Some(hw) = ctx.libs.hardware.get(hw_id).cloned() else {
+        return Err(Diagnostic::new(
+            "SPEC-320",
+            Severity::Fatal,
+            format!("'{id}.hanging': el herraje '{hw_id}' no existe en la biblioteca"),
+        )
+        .entity(id));
+    };
+    if hw.kind != "hanger" {
+        return Err(Diagnostic::new(
+            "SPEC-320",
+            Severity::Fatal,
+            format!("'{id}.hanging': '{hw_id}' no es un colgador (kind 'hanger')"),
+        )
+        .entity(id));
+    }
+    // Body centre: 30 mm under the top panel, 40 mm in front of the back.
+    let z = height - t - 30.0;
+    let y = inner_y0 + 40.0;
+    let joint = JointSpec {
+        hardware: vec![hw_id.clone()],
+        placement: None,
+    };
+    for (side, looks) in [(side_left, Axis::PosX), (side_right, Axis::NegX)] {
+        let face = ctx.part_mut(side).face_facing(looks);
+        let x = ctx.part_mut(side).placement.origin.0 + if looks == Axis::PosX { t } else { -t };
+        ctx.request(
+            JointKind::Fixture {
+                centre: Vec3(x, y, z),
+                face,
+                along: Axis::PosZ,
+            },
+            id,
+            side,
+            side,
+            &joint,
+        );
+    }
+    ctx.publish(id, "hangers", 2.0);
+    Ok(())
+}
+
 /// Legs under the bottom panel, in two rows (front and back) at `inset`
-/// from the carcass edges, spread along the width by the leg hardware's
-/// placement rule (its `endOffset` replaced by `inset`, its `maxSpacing`
-/// by the spec's). Each leg is a fixture joint on the bottom's underside;
-/// the plinth, when asked for, is a panel clipped to the front legs.
+/// from the carcass edges: one under each side, one under each divider
+/// (that is where the load comes down, and a leg spread evenly instead
+/// lands its screws on the divider's joint holes), and as many between
+/// as the spec's `maxSpacing` asks. Each leg is a fixture joint on the
+/// bottom's underside; the plinth, when asked for, is a panel clipped to
+/// the front legs.
+#[allow(clippy::too_many_arguments)]
 fn build_legs(
     ctx: &mut BuildCtx<'_>,
     id: &str,
@@ -441,6 +519,7 @@ fn build_legs(
     depth: f64,
     t: f64,
     bottom: &str,
+    dividers: &[f64],
 ) -> Result<(), Diagnostic> {
     let inset = ctx.eval(id, "legs.inset", &legs.inset)?;
     let max_spacing = ctx.eval(id, "legs.maxSpacing", &legs.max_spacing)?;
@@ -491,13 +570,19 @@ fn build_legs(
         )
         .entity(id));
     }
-    let rule = crate::library::hardware::PlacementRule {
-        end_offset: inset,
-        max_spacing,
-        count_by_length: leg.placement.count_by_length.clone(),
-        fixed: Vec::new(),
-    };
-    let xs = rule.positions(width);
+    let mut anchors = vec![inset];
+    anchors.extend(dividers.iter().copied());
+    anchors.push(width - inset);
+    let mut xs = Vec::new();
+    for pair in anchors.windows(2) {
+        let (a, b) = (pair[0], pair[1]);
+        xs.push(a);
+        let gaps = ((b - a) / max_spacing).ceil().max(1.0) as usize;
+        for i in 1..gaps {
+            xs.push(a + (b - a) * i as f64 / gaps as f64);
+        }
+    }
+    xs.push(width - inset);
     let ys = [inset, depth - inset];
     let joint = JointSpec {
         hardware: vec![leg_id.clone()],

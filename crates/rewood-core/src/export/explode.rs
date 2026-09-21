@@ -23,11 +23,29 @@ pub fn offsets(plan: &ManufacturingPlan, factor: f64) -> BTreeMap<String, Vec3> 
     // a wardrobe and a nightstand explode the same way.
     let step = 120.0 * factor;
     let modules = modules(&plan.parts);
+    let whole = {
+        let n = modules.len() as f64;
+        let c = modules.iter().fold(Vec3::ZERO, |a, m| a + m.centre) * (1.0 / n);
+        Module {
+            centre: c,
+            spread: 0.0,
+        }
+    };
     let mut out = BTreeMap::new();
     for p in &plan.parts {
-        let m = module_of(&modules, p);
-        let mut off = offset_of(p, modules[m].centre, step);
-        off.0 += modules[m].spread * 2.0 * step;
+        // A part over several modules (a worktop) explodes from the
+        // furniture's centre and does not drift with any one module.
+        let covered = modules
+            .iter()
+            .filter(|m| p.aabb.min.0 <= m.centre.0 && m.centre.0 <= p.aabb.max.0)
+            .count();
+        let m = if covered > 1 {
+            &whole
+        } else {
+            &modules[module_of(&modules, p)]
+        };
+        let mut off = offset_of(p, m.centre, step);
+        off.0 += m.spread * 2.0 * step;
         out.insert(
             p.id.clone(),
             Vec3(round3(off.0), round3(off.1), round3(off.2)),

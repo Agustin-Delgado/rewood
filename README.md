@@ -39,7 +39,9 @@ crates/rewood-server servicio HTTP (axum): proyectos, muebles versionados, recá
 packages/engine      @rewood/engine: tipos TS + wrapper sobre el WASM (node y browser)
 packages/app         UI SvelteKit + Threlte: árbol, 3D, parámetros, hallazgos, despiece, paquete
 fixtures/<nombre>/   input.json + expected.json (regresión byte a byte):
-                     basic_cabinet, drawer_unit, wardrobe_1800, bookcase_fixed, kitchen_run, invalid_cabinet
+                     basic_cabinet, drawer_unit, wardrobe_1800, wardrobe_rail, bookcase_fixed,
+                     bookcase_adjustable, kitchen_run, nightstand, wall_cabinet, tv_unit, desk,
+                     invalid_cabinet
 ```
 
 Dentro de `rewood-core`:
@@ -51,8 +53,8 @@ Dentro de `rewood-core`:
 | `spec` | formato de entrada propio, versionado (`schemaVersion: "1.0"`), `deny_unknown_fields` |
 | `geometry` | paneles rectangulares en marcos alineados a ejes, caras semánticas, mapeo cara↔(u,v) |
 | `library` | materiales, cantos, herrajes y perfil de fabricación (JSON embebido en `data/`, sobreescribible por id desde la spec) |
-| `components` | generadores: `carcass`, `shelves`, `doors`, `drawers` → piezas + pedidos de unión |
-| `joints` | seis tipos de unión (`butt`, `hinge`, `slide`, `face_to_face`, `handle`, `fixture` para patas y clips), reparto de herrajes a lo largo (y en filas) de la unión, perforaciones por herraje |
+| `components` | generadores: `carcass`, `shelves`, `doors`, `drawers`, `rail`, `worktop` → piezas + pedidos de unión |
+| `joints` | siete tipos de unión (`butt`, `hinge`, `slide`, `face_to_face`, `handle`, `fixture` para patas, clips y colgadores, `row` para hileras Sistema 32), reparto de herrajes a lo largo (y en filas) de la unión, perforaciones por herraje |
 | `rules` | reglas de fabricación (`FAB-*`), puras y en orden fijo |
 | `cam` | toolpaths independientes de máquina (taladro, ranura, contorno, taladro horizontal) por pieza y puesta, giro a 90° cuando sólo entra así en la mesa, y `PostProcessor` con `GenericIso` |
 | `simulation` | intérprete ISO del NC emitido: límites de máquina, rápidos en material, material removido cruzado con el `Program` (`CAM-30x`), tiempo estimado |
@@ -263,7 +265,18 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   si el retiro no deja la base de la pata bajo el panel o el zócalo no toca
   las patas.
 - Estantes: `count: N` los reparte parejos en la zona (retranqueo 20 por
-  defecto). `positions: [1000, "divider_z"]` en cambio pone **estantes fijos**
+  defecto). Con `support: "pins"` son **regulables**: no llevan unión; cada
+  panel de la bahía recibe dos hileras Sistema 32 (`row`, herraje
+  `shelf_pin_row_5`: Ø5×12 cada 32 mm, a 37 del frente y a 37 del fondo,
+  desde 37 sobre el piso de la carcasa y una hilera libre bajo y sobre la
+  zona), el estante queda 1 mm corto por lado y cuatro `shelf_pin_5` por
+  estante van a la BOM por cantidad. Las cazoletas de las bisagras se
+  ajustan a esa grilla (53 + 32k sobre el piso), así los dos agujeros de su
+  base caen exactamente en la hilera y no se perforan dos veces (un
+  agujero de hilera ya hecho absorbe el de la base; cualquier otro par de
+  agujeros superpuestos sigue siendo `FAB-205`). En una alacena colgada la
+  hilera trasera termina bajo los colgadores. El manual coloca los
+  regulables al final, con el mueble cerrado. `positions: [1000, "divider_z"]` en cambio pone **estantes fijos**
   a esas alturas (cara inferior, mm desde la base): toman toda la profundidad
   interior (retranqueo 0), llevan el herraje que diga `joint` (minifix +
   tarugo para un divisor horizontal estructural) y el manual de armado los
@@ -296,6 +309,23 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   pila; `setback` los retranquea del frente de la carcasa —hace falta el
   espesor de la puerta más la luz cuando la puerta es embutida, y si no se
   pone el motor lo dice con `SPEC-214` y ofrece el valor—.
+- Alacena colgada: `hanging: {}` en la carcasa (herraje `cabinet_hanger`
+  por defecto) pone un colgador regulable en la cara interior de cada
+  lateral, contra la tapa y a 40 del fondo (unión `fixture`, tres tornillos),
+  para engancharlo a un riel de pared. Sin patas: `fixtures/wall_cabinet`.
+- Tapa de trabajo: `{ "type": "worktop", "carcasses": ["left", "right"],
+  "overhang": { "front": 20, "back": 0, "sides": 0 } }` tiende un panel sobre
+  una o varias carcasas (todas si no se nombran) de la más izquierda a la
+  más derecha, con el vuelo pedido, y lo atornilla desde adentro de cada
+  carcasa a través de su tapa (`face_to_face`, `screw_4x30_face` a 80 mm de
+  los bordes para esquivar las excéntricas de la tapa). El hueco entre dos
+  cajoneras queda abierto: un escritorio (`fixtures/desk`). `SPEC-319` si
+  las carcasas no terminan a la misma altura; `DESIGN-115` con más de 2400
+  de largo o más de 1200 de luz entre carcasas.
+- Patas: una bajo cada lateral y **una bajo cada divisor** (ahí baja la
+  carga, y una pata repartida pareja caía con sus tornillos sobre los
+  agujeros de unión del divisor), más las que pida `maxSpacing` entre
+  medio.
 - Barral: `{ "type": "rail", "bay": 1, "fromTop": 60 }` cuelga un barral a
   `fromTop` bajo la tapa, centrado en la profundidad útil: dos soportes
   (`supports`, por defecto `rail_support_oval`, uniones `fixture` sobre las
@@ -360,6 +390,23 @@ Además del tope (`butt`) hay dos uniones declaradas por los generadores:
   perfora pasante (`contact_face`), la *face part* recibe el piloto.
 - `handle`: una sola pieza; el generador decide el centro y la dirección, y
   los huecos cuelgan de ese punto con `offsetAlong` (±64 para 128 mm).
+- `row`: un segmento sobre una cara de una pieza, un agujero por punto de
+  fijación al paso del herraje (`placement.pitch`): las hileras Sistema 32
+  de los estantes regulables. Sin ítems de BOM; los soportes los cuenta el
+  componente.
+
+`crates/rewood-core/tests/audit.rs` es la auditoría de banco: sobre todos
+los fixtures y una grilla de variantes (tamaños, 1 o 2 puertas,
+superpuestas o embutidas, pilas de cajones, placares de 2 a 4 bahías,
+estantes regulables detrás de puertas) verifica lo que un carpintero
+mediría: que ninguna pieza comparta volumen, que los dos agujeros de cada
+fijación coincidan en el espacio (tarugo, perno y rosca, tornillos de
+corredera enfrentados a 12,7 mm), que la excéntrica esté a 34 del canto y
+en una cara interior, la cazoleta a 22,5 del canto en el dorso de la puerta
+y su base a 37 del frente del lateral a la altura de la cazoleta, tiradores
+pasantes a 128 del lado de apertura, cajas de cajón con su corredera
+adentro, frentes a ras del plano correcto y ningún agujero fuera de su cara
+ni más profundo que el panel. Una violación imprime todas las que haya.
 
 **Los valores de `data/hardware.json` (diámetros, profundidades, offsets) son
 defaults indicativos para paneles de 18 mm.** Hay que validarlos contra el
@@ -437,7 +484,7 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 | `FAB-1xx` | geometría: piezas superpuestas |
 | `FAB-2xx` | mecanizado: perforación fuera de cara, distancia al borde, profundidad, cruces de perforaciones, ranura, mecha inexistente, operación no admitida, perforación que cae dentro de una ranura (`208`: el tarugo iría donde corre el fondo) |
 | `FAB-3xx` | material/máquina: no sale de la placa, excede el área de trabajo, espesor incompatible con el herraje |
-| `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra; `111` carga: puerta más pesada que lo que aguantan sus bisagras, o cajón cuya caja más 10 kg de contenido supera la corredera (`maxLoadKg` del herraje; el peso sale de la densidad del material); `113` (info) medida escrita como número donde va un parámetro; `114` barral con menos de 900 mm libres debajo |
+| `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra; `111` carga: puerta más pesada que lo que aguantan sus bisagras, o cajón cuya caja más 10 kg de contenido supera la corredera (`maxLoadKg` del herraje; el peso sale de la densidad del material); `113` (info) medida escrita como número donde va un parámetro; `114` barral con menos de 900 mm libres debajo; `115` tapa de trabajo de más de 2400 o con más de 1200 de luz entre carcasas |
 | `CAM-2xx` | sin herramienta para una ranura o el contorno; perforación de canto sin taladro horizontal |
 | `STAGE-*` | aviso de algo que la etapa actual no cubre (ninguno activo hoy) |
 

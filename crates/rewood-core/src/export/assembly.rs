@@ -221,6 +221,31 @@ pub fn steps(plan: &ManufacturingPlan) -> Vec<Step> {
                 }
             }
             "shelves" => {
+                // Adjustable shelves: the panels carry the rows, the
+                // shelves only rest on pins, after everything is closed.
+                if joints.iter().all(|j| j.kind == "row") && !joints.is_empty() {
+                    let pins: usize = 4 * parts.len();
+                    let mut hardware = BTreeMap::new();
+                    hardware.insert(hardware_name(plan, "shelf_pin_5"), pins);
+                    let per_row = plan
+                        .derived
+                        .get(&format!("{component}.pin_holes_per_row"))
+                        .copied()
+                        .unwrap_or(0.0);
+                    push(
+                        format!("Colocar los estantes regulables de '{component}'"),
+                        parts.iter().map(|p| part_label(plan, &p.id)).collect(),
+                        hardware,
+                        vec![
+                            format!(
+                                "Con el mueble cerrado: cuatro soportes por estante en las hileras de Ø5 ({} agujeros por hilera, cada 32 mm), a la misma altura los cuatro.",
+                                per_row
+                            ),
+                            "El estante entra con 1 mm de juego por lado; el frente con tapacanto mira adelante.".into(),
+                        ],
+                    );
+                    continue;
+                }
                 let fixed = parts.iter().all(|p| p.role.contains("fixed_shelf"));
                 let mut notes = vec![
                     "Van ahora, con la carcasa todavía abierta: los tarugos entran en el canto del estante y en la cara interior de los paneles que lo limitan.".into(),
@@ -365,6 +390,20 @@ pub fn steps(plan: &ManufacturingPlan) -> Vec<Step> {
         for (k, st) in shelf_steps.into_iter().enumerate() {
             steps.insert(at + k, st);
         }
+        for (k, st) in steps.iter_mut().enumerate() {
+            st.number = k + 1;
+        }
+    }
+    // Adjustable shelves go in last, once the doors hang: nothing else
+    // needs the bays clear after them.
+    let loose: Vec<Step> = steps
+        .iter()
+        .filter(|s| s.title.starts_with("Colocar los estantes regulables"))
+        .cloned()
+        .collect();
+    if !loose.is_empty() {
+        steps.retain(|s| !s.title.starts_with("Colocar los estantes regulables"));
+        steps.extend(loose);
         for (k, st) in steps.iter_mut().enumerate() {
             st.number = k + 1;
         }

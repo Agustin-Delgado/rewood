@@ -9,6 +9,7 @@ mod drawers;
 mod layout;
 mod rail;
 mod shelves;
+mod worktop;
 
 use std::collections::BTreeMap;
 
@@ -52,6 +53,14 @@ pub enum JointKind {
         face: crate::geometry::Face,
         along: Axis,
     },
+    /// A line of identical holes on one face of one part (a System 32 row
+    /// for shelf pins): from `from` to `to` on `face`, one fastener per
+    /// hole at the hardware's pitch.
+    Row {
+        from: Vec3,
+        to: Vec3,
+        face: crate::geometry::Face,
+    },
 }
 
 impl JointKind {
@@ -63,6 +72,7 @@ impl JointKind {
             JointKind::FaceToFace => "face_to_face",
             JointKind::Handle { .. } => "handle",
             JointKind::Fixture { .. } => "fixture",
+            JointKind::Row { .. } => "row",
         }
     }
 }
@@ -76,9 +86,21 @@ pub struct JointRequest {
     pub part_b: String,
     pub hardware: Vec<String>,
     pub placement: Option<PlacementRule>,
+    /// Fastener positions along the joint snap to `reference + k * pitch`
+    /// in world coordinates on the joint's axis: hinge cups land on the
+    /// System 32 grid so their plate holes are the row's holes.
+    pub snap: Option<(f64, f64)>,
 }
 
 /// Inner box of a carcass, needed by shelves and doors.
+///
+/// System 32: shelf-pin rows run at [`ROW_INSET`] from the front edge (and
+/// from the back panel), their holes at [`PIN_PITCH`] starting
+/// [`GRID_ORIGIN`] above the carcass floor; hinge cups sit half a pitch
+/// off that grid so the mounting plate's two holes, 32 apart, fall on it.
+pub const PIN_PITCH: f64 = 32.0;
+pub const ROW_INSET: f64 = 37.0;
+pub const GRID_ORIGIN: f64 = 37.0;
 #[derive(Debug, Clone, PartialEq)]
 pub struct CarcassInfo {
     pub id: String,
@@ -92,6 +114,9 @@ pub struct CarcassInfo {
     pub material: String,
     /// World Y where the usable inner depth starts (after the back panel).
     pub inner_y0: f64,
+    /// Wall-hung carcass: nothing on the sides' inner faces may reach
+    /// above this height at the back, the hangers sit there.
+    pub hanger_clear_z: Option<f64>,
     pub side_left: String,
     pub side_right: String,
     pub bays: Vec<Bay>,
@@ -451,7 +476,27 @@ impl<'a> BuildCtx<'a> {
             part_b: part_b.to_string(),
             hardware: joint.hardware.clone(),
             placement: joint.placement.clone(),
+            snap: None,
         });
+    }
+
+    /// Like [`request`], with the fasteners snapped to a world grid along
+    /// the joint axis.
+    #[allow(clippy::too_many_arguments)]
+    pub fn request_snapped(
+        &mut self,
+        kind: JointKind,
+        component: &str,
+        part_a: &str,
+        part_b: &str,
+        joint: &JointSpec,
+        reference: f64,
+        pitch: f64,
+    ) {
+        self.request(kind, component, part_a, part_b, joint);
+        if let Some(r) = self.joint_requests.last_mut() {
+            r.snap = Some((reference, pitch));
+        }
     }
 
     /// The bays a dependent component applies to: the one named by `bay`,
@@ -733,6 +778,10 @@ impl<'a> BuildCtx<'a> {
                     JointKind::Handle { centre, .. } | JointKind::Fixture { centre, .. } => {
                         *centre = *centre + o;
                     }
+                    JointKind::Row { from, to, .. } => {
+                        *from = *from + o;
+                        *to = *to + o;
+                    }
                     _ => {}
                 }
             }
@@ -763,6 +812,7 @@ pub fn expand(ctx: &mut BuildCtx<'_>) {
             ComponentSpec::Doors { .. } => doors::build(ctx, component),
             ComponentSpec::Drawers { .. } => drawers::build(ctx, component),
             ComponentSpec::Rail { .. } => rail::build(ctx, component),
+            ComponentSpec::Worktop { .. } => worktop::build(ctx, component),
         };
         if let Err(d) = result {
             ctx.diagnostics.push(d);
