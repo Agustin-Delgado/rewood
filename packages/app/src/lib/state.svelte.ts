@@ -7,10 +7,13 @@ import {
 	loadEngine,
 	type Diagnostic,
 	type Engine,
+	type Fastener,
 	type Fix,
 	type FurnitureSpec,
+	type Joint,
 	type LibrariesSnapshot,
 	type ManufacturingPlan,
+	type Part,
 	type Severity
 } from '@rewood/engine/browser';
 
@@ -48,10 +51,14 @@ class AppState {
 	specError: string | null = $state(null);
 	plan: ManufacturingPlan | null = $state(null);
 	selectedPart: string | null = $state(null);
+	/** A fastener clicked in the viewer: its joint and index within it. */
+	selectedFastener: { joint: string; index: number } | null = $state(null);
 	/** Component the editor should unfold and scroll to (from a finding). */
 	focusComponent: string | null = $state(null);
 	hiddenComponents: Set<string> = $state(new Set());
 	showHoles: boolean = $state(true);
+	/** Fasteners (dowels, minifix, hinges…) drawn where the joints put them. */
+	showHardware: boolean = $state(true);
 	/** Exploded view: 0 assembled, 1 the documentation's spread. */
 	explode: number = $state(0);
 
@@ -138,6 +145,7 @@ class AppState {
 		this.specText = JSON.stringify(this.spec, null, 2);
 		this.specError = null;
 		this.selectedPart = null;
+		this.selectedFastener = null;
 		this.hiddenComponents = new Set();
 		this.current = { id: f.id, projectId: f.projectId, version: f.version };
 		this.dirty = false;
@@ -158,6 +166,7 @@ class AppState {
 		if (this.selectedPart && !this.plan.parts.some((p) => p.id === this.selectedPart)) {
 			this.selectedPart = null;
 		}
+		if (this.selectedFastener && !this.fastener) this.selectedFastener = null;
 	}
 
 	loadExample(id: string) {
@@ -167,6 +176,7 @@ class AppState {
 		this.specText = JSON.stringify(this.spec, null, 2);
 		this.specError = null;
 		this.selectedPart = null;
+		this.selectedFastener = null;
 		this.hiddenComponents = new Set();
 		this.current = null;
 		this.dirty = false;
@@ -229,6 +239,55 @@ class AppState {
 		return this.plan?.parts.find((p) => p.id === this.selectedPart) ?? null;
 	}
 
+	selectPart(id: string | null) {
+		this.selectedPart = id;
+		this.selectedFastener = null;
+	}
+
+	selectFastener(joint: string, index: number) {
+		this.selectedFastener = { joint, index };
+		this.selectedPart = null;
+	}
+
+	/** The joint and fastener the user clicked, resolved against the plan. */
+	get fastener(): { joint: Joint; fastener: Fastener } | null {
+		const sel = this.selectedFastener;
+		if (!sel || !this.plan) return null;
+		const joint = this.plan.joints.find((j) => j.id === sel.joint);
+		const fastener = joint?.fasteners[sel.index];
+		return joint && fastener ? { joint, fastener } : null;
+	}
+
+	/** Library name of a hardware id, or the id when the library is not loaded. */
+	hardwareName(id: string): string {
+		return this.libraries?.hardware.items[id]?.name ?? id;
+	}
+
+	partById(id: string): Part | null {
+		return this.plan?.parts.find((p) => p.id === id) ?? null;
+	}
+
+	/**
+	 * What holds a part: every joint touching it, one row per hardware,
+	 * with the part on the other side. A dowel row on a shelf reads
+	 * "8 × Tarugo 8×30 con P001 Lateral izquierdo".
+	 */
+	hardwareOf(part: string): HardwareRow[] {
+		if (!this.plan) return [];
+		const rows: HardwareRow[] = [];
+		for (const joint of this.plan.joints) {
+			if (joint.edgePart !== part && joint.facePart !== part) continue;
+			const otherId = joint.edgePart === part ? joint.facePart : joint.edgePart;
+			const other = otherId === part ? null : this.partById(otherId);
+			const counts = new Map<string, number>();
+			for (const f of joint.fasteners) counts.set(f.hardware, (counts.get(f.hardware) ?? 0) + 1);
+			for (const [hardware, count] of counts) {
+				rows.push({ joint, hardware, name: this.hardwareName(hardware), count, other });
+			}
+		}
+		return rows;
+	}
+
 	/**
 	 * Findings about a component: those naming it, and those naming one of
 	 * its parts (a hole too close to an edge belongs to the panel, and the
@@ -257,5 +316,24 @@ class AppState {
 }
 
 const RANK: Record<Severity, number> = { INFO: 0, WARNING: 1, ERROR: 2, FATAL: 3 };
+
+export interface HardwareRow {
+	joint: Joint;
+	hardware: string;
+	name: string;
+	count: number;
+	/** The part on the other side of the joint; null for a fixture on the part itself. */
+	other: Part | null;
+}
+
+/** Joint kinds as the workshop calls them. */
+export const JOINT_KIND_ES: Record<Joint['kind'], string> = {
+	butt: 'unión a tope',
+	hinge: 'bisagra',
+	slide: 'corredera',
+	face_to_face: 'cara contra cara',
+	handle: 'tirador',
+	fixture: 'fijación'
+};
 
 export const app = new AppState();

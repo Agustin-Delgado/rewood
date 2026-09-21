@@ -10,9 +10,13 @@
 	</Canvas>
 	<div class="overlay">
 		<label><input type="checkbox" bind:checked={app.showHoles} /> perforaciones</label>
+		<label><input type="checkbox" bind:checked={app.showHardware} /> herrajes</label>
 		<label title="vista explotada">explotar <input type="range" min="0" max="2" step="0.05" bind:value={app.explode} /></label>
 		{#if app.selected}
 			<span class="sel">{app.selected.id} · {app.selected.name}</span>
+		{:else if app.fastener}
+			{@const f = app.fastener}
+			<span class="sel">{app.hardwareName(f.fastener.hardware)} · {f.joint.id}</span>
 		{/if}
 	</div>
 </div>

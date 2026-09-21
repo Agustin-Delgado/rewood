@@ -2759,7 +2759,7 @@
     },
     {
       "id": "P008",
-      "name": "Estante 1",
+      "name": "Estante 1 (shelves_left)",
       "component": "shelves_left",
       "role": "shelf_1",
       "material": "melamine_18",
@@ -2874,7 +2874,7 @@
     },
     {
       "id": "P009",
-      "name": "Estante 2",
+      "name": "Estante 2 (shelves_left)",
       "component": "shelves_left",
       "role": "shelf_2",
       "material": "melamine_18",
@@ -2989,7 +2989,7 @@
     },
     {
       "id": "P010",
-      "name": "Estante 1",
+      "name": "Estante 1 (shelves_middle)",
       "component": "shelves_middle",
       "role": "shelf_1",
       "material": "melamine_18",
@@ -3104,7 +3104,7 @@
     },
     {
       "id": "P011",
-      "name": "Estante 2",
+      "name": "Estante 2 (shelves_middle)",
       "component": "shelves_middle",
       "role": "shelf_2",
       "material": "melamine_18",
@@ -6147,7 +6147,7 @@
     },
     {
       "id": "P030",
-      "name": "Puerta 1",
+      "name": "Puerta 1 (door_left)",
       "component": "door_left",
       "role": "door_1",
       "material": "melamine_18",
@@ -6497,7 +6497,7 @@
     },
     {
       "id": "P031",
-      "name": "Puerta 1",
+      "name": "Puerta 1 (door_middle_top)",
       "component": "door_middle_top",
       "role": "door_1",
       "material": "melamine_18",
@@ -9012,7 +9012,7 @@
         "P010",
         "P011"
       ],
-      "name": "Estante 1",
+      "name": "Estante 1 (shelves_left)",
       "quantity": 4,
       "material": "melamine_18",
       "cutLength": 576.0,
@@ -9143,7 +9143,7 @@
       "partIds": [
         "P030"
       ],
-      "name": "Puerta 1",
+      "name": "Puerta 1 (door_left)",
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 2094.0,
@@ -9160,7 +9160,7 @@
       "partIds": [
         "P031"
       ],
-      "name": "Puerta 1",
+      "name": "Puerta 1 (door_middle_top)",
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 1294.0,

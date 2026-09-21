@@ -23,7 +23,7 @@
 	function selectEntity(d: { entity?: string; location?: string }) {
 		const part = [d.entity, d.location].find((e) => e && /^P\d+$/.test(e));
 		if (part) {
-			app.selectedPart = part;
+			app.selectPart(part);
 			const owner = app.plan?.parts.find((p) => p.id === part)?.component;
 			if (owner) app.focusComponent = owner;
 			return;
@@ -84,7 +84,7 @@
 				</thead>
 				<tbody>
 					{#each app.plan.partList as r (r.partIds[0])}
-						<tr onclick={() => (app.selectedPart = r.partIds[0])}>
+						<tr onclick={() => app.selectPart(r.partIds[0])}>
 							<td class="mono">{r.partIds.join(', ')}</td>
 							<td>{r.name}</td>
 							<td class="num">{r.quantity}</td>
@@ -174,7 +174,7 @@
 				</thead>
 				<tbody>
 					{#each app.plan.machining.programs as p (p.part + p.setup)}
-						<tr onclick={() => (app.selectedPart = p.part)}>
+						<tr onclick={() => app.selectPart(p.part)}>
 							<td class="mono">{p.part}_{p.setup}</td>
 							<td class="num">{p.operations}</td>
 							<td class="num">{p.toolChanges}</td>

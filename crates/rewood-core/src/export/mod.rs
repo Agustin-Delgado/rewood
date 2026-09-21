@@ -384,7 +384,7 @@ table{border-collapse:collapse;margin:6px 0}th,td{border:1px solid #bbb;padding:
 td.num,th.num{text-align:right}.muted{color:#666}.page{page-break-before:always}svg{max-width:100%;height:auto}\
 .diag{padding:2px 6px;margin:2px 0;border-left:4px solid #999}.FATAL{border-color:#900;background:#fee}.ERROR{border-color:#c40;background:#fee8e0}\
 .WARNING{border-color:#c90;background:#fff6dd}.INFO{border-color:#39c;background:#eef6fc}\
-.steps li{margin:8px 0}.steps ul{margin:2px 0 4px;color:#333}@media print{body{margin:10mm}}";
+.steps li{margin:8px 0}.steps ul{margin:2px 0 4px;color:#333}.wide{page:wide;page-break-before:always}.wide svg{width:100%;height:auto;max-height:180mm}@page{size:A4;margin:10mm}@page wide{size:A4 landscape}@media print{body{margin:0}}";
 
 /// One self-contained HTML page the browser prints to PDF: header,
 /// diagnostics, cut list, BOM, assembly views, one page per part drawing,
@@ -636,21 +636,31 @@ pub fn report_html(plan: &ManufacturingPlan) -> String {
     h.push_str("<h2>Vistas</h2>");
     h.push_str(&svg::assembly_views_svg(plan));
 
-    if !plan.nesting.is_empty() {
-        h.push_str("<div class=page></div><h2>Plano de corte</h2>");
-        h.push_str(&svg::nesting_svg(plan));
+    // One sheet per landscape page: stacked, they shrink past reading.
+    for (i, sheet) in svg::nesting_sheet_svgs(plan).iter().enumerate() {
+        h.push_str("<div class=wide>");
+        if i == 0 {
+            h.push_str("<h2>Plano de corte</h2>");
+        }
+        h.push_str(sheet);
+        h.push_str("</div>");
     }
 
-    h.push_str("<div class=page></div><h2>Manual de armado</h2>");
+    h.push_str("<div class=page><h2>Manual de armado</h2>");
     h.push_str(&assembly::manual_html(plan));
+    h.push_str("</div>");
 
+    // Drawings are wider than tall: landscape pages, so the hole table
+    // stays legible on paper.
     for p in &plan.parts {
-        h.push_str("<div class=page></div>");
+        h.push_str("<div class=wide>");
         h.push_str(&svg::part_drawing_svg(p));
+        h.push_str("</div>");
     }
 
-    h.push_str("<div class=page></div><h2>Etiquetas</h2>");
+    h.push_str("<div class=page><h2>Etiquetas</h2>");
     h.push_str(&svg::labels_svg(plan));
+    h.push_str("</div>");
     h.push_str("</body></html>\n");
     h
 }
@@ -896,9 +906,10 @@ mod tests {
             .find(|f| f.path == "documentation/report.html")
             .unwrap();
         assert!(report.contents.contains("<h2>Despiece</h2>"));
+        // One per part, one per nesting sheet, the views and the labels.
         assert_eq!(
             report.contents.matches("<svg").count(),
-            plan.parts.len() + 3
+            plan.parts.len() + plan.nesting.len() + 2
         );
         assert!(files.iter().any(|f| f.path == "labels/labels.svg"));
         assert!(files.iter().any(|f| f.path == "manifest.json"));

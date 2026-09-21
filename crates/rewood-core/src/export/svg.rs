@@ -42,6 +42,7 @@ text{font-family:Helvetica,Arial,sans-serif;fill:#111}\
 .title{font-size:13px;font-weight:bold}\
 .small{font-size:9px}\
 .tiny{font-size:7px}\
+.row{font-size:10px;font-family:ui-monospace,Menlo,Consolas,monospace}\
 .part{fill:#e8eef6;stroke:#345;stroke-width:0.8}\
 .part-front{fill:#f6e8c8;stroke:#765;stroke-width:0.8}\
 .label-box{fill:#fff;stroke:#888;stroke-width:0.6}\
@@ -51,6 +52,11 @@ text{font-family:Helvetica,Arial,sans-serif;fill:#111}\
 .iso-top.iso-tinted{fill:#fbf3e3}\
 .iso-front.iso-tinted{fill:#f4e4c4}\
 .iso-right.iso-tinted{fill:#e6d2ac}\
+.iso-top.iso-hw{fill:#d0d4da}\
+.iso-front.iso-hw{fill:#b4bac2}\
+.iso-right.iso-hw{fill:#979ea8}\
+.part-hw{fill:#b4bac2;stroke:#345;stroke-width:0.6}\
+.see-through{fill-opacity:0.5}\
 .cut1{stroke:#c00;stroke-width:1.2}\
 .cut2{stroke:#06c;stroke-width:0.9}\
 .cut3{stroke:#0a0;stroke-width:0.7;stroke-dasharray:3 2}\
@@ -77,12 +83,15 @@ fn fit(len: f64, px: f64) -> f64 {
 
 pub fn part_drawing_svg(part: &Part) -> String {
     let (len, wid) = (part.dims.length, part.dims.width);
-    // Drawing area 640×360 px for the panel, margins for dimensions, a
-    // hole table on the right.
-    let scale = fit(len, 620.0).min(fit(wid, 340.0));
+    // Drawing area 1000×360 px for the panel, margins for dimensions, the
+    // operations table in columns underneath: printed on a landscape A4
+    // the panel spans the page and the table stays legible.
+    let scale = fit(len, 1000.0).min(fit(wid, 360.0));
     let (pw, ph) = (len * scale, wid * scale);
     let (ox, oy) = (60.0, 60.0);
-    let table_x = ox + pw + 60.0;
+    const WIDTH: f64 = 1120.0;
+    const COLUMNS: usize = 3;
+    const ROW: f64 = 12.0;
     let mut holes_rows: Vec<String> = Vec::new();
     let mut s = String::new();
     // Y grows downwards in SVG; the panel's v axis grows upwards.
@@ -202,7 +211,7 @@ pub fn part_drawing_svg(part: &Part) -> String {
                 )
                 .unwrap();
                 holes_rows.push(format!(
-                    "{} | ranura {} | {} ancho × {} prof. | ({}, {})–({}, {})",
+                    "{} | ranura {} | {}×{} | ({},{})–({},{})",
                     op.id,
                     if op.face == Face::Front {
                         "frente"
@@ -302,31 +311,33 @@ pub fn part_drawing_svg(part: &Part) -> String {
         esc(&edges)
     )
     .unwrap();
-    // Hole table.
-    let mut ty = oy + 4.0;
+    // Operations table, in columns under the drawing.
+    let ty0 = oy + ph + 50.0;
     writeln!(
         s,
         "<text class=\"small\" x=\"{}\" y=\"{}\" font-weight=\"bold\">Operaciones (u, v desde la esquina inferior izquierda vista desde el frente)</text>",
-        n(table_x),
-        n(ty)
+        n(ox),
+        n(ty0)
     )
     .unwrap();
-    for row in &holes_rows {
-        ty += 11.0;
+    let per_column = holes_rows.len().div_ceil(COLUMNS).max(1);
+    let column_w = (WIDTH - ox - 20.0) / COLUMNS as f64;
+    for (i, row) in holes_rows.iter().enumerate() {
+        let (col, line) = (i / per_column, i % per_column);
         writeln!(
             s,
-            "<text class=\"tiny\" x=\"{}\" y=\"{}\">{}</text>",
-            n(table_x),
-            n(ty),
+            "<text class=\"row\" x=\"{}\" y=\"{}\">{}</text>",
+            n(ox + col as f64 * column_w),
+            n(ty0 + 6.0 + (line as f64 + 1.0) * ROW),
             esc(row)
         )
         .unwrap();
     }
     writeln!(s, "</g>").unwrap();
-    let height = (oy + ph + 50.0).max(ty + 20.0);
+    let height = ty0 + 6.0 + (per_column as f64 + 1.0) * ROW + 10.0;
     format!(
         "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{w}\" height=\"{h}\" viewBox=\"0 0 {w} {h}\">{STYLE}{s}</svg>\n",
-        w = n(table_x + 420.0),
+        w = n(WIDTH),
         h = n(height)
     )
 }
@@ -350,23 +361,17 @@ pub fn assembly_views_svg(plan: &ManufacturingPlan) -> String {
     let (maxx, maxy, maxz) = (span[0], span[1], span[2]);
     let scale = fit(maxx, 420.0).min(fit(maxz, 420.0)).min(fit(maxy, 420.0));
     let mut s = String::new();
-    let mut parts: Vec<&Part> = plan.parts.iter().collect();
-    parts.sort_by_key(|p| is_front(p));
+    let rails = super::explode::rail_bars(plan, None);
 
     // view: (title, ox, oy, horizontal axis index, vertical axis index)
+    let top = 56.0;
     let views = [
-        ("Vista frontal (X–Z)", 30.0, 40.0, 0usize, 2usize),
-        (
-            "Vista lateral (Y–Z)",
-            30.0 + maxx * scale + 60.0,
-            40.0,
-            1,
-            2,
-        ),
+        ("Vista frontal (X–Z)", 30.0, top, 0usize, 2usize),
+        ("Vista lateral (Y–Z)", 30.0 + maxx * scale + 60.0, top, 1, 2),
         (
             "Vista superior (X–Y)",
             30.0,
-            40.0 + maxz * scale + 60.0,
+            top + maxz * scale + 60.0,
             0,
             1,
         ),
@@ -377,14 +382,14 @@ pub fn assembly_views_svg(plan: &ManufacturingPlan) -> String {
     let exploded = super::explode::exploded_body_at(
         plan,
         30.0 + maxx * scale + 60.0,
-        40.0 + maxz * scale + 60.0,
-        (maxx.max(maxy) * scale * 1.2).max(240.0),
+        top + maxz * scale + 60.0,
+        (maxx.max(maxy) * scale * 1.4).max(240.0),
     );
     writeln!(
         s,
         "<text class=\"title\" x=\"{}\" y=\"{}\">Vista explotada</text>{}",
         n(30.0 + maxx * scale + 60.0),
-        n(40.0 + maxz * scale + 50.0),
+        n(top + maxz * scale + 50.0),
         exploded.svg
     )
     .unwrap();
@@ -402,16 +407,46 @@ pub fn assembly_views_svg(plan: &ManufacturingPlan) -> String {
             n(oy - 10.0)
         )
         .unwrap();
-        for p in &parts {
-            let (a0, a1) = (
-                p.aabb.min.component(h) - lo[h],
-                p.aabb.max.component(h) - lo[h],
-            );
-            let (b0, b1) = (
-                p.aabb.min.component(v) - lo[v],
-                p.aabb.max.component(v) - lo[v],
-            );
-            let class = if is_front(p) { "part-front" } else { "part" };
+        // Painter's order along the axis the view looks down: what is
+        // nearer the viewer (front: +Y, side: +X, top: +Z) paints last.
+        // Fronts, and the panel that closes the furniture on the viewer's
+        // side (the top in the top view, a side in the side view), are
+        // see-through: an opaque one would leave the view a blank rectangle.
+        let depth = 3 - h - v;
+        let near = lo[depth] + span[depth];
+        let mut boxes: Vec<(&str, &str, &str, crate::geometry::Aabb)> = plan
+            .parts
+            .iter()
+            .map(|p| {
+                let closes = p.placement.z().vec().component(depth) != 0.0
+                    && p.aabb.max.component(depth) >= near - 1.0;
+                let class = match (is_front(p), closes) {
+                    (true, _) => "part-front see-through",
+                    (false, true) => "part see-through",
+                    (false, false) => "part",
+                };
+                (p.id.as_str(), p.name.as_str(), class, p.aabb)
+            })
+            .collect();
+        boxes.extend(rails.iter().map(|b| {
+            (
+                b.id.as_str(),
+                b.name.as_str(),
+                "part-hw",
+                crate::geometry::Aabb {
+                    min: b.lo,
+                    max: b.hi,
+                },
+            )
+        }));
+        boxes.sort_by(|a, b| {
+            let ka = a.3.min.component(depth) + a.3.max.component(depth);
+            let kb = b.3.min.component(depth) + b.3.max.component(depth);
+            ka.partial_cmp(&kb).unwrap().then(a.0.cmp(b.0))
+        });
+        for (id, name, class, aabb) in boxes {
+            let (a0, a1) = (aabb.min.component(h) - lo[h], aabb.max.component(h) - lo[h]);
+            let (b0, b1) = (aabb.min.component(v) - lo[v], aabb.max.component(v) - lo[v]);
             writeln!(
                 s,
                 "<rect class=\"{class}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"><title>{} {}</title></rect>",
@@ -419,17 +454,17 @@ pub fn assembly_views_svg(plan: &ManufacturingPlan) -> String {
                 n(oy + vh - b1 * scale),
                 n(((a1 - a0) * scale).max(0.5)),
                 n(((b1 - b0) * scale).max(0.5)),
-                esc(&p.id),
-                esc(&p.name)
+                esc(id),
+                esc(name)
             )
             .unwrap();
-            if (a1 - a0) * scale > 40.0 && (b1 - b0) * scale > 12.0 {
+            if (a1 - a0) * scale > 40.0 && (b1 - b0) * scale > 12.0 && !id.contains(':') {
                 writeln!(
                     s,
                     "<text class=\"tiny\" x=\"{}\" y=\"{}\">{}</text>",
                     n(ox + a0 * scale + 3.0),
                     n(oy + vh - b0 * scale - 3.0),
-                    esc(&p.id)
+                    esc(id)
                 )
                 .unwrap();
             }
@@ -449,11 +484,47 @@ pub fn nesting_svg(plan: &ManufacturingPlan) -> String {
     let mut y_cursor = 20.0;
     let mut max_w = 0.0_f64;
     for layout in &plan.nesting {
-        let scale = fit(layout.sheet_length, 700.0).min(fit(layout.sheet_width, 470.0));
-        let (ox, oy) = (20.0, y_cursor + 18.0);
-        let (sw, sh) = (layout.sheet_length * scale, layout.sheet_width * scale);
-        max_w = max_w.max(ox + sw + 20.0);
-        writeln!(
+        let (w, next) = nesting_sheet(&mut s, layout, y_cursor);
+        max_w = max_w.max(w);
+        y_cursor = next;
+    }
+    format!(
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{w}\" height=\"{h}\" viewBox=\"0 0 {w} {h}\">{STYLE}{s}</svg>\n",
+        w = n(max_w.max(200.0)),
+        h = n(y_cursor.max(40.0))
+    )
+}
+
+/// The same drawing, one SVG per sheet: the report prints each on its
+/// own page.
+pub fn nesting_sheet_svgs(plan: &ManufacturingPlan) -> Vec<String> {
+    plan.nesting
+        .iter()
+        .map(|layout| {
+            let mut s = String::new();
+            let (w, h) = nesting_sheet(&mut s, layout, 20.0);
+            format!(
+                "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{w}\" height=\"{h}\" viewBox=\"0 0 {w} {h}\">{STYLE}{s}</svg>
+",
+                w = n(w.max(200.0)),
+                h = n(h)
+            )
+        })
+        .collect()
+}
+
+/// Draw one sheet starting at `y_cursor`; returns (width used, next y).
+fn nesting_sheet(
+    s: &mut String,
+    layout: &crate::nesting::SheetLayout,
+    y_cursor: f64,
+) -> (f64, f64) {
+    let mut max_w = 0.0_f64;
+    let scale = fit(layout.sheet_length, 700.0).min(fit(layout.sheet_width, 470.0));
+    let (ox, oy) = (20.0, y_cursor + 18.0);
+    let (sw, sh) = (layout.sheet_length * scale, layout.sheet_width * scale);
+    max_w = max_w.max(ox + sw + 20.0);
+    writeln!(
             s,
             "<text class=\"title\" x=\"{}\" y=\"{}\">{} — placa {} de {}×{} · aprovechamiento {}% · {} piezas</text>",
             n(ox),
@@ -466,21 +537,21 @@ pub fn nesting_svg(plan: &ManufacturingPlan) -> String {
             layout.parts.len()
         )
         .unwrap();
+    writeln!(
+        s,
+        "<rect class=\"outline\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"/>",
+        n(ox),
+        n(oy),
+        n(sw),
+        n(sh)
+    )
+    .unwrap();
+    for p in &layout.parts {
+        // Sheet y grows upwards; SVG y grows downwards.
+        let px = ox + p.x * scale;
+        let py = oy + sh - (p.y + p.width) * scale;
+        let class = if p.rotated { "part-front" } else { "part" };
         writeln!(
-            s,
-            "<rect class=\"outline\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"/>",
-            n(ox),
-            n(oy),
-            n(sw),
-            n(sh)
-        )
-        .unwrap();
-        for p in &layout.parts {
-            // Sheet y grows upwards; SVG y grows downwards.
-            let px = ox + p.x * scale;
-            let py = oy + sh - (p.y + p.width) * scale;
-            let class = if p.rotated { "part-front" } else { "part" };
-            writeln!(
                 s,
                 "<rect class=\"{class}\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\"><title>{} {}×{}{}</title></rect>",
                 n(px),
@@ -493,23 +564,23 @@ pub fn nesting_svg(plan: &ManufacturingPlan) -> String {
                 if p.rotated { " (girada)" } else { "" }
             )
             .unwrap();
-            if p.length * scale > 28.0 && p.width * scale > 10.0 {
-                writeln!(
-                    s,
-                    "<text class=\"tiny\" x=\"{}\" y=\"{}\">{}</text>",
-                    n(px + 2.0),
-                    n(py + 8.0),
-                    esc(&p.part)
-                )
-                .unwrap();
-            }
-        }
-        // Saw sequence (guillotine mode): numbered cut lines, one colour
-        // per stage.
-        for c in &layout.cuts {
-            let (x0, y0) = (ox + c.x0 * scale, oy + sh - c.y0 * scale);
-            let (x1, y1) = (ox + c.x1 * scale, oy + sh - c.y1 * scale);
+        if p.length * scale > 28.0 && p.width * scale > 10.0 {
             writeln!(
+                s,
+                "<text class=\"tiny\" x=\"{}\" y=\"{}\">{}</text>",
+                n(px + 2.0),
+                n(py + 8.0),
+                esc(&p.part)
+            )
+            .unwrap();
+        }
+    }
+    // Saw sequence (guillotine mode): numbered cut lines, one colour
+    // per stage.
+    for c in &layout.cuts {
+        let (x0, y0) = (ox + c.x0 * scale, oy + sh - c.y0 * scale);
+        let (x1, y1) = (ox + c.x1 * scale, oy + sh - c.y1 * scale);
+        writeln!(
                 s,
                 "<line class=\"cut{}\" x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\"><title>corte {} (etapa {})</title></line>",
                 c.stage,
@@ -521,19 +592,19 @@ pub fn nesting_svg(plan: &ManufacturingPlan) -> String {
                 c.stage
             )
             .unwrap();
-            if c.stage == 1 {
-                writeln!(
-                    s,
-                    "<text class=\"tiny cutno\" x=\"{}\" y=\"{}\">{}</text>",
-                    n(x1 + 2.0),
-                    n(y1 + 2.5),
-                    c.order
-                )
-                .unwrap();
-            }
-        }
-        if !layout.cuts.is_empty() {
+        if c.stage == 1 {
             writeln!(
+                s,
+                "<text class=\"tiny cutno\" x=\"{}\" y=\"{}\">{}</text>",
+                n(x1 + 2.0),
+                n(y1 + 2.5),
+                c.order
+            )
+            .unwrap();
+        }
+    }
+    if !layout.cuts.is_empty() {
+        writeln!(
                 s,
                 "<text class=\"small\" x=\"{}\" y=\"{}\">Secuencia de corte (sierra): {} cortes · rojo = etapa 1 (tiras a lo largo), azul = etapa 2 (transversales), verde = etapa 3 (recortes)</text>",
                 n(ox),
@@ -541,14 +612,9 @@ pub fn nesting_svg(plan: &ManufacturingPlan) -> String {
                 layout.cuts.len()
             )
             .unwrap();
-        }
-        y_cursor = oy + sh + 24.0 + if layout.cuts.is_empty() { 0.0 } else { 14.0 };
     }
-    format!(
-        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{w}\" height=\"{h}\" viewBox=\"0 0 {w} {h}\">{STYLE}{s}</svg>\n",
-        w = n(max_w.max(200.0)),
-        h = n(y_cursor.max(40.0))
-    )
+    let next = oy + sh + 24.0 + if layout.cuts.is_empty() { 0.0 } else { 14.0 };
+    (max_w, next)
 }
 
 /// One label per part with a QR code carrying `rewood://<order>/<part>`.

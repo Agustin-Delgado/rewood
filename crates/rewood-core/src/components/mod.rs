@@ -693,6 +693,25 @@ impl<'a> BuildCtx<'a> {
         found
     }
 
+    /// Two components of the same kind name their parts alike ("Puerta 1"
+    /// from each door set): a cut list with two different "Puerta 1" rows
+    /// tells the workshop nothing. Suffix the component id wherever a
+    /// name is shared across components.
+    fn disambiguate_names(&mut self) {
+        let mut owners: BTreeMap<String, std::collections::BTreeSet<String>> = BTreeMap::new();
+        for part in &self.parts {
+            owners
+                .entry(part.name.clone())
+                .or_default()
+                .insert(part.component.clone());
+        }
+        for part in &mut self.parts {
+            if owners[&part.name].len() > 1 {
+                part.name = format!("{} ({})", part.name, part.component);
+            }
+        }
+    }
+
     /// Move every part (and every joint anchored at a point) of a
     /// component by its carcass's origin. Generators work in carcass
     /// space; this is what puts modules next to each other.
@@ -750,6 +769,7 @@ pub fn expand(ctx: &mut BuildCtx<'_>) {
         }
     }
     layout::check(ctx);
+    ctx.disambiguate_names();
     ctx.apply_origins();
 }
 

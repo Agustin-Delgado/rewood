@@ -295,7 +295,7 @@
   "parts": [
     {
       "id": "P001",
-      "name": "Lateral izquierdo",
+      "name": "Lateral izquierdo (m1)",
       "component": "m1",
       "role": "side_left",
       "material": "melamine_18",
@@ -620,7 +620,7 @@
     },
     {
       "id": "P002",
-      "name": "Lateral derecho",
+      "name": "Lateral derecho (m1)",
       "component": "m1",
       "role": "side_right",
       "material": "melamine_18",
@@ -881,7 +881,7 @@
     },
     {
       "id": "P003",
-      "name": "Tapa",
+      "name": "Tapa (m1)",
       "component": "m1",
       "role": "top",
       "material": "melamine_18",
@@ -1174,7 +1174,7 @@
     },
     {
       "id": "P004",
-      "name": "Base",
+      "name": "Base (m1)",
       "component": "m1",
       "role": "bottom",
       "material": "melamine_18",
@@ -1723,7 +1723,7 @@
     },
     {
       "id": "P005",
-      "name": "Fondo",
+      "name": "Fondo (m1)",
       "component": "m1",
       "role": "back",
       "material": "hdf_3",
@@ -1769,7 +1769,7 @@
     },
     {
       "id": "P006",
-      "name": "Zócalo",
+      "name": "Zócalo (m1)",
       "component": "m1",
       "role": "plinth",
       "material": "melamine_18",
@@ -1874,7 +1874,7 @@
     },
     {
       "id": "P007",
-      "name": "Lateral izquierdo",
+      "name": "Lateral izquierdo (m2)",
       "component": "m2",
       "role": "side_left",
       "material": "melamine_18",
@@ -2247,7 +2247,7 @@
     },
     {
       "id": "P008",
-      "name": "Lateral derecho",
+      "name": "Lateral derecho (m2)",
       "component": "m2",
       "role": "side_right",
       "material": "melamine_18",
@@ -2620,7 +2620,7 @@
     },
     {
       "id": "P009",
-      "name": "Tapa",
+      "name": "Tapa (m2)",
       "component": "m2",
       "role": "top",
       "material": "melamine_18",
@@ -2913,7 +2913,7 @@
     },
     {
       "id": "P010",
-      "name": "Base",
+      "name": "Base (m2)",
       "component": "m2",
       "role": "bottom",
       "material": "melamine_18",
@@ -3462,7 +3462,7 @@
     },
     {
       "id": "P011",
-      "name": "Fondo",
+      "name": "Fondo (m2)",
       "component": "m2",
       "role": "back",
       "material": "hdf_3",
@@ -3508,7 +3508,7 @@
     },
     {
       "id": "P012",
-      "name": "Zócalo",
+      "name": "Zócalo (m2)",
       "component": "m2",
       "role": "plinth",
       "material": "melamine_18",
@@ -3613,7 +3613,7 @@
     },
     {
       "id": "P013",
-      "name": "Lateral izquierdo",
+      "name": "Lateral izquierdo (m3)",
       "component": "m3",
       "role": "side_left",
       "material": "melamine_18",
@@ -3938,7 +3938,7 @@
     },
     {
       "id": "P014",
-      "name": "Lateral derecho",
+      "name": "Lateral derecho (m3)",
       "component": "m3",
       "role": "side_right",
       "material": "melamine_18",
@@ -4199,7 +4199,7 @@
     },
     {
       "id": "P015",
-      "name": "Tapa",
+      "name": "Tapa (m3)",
       "component": "m3",
       "role": "top",
       "material": "melamine_18",
@@ -4492,7 +4492,7 @@
     },
     {
       "id": "P016",
-      "name": "Base",
+      "name": "Base (m3)",
       "component": "m3",
       "role": "bottom",
       "material": "melamine_18",
@@ -5041,7 +5041,7 @@
     },
     {
       "id": "P017",
-      "name": "Fondo",
+      "name": "Fondo (m3)",
       "component": "m3",
       "role": "back",
       "material": "hdf_3",
@@ -5087,7 +5087,7 @@
     },
     {
       "id": "P018",
-      "name": "Zócalo",
+      "name": "Zócalo (m3)",
       "component": "m3",
       "role": "plinth",
       "material": "melamine_18",
@@ -5192,7 +5192,7 @@
     },
     {
       "id": "P019",
-      "name": "Estante 1",
+      "name": "Estante 1 (shelf_m1)",
       "component": "shelf_m1",
       "role": "shelf_1",
       "material": "melamine_18",
@@ -5307,7 +5307,7 @@
     },
     {
       "id": "P020",
-      "name": "Puerta 1",
+      "name": "Puerta 1 (door_m1)",
       "component": "door_m1",
       "role": "door_1",
       "material": "melamine_18",
@@ -8441,7 +8441,7 @@
     },
     {
       "id": "P039",
-      "name": "Estante 1",
+      "name": "Estante 1 (shelf_m3)",
       "component": "shelf_m3",
       "role": "shelf_1",
       "material": "melamine_18",
@@ -8556,7 +8556,7 @@
     },
     {
       "id": "P040",
-      "name": "Puerta 1",
+      "name": "Puerta 1 (door_m3)",
       "component": "door_m3",
       "role": "door_1",
       "material": "melamine_18",
@@ -11680,7 +11680,7 @@
         "P001",
         "P013"
       ],
-      "name": "Lateral izquierdo",
+      "name": "Lateral izquierdo (m1)",
       "quantity": 2,
       "material": "melamine_18",
       "cutLength": 720.0,
@@ -11698,7 +11698,7 @@
         "P002",
         "P014"
       ],
-      "name": "Lateral derecho",
+      "name": "Lateral derecho (m1)",
       "quantity": 2,
       "material": "melamine_18",
       "cutLength": 720.0,
@@ -11717,7 +11717,7 @@
         "P009",
         "P015"
       ],
-      "name": "Tapa",
+      "name": "Tapa (m1)",
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 564.0,
@@ -11736,7 +11736,7 @@
         "P010",
         "P016"
       ],
-      "name": "Base",
+      "name": "Base (m1)",
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 564.0,
@@ -11755,7 +11755,7 @@
         "P011",
         "P017"
       ],
-      "name": "Fondo",
+      "name": "Fondo (m1)",
       "quantity": 3,
       "material": "hdf_3",
       "cutLength": 579.0,
@@ -11774,7 +11774,7 @@
         "P012",
         "P018"
       ],
-      "name": "Zócalo",
+      "name": "Zócalo (m1)",
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 564.0,
@@ -11791,7 +11791,7 @@
       "partIds": [
         "P007"
       ],
-      "name": "Lateral izquierdo",
+      "name": "Lateral izquierdo (m2)",
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 720.0,
@@ -11808,7 +11808,7 @@
       "partIds": [
         "P008"
       ],
-      "name": "Lateral derecho",
+      "name": "Lateral derecho (m2)",
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 720.0,
@@ -11826,7 +11826,7 @@
         "P019",
         "P039"
       ],
-      "name": "Estante 1",
+      "name": "Estante 1 (shelf_m1)",
       "quantity": 2,
       "material": "melamine_18",
       "cutLength": 564.0,
@@ -11844,7 +11844,7 @@
         "P020",
         "P040"
       ],
-      "name": "Puerta 1",
+      "name": "Puerta 1 (door_m1)",
       "quantity": 2,
       "material": "melamine_18",
       "cutLength": 714.0,

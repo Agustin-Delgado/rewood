@@ -7,7 +7,7 @@
 	import { T } from '@threlte/core';
 	import { OrbitControls, interactivity } from '@threlte/extras';
 	import * as THREE from 'three';
-	import type { Part } from '@rewood/engine/browser';
+	import type { Joint, Part } from '@rewood/engine/browser';
 	import { app } from '$lib/state.svelte';
 	import { explodeOffsets, faceNormalWorld, faceUvToWorld, toThree } from '$lib/geometry';
 
@@ -56,6 +56,55 @@
 		}
 		return out;
 	});
+
+	/**
+	 * Every fastener of every joint, as a ball where the joint put it
+	 * (bigger than the real thing: a symbol to click, not a model). When
+	 * the view explodes it floats halfway between the two parts it joins,
+	 * in the gap the dowel or bolt would bridge. Hidden components hide
+	 * their fasteners too.
+	 */
+	type Ball = { key: string; joint: Joint; index: number; pos: [number, number, number]; r: number; colour: string };
+	const fasteners = $derived.by(() => {
+		if (!app.showHardware || !app.plan) return [] as Ball[];
+		const visible = new Set(parts.map((p) => p.id));
+		const out: Ball[] = [];
+		for (const joint of app.plan.joints) {
+			if (!visible.has(joint.edgePart) || !visible.has(joint.facePart)) continue;
+			const a = offsets.get(joint.edgePart) ?? [0, 0, 0];
+			const b = offsets.get(joint.facePart) ?? [0, 0, 0];
+			const off = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
+			joint.fasteners.forEach((f, index) => {
+				const p = f.position;
+				out.push({
+					key: `${joint.id}:${index}`,
+					joint,
+					index,
+					pos: toThree([p[0] + off[0], p[1] + off[1], p[2] + off[2]]),
+					r: joint.kind === 'hinge' ? 18 : 14,
+					colour: fastenerColour(f.hardware)
+				});
+			});
+		}
+		return out;
+	});
+
+	function fastenerColour(hardware: string): string {
+		// Nothing here is the colour of the wood: a ball has to stand out.
+		if (hardware.startsWith('dowel')) return '#e0a800';
+		if (hardware.startsWith('hinge')) return '#3b6ea5';
+		if (hardware.startsWith('slide')) return '#2a9d8f';
+		if (hardware.startsWith('handle')) return '#222';
+		return '#555e6a';
+	}
+
+	function ballColour(b: Ball): string {
+		const sel = app.selectedFastener;
+		if (sel && sel.joint === b.joint.id && sel.index === b.index) return '#ff3b1f';
+		// The selected part's fasteners light up with it.
+		if (app.selectedPart && (b.joint.edgePart === app.selectedPart || b.joint.facePart === app.selectedPart)) return '#ff8c42';
+		return b.colour;
+	}
 
 	function colourOf(part: Part): string {
 		if (part.id === app.selectedPart) return '#ff8c42';
@@ -156,7 +205,7 @@
 
 {#each parts as part (part.id)}
 	<T.Group position={offsetOf(part)}>
-	<T.Mesh position={centre(part)} onclick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); app.selectedPart = part.id; }}>
+	<T.Mesh position={centre(part)} onclick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); app.selectPart(part.id); }}>
 		<T.BoxGeometry args={size(part)} />
 		<T.MeshStandardMaterial color={colourOf(part)} roughness={0.8} />
 	</T.Mesh>
@@ -175,4 +224,11 @@
 		{/each}
 	{/if}
 	</T.Group>
+{/each}
+
+{#each fasteners as b (b.key)}
+	<T.Mesh position={b.pos} onclick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); app.selectFastener(b.joint.id, b.index); }}>
+		<T.SphereGeometry args={[b.r, 12, 10]} />
+		<T.MeshStandardMaterial color={ballColour(b)} metalness={0.3} roughness={0.5} />
+	</T.Mesh>
 {/each}

@@ -3,7 +3,7 @@
 	 * Parameters of the spec, editable live, and the selected part's
 	 * details. Numbers become number inputs; expressions stay text.
 	 */
-	import { app } from '$lib/state.svelte';
+	import { app, JOINT_KIND_ES } from '$lib/state.svelte';
 
 	const params = $derived(Object.entries(app.spec.parameters ?? {}));
 	const derivedValues = $derived(Object.entries(app.plan?.derived ?? {}));
@@ -40,8 +40,45 @@
 		{/each}
 	{/if}
 
+	{#if app.fastener}
+		{@const { joint, fastener } = app.fastener}
+		{@const edge = app.partById(joint.edgePart)}
+		{@const face = app.partById(joint.facePart)}
+		<h3>Herraje</h3>
+		<div class="row"><span class="name">qué es</span><span>{app.hardwareName(fastener.hardware)}</span></div>
+		<div class="row"><span class="name">unión</span><span>{joint.id} · {JOINT_KIND_ES[joint.kind]} · {fastener.index + 1} de {joint.fasteners.length}</span></div>
+		{#if joint.edgePart === joint.facePart}
+			<div class="row"><span class="name">sobre</span><button class="link" onclick={() => app.selectPart(joint.edgePart)}>{joint.edgePart} {edge?.name ?? ''}</button></div>
+		{:else}
+			<div class="row"><span class="name">une</span><button class="link" onclick={() => app.selectPart(joint.edgePart)}>{joint.edgePart} {edge?.name ?? ''}</button></div>
+			<div class="row"><span class="name">con</span><button class="link" onclick={() => app.selectPart(joint.facePart)}>{joint.facePart} {face?.name ?? ''}</button></div>
+		{/if}
+		<div class="row"><span class="name">posición</span><span class="mono">({fastener.position.map((v) => Math.round(v * 10) / 10).join(', ')})</span></div>
+		<h3>Perforaciones de esta unión</h3>
+		<table>
+			<tbody>
+				{#each [edge, face].filter((p, i, a) => p && a.indexOf(p) === i) as p (p?.id)}
+					{#each (p?.operations ?? []).filter((op) => op.source?.joint === joint.id) as op (op.id)}
+						<tr>
+							<td class="mono">{op.id}</td>
+							<td>{op.face}</td>
+							<td class="mono">
+								{#if op.type === 'DRILL'}
+									Ø{op.diameter} {op.through ? 'pasante' : `×${op.depth}`} @ ({op.u}, {op.v})
+								{:else if op.type === 'GROOVE'}
+									{op.width}×{op.depth}
+								{/if}
+							</td>
+						</tr>
+					{/each}
+				{/each}
+			</tbody>
+		</table>
+	{/if}
+
 	{#if app.selected}
 		{@const p = app.selected}
+		{@const hardware = app.hardwareOf(p.id)}
 		<h3>Pieza {p.id}</h3>
 		<div class="row"><span class="name">nombre</span><span>{p.name}</span></div>
 		<div class="row"><span class="name">material</span><span>{p.material}</span></div>
@@ -49,6 +86,29 @@
 		<div class="row"><span class="name">corte</span><span>{p.cut.length} × {p.cut.width}</span></div>
 		<div class="row"><span class="name">veta</span><span>{p.grain}</span></div>
 		<div class="row"><span class="name">cantos</span><span>{Object.entries(p.edges).map(([f, m]) => `${f}: ${m}`).join(', ') || '—'}</span></div>
+		<h3>Herrajes <span class="muted">{hardware.reduce((n, r) => n + r.count, 0)}</span></h3>
+		{#if hardware.length === 0}
+			<div class="muted">Ninguno: no participa de ninguna unión.</div>
+		{:else}
+			<table>
+				<tbody>
+					{#each hardware as r (r.joint.id + r.hardware)}
+						<tr>
+							<td class="mono">{r.count} ×</td>
+							<td>{r.name}</td>
+							<td>
+								{#if r.other}
+									con <button class="link" onclick={() => app.selectPart(r.other?.id ?? null)}>{r.other.id} {r.other.name}</button>
+								{:else}
+									sobre la pieza
+								{/if}
+							</td>
+							<td class="muted">{JOINT_KIND_ES[r.joint.kind]} · {r.joint.id}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		{/if}
 		<h3>Operaciones <span class="muted">{p.operations.length}</span></h3>
 		<table>
 			<tbody>
@@ -132,5 +192,17 @@
 	.mono {
 		font-family: ui-monospace, monospace;
 		white-space: nowrap;
+	}
+	.link {
+		background: none;
+		border: none;
+		padding: 0;
+		font: inherit;
+		color: #1a5fb4;
+		cursor: pointer;
+		text-align: left;
+	}
+	.link:hover {
+		text-decoration: underline;
 	}
 </style>

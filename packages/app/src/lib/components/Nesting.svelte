@@ -18,7 +18,7 @@
 			<svg width={W} height={H} viewBox="0 0 {W} {H}">
 				<rect x="0" y="0" width={W} height={H} fill="#fff" stroke="#333" />
 				{#each l.parts as p (p.part)}
-					<g onclick={() => (app.selectedPart = p.part)} role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && (app.selectedPart = p.part)}>
+					<g onclick={() => app.selectPart(p.part)} role="button" tabindex="0" onkeydown={(e) => e.key === 'Enter' && app.selectPart(p.part)}>
 						<rect
 							x={p.x * scale}
 							y={H - (p.y + p.width) * scale}

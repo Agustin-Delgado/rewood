@@ -102,15 +102,10 @@ export function toThree(v: Vec3): [number, number, number] {
 	return [v[0], v[2], v[1]];
 }
 
-/**
- * Exploded-view offsets, the same rule as `export/explode.rs`: each part
- * moves a fixed step along its thickness axis away from the furniture
- * centre (a part on the centre plane goes up); doors and drawers come
- * forward first. `factor` 0 = assembled, 1 = the documentation's spread.
- */
-export function explodeOffsets(parts: Part[], factor: number): Map<string, Vec3> {
-	const out = new Map<string, Vec3>();
-	if (parts.length === 0 || factor === 0) return out;
+/** A carcass and what hangs in it, see `modules()` in `explode.rs`. */
+type Module = { centre: Vec3; spread: number };
+
+function bbox(parts: Part[]): [Vec3, Vec3] {
 	const lo: Vec3 = [Infinity, Infinity, Infinity];
 	const hi: Vec3 = [-Infinity, -Infinity, -Infinity];
 	for (const p of parts) {
@@ -119,7 +114,36 @@ export function explodeOffsets(parts: Part[], factor: number): Map<string, Vec3>
 			hi[i] = Math.max(hi[i], p.aabb.max[i]);
 		}
 	}
-	const centre: Vec3 = [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, (lo[2] + hi[2]) / 2];
+	return [lo, hi];
+}
+
+function modules(parts: Part[]): Module[] {
+	const byCarcass = new Map<string, Part[]>();
+	for (const p of parts) {
+		if (!['side_left', 'side_right', 'top', 'bottom'].includes(p.role)) continue;
+		byCarcass.set(p.component, [...(byCarcass.get(p.component) ?? []), p]);
+	}
+	const groups = byCarcass.size ? [...byCarcass.values()] : [parts];
+	const out: Module[] = groups.map((g) => {
+		const [lo, hi] = bbox(g);
+		return { centre: [(lo[0] + hi[0]) / 2, (lo[1] + hi[1]) / 2, (lo[2] + hi[2]) / 2], spread: 0 };
+	});
+	out.sort((a, b) => a.centre[0] - b.centre[0]);
+	out.forEach((m, i) => (m.spread = i - (out.length - 1) / 2));
+	return out;
+}
+
+/**
+ * Exploded-view offsets, the same rule as `export/explode.rs`: each part
+ * moves a fixed step along its thickness axis away from the centre of its
+ * module (a part on the centre plane stays); doors and drawers come
+ * forward first, and the modules of a run drift apart. `factor` 0 =
+ * assembled, 1 = the documentation's spread.
+ */
+export function explodeOffsets(parts: Part[], factor: number): Map<string, Vec3> {
+	const out = new Map<string, Vec3>();
+	if (parts.length === 0 || factor === 0) return out;
+	const mods = modules(parts);
 	const step = 120 * factor;
 	for (const p of parts) {
 		const c: Vec3 = [
@@ -127,14 +151,18 @@ export function explodeOffsets(parts: Part[], factor: number): Map<string, Vec3>
 			(p.aabb.min[1] + p.aabb.max[1]) / 2,
 			(p.aabb.min[2] + p.aabb.max[2]) / 2
 		];
+		let m = mods[0];
+		for (const x of mods) if (Math.abs(x.centre[0] - c[0]) < Math.abs(m.centre[0] - c[0])) m = x;
+		const centre = m.centre;
 		const normal = zAxis(p.placement);
 		const d = (c[0] - centre[0]) * normal[0] + (c[1] - centre[1]) * normal[1] + (c[2] - centre[2]) * normal[2];
-		const sign = Math.abs(d) < 1e-6 ? 1 : Math.sign(d);
+		const sign = Math.abs(d) < 1e-6 ? 0 : Math.sign(d);
 		const off = scale(normal, sign * step);
 		if (p.role.includes('door')) off[1] += 1.5 * step;
 		else if (p.role.includes('drawer')) {
 			off[1] += p.role.endsWith('_front') && !p.role.includes('box_front') ? 2 * step : 1.2 * step;
 		}
+		off[0] += m.spread * 2 * step;
 		out.set(p.id, off);
 	}
 	return out;

@@ -5548,7 +5548,7 @@
     },
     {
       "id": "P024",
-      "name": "Puerta 1",
+      "name": "Puerta 1 (door_left)",
       "component": "door_left",
       "role": "door_1",
       "material": "melamine_18",
@@ -5898,7 +5898,7 @@
     },
     {
       "id": "P025",
-      "name": "Puerta 1",
+      "name": "Puerta 1 (door_right)",
       "component": "door_right",
       "role": "door_1",
       "material": "melamine_18",
@@ -8604,7 +8604,7 @@
       "partIds": [
         "P024"
       ],
-      "name": "Puerta 1",
+      "name": "Puerta 1 (door_left)",
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 2058.0,
@@ -8621,7 +8621,7 @@
       "partIds": [
         "P025"
       ],
-      "name": "Puerta 1",
+      "name": "Puerta 1 (door_right)",
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 2094.0,

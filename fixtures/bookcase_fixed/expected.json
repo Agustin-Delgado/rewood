@@ -1833,7 +1833,7 @@
     },
     {
       "id": "P007",
-      "name": "Estante 1",
+      "name": "Estante 1 (shelves_low)",
       "component": "shelves_low",
       "role": "shelf_1",
       "material": "melamine_18",
@@ -1948,7 +1948,7 @@
     },
     {
       "id": "P008",
-      "name": "Estante 2",
+      "name": "Estante 2 (shelves_low)",
       "component": "shelves_low",
       "role": "shelf_2",
       "material": "melamine_18",
@@ -2063,7 +2063,7 @@
     },
     {
       "id": "P009",
-      "name": "Estante 1",
+      "name": "Estante 1 (shelves_high)",
       "component": "shelves_high",
       "role": "shelf_1",
       "material": "melamine_18",
@@ -2178,7 +2178,7 @@
     },
     {
       "id": "P010",
-      "name": "Estante 2",
+      "name": "Estante 2 (shelves_high)",
       "component": "shelves_high",
       "role": "shelf_2",
       "material": "melamine_18",
@@ -3134,7 +3134,7 @@
         "P009",
         "P010"
       ],
-      "name": "Estante 1",
+      "name": "Estante 1 (shelves_low)",
       "quantity": 4,
       "material": "melamine_18",
       "cutLength": 764.0,

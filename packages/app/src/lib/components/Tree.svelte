@@ -24,7 +24,7 @@
 				<span class="count">{parts.length}</span>
 			</div>
 			{#each parts as part (part.id)}
-				<button class="part" class:selected={app.selectedPart === part.id} onclick={() => (app.selectedPart = part.id)}>
+				<button class="part" class:selected={app.selectedPart === part.id} onclick={() => app.selectPart(part.id)}>
 					<span class="id">{part.id}</span>
 					<span>{part.name}</span>
 					<span class="dims">{part.dims.length}×{part.dims.width}×{part.dims.thickness}</span>
