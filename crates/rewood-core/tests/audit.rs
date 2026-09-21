@@ -13,6 +13,11 @@
 //!   and their mounting plates on the side's inner face, 37 mm from its
 //!   front edge, at the cup's height;
 //! - handles are through holes on the opening side, the bar's length apart;
+//! - the hinge arm matches where the door hangs: full overlay on a side,
+//!   half overlay on a divider, inset inside the opening; a soft-close
+//!   request gets a damped hinge or slide of the same family;
+//! - a catch sits on the panel opposite the hinge, within reach of the
+//!   door's back, and its plate on the door's inner face;
 //! - drawer boxes fit their bay with the slide clearance and their slides
 //!   are not longer than the box or the carcass;
 //! - overlay doors cover their bay's panels minus the gap, flush with the
@@ -242,6 +247,24 @@ fn audit(name: &str, plan: &ManufacturingPlan, libs: &Libraries, allowed: &[&str
                         continue;
                     }
                     let (cup_op, cup) = cups[0];
+                    // The arm for where the door hangs.
+                    let inset = door.aabb.max.1 <= front_y + EPS;
+                    let wanted = if inset {
+                        "inset"
+                    } else if side.role.starts_with("divider") {
+                        "half_overlay"
+                    } else {
+                        "overlay"
+                    };
+                    for h in &hw {
+                        let mount = h.hinge.as_ref().map(|s| s.mount.as_str()).unwrap_or("");
+                        if mount != wanted {
+                            a.note(format!(
+                                "{}: bisagra {} en {} ({}), corresponde {wanted}",
+                                j.id, h.id, side.id, side.role
+                            ));
+                        }
+                    }
                     if cup_op.face != Face::Front {
                         a.note(format!(
                             "{}: cazoleta {} en {:?}, no en la cara interior",
@@ -386,17 +409,41 @@ fn audit(name: &str, plan: &ManufacturingPlan, libs: &Libraries, allowed: &[&str
                 }
                 "handle" => {
                     let door = edge;
-                    if on_edge.len() != 2 {
-                        a.note(format!("{}: {} agujeros de tirador", j.id, on_edge.len()));
+                    let Some(def) = hw.iter().find(|h| h.id == f.hardware) else {
+                        a.note(format!("{}: tirador desconocido {}", j.id, f.hardware));
+                        continue;
+                    };
+                    if on_edge.len() != def.holes.len() {
+                        a.note(format!(
+                            "{}: {} agujeros de tirador, {} declara {}",
+                            j.id,
+                            on_edge.len(),
+                            def.id,
+                            def.holes.len()
+                        ));
                         continue;
                     }
-                    let (o1, w1) = on_edge[0];
-                    let (o2, w2) = on_edge[1];
-                    let span = (w1 - w2).length();
-                    if (span - 128.0).abs() > EPS {
-                        a.note(format!("{}: tirador con agujeros a {span} mm", j.id));
+                    // A bar's two holes its centre distance apart; a knob
+                    // one hole at the point.
+                    let offsets: Vec<f64> = def
+                        .holes
+                        .iter()
+                        .map(|h| h.offset_along.unwrap_or(0.0))
+                        .collect();
+                    let expected = offsets.iter().cloned().fold(f64::MIN, f64::max)
+                        - offsets.iter().cloned().fold(f64::MAX, f64::min);
+                    let span = on_edge
+                        .iter()
+                        .map(|(_, w)| (*w - p).length())
+                        .fold(0.0, f64::max)
+                        * if on_edge.len() > 1 { 2.0 } else { 1.0 };
+                    if (span - expected).abs() > EPS {
+                        a.note(format!(
+                            "{}: tirador con agujeros a {span} mm (espera {expected})",
+                            j.id
+                        ));
                     }
-                    for op in [o1, o2] {
+                    for (op, _) in &on_edge {
                         if !matches!(&op.geometry, OpGeometry::Drill { through: true, .. }) {
                             a.note(format!("{}: {} de tirador no es pasante", j.id, op.id));
                         }
@@ -433,6 +480,56 @@ fn audit(name: &str, plan: &ManufacturingPlan, libs: &Libraries, allowed: &[&str
                                 op.id,
                                 d.length()
                             ));
+                        }
+                    }
+                    let kind = hw
+                        .iter()
+                        .find(|h| h.id == f.hardware)
+                        .map(|h| h.kind.as_str())
+                        .unwrap_or("");
+                    if kind == "catch" {
+                        // Body flush with the panel's front edge (or the
+                        // door's back), screws just behind it; every hole
+                        // on the face looking into the bay.
+                        let panel = face;
+                        let from_front = panel.aabb.max.1 - p.1;
+                        if !(15.0..=45.0).contains(&from_front) {
+                            a.note(format!(
+                                "{}: cierre a {from_front} mm del frente de {}",
+                                j.id, panel.id
+                            ));
+                        }
+                        if on_face.len() < 2 {
+                            a.note(format!("{}: cierre con {} tornillos", j.id, on_face.len()));
+                        }
+                        // The door it holds carries the plate, right in
+                        // front of the body (within its reach in x and z).
+                        let plate = plan.joints.iter().find(|x| {
+                            x.kind == "fixture"
+                                && x.component == j.component
+                                && part(plan, &x.face_part).role.contains("door")
+                                && (x.contact.min.2 - p.2).abs() < 15.0
+                                && (x.contact.min.0 - p.0).abs() < 15.0
+                        });
+                        if plate.is_none() {
+                            a.note(format!(
+                                "{}: cierre en {} sin placa enfrentada en una puerta",
+                                j.id, panel.id
+                            ));
+                        }
+                    }
+                    if kind == "strike" {
+                        let door = face;
+                        for (op, _) in &on_face {
+                            if op.face != Face::Front {
+                                a.note(format!(
+                                    "{}: placa de cierre en {:?} de {}",
+                                    j.id, op.face, door.id
+                                ));
+                            }
+                        }
+                        if (p.1 - door.aabb.min.1).abs() > EPS {
+                            a.note(format!("{}: placa fuera del dorso de {}", j.id, door.id));
                         }
                     }
                     if f.hardware.starts_with("leg") {
@@ -570,6 +667,7 @@ fn variants() -> Vec<(String, String, Vec<&'static str>)> {
         "bookcase_adjustable",
         "tv_unit",
         "desk",
+        "sideboard",
     ] {
         let path = format!(
             "{}/../../fixtures/{f}/input.json",
@@ -601,9 +699,23 @@ fn variants() -> Vec<(String, String, Vec<&'static str>)> {
   "components": [
     {{ "type": "carcass", "id": "c", "joint": {{ "hardware": ["minifix_15", "dowel_8x30"] }}, "back": {{ "material": "hdf_3" }}, "legs": {{ "plinth": {{ "setback": 40 }} }} }},
     {{ "type": "shelves", "id": "s", "count": 2, "joint": {{ "hardware": ["dowel_8x30"] }} }},
-    {{ "type": "doors", "id": "d", "count": {doors}, "mount": "{mount}", "handle": {{ "hardware": ["handle_bar_128"] }} }}
+    {{ "type": "doors", "id": "d", "count": {doors}, "mount": "{mount}", {options} "handle": {{ "hardware": ["{handle}"] }} }}
   ]
-}}"#
+}}"#,
+                    // Overlay doors get a magnetic catch, inset ones
+                    // soft-close hinges; handles rotate through the bars
+                    // and the knob.
+                    options = if mount == "overlay" {
+                        r#""catch": {},"#
+                    } else {
+                        r#""softClose": true,"#
+                    },
+                    handle = [
+                        "handle_bar_96",
+                        "handle_bar_160",
+                        "knob_single",
+                        "handle_bar_320"
+                    ][(w as usize / 100 + doors) % 4],
                 );
                 out.push((
                     name,
@@ -651,9 +763,16 @@ fn variants() -> Vec<(String, String, Vec<&'static str>)> {
   "material": "melamine_18", "edgeMaterial": "abs_1mm",
   "components": [
     {{ "type": "carcass", "id": "c", "joint": {{ "hardware": ["minifix_15", "dowel_8x30"] }}, "back": {{ "material": "hdf_3" }} }},
-    {{ "type": "drawers", "id": "dr", "count": {n}, "joint": {{ "hardware": ["dowel_8x30"], "placement": {{ "endOffset": 40, "maxSpacing": 150 }} }}, "slide": {{ "hardware": ["slide_ball_450"] }}, "handle": {{ "hardware": ["handle_bar_128"] }} }}
+    {{ "type": "drawers", "id": "dr", "count": {n}, "softClose": {soft}, "joint": {{ "hardware": ["dowel_8x30"], "placement": {{ "endOffset": 40, "maxSpacing": 150 }} }}, "slide": {{ "hardware": ["{slide}"] }}, "handle": {{ "hardware": ["handle_bar_128"] }} }}
   ]
-}}"#
+}}"#,
+            soft = n % 2 == 0,
+            slide = [
+                "slide_ball_450",
+                "slide_roller_400",
+                "slide_ball_400",
+                "slide_ball_250"
+            ][n % 4],
         );
         out.push((name, spec, vec!["DESIGN-111", "DESIGN-112"]));
     }
@@ -670,8 +789,8 @@ fn variants() -> Vec<(String, String, Vec<&'static str>)> {
     {{ "type": "rail", "id": "rail", "bay": 1 }},
     {{ "type": "drawers", "id": "dr", "bay": 2, "zone": {{ "from": 0, "to": 600 }}, "count": 2, "joint": {{ "hardware": ["dowel_8x30"], "placement": {{ "endOffset": 40, "maxSpacing": 150 }} }}, "slide": {{ "hardware": ["slide_ball_450"] }}, "handle": {{ "hardware": ["handle_bar_128"] }} }},
     {{ "type": "shelves", "id": "s", "bay": 2, "zone": {{ "from": 600, "to": "height" }}, "count": 3, "joint": {{ "hardware": ["dowel_8x30"] }} }},
-    {{ "type": "doors", "id": "d1", "bay": 1, "count": 1, "handle": {{ "hardware": ["handle_bar_128"] }} }},
-    {{ "type": "doors", "id": "d2", "bay": 2, "zone": {{ "from": 600, "to": "height" }}, "count": 1, "handle": {{ "hardware": ["handle_bar_128"] }} }}
+    {{ "type": "doors", "id": "d1", "bay": 1, "count": 1, "catch": {{ "hardware": ["push_latch"] }} }},
+    {{ "type": "doors", "id": "d2", "bay": 2, "zone": {{ "from": 600, "to": "height" }}, "count": 1, "softClose": true, "handle": {{ "hardware": ["handle_bar_128"] }} }}
   ]
 }}"#
         );

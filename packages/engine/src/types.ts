@@ -150,10 +150,19 @@ export interface DoorsSpec {
   count: NumOrExpr;
   gap?: NumOrExpr;
   material?: string;
-  /** Hinges per door; `null` = none. Defaults to `hinge_35_overlay`. */
+  /** Hinges per door; `null` = none. Defaults to `hinge_35_overlay`. Names the family: the engine picks the arm (overlay / half overlay on a divider / inset). */
   hinge?: JointSpec | null;
+  /** `true` swaps the damped hinge variant in, `false` the plain one; omitted keeps `hinge`. */
+  softClose?: boolean;
+  /** A catch on the panel opposite the hinge (or under the top for a pair of doors) with its plate on the door. */
+  catch?: CatchSpec;
   handle?: HandleSpec;
   edges?: EdgeBanding;
+}
+
+export interface CatchSpec {
+  /** `kind: catch` hardware; default `magnetic_catch`. */
+  hardware?: string[];
 }
 
 export interface DrawersSpec {
@@ -178,6 +187,8 @@ export interface DrawersSpec {
   joint: JointSpec;
   /** One slide hardware id; its `slide` block sets the box depth. */
   slide: JointSpec;
+  /** `true` swaps the damped slide of the same length and style in, `false` the plain one; omitted keeps `slide`. */
+  softClose?: boolean;
   /** Screws fixing the front to the box front; `null` = not modelled. Defaults to `screw_4x30_face`. */
   frontFixing?: JointSpec | null;
   handle?: HandleSpec;
@@ -245,15 +256,17 @@ export interface HardwareDef {
   supplier?: string;
   /** What one unit carries, kg (hinge: its share of the door; slide pair: the loaded drawer). */
   maxLoadKg?: number;
-  /** Hinges: which door mount the arm is made for. */
-  hinge?: { mount: FrontMount };
+  /** Hinges: which door mount the arm is made for, damper, opening angle (default 110). */
+  hinge?: { mount: FrontMount | 'half_overlay'; softClose?: boolean; opening?: number };
+  /** Catches: the plate on the door (`kind: strike`); `push` = a push latch. */
+  catch?: { strike?: string; push?: boolean };
   id: string;
   name: string;
   kind: string;
   compatibleThickness: [number, number];
   placement: PlacementRule;
-  /** Slides only. */
-  slide?: { length: number; sideClearance: number; axisFromBoxBottom: number };
+  /** Slides only. `style` `ball` (default) or `roller`. */
+  slide?: { length: number; sideClearance: number; axisFromBoxBottom: number; softClose?: boolean; style?: string };
   /** Legs only. */
   leg?: { height: number; baseDiameter: number };
   holes: HoleSpec[];

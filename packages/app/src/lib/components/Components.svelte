@@ -12,7 +12,13 @@
 	const materials = $derived(Object.values(libs?.materials.materials ?? {}));
 	const edgeMaterials = $derived(Object.values(libs?.materials.edgeMaterials ?? {}));
 	const byKind = (kinds: string[]) => hardware.filter((h) => kinds.includes(h.kind));
-	const fasteners = $derived(hardware.filter((h) => !['hinge', 'slide', 'handle', 'leg', 'clip'].includes(h.kind)));
+	const fasteners = $derived(
+		hardware.filter((h) => !['hinge', 'slide', 'handle', 'leg', 'clip', 'rail_support', 'rail', 'hanger', 'pin_row', 'pin', 'catch', 'strike'].includes(h.kind))
+	);
+	// Base variants: the engine swaps the arm and the damper in itself.
+	const hingeFamilies = $derived(byKind(['hinge']).filter((h) => !h.hinge?.softClose && h.hinge?.mount !== 'half_overlay' && h.hinge?.mount !== 'inset'));
+	const plainSlides = $derived(byKind(['slide']).filter((h) => !h.slide?.softClose));
+	const catches = $derived(byKind(['catch']));
 
 	/** Number or expression from a text field. */
 	function numOrExpr(raw: string): NumOrExpr {
@@ -298,9 +304,10 @@
 						<label class="row"><span>alto caja</span><input placeholder="frente − 40" value={show(c.boxHeight)} onchange={(e) => setField(c, 'boxHeight', e.currentTarget.value, true)} /></label>
 						<div class="row"><span>corredera</span>
 							<select value={c.slide.hardware[0] ?? ''} onchange={(e) => { c.slide.hardware = [e.currentTarget.value]; app.touch(); }}>
-								{#each byKind(['slide']) as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
+								{#each plainSlides as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
 							</select>
 						</div>
+						<label class="row"><span>cierre suave</span><input type="checkbox" checked={!!c.softClose} onchange={(e) => { if (e.currentTarget.checked) c.softClose = true; else delete c.softClose; app.touch(); }} /></label>
 					{/if}
 					{#if c.type === 'worktop'}
 						<label class="row"><span>vuelo frente</span><input value={show(c.overhang?.front ?? 20)} onchange={(e) => { c.overhang ??= {}; c.overhang.front = numOrExpr(e.currentTarget.value); app.touch(); }} /></label>
@@ -341,10 +348,17 @@
 								<input type="checkbox" checked={c.hinge !== null} onchange={(e) => setOptionalJoint(c, 'hinge', e.currentTarget.checked, 'hinge_35_overlay')} />
 								{#if c.hinge !== null}
 									<select value={c.hinge?.hardware[0] ?? 'hinge_35_overlay'} onchange={(e) => { c.hinge = { hardware: [e.currentTarget.value] }; app.touch(); }}>
-										{#each byKind(['hinge']) as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
+										{#each hingeFamilies as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
 									</select>
+									<label class="inline"><input type="checkbox" checked={!!c.softClose} onchange={(e) => { if (e.currentTarget.checked) c.softClose = true; else delete c.softClose; app.touch(); }} /> cierre suave</label>
 								{/if}
 							</span>
+						</div>
+						<div class="row"><span>cierre</span>
+							<select value={c.catch?.hardware?.[0] ?? ''} onchange={(e) => { const v = e.currentTarget.value; if (v) c.catch = { hardware: [v] }; else delete c.catch; app.touch(); }}>
+								<option value="">— ninguno —</option>
+								{#each catches as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
+							</select>
 						</div>
 					{/if}
 					{#if c.type === 'doors' || c.type === 'drawers'}

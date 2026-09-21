@@ -155,6 +155,10 @@ pub struct HardwareDef {
     /// Hinges only: which door mount the arm is made for.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hinge: Option<HingeSpec>,
+    /// Catches only (magnetic catch, push latch): the plate that goes on
+    /// the door to meet it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub catch: Option<CatchSpec>,
     /// What one unit carries, kg: a hinge its share of the door, a slide
     /// (per pair) the drawer with its contents, a leg its share of the
     /// furniture. `None` = the library does not say, no check.
@@ -176,13 +180,52 @@ pub struct SlideSpec {
     pub side_clearance: f64,
     /// Height of the hole line above the drawer box bottom.
     pub axis_from_box_bottom: f64,
+    /// Same slide with a damper: the variant `softClose: true` on the
+    /// drawers swaps in.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub soft_close: bool,
+    /// `ball` (telescopic, full extension) or `roller` (three-quarter
+    /// extension, the cheap one). Variants are swapped within a style.
+    #[serde(default = "slide_style_ball")]
+    pub style: String,
+}
+
+fn slide_style_ball() -> String {
+    "ball".into()
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct HingeSpec {
-    /// `overlay` or `inset`, matching `FrontMount`.
+    /// `overlay`, `half_overlay` (a door meeting another on a divider) or
+    /// `inset`. The doors generator picks the mount from the geometry and
+    /// swaps the hinge for the library's variant of the same opening
+    /// angle.
     pub mount: String,
+    /// Built-in damper; swapped in by `softClose: true` on the doors.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub soft_close: bool,
+    /// Opening angle, degrees; variants are swapped within one angle.
+    #[serde(default = "hinge_opening")]
+    pub opening: f64,
+}
+
+fn hinge_opening() -> f64 {
+    110.0
+}
+
+/// A catch on a carcass panel and the plate on the door that meets it.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct CatchSpec {
+    /// Hardware id of the plate screwed to the door (`kind: strike`);
+    /// `None` = nothing on the door (an adhesive plate is a BOM item).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub strike: Option<String>,
+    /// A push latch: the door opens by pressing it, so it needs unsprung
+    /// hinges and no handle.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub push: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -205,7 +248,7 @@ impl HardwareDef {
             JointKind::Fixture { .. } => {
                 matches!(
                     self.kind.as_str(),
-                    "leg" | "clip" | "rail_support" | "hanger"
+                    "leg" | "clip" | "rail_support" | "hanger" | "catch" | "strike"
                 )
             }
             JointKind::Row { .. } => self.kind == "pin_row",
@@ -221,6 +264,8 @@ impl HardwareDef {
                     | "hanger"
                     | "pin_row"
                     | "pin"
+                    | "catch"
+                    | "strike"
             ),
         }
     }

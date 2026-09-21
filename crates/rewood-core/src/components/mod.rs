@@ -201,6 +201,14 @@ pub struct BuildCtx<'a> {
 
 /// World axes whose facing edges get banded, from the component's choice
 /// and the generator's default. `Front` is the edge facing +Y.
+fn mount_es(mount: &str) -> &'static str {
+    match mount {
+        "inset" => "embutida",
+        "half_overlay" => "de media superposición",
+        _ => "superpuesta",
+    }
+}
+
 pub fn banded_axes(choice: EdgeBanding, default: &[Axis]) -> Vec<Axis> {
     match choice {
         EdgeBanding::Default => default.to_vec(),
@@ -595,16 +603,19 @@ impl<'a> BuildCtx<'a> {
     /// an inset door is swapped for the library's inset hinge; anything
     /// else that does not match is an error, because the arm geometry
     /// decides where the plate goes.
-    pub fn hinge_for_mount(
+    /// The hinge a door actually needs: the arm for how it sits on its
+    /// panel (`overlay`, `half_overlay` on a divider shared with another
+    /// door, `inset`) and, if the doors say so, with or without a damper.
+    /// The spec's hinge names the family (Ø35 cup, its opening angle);
+    /// the variant is the library's item of that angle with the wanted
+    /// mount and damper. `SPEC-314` when the library has none.
+    pub fn hinge_variant(
         &self,
         component: &str,
         hinge: &JointSpec,
-        mount: crate::spec::FrontMount,
+        mount: &str,
+        soft_close: Option<bool>,
     ) -> Result<JointSpec, Diagnostic> {
-        let wanted = match mount {
-            crate::spec::FrontMount::Overlay => "overlay",
-            crate::spec::FrontMount::Inset => "inset",
-        };
         let mut out = hinge.clone();
         for h in &mut out.hardware {
             let Some(def) = self.libs.hardware.get(h) else {
@@ -613,37 +624,92 @@ impl<'a> BuildCtx<'a> {
             let Some(spec) = &def.hinge else {
                 continue;
             };
-            if spec.mount == wanted {
+            let soft = soft_close.unwrap_or(spec.soft_close);
+            if spec.mount == mount && spec.soft_close == soft {
                 continue;
             }
-            if h == "hinge_35_overlay" && wanted == "inset" {
-                if let Some(alt) = self.libs.hardware.iter().find(|d| {
-                    d.kind == "hinge" && d.hinge.as_ref().is_some_and(|s| s.mount == "inset")
-                }) {
-                    *h = alt.id.clone();
-                    continue;
+            let alt = self.libs.hardware.iter().find(|d| {
+                d.kind == "hinge"
+                    && d.hinge.as_ref().is_some_and(|s| {
+                        s.mount == mount
+                            && s.soft_close == soft
+                            && (s.opening - spec.opening).abs() < crate::units::EPS
+                    })
+            });
+            match alt {
+                Some(alt) => *h = alt.id.clone(),
+                None => {
+                    return Err(Diagnostic::new(
+                        "SPEC-314",
+                        Severity::Fatal,
+                        format!(
+                            "'{component}': no hay una bisagra {}{} de {}° como '{}' en la biblioteca",
+                            mount_es(mount),
+                            if soft { " con cierre suave" } else { "" },
+                            spec.opening,
+                            def.name
+                        ),
+                    )
+                    .entity(component)
+                    .suggestion(
+                        "Elegí otra familia de bisagra, o agregá la variante en libraries.hardware.",
+                    ));
                 }
             }
-            return Err(Diagnostic::new(
-                "SPEC-314",
-                Severity::Fatal,
-                format!(
-                    "'{component}': la bisagra '{}' es {} y la puerta va {}",
-                    def.name,
-                    if spec.mount == "inset" {
-                        "embutida"
-                    } else {
-                        "superpuesta"
-                    },
-                    if wanted == "inset" {
-                        "embutida"
-                    } else {
-                        "superpuesta"
-                    }
-                ),
-            )
-            .entity(component)
-            .suggestion("Elegí una bisagra del mismo montaje que la puerta ('mount')."));
+        }
+        Ok(out)
+    }
+
+    /// The slide a drawer actually needs: the spec's slide names length
+    /// and style, `softClose` picks the damped variant of the same length
+    /// and style (or the plain one). `SPEC-321` when the library has none.
+    pub fn slide_variant(
+        &self,
+        component: &str,
+        slide: &JointSpec,
+        soft_close: Option<bool>,
+    ) -> Result<JointSpec, Diagnostic> {
+        let Some(soft) = soft_close else {
+            return Ok(slide.clone());
+        };
+        let mut out = slide.clone();
+        for h in &mut out.hardware {
+            let Some(def) = self.libs.hardware.get(h) else {
+                continue;
+            };
+            let Some(spec) = &def.slide else {
+                continue;
+            };
+            if spec.soft_close == soft {
+                continue;
+            }
+            let alt = self.libs.hardware.iter().find(|d| {
+                d.kind == "slide"
+                    && d.slide.as_ref().is_some_and(|s| {
+                        s.soft_close == soft
+                            && s.style == spec.style
+                            && (s.length - spec.length).abs() < crate::units::EPS
+                            && (s.side_clearance - spec.side_clearance).abs() < crate::units::EPS
+                    })
+            });
+            match alt {
+                Some(alt) => *h = alt.id.clone(),
+                None => {
+                    return Err(Diagnostic::new(
+                        "SPEC-321",
+                        Severity::Fatal,
+                        format!(
+                            "'{component}': no hay una corredera como '{}' {} cierre suave en la biblioteca",
+                            def.name,
+                            if soft { "con" } else { "sin" }
+                        ),
+                    )
+                    .entity(component)
+                    .suggestion(
+                        "Las de rodillo no vienen con cierre suave: elegí una telescópica a bolillas, o sacá 'softClose'.",
+                    ));
+                }
+            }
         }
         Ok(out)
     }

@@ -34,6 +34,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         bottom_groove,
         joint,
         slide,
+        soft_close,
         front_fixing,
         handle,
         edges,
@@ -42,6 +43,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         unreachable!()
     };
     let id = id.as_str();
+    // The damped (or plain) variant of the slide the spec names.
+    let slide = &ctx.slide_variant(id, slide, *soft_close)?;
 
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
     let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
@@ -198,12 +201,19 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         .entity(id)
         .suggestion("Elegí una corredera más corta o una carcasa más profunda.")
         .fix_opt(
-            // The longest slide in the library that fits, if any.
+            // The longest slide of the same style and damping in the
+            // library that fits, if any.
             ctx.libs
                 .hardware
                 .iter()
                 .filter(|h| h.kind == "slide")
-                .filter(|h| h.slide.as_ref().is_some_and(|s| s.length + 10.0 <= available_depth))
+                .filter(|h| {
+                    h.slide.as_ref().is_some_and(|s| {
+                        s.length + 10.0 <= available_depth
+                            && s.style == slide_def.style
+                            && s.soft_close == slide_def.soft_close
+                    })
+                })
                 .max_by(|a, b| {
                     a.slide
                         .as_ref()

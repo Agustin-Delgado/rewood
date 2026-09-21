@@ -2211,7 +2211,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 0,
             "label": "plate_a"
           }
@@ -2227,7 +2227,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 0,
             "label": "plate_b"
           }
@@ -2243,7 +2243,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 1,
             "label": "plate_a"
           }
@@ -2259,7 +2259,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 1,
             "label": "plate_b"
           }
@@ -2275,7 +2275,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 2,
             "label": "plate_a"
           }
@@ -2291,7 +2291,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 2,
             "label": "plate_b"
           }
@@ -6550,7 +6550,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 0,
             "label": "cup"
           }
@@ -6566,7 +6566,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 0,
             "label": "cup_pilot_a"
           }
@@ -6582,7 +6582,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 0,
             "label": "cup_pilot_b"
           }
@@ -6598,7 +6598,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 1,
             "label": "cup"
           }
@@ -6614,7 +6614,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 1,
             "label": "cup_pilot_a"
           }
@@ -6630,7 +6630,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 1,
             "label": "cup_pilot_b"
           }
@@ -6646,7 +6646,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 2,
             "label": "cup"
           }
@@ -6662,7 +6662,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 2,
             "label": "cup_pilot_a"
           }
@@ -6678,7 +6678,7 @@
           "through": false,
           "source": {
             "joint": "J043",
-            "hardware": "hinge_35_overlay",
+            "hardware": "hinge_35_half",
             "fastener": 2,
             "label": "cup_pilot_b"
           }
@@ -8803,7 +8803,7 @@
       "edgePart": "P031",
       "facePart": "P006",
       "hardware": [
-        "hinge_35_overlay"
+        "hinge_35_half"
       ],
       "contact": {
         "min": [
@@ -8821,7 +8821,7 @@
       "length": 1296.0,
       "fasteners": [
         {
-          "hardware": "hinge_35_overlay",
+          "hardware": "hinge_35_half",
           "index": 0,
           "position": [
             605.0,
@@ -8830,7 +8830,7 @@
           ]
         },
         {
-          "hardware": "hinge_35_overlay",
+          "hardware": "hinge_35_half",
           "index": 1,
           "position": [
             605.0,
@@ -8839,7 +8839,7 @@
           ]
         },
         {
-          "hardware": "hinge_35_overlay",
+          "hardware": "hinge_35_half",
           "index": 2,
           "position": [
             605.0,
@@ -9232,18 +9232,36 @@
         "cost": 0.0
       },
       {
-        "hardware": "hinge_35_overlay",
-        "name": "Bisagra cazoleta Ø35 superpuesta (base cruz)",
-        "quantity": 8,
+        "hardware": "hinge_35_half",
+        "name": "Bisagra cazoleta Ø35 media superposición (codo 9)",
+        "quantity": 3,
         "items": [
           {
-            "name": "Bisagra cazoleta Ø35 superpuesta",
-            "quantity": 8.0,
+            "name": "Bisagra cazoleta Ø35 media superposición",
+            "quantity": 3.0,
             "cost": 0.0
           },
           {
             "name": "Base de bisagra cruz H0",
-            "quantity": 8.0,
+            "quantity": 3.0,
+            "cost": 0.0
+          }
+        ],
+        "cost": 0.0
+      },
+      {
+        "hardware": "hinge_35_overlay",
+        "name": "Bisagra cazoleta Ø35 superpuesta (base cruz)",
+        "quantity": 5,
+        "items": [
+          {
+            "name": "Bisagra cazoleta Ø35 superpuesta",
+            "quantity": 5.0,
+            "cost": 0.0
+          },
+          {
+            "name": "Base de bisagra cruz H0",
+            "quantity": 5.0,
             "cost": 0.0
           }
         ],
@@ -9316,6 +9334,7 @@
       "dowel_8x30",
       "handle_bar_128",
       "hdf_3",
+      "hinge_35_half",
       "hinge_35_overlay",
       "melamine_18",
       "minifix_15",
@@ -10041,7 +10060,7 @@
       "lines": [
         {
           "kind": "hardware",
-          "id": "hinge_35_overlay",
+          "id": "hinge_35_half,hinge_35_overlay",
           "name": "Base de bisagra cruz H0",
           "quantity": 8.0,
           "unit": "u",
@@ -10050,9 +10069,18 @@
         },
         {
           "kind": "hardware",
+          "id": "hinge_35_half",
+          "name": "Bisagra cazoleta Ø35 media superposición",
+          "quantity": 3.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
           "id": "hinge_35_overlay",
           "name": "Bisagra cazoleta Ø35 superpuesta",
-          "quantity": 8.0,
+          "quantity": 5.0,
           "unit": "u",
           "unitPrice": 0.0,
           "cost": 0.0

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "_note": "Hole diameters, depths and offsets are indicative defaults for 18 mm panels (Minifix B34 / 35 mm cup hinge with 45/9.5 pilot pattern and 37 mm plate line). Verify against the supplier's catalog before manufacturing; the engine treats these as data. maxLoadKg is the load one unit carries (a hinge its share of the door, a slide pair the loaded drawer, a leg its share of the furniture); the design rules compare part weights against it. hinge_35_inset keeps the plate line 37 mm from the carcass front edge; its offsetFromEdge is measured from an 18 mm door's back plane. A rail's bomItems are per metre of bar.",
+  "_note": "Hole diameters, depths and offsets are indicative defaults for 18 mm panels (Minifix B34 / 35 mm cup hinge with 45/9.5 pilot pattern and 37 mm plate line). Verify against the supplier's catalog before manufacturing; the engine treats these as data. maxLoadKg is the load one unit carries (a hinge its share of the door, a slide pair the loaded drawer, a leg its share of the furniture); the design rules compare part weights against it. hinge_35_inset keeps the plate line 37 mm from the carcass front edge; its offsetFromEdge is measured from an 18 mm door's back plane. A rail's bomItems are per metre of bar. Slides: ball-bearing telescopic (full extension) and roller (three-quarter) in 50 mm steps; `softClose` variants share the drilling and are swapped in by the drawers' `softClose`. Hinges: overlay / half_overlay (a door on a divider) / inset, plain and soft-close, chosen by the doors generator from the geometry within one opening angle. Catches (magnetic, push) sit on the panel opposite the hinge; their `catch.strike` is the plate on the door; their screws keep clear of the 37 mm line where hinge plates, slides and pin rows sit.",
   "hardware": [
     {
       "id": "minifix_15",
@@ -311,8 +311,472 @@
       }
     },
     {
-      "id": "slide_ball_450",
-      "name": "Corredera telescópica a bolillas 450 mm (unidad)",
+      "id": "hinge_35_half",
+      "name": "Bisagra cazoleta Ø35 media superposición (codo 9)",
+      "kind": "hinge",
+      "maxLoadKg": 5,
+      "compatibleThickness": [
+        16,
+        22
+      ],
+      "placement": {
+        "endOffset": 100,
+        "maxSpacing": 750,
+        "countByLength": [
+          [
+            900,
+            2
+          ],
+          [
+            1500,
+            3
+          ],
+          [
+            2000,
+            4
+          ],
+          [
+            2400,
+            5
+          ]
+        ]
+      },
+      "holes": [
+        {
+          "label": "cup",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 22.5,
+          "diameter": 35,
+          "depth": 12.5
+        },
+        {
+          "label": "cup_pilot_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": 22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "cup_pilot_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": -22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "plate_a",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": 16,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "plate_b",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": -16,
+          "diameter": 5,
+          "depth": 11
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Bisagra cazoleta Ø35 media superposición",
+          "quantity": 1
+        },
+        {
+          "name": "Base de bisagra cruz H0",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier",
+      "hinge": {
+        "mount": "half_overlay"
+      }
+    },
+    {
+      "id": "hinge_35_overlay_soft",
+      "name": "Bisagra cazoleta Ø35 superpuesta con cierre suave",
+      "kind": "hinge",
+      "maxLoadKg": 5,
+      "compatibleThickness": [
+        16,
+        22
+      ],
+      "placement": {
+        "endOffset": 100,
+        "maxSpacing": 750,
+        "countByLength": [
+          [
+            900,
+            2
+          ],
+          [
+            1500,
+            3
+          ],
+          [
+            2000,
+            4
+          ],
+          [
+            2400,
+            5
+          ]
+        ]
+      },
+      "holes": [
+        {
+          "label": "cup",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 22.5,
+          "diameter": 35,
+          "depth": 12.5
+        },
+        {
+          "label": "cup_pilot_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": 22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "cup_pilot_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": -22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "plate_a",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": 16,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "plate_b",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": -16,
+          "diameter": 5,
+          "depth": 11
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Bisagra cazoleta Ø35 superpuesta con cierre suave",
+          "quantity": 1
+        },
+        {
+          "name": "Base de bisagra cruz H0",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier",
+      "hinge": {
+        "mount": "overlay",
+        "softClose": true
+      }
+    },
+    {
+      "id": "hinge_35_half_soft",
+      "name": "Bisagra cazoleta Ø35 media superposición con cierre suave",
+      "kind": "hinge",
+      "maxLoadKg": 5,
+      "compatibleThickness": [
+        16,
+        22
+      ],
+      "placement": {
+        "endOffset": 100,
+        "maxSpacing": 750,
+        "countByLength": [
+          [
+            900,
+            2
+          ],
+          [
+            1500,
+            3
+          ],
+          [
+            2000,
+            4
+          ],
+          [
+            2400,
+            5
+          ]
+        ]
+      },
+      "holes": [
+        {
+          "label": "cup",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 22.5,
+          "diameter": 35,
+          "depth": 12.5
+        },
+        {
+          "label": "cup_pilot_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": 22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "cup_pilot_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": -22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "plate_a",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": 16,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "plate_b",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": -16,
+          "diameter": 5,
+          "depth": 11
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Bisagra cazoleta Ø35 media superposición con cierre suave",
+          "quantity": 1
+        },
+        {
+          "name": "Base de bisagra cruz H0",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier",
+      "hinge": {
+        "mount": "half_overlay",
+        "softClose": true
+      }
+    },
+    {
+      "id": "hinge_35_inset_soft",
+      "name": "Bisagra cazoleta Ø35 embutida con cierre suave",
+      "kind": "hinge",
+      "maxLoadKg": 5,
+      "compatibleThickness": [
+        16,
+        22
+      ],
+      "placement": {
+        "endOffset": 100,
+        "maxSpacing": 750,
+        "countByLength": [
+          [
+            900,
+            2
+          ],
+          [
+            1500,
+            3
+          ],
+          [
+            2000,
+            4
+          ],
+          [
+            2400,
+            5
+          ]
+        ]
+      },
+      "holes": [
+        {
+          "label": "cup",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 22.5,
+          "diameter": 35,
+          "depth": 12.5
+        },
+        {
+          "label": "cup_pilot_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": 22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "cup_pilot_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": -22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "plate_a",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 19,
+          "offsetAlong": 16,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "plate_b",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 19,
+          "offsetAlong": -16,
+          "diameter": 5,
+          "depth": 11
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Bisagra cazoleta Ø35 embutida con cierre suave",
+          "quantity": 1
+        },
+        {
+          "name": "Base de bisagra cruz H0",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier",
+      "hinge": {
+        "mount": "inset",
+        "softClose": true
+      }
+    },
+    {
+      "id": "hinge_35_overlay_165",
+      "name": "Bisagra cazoleta Ø35 superpuesta gran ángulo 165°",
+      "kind": "hinge",
+      "maxLoadKg": 5,
+      "compatibleThickness": [
+        16,
+        22
+      ],
+      "placement": {
+        "endOffset": 100,
+        "maxSpacing": 750,
+        "countByLength": [
+          [
+            900,
+            2
+          ],
+          [
+            1500,
+            3
+          ],
+          [
+            2000,
+            4
+          ],
+          [
+            2400,
+            5
+          ]
+        ]
+      },
+      "holes": [
+        {
+          "label": "cup",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 22.5,
+          "diameter": 35,
+          "depth": 13
+        },
+        {
+          "label": "cup_pilot_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": 22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "cup_pilot_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 32,
+          "offsetAlong": -22.5,
+          "diameter": 8,
+          "depth": 11
+        },
+        {
+          "label": "plate_a",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": 16,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "plate_b",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": -16,
+          "diameter": 5,
+          "depth": 11
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Bisagra cazoleta Ø35 superpuesta 165°",
+          "quantity": 1
+        },
+        {
+          "name": "Base de bisagra cruz H0",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier",
+      "hinge": {
+        "mount": "overlay",
+        "opening": 165
+      }
+    },
+    {
+      "id": "slide_ball_250",
+      "name": "Corredera telescópica a bolillas 250 mm (unidad)",
       "kind": "slide",
       "maxLoadKg": 30,
       "compatibleThickness": [
@@ -327,7 +791,7 @@
         ]
       },
       "slide": {
-        "length": 450,
+        "length": 250,
         "sideClearance": 12.7,
         "axisFromBoxBottom": 22.5
       },
@@ -344,7 +808,7 @@
           "label": "cabinet_mid",
           "side": "face_part",
           "location": "contact_face",
-          "offsetAlong": 165,
+          "offsetAlong": 117,
           "diameter": 5,
           "depth": 11
         },
@@ -352,7 +816,7 @@
           "label": "cabinet_rear",
           "side": "face_part",
           "location": "contact_face",
-          "offsetAlong": 293,
+          "offsetAlong": 197,
           "diameter": 5,
           "depth": 11
         },
@@ -370,7 +834,7 @@
           "side": "edge_part",
           "location": "face_offset",
           "offsetFromEdge": 0,
-          "offsetAlong": 165,
+          "offsetAlong": 117,
           "diameter": 3,
           "depth": 10
         },
@@ -379,14 +843,100 @@
           "side": "edge_part",
           "location": "face_offset",
           "offsetFromEdge": 0,
-          "offsetAlong": 293,
+          "offsetAlong": 197,
           "diameter": 3,
           "depth": 10
         }
       ],
       "bomItems": [
         {
-          "name": "Corredera a bolillas 450 mm (unidad)",
+          "name": "Corredera a bolillas 250 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_300",
+      "name": "Corredera telescópica a bolillas 300 mm (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 300,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 149,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 261,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 149,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 261,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 300 mm (unidad)",
           "quantity": 1
         },
         {
@@ -483,6 +1033,1686 @@
       "supplier": "hardware_supplier"
     },
     {
+      "id": "slide_ball_400",
+      "name": "Corredera telescópica a bolillas 400 mm (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 400,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 197,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 357,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 197,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 357,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 400 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_450",
+      "name": "Corredera telescópica a bolillas 450 mm (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 450,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 165,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 293,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 165,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 293,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 450 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_500",
+      "name": "Corredera telescópica a bolillas 500 mm (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 500,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_a",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 165,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_b",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 293,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 421,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 165,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 293,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 421,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 500 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 8
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_550",
+      "name": "Corredera telescópica a bolillas 550 mm (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 550,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_a",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 197,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_b",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 357,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 517,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 197,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 357,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 517,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 550 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 8
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_600",
+      "name": "Corredera telescópica a bolillas 600 mm (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 600,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_a",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 197,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_b",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 357,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 517,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 197,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 357,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 517,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 600 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 8
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_soft_250",
+      "name": "Corredera telescópica a bolillas 250 mm con cierre suave (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 250,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5,
+        "softClose": true
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 117,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 197,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 117,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 197,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 250 mm cierre suave (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_soft_300",
+      "name": "Corredera telescópica a bolillas 300 mm con cierre suave (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 300,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5,
+        "softClose": true
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 149,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 261,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 149,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 261,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 300 mm cierre suave (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_soft_350",
+      "name": "Corredera telescópica a bolillas 350 mm con cierre suave (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 350,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5,
+        "softClose": true
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 133,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 229,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 133,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 229,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 350 mm cierre suave (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_soft_400",
+      "name": "Corredera telescópica a bolillas 400 mm con cierre suave (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 400,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5,
+        "softClose": true
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 197,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 357,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 197,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 357,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 400 mm cierre suave (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_soft_450",
+      "name": "Corredera telescópica a bolillas 450 mm con cierre suave (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 450,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5,
+        "softClose": true
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 165,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 293,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 165,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 293,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 450 mm cierre suave (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_soft_500",
+      "name": "Corredera telescópica a bolillas 500 mm con cierre suave (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 500,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5,
+        "softClose": true
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_a",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 165,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_b",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 293,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 421,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 165,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 293,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 421,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 500 mm cierre suave (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 8
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_soft_550",
+      "name": "Corredera telescópica a bolillas 550 mm con cierre suave (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 550,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5,
+        "softClose": true
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_a",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 197,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_b",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 357,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 517,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 197,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 357,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 517,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 550 mm cierre suave (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 8
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_ball_soft_600",
+      "name": "Corredera telescópica a bolillas 600 mm con cierre suave (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 30,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 600,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 22.5,
+        "softClose": true
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_a",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 197,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_mid_b",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 357,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 517,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 197,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 357,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 517,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera a bolillas 600 mm cierre suave (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×15 cabeza plana",
+          "quantity": 8
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_roller_300",
+      "name": "Corredera de rodillo 300 mm, extracción parcial (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 25,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 300,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 12.5,
+        "style": "roller"
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 149,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 261,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 149,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 261,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera de rodillo 300 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 3,5×16",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_roller_350",
+      "name": "Corredera de rodillo 350 mm, extracción parcial (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 25,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 350,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 12.5,
+        "style": "roller"
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 133,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 229,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 133,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 229,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera de rodillo 350 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 3,5×16",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_roller_400",
+      "name": "Corredera de rodillo 400 mm, extracción parcial (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 25,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 400,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 12.5,
+        "style": "roller"
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 197,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 357,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 197,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 357,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera de rodillo 400 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 3,5×16",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_roller_450",
+      "name": "Corredera de rodillo 450 mm, extracción parcial (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 25,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 450,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 12.5,
+        "style": "roller"
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "cabinet_mid",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 165,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 293,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 165,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 293,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera de rodillo 450 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 3,5×16",
+          "quantity": 6
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "slide_roller_500",
+      "name": "Corredera de rodillo 500 mm, extracción parcial (unidad)",
+      "kind": "slide",
+      "maxLoadKg": 25,
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "slide": {
+        "length": 500,
+        "sideClearance": 12.7,
+        "axisFromBoxBottom": 12.5,
+        "style": "roller"
+      },
+      "holes": [
+        {
+          "label": "cabinet_front",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "cabinet_mid_a",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 165,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "cabinet_mid_b",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 293,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "cabinet_rear",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 421,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "drawer_front",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 37,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 165,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_mid_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 293,
+          "diameter": 3,
+          "depth": 10
+        },
+        {
+          "label": "drawer_rear",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 421,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Corredera de rodillo 500 mm (unidad)",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 3,5×16",
+          "quantity": 8
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
       "id": "screw_4x30_face",
       "name": "Tornillo 4×30 cabeza plana (frente de cajón)",
       "kind": "screw",
@@ -566,6 +2796,346 @@
       "supplier": "hardware_supplier"
     },
     {
+      "id": "handle_bar_96",
+      "name": "Tirador barra 96 mm entre centros",
+      "kind": "handle",
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 48.0,
+          "diameter": 4.5,
+          "depth": null
+        },
+        {
+          "label": "screw_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": -48.0,
+          "diameter": 4.5,
+          "depth": null
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Tirador barra 96 mm",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo M4×25",
+          "quantity": 2
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "handle_bar_160",
+      "name": "Tirador barra 160 mm entre centros",
+      "kind": "handle",
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 80.0,
+          "diameter": 4.5,
+          "depth": null
+        },
+        {
+          "label": "screw_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": -80.0,
+          "diameter": 4.5,
+          "depth": null
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Tirador barra 160 mm",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo M4×25",
+          "quantity": 2
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "handle_bar_192",
+      "name": "Tirador barra 192 mm entre centros",
+      "kind": "handle",
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 96.0,
+          "diameter": 4.5,
+          "depth": null
+        },
+        {
+          "label": "screw_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": -96.0,
+          "diameter": 4.5,
+          "depth": null
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Tirador barra 192 mm",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo M4×25",
+          "quantity": 2
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "handle_bar_224",
+      "name": "Tirador barra 224 mm entre centros",
+      "kind": "handle",
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 112.0,
+          "diameter": 4.5,
+          "depth": null
+        },
+        {
+          "label": "screw_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": -112.0,
+          "diameter": 4.5,
+          "depth": null
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Tirador barra 224 mm",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo M4×25",
+          "quantity": 2
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "handle_bar_320",
+      "name": "Tirador barra 320 mm entre centros",
+      "kind": "handle",
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw_a",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 160.0,
+          "diameter": 4.5,
+          "depth": null
+        },
+        {
+          "label": "screw_b",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": -160.0,
+          "diameter": 4.5,
+          "depth": null
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Tirador barra 320 mm",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo M4×25",
+          "quantity": 2
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "knob_single",
+      "name": "Tirador botón (un tornillo)",
+      "kind": "handle",
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 0,
+          "offsetAlong": 0,
+          "diameter": 4.5,
+          "depth": null
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Tirador botón",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo M4×25",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "leg_adjustable_80",
+      "name": "Pata regulable 80 mm (base Ø50)",
+      "kind": "leg",
+      "maxLoadKg": 100,
+      "compatibleThickness": [
+        15,
+        25
+      ],
+      "placement": {
+        "endOffset": 50,
+        "maxSpacing": 600
+      },
+      "leg": {
+        "height": 80,
+        "baseDiameter": 50
+      },
+      "holes": [
+        {
+          "label": "screw_fl",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -16,
+          "offsetAcross": -16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_fr",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 16,
+          "offsetAcross": -16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_bl",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -16,
+          "offsetAcross": 16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_br",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 16,
+          "offsetAcross": 16,
+          "diameter": 3,
+          "depth": 12
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Pata regulable 80 mm",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×16",
+          "quantity": 4
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
       "id": "leg_adjustable_100",
       "name": "Pata regulable 100 mm (base Ø50)",
       "kind": "leg",
@@ -623,6 +3193,140 @@
       "bomItems": [
         {
           "name": "Pata regulable 100 mm",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×16",
+          "quantity": 4
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "leg_adjustable_120",
+      "name": "Pata regulable 120 mm (base Ø50)",
+      "kind": "leg",
+      "maxLoadKg": 100,
+      "compatibleThickness": [
+        15,
+        25
+      ],
+      "placement": {
+        "endOffset": 50,
+        "maxSpacing": 600
+      },
+      "leg": {
+        "height": 120,
+        "baseDiameter": 50
+      },
+      "holes": [
+        {
+          "label": "screw_fl",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -16,
+          "offsetAcross": -16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_fr",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 16,
+          "offsetAcross": -16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_bl",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -16,
+          "offsetAcross": 16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_br",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 16,
+          "offsetAcross": 16,
+          "diameter": 3,
+          "depth": 12
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Pata regulable 120 mm",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 4×16",
+          "quantity": 4
+        }
+      ],
+      "supplier": "hardware_supplier"
+    },
+    {
+      "id": "leg_adjustable_150",
+      "name": "Pata regulable 150 mm (base Ø50)",
+      "kind": "leg",
+      "maxLoadKg": 100,
+      "compatibleThickness": [
+        15,
+        25
+      ],
+      "placement": {
+        "endOffset": 50,
+        "maxSpacing": 600
+      },
+      "leg": {
+        "height": 150,
+        "baseDiameter": 50
+      },
+      "holes": [
+        {
+          "label": "screw_fl",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -16,
+          "offsetAcross": -16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_fr",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 16,
+          "offsetAcross": -16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_bl",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -16,
+          "offsetAcross": 16,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_br",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 16,
+          "offsetAcross": 16,
+          "diameter": 3,
+          "depth": 12
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Pata regulable 150 mm",
           "quantity": 1
         },
         {
@@ -849,6 +3553,177 @@
         {
           "name": "Tornillo 4×16",
           "quantity": 3
+        }
+      ]
+    },
+    {
+      "id": "magnetic_catch",
+      "name": "Cierre magnético",
+      "kind": "catch",
+      "supplier": "hardware_supplier",
+      "compatibleThickness": [
+        15,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "catch": {
+        "strike": "magnetic_strike"
+      },
+      "holes": [
+        {
+          "label": "screw_a",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -8,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_b",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 8,
+          "diameter": 3,
+          "depth": 12
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Cierre magnético",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 3,5×16",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "id": "magnetic_strike",
+      "name": "Contraplaca de cierre magnético",
+      "kind": "strike",
+      "supplier": "hardware_supplier",
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 0,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Contraplaca de cierre magnético",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 3,5×16",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "id": "push_latch",
+      "name": "Push-open para puerta (tip-on)",
+      "kind": "catch",
+      "supplier": "hardware_supplier",
+      "compatibleThickness": [
+        15,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "catch": {
+        "strike": "push_latch_plate",
+        "push": true
+      },
+      "holes": [
+        {
+          "label": "screw_a",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": -5,
+          "diameter": 3,
+          "depth": 12
+        },
+        {
+          "label": "screw_b",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 27,
+          "diameter": 3,
+          "depth": 12
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Push-open para puerta",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 3,5×16",
+          "quantity": 2
+        }
+      ]
+    },
+    {
+      "id": "push_latch_plate",
+      "name": "Placa de tope para push-open",
+      "kind": "strike",
+      "supplier": "hardware_supplier",
+      "compatibleThickness": [
+        12,
+        25
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [
+        {
+          "label": "screw",
+          "side": "face_part",
+          "location": "contact_face",
+          "offsetAlong": 0,
+          "diameter": 3,
+          "depth": 10
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Placa de tope push-open",
+          "quantity": 1
+        },
+        {
+          "name": "Tornillo 3,5×16",
+          "quantity": 1
         }
       ]
     }

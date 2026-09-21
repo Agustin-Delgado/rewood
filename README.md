@@ -41,7 +41,7 @@ packages/app         UI SvelteKit + Threlte: árbol, 3D, parámetros, hallazgos,
 fixtures/<nombre>/   input.json + expected.json (regresión byte a byte):
                      basic_cabinet, drawer_unit, wardrobe_1800, wardrobe_rail, bookcase_fixed,
                      bookcase_adjustable, kitchen_run, nightstand, wall_cabinet, tv_unit, desk,
-                     invalid_cabinet
+                     sideboard, invalid_cabinet
 ```
 
 Dentro de `rewood-core`:
@@ -286,22 +286,36 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   posición no cabe o van desordenadas.
 - Puertas: hasta 2 por bahía, colgadas del panel que la limita (`hinge`, por
   defecto `hinge_35_overlay`; `null` para no colgarlas). Con 1 puerta, cuelga
-  a la izquierda. Una puerta que apoya sobre un divisor lo superpone a medias:
-  el herraje correcto ahí es una bisagra de media superposición, y elegirlo es
-  cosa del `hinge.hardware` de ese componente. `handle` agrega un tirador
+  a la izquierda. **La bisagra nombra la familia (cazoleta Ø35, ángulo de
+  apertura); el brazo lo decide el motor por la geometría**: superpuesta
+  sobre un lateral, **media superposición** (`hinge_35_half`, codo 9) sobre
+  un divisor que comparte con la puerta vecina, embutida con `mount: inset`.
+  `softClose: true` cambia por la variante con cierre suave de la misma
+  familia (`false` por la lisa; sin el campo, queda la que dice `hinge`).
+  `SPEC-314` cuando la biblioteca no tiene esa variante (la de 165° no viene
+  embutida). `catch` agrega un **cierre**: `{ "hardware": ["magnetic_catch"] }`
+  (imán) o `["push_latch"]` (push-open): el cuerpo va en la cara interior del
+  panel opuesto a la bisagra, a ras del dorso de la puerta y a media altura,
+  con los tornillos fuera de la línea de 37 donde van bases, correderas e
+  hileras; la placa (`catch.strike` del herraje) en el dorso de la puerta,
+  enfrentada. Con dos puertas por bahía se encuentran lejos de los laterales:
+  el cierre va bajo la tapa (o sobre la base) a 25 del canto de apertura de
+  cada una, y si la zona no llega a ninguna, `DESIGN-116` avisa que no se
+  colocó. Un push-open con bisagras de cierre suave es `DESIGN-116`
+  (el amortiguador lo anula); con tirador, info. `handle` agrega un tirador
   vertical a `fromEdge` del canto de apertura. `span: 2` hace que el juego
   cubra dos bahías consecutivas desde `bay` (una puerta ancha sobre dos
   bahías angostas; las puertas cuelgan de los paneles exteriores y el
   divisor queda atrás; `SPEC-204` si no hay tantas bahías). `mount: inset`
   la **embute**: queda dentro del hueco, a ras del frente de la carcasa,
-  entre tapa y base; la bisagra por defecto se cambia sola por
-  `hinge_35_inset` (una elegida a mano de otro montaje es `SPEC-314`), y
-  una embutida no puede cruzar bahías porque el divisor queda en su plano
-  (`SPEC-317`).
+  entre tapa y base, y una embutida no puede cruzar bahías porque el divisor
+  queda en su plano (`SPEC-317`).
 - Cajones: apilados desde el piso de su zona; el frente superpuesto, la caja
   (dos laterales, frente interior, trasera, fondo ranurado) y las correderas.
   La corredera define la profundidad de la caja (`slide.length`) y la holgura
-  lateral (`slide.sideClearance`). `frontFixing` (por defecto
+  lateral (`slide.sideClearance`); `softClose: true` la cambia por la
+  variante con cierre suave del mismo largo y estilo (`SPEC-321` si no
+  existe: las de rodillo no la tienen). `frontFixing` (por defecto
   `screw_4x30_face`) atornilla el frente desde adentro de la caja en una
   grilla de columnas × 2 filas; `handle` centra un tirador horizontal.
   `mount: inset` los hace **cajones interiores**: el frente va dentro del
@@ -397,16 +411,43 @@ Además del tope (`butt`) hay dos uniones declaradas por los generadores:
 
 `crates/rewood-core/tests/audit.rs` es la auditoría de banco: sobre todos
 los fixtures y una grilla de variantes (tamaños, 1 o 2 puertas,
-superpuestas o embutidas, pilas de cajones, placares de 2 a 4 bahías,
+superpuestas o embutidas, con cierre magnético o cierre suave, tiradores
+de 96 a 320 y botón, pilas de cajones sobre correderas telescópicas, con
+cierre suave o de rodillo, placares de 2 a 4 bahías con push-open,
 estantes regulables detrás de puertas) verifica lo que un carpintero
 mediría: que ninguna pieza comparta volumen, que los dos agujeros de cada
 fijación coincidan en el espacio (tarugo, perno y rosca, tornillos de
 corredera enfrentados a 12,7 mm), que la excéntrica esté a 34 del canto y
 en una cara interior, la cazoleta a 22,5 del canto en el dorso de la puerta
-y su base a 37 del frente del lateral a la altura de la cazoleta, tiradores
-pasantes a 128 del lado de apertura, cajas de cajón con su corredera
+y su base a 37 del frente del lateral a la altura de la cazoleta, que el
+brazo de la bisagra sea el del panel (superpuesta en un lateral, media en
+un divisor, embutida adentro), tiradores pasantes a la distancia que declara
+el herraje y del lado de apertura, cierres a ras del frente con su placa
+enfrentada en el dorso de la puerta, cajas de cajón con su corredera
 adentro, frentes a ras del plano correcto y ningún agujero fuera de su cara
 ni más profundo que el panel. Una violación imprime todas las que haya.
+
+### Qué hay en la biblioteca
+
+Todo de catálogo corriente (Häfele/Hettich/Blum genérico), en
+`crates/rewood-core/data/hardware.json`:
+
+- unión: `minifix_15` (excéntrica Ø15 + perno B34), `dowel_8x30`,
+  `confirmat_7x50`, `screw_4x30_face`;
+- bisagras cazoleta Ø35: `hinge_35_overlay` / `hinge_35_half` /
+  `hinge_35_inset` (110°), cada una con variante `_soft`, y
+  `hinge_35_overlay_165` (gran ángulo);
+- correderas: telescópicas a bolillas `slide_ball_250` … `slide_ball_600`
+  cada 50 mm (extracción total, 30 kg) con variantes `slide_ball_soft_*`, y
+  de rodillo `slide_roller_300` … `slide_roller_500` (extracción parcial,
+  25 kg, sin cierre suave);
+- tiradores barra `handle_bar_96/128/160/192/224/320` y botón `knob_single`;
+- patas regulables `leg_adjustable_80/100/120/150` (base Ø50) y
+  `plinth_clip`;
+- cierres `magnetic_catch` (+ `magnetic_strike`) y `push_latch`
+  (+ `push_latch_plate`);
+- `shelf_pin_row_5` + `shelf_pin_5` (Sistema 32), `rail_oval_30` +
+  `rail_support_oval`, `cabinet_hanger`.
 
 **Los valores de `data/hardware.json` (diámetros, profundidades, offsets) son
 defaults indicativos para paneles de 18 mm.** Hay que validarlos contra el
@@ -484,7 +525,7 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 | `FAB-1xx` | geometría: piezas superpuestas |
 | `FAB-2xx` | mecanizado: perforación fuera de cara, distancia al borde, profundidad, cruces de perforaciones, ranura, mecha inexistente, operación no admitida, perforación que cae dentro de una ranura (`208`: el tarugo iría donde corre el fondo) |
 | `FAB-3xx` | material/máquina: no sale de la placa, excede el área de trabajo, espesor incompatible con el herraje |
-| `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra; `111` carga: puerta más pesada que lo que aguantan sus bisagras, o cajón cuya caja más 10 kg de contenido supera la corredera (`maxLoadKg` del herraje; el peso sale de la densidad del material); `113` (info) medida escrita como número donde va un parámetro; `114` barral con menos de 900 mm libres debajo; `115` tapa de trabajo de más de 2400 o con más de 1200 de luz entre carcasas |
+| `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra; `111` carga: puerta más pesada que lo que aguantan sus bisagras, o cajón cuya caja más 10 kg de contenido supera la corredera (`maxLoadKg` del herraje; el peso sale de la densidad del material); `113` (info) medida escrita como número donde va un parámetro; `114` barral con menos de 900 mm libres debajo; `115` tapa de trabajo de más de 2400 o con más de 1200 de luz entre carcasas; `116` cierres: push-open con cierre suave (lo anula) o con tirador (info), o dos puertas por bahía sin tapa ni base al borde de la zona donde apoyar el cierre |
 | `CAM-2xx` | sin herramienta para una ranura o el contorno; perforación de canto sin taladro horizontal |
 | `STAGE-*` | aviso de algo que la etapa actual no cubre (ninguno activo hoy) |
 

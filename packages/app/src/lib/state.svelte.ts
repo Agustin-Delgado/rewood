@@ -37,6 +37,7 @@ import wallCabinet from '../../../../fixtures/wall_cabinet/input.json';
 import bookcaseAdjustable from '../../../../fixtures/bookcase_adjustable/input.json';
 import tvUnit from '../../../../fixtures/tv_unit/input.json';
 import desk from '../../../../fixtures/desk/input.json';
+import sideboard from '../../../../fixtures/sideboard/input.json';
 
 export const EXAMPLES: { id: string; name: string; spec: FurnitureSpec }[] = [
 	{ id: 'wardrobe_1800', name: 'Placard 1800 (3 módulos)', spec: wardrobe as FurnitureSpec },
@@ -49,7 +50,8 @@ export const EXAMPLES: { id: string; name: string; spec: FurnitureSpec }[] = [
 	{ id: 'wall_cabinet', name: 'Alacena colgante 900×720', spec: wallCabinet as unknown as FurnitureSpec },
 	{ id: 'bookcase_adjustable', name: 'Biblioteca 900×2000 con estantes regulables', spec: bookcaseAdjustable as unknown as FurnitureSpec },
 	{ id: 'tv_unit', name: 'Mueble de TV 1800×450', spec: tvUnit as unknown as FurnitureSpec },
-	{ id: 'desk', name: 'Escritorio 1400 con tapa', spec: desk as unknown as FurnitureSpec }
+	{ id: 'desk', name: 'Escritorio 1400 con tapa', spec: desk as unknown as FurnitureSpec },
+	{ id: 'sideboard', name: 'Aparador 1600: push-open, cierre suave, patas 120', spec: sideboard as unknown as FurnitureSpec }
 ];
 
 class AppState {

@@ -143,6 +143,29 @@ fn handle_from_edge() -> NumOrExpr {
     num(40.0)
 }
 
+/// A catch holding a door shut (or a push latch opening it): screwed to
+/// the inner face of the panel opposite the hinge, flush with the door's
+/// back, at the door's mid height; its plate goes on the door.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct CatchSpec {
+    /// `kind: catch` hardware; default the magnetic catch.
+    #[serde(default = "default_catch")]
+    pub hardware: Vec<String>,
+}
+
+impl Default for CatchSpec {
+    fn default() -> Self {
+        CatchSpec {
+            hardware: default_catch(),
+        }
+    }
+}
+
+fn default_catch() -> Vec<String> {
+    vec!["magnetic_catch".into()]
+}
+
 /// A height range inside a carcass, in mm from the carcass bottom. Lets
 /// drawers take the lower part of a bay and shelves and a door the rest.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -275,6 +298,15 @@ pub enum ComponentSpec {
         /// the library's inset one.
         #[serde(default = "door_hinge")]
         hinge: Option<JointSpec>,
+        /// `true` swaps the hinge for the library's soft-close variant of
+        /// the same mount and angle, `false` for the plain one; omitted
+        /// keeps whatever `hinge` names.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        soft_close: Option<bool>,
+        /// A catch on the panel opposite the hinge (magnetic, push-open)
+        /// with its plate on the door's back.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        catch: Option<CatchSpec>,
         /// Vertical handle on the opening edge.
         #[serde(default)]
         handle: Option<HandleSpec>,
@@ -328,6 +360,11 @@ pub enum ComponentSpec {
         joint: JointSpec,
         /// Slides, one hardware id; its `slide` block sets the box depth.
         slide: JointSpec,
+        /// `true` swaps the slide for the library's soft-close variant of
+        /// the same length and style, `false` for the plain one; omitted
+        /// keeps whatever `slide` names.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        soft_close: Option<bool>,
         /// Screws fixing the front panel to the box front, from inside the
         /// box. `null` = not modelled.
         #[serde(default = "drawer_front_fixing")]

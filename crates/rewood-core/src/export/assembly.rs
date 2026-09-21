@@ -297,21 +297,27 @@ pub fn steps(plan: &ManufacturingPlan) -> Vec<Step> {
                         count_hw(&own_joints),
                         vec![
                             "Armá la caja: frente interior y trasera entre los laterales, con el fondo deslizado en la ranura antes de cerrar.".into(),
-                            "Atornillá la mitad fija de la corredera en el panel de la carcasa (huecos a 37/165/293 del frente) y la móvil en el lateral de la caja; encastrá.".into(),
+                            "Atornillá la mitad fija de la corredera en el panel de la carcasa (sobre sus pilotos, desde el frente) y la móvil en el lateral de la caja; encastrá.".into(),
                             "Con la caja colocada, atornillá el frente desde adentro y montá el tirador.".into(),
                         ],
                     );
                 }
             }
             "doors" => {
+                let mut notes = vec![
+                    "Cazoletas en el dorso de la puerta (Ø35), bases en la cara interior del panel a 37 mm del frente; enganchá y regulá en las tres direcciones.".into(),
+                ];
+                if joints.iter().any(|j| j.kind == "handle") {
+                    notes.push("Montá el tirador por los pasantes del frente.".into());
+                }
+                if joints.iter().any(|j| j.kind == "fixture") {
+                    notes.push("Cierre: el cuerpo va en la cara interior del panel opuesto a la bisagra, a ras del frente y a media altura de la puerta; la placa en el dorso de la puerta, enfrentada. Regulá hasta que la puerta cierre sin golpear.".into());
+                }
                 push(
                     format!("Colgar las puertas de '{component}'"),
                     parts.iter().map(|p| part_label(plan, &p.id)).collect(),
                     count_hw(&joint_ids),
-                    vec![
-                        "Cazoletas en el dorso de la puerta (Ø35), bases en la cara interior del panel a 37 mm del frente; enganchá y regulá en las tres direcciones.".into(),
-                        "Montá el tirador con los dos pasantes Ø4,5.".into(),
-                    ],
+                    notes,
                 );
             }
             _ => {

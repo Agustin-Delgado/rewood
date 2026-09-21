@@ -136,22 +136,60 @@ fn inner_drawers_in_the_plane_of_an_inset_door_get_a_setback_fix() {
 }
 
 #[test]
-fn an_overlay_hinge_on_an_inset_door_is_refused_unless_it_is_the_default() {
+fn the_hinge_names_a_family_and_the_door_picks_the_arm() {
+    // A hand-picked overlay hinge on an inset door: the inset variant of
+    // the same family takes its place, keeping the placement rule.
     let explicit = WARDROBE.replace(
         r#""count": 1, "mount": "inset" }"#,
         r#""count": 1, "mount": "inset", "hinge": { "hardware": ["hinge_35_overlay"], "placement": { "endOffset": 100, "maxSpacing": 700 } } }"#,
     );
     let plan = rewood_core::compile_json(&explicit);
-    // A hand-picked overlay hinge on an inset door is still swapped only
-    // when it is the library default id; here it is, so it passes.
     assert!(plan.joints.iter().any(|j| j.hardware == ["hinge_35_inset"]));
+    // And an inset hinge on an overlay door becomes the overlay one.
     let inset_on_overlay = WARDROBE.replace(
         r#""count": 1, "mount": "inset" }"#,
         r#""count": 1, "hinge": { "hardware": ["hinge_35_inset"] } }"#,
     );
     let plan = rewood_core::compile_json(&inset_on_overlay);
+    assert!(plan
+        .joints
+        .iter()
+        .any(|j| j.hardware == ["hinge_35_overlay"]));
+    assert!(!plan.diagnostics.items.iter().any(|d| d.code == "SPEC-314"));
+    // A family without the needed arm is refused: the 165° hinge has no
+    // inset variant.
+    let wide_on_inset = WARDROBE.replace(
+        r#""count": 1, "mount": "inset" }"#,
+        r#""count": 1, "mount": "inset", "hinge": { "hardware": ["hinge_35_overlay_165"] } }"#,
+    );
+    let plan = rewood_core::compile_json(&wide_on_inset);
     assert!(
         plan.diagnostics.items.iter().any(|d| d.code == "SPEC-314"),
+        "{:#?}",
+        plan.diagnostics
+    );
+    // `softClose` swaps the damped variant in, on doors and drawers.
+    let soft = WARDROBE
+        .replace(
+            r#""count": 1, "mount": "inset" }"#,
+            r#""count": 1, "mount": "inset", "softClose": true }"#,
+        )
+        .replace(
+            r#""slide": { "hardware": ["slide_ball_450"] }"#,
+            r#""slide": { "hardware": ["slide_ball_450"] }, "softClose": true"#,
+        );
+    let plan = rewood_core::compile_json(&soft);
+    assert!(
+        plan.joints
+            .iter()
+            .any(|j| j.hardware == ["hinge_35_inset_soft"]),
+        "{:#?}",
+        plan.diagnostics
+    );
+    assert!(
+        plan.joints
+            .iter()
+            .any(|j| j.hardware == ["slide_ball_soft_450"]),
         "{:#?}",
         plan.diagnostics
     );
