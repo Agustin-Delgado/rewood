@@ -333,12 +333,14 @@ pub fn exploded_body_at(plan: &ManufacturingPlan, ox: f64, oy: f64, max_px: f64)
         hi: b.hi,
         tint: " iso-hw",
     }));
-    // Painter's order: the viewer sits at +X +Y +Z, so the box whose centre
-    // has the smallest (x + y + z) is the farthest and goes first.
-    boxes.sort_by(|a, b| {
-        let key = |v: &Box3| v.lo.0 + v.hi.0 + v.lo.1 + v.hi.1 + v.lo.2 + v.hi.2;
-        key(a).partial_cmp(&key(b)).unwrap().then(a.id.cmp(&b.id))
-    });
+    let order = painter_order(&boxes.iter().map(|b| (b.lo, b.hi)).collect::<Vec<_>>());
+    let boxes: Vec<Box3> = {
+        let mut slots: Vec<Option<Box3>> = boxes.into_iter().map(Some).collect();
+        order
+            .into_iter()
+            .map(|i| slots[i].take().unwrap())
+            .collect()
+    };
 
     // Projected extent, then scale to fit.
     let (mut minx, mut miny, mut maxx, mut maxy) = (f64::MAX, f64::MAX, f64::MIN, f64::MIN);
@@ -436,6 +438,50 @@ pub fn exploded_body_at(plan: &ManufacturingPlan, ox: f64, oy: f64, max_px: f64)
     }
 }
 
+/// Painter's order for axis-aligned boxes seen from +X +Y +Z. Box A is
+/// behind B when A ends before B starts on some axis (a shelf left of the
+/// side that hides its end) and B does not end before A on another: when
+/// both hold no line of sight crosses the two, so their order is free.
+/// Sorting by a distance key gets this wrong for a tall panel next to a
+/// low one; the pairwise rule does not. Ties, and the rare cycle three
+/// boxes can form, fall back to the farthest centre first.
+fn painter_order(boxes: &[(Vec3, Vec3)]) -> Vec<usize> {
+    const EPS: f64 = 0.5;
+    let ends_before = |a: &(Vec3, Vec3), b: &(Vec3, Vec3)| {
+        a.1 .0 <= b.0 .0 + EPS || a.1 .1 <= b.0 .1 + EPS || a.1 .2 <= b.0 .2 + EPS
+    };
+    let n = boxes.len();
+    // behind[b] = boxes that must be painted before b.
+    let mut behind: Vec<Vec<usize>> = vec![Vec::new(); n];
+    for a in 0..n {
+        for b in 0..n {
+            if a != b && ends_before(&boxes[a], &boxes[b]) && !ends_before(&boxes[b], &boxes[a]) {
+                behind[b].push(a);
+            }
+        }
+    }
+    let key = |i: usize| {
+        let (l, h) = boxes[i];
+        l.0 + h.0 + l.1 + h.1 + l.2 + h.2
+    };
+    let mut done = vec![false; n];
+    let mut out = Vec::with_capacity(n);
+    while out.len() < n {
+        let ready = (0..n)
+            .filter(|&i| !done[i] && behind[i].iter().all(|&j| done[j]))
+            .min_by(|&a, &b| key(a).partial_cmp(&key(b)).unwrap().then(a.cmp(&b)));
+        let next = ready.unwrap_or_else(|| {
+            (0..n)
+                .filter(|&i| !done[i])
+                .min_by(|&a, &b| key(a).partial_cmp(&key(b)).unwrap().then(a.cmp(&b)))
+                .unwrap()
+        });
+        done[next] = true;
+        out.push(next);
+    }
+    out
+}
+
 fn corners(l: Vec3, h: Vec3) -> [Vec3; 8] {
     [
         Vec3(l.0, l.1, l.2),
@@ -489,6 +535,22 @@ mod tests {
         let svg = exploded_svg(&plan);
         assert!(svg.contains("iso-front"));
         assert_eq!(svg, exploded_svg(&plan));
+    }
+
+    #[test]
+    fn a_panel_paints_after_what_it_hides_and_before_what_hides_it() {
+        // A divider left of a low shelf: the shelf is nearer the viewer at
+        // +X, so it paints last however tall the divider is. The side to
+        // the right of both paints after both.
+        let divider = (Vec3(591.0, 0.0, 20.0), Vec3(609.0, 560.0, 2080.0));
+        let shelf = (Vec3(609.0, 20.0, 490.0), Vec3(1181.0, 540.0, 508.0));
+        let side = (Vec3(1182.0, 0.0, 0.0), Vec3(1200.0, 560.0, 2100.0));
+        assert_eq!(painter_order(&[side, shelf, divider]), vec![2, 1, 0]);
+        // Separated on two axes in opposite senses: no line of sight joins
+        // them, any order will do, the farthest centre goes first.
+        let low_right = (Vec3(100.0, 0.0, 0.0), Vec3(118.0, 560.0, 100.0));
+        let high_left = (Vec3(0.0, 0.0, 200.0), Vec3(18.0, 560.0, 300.0));
+        assert_eq!(painter_order(&[low_right, high_left]), vec![0, 1]);
     }
 
     #[test]
