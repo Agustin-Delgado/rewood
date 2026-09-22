@@ -90,16 +90,6 @@ export interface Production {
 
 export type ProviderRole = 'all' | 'cnc' | 'cutting' | 'assembly' | 'purchasing';
 
-export interface AssistantReply {
-	reply: string;
-	spec: FurnitureSpec | null;
-	status: ManufacturingPlan['status'] | null;
-	manufacturingBlocked: boolean | null;
-	diagnostics: ManufacturingPlan['diagnostics']['items'];
-	corrections: number;
-	model: string;
-}
-
 const STORAGE_KEY = 'rewood.server';
 
 export function defaultServerUrl(): string {
@@ -159,9 +149,6 @@ export class ServerClient {
 
 	health() {
 		return this.call<{ engine: string; schema: string; assistant: boolean; model: string | null }>('GET', '/health');
-	}
-	assistant(message: string, spec: FurnitureSpec | null, history: { role: string; content: string }[]) {
-		return this.call<AssistantReply>('POST', '/assistant', { message, spec, history });
 	}
 	projects() {
 		return this.call<Project[]>('GET', '/projects');

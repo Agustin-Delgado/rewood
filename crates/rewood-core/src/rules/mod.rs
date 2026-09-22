@@ -26,6 +26,7 @@ pub trait Rule {
 pub fn all_rules() -> Vec<Box<dyn Rule>> {
     vec![
         Box::new(geometry::PartCollision),
+        Box::new(geometry::LegCollision),
         Box::new(machining::HoleInsideFace),
         Box::new(machining::MinEdgeDistance),
         Box::new(machining::HoleDepth),

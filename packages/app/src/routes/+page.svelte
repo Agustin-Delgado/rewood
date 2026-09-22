@@ -7,12 +7,11 @@
 	import Tree from '$lib/components/Tree.svelte';
 	import Properties from '$lib/components/Properties.svelte';
 	import Components from '$lib/components/Components.svelte';
-	import Assistant from '$lib/components/Assistant.svelte';
 	import Catalog from '$lib/components/Catalog.svelte';
 	import Design from '$lib/components/Design.svelte';
 	import Bottom from '$lib/components/Bottom.svelte';
 
-	let rightTab: 'design' | 'props' | 'comps' | 'ai' = $state('design');
+	let rightTab: 'design' | 'props' | 'comps' = $state('design');
 	const current = $derived(app.variant ? findVariant(app.variant) : null);
 	// A part clicked in the viewer is described in Parámetros.
 	$effect(() => {
@@ -101,10 +100,9 @@
 				<button class:active={rightTab === 'design'} onclick={() => (rightTab = 'design')}>Diseño</button>
 				<button class:active={rightTab === 'props'} onclick={() => (rightTab = 'props')}>Parámetros</button>
 				<button class:active={rightTab === 'comps'} onclick={() => (rightTab = 'comps')}>Componentes</button>
-				<button class:active={rightTab === 'ai'} onclick={() => (rightTab = 'ai')}>Asistente</button>
 			</div>
 			<div class="rbody">
-				{#if rightTab === 'design'}<Design />{:else if rightTab === 'props'}<Properties />{:else if rightTab === 'comps'}<Components />{:else}<Assistant />{/if}
+				{#if rightTab === 'design'}<Design />{:else if rightTab === 'props'}<Properties />{:else}<Components />{/if}
 			</div>
 		</aside>
 		<footer><Bottom /></footer>

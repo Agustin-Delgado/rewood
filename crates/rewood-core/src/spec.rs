@@ -702,6 +702,12 @@ pub struct PinsSpec {
     /// The loose pins, `kind: pin`, four per shelf. Default `shelf_pin_5`.
     #[serde(default = "default_pins")]
     pub hardware: Vec<String>,
+    /// How far each shelf can be moved up or down, in mm. The panels only
+    /// get the holes its shelves use plus this travel on each side, so
+    /// `0` (the default) drills exactly four holes per shelf and a value
+    /// as tall as the zone gives the classic full System 32 rows.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub adjust: Option<NumOrExpr>,
 }
 
 impl Default for PinsSpec {
@@ -709,6 +715,7 @@ impl Default for PinsSpec {
         PinsSpec {
             row: default_pin_row(),
             hardware: default_pins(),
+            adjust: None,
         }
     }
 }

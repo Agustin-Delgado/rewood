@@ -584,7 +584,35 @@ fn build_legs(
         }
     }
     xs.push(width - inset);
-    let ys = [inset, depth - inset];
+    // A plinth stands in front of the front row: the legs step back
+    // behind it (base plate against the plinth's inner face) instead of
+    // standing through it.
+    let plinth_at = match &legs.plinth {
+        Some(plinth) => {
+            let setback = ctx.eval(id, "legs.plinth.setback", &plinth.setback)?;
+            let material = ctx
+                .material_or_default(id, plinth.material.as_ref())?
+                .to_string();
+            let tp = ctx.thickness_of(&material);
+            Some((setback, material, tp))
+        }
+        None => None,
+    };
+    let front_inset = match &plinth_at {
+        Some((setback, _, tp)) => inset.max(setback + tp + base_r),
+        None => inset,
+    };
+    if front_inset + inset + leg_data.base_diameter > depth {
+        return Err(Diagnostic::new(
+            "SPEC-313",
+            Severity::Fatal,
+            format!(
+                "'{id}': con el zócalo, las patas delanteras van a {front_inset} mm del frente y las traseras a {inset} del fondo; en {depth} mm de profundidad no entran las dos filas"
+            ),
+        )
+        .entity(id));
+    }
+    let ys = [inset, depth - front_inset];
     let joint = JointSpec {
         hardware: vec![leg_id.clone()],
         placement: None,
@@ -607,19 +635,12 @@ fn build_legs(
     ctx.publish(id, "legs", (xs.len() * 2) as f64);
     ctx.publish(id, "leg_height", leg_data.height);
 
-    if let Some(plinth) = &legs.plinth {
-        let setback = ctx.eval(id, "legs.plinth.setback", &plinth.setback)?;
-        let material = ctx
-            .material_or_default(id, plinth.material.as_ref())?
-            .to_string();
-        let tp = ctx.thickness_of(&material);
-        if setback + tp > inset + base_r || setback < 0.0 {
+    if let (Some(plinth), Some((setback, material, tp))) = (&legs.plinth, plinth_at) {
+        if setback < 0.0 {
             return Err(Diagnostic::new(
                 "SPEC-313",
                 Severity::Fatal,
-                format!(
-                    "'{id}.legs.plinth.setback' = {setback} mm: el zócalo ({tp} mm) tiene que quedar contra las patas delanteras (a {inset} del frente)"
-                ),
+                format!("'{id}.legs.plinth.setback' = {setback} mm: el zócalo no puede sobresalir del frente"),
             )
             .entity(id));
         }

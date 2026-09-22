@@ -1,51 +1,103 @@
 <script lang="ts">
-	/** Model tree: components, their parts, and a joint list. */
+	/**
+	 * The parts, by component, in words: "Cajones · módulo 2" and not
+	 * `drawers_m2`, a drawer's six pieces under "Cajón 1", sizes rounded to
+	 * what a tape measure reads. Groups start folded; the part picked in
+	 * the viewer unfolds its own.
+	 */
+	import type { Part } from '@rewood/engine/browser';
 	import { app } from '$lib/state.svelte';
+	import { componentLabels, partName, size } from '$lib/labels';
 
+	type Sub = { key: string; label: string; parts: Part[] };
+	type Group = { component: string; label: string; count: number; subs: Sub[]; loose: Part[] };
+
+	const labels = $derived(componentLabels(app.spec));
 	const groups = $derived.by(() => {
-		const map = new Map<string, typeof app.plan extends null ? never : NonNullable<typeof app.plan>['parts']>();
+		const map = new Map<string, Group>();
 		for (const p of app.plan?.parts ?? []) {
-			if (!map.has(p.component)) map.set(p.component, []);
-			map.get(p.component)!.push(p);
+			let g = map.get(p.component);
+			if (!g) {
+				g = { component: p.component, label: labels.get(p.component) ?? p.component, count: 0, subs: [], loose: [] };
+				map.set(p.component, g);
+			}
+			g.count += 1;
+			// One drawer = one line that unfolds to its pieces.
+			const m = p.role.match(/^(?:bay(\d+)_)?(?:.*_)?drawer_(\d+)_/);
+			if (m) {
+				const key = `${p.component}:${m[1] ?? ''}:${m[2]}`;
+				let sub = g.subs.find((s) => s.key === key);
+				if (!sub) {
+					sub = { key, label: `Cajón ${m[2]}${m[1] ? ` (hueco ${m[1]})` : ''}`, parts: [] };
+					g.subs.push(sub);
+				}
+				sub.parts.push(p);
+			} else g.loose.push(p);
 		}
-		return [...map.entries()];
+		return [...map.values()];
+	});
+
+	let open = $state<Set<string>>(new Set());
+	function toggle(key: string) {
+		const next = new Set(open);
+		if (next.has(key)) next.delete(key);
+		else next.add(key);
+		open = next;
+	}
+	// The part selected in the viewer shows where it is.
+	$effect(() => {
+		const id = app.selectedPart;
+		if (!id) return;
+		const g = groups.find((x) => x.loose.some((p) => p.id === id) || x.subs.some((s) => s.parts.some((p) => p.id === id)));
+		if (!g) return;
+		const next = new Set(open);
+		next.add(g.component);
+		for (const s of g.subs) if (s.parts.some((p) => p.id === id)) next.add(s.key);
+		if (next.size !== open.size) open = next;
 	});
 </script>
 
 <div class="tree">
-	<h3>Modelo</h3>
-	{#each groups as [component, parts] (component)}
+	<h3>Piezas <span class="count">{app.plan?.parts.length ?? 0}</span></h3>
+	{#each groups as g (g.component)}
 		<div class="group">
 			<div class="group-head">
-				<button class="eye" title="mostrar / ocultar" onclick={() => app.toggleComponent(component)}>
-					{app.hiddenComponents.has(component) ? '○' : '●'}
+				<button class="eye" title="mostrar / ocultar en el 3D" onclick={() => app.toggleComponent(g.component)}>
+					{app.hiddenComponents.has(g.component) ? '○' : '●'}
 				</button>
-				<span class="name">{component}</span>
-				<span class="count">{parts.length}</span>
+				<button class="fold" title={g.component} onclick={() => toggle(g.component)}>
+					<span class="caret">{open.has(g.component) ? '▾' : '▸'}</span>
+					<span class="name">{g.label}</span>
+					<span class="count">{g.count}</span>
+				</button>
 			</div>
-			{#each parts as part (part.id)}
-				<button class="part" class:selected={app.selectedPart === part.id} onclick={() => app.selectPart(part.id)}>
-					<span class="id">{part.id}</span>
-					<span>{part.name}</span>
-					<span class="dims">{part.dims.length}×{part.dims.width}×{part.dims.thickness}</span>
-				</button>
-			{/each}
+			{#if open.has(g.component)}
+				{#each g.loose as part (part.id)}
+					{@render row(part)}
+				{/each}
+				{#each g.subs as s (s.key)}
+					<button class="fold sub" onclick={() => toggle(s.key)}>
+						<span class="caret">{open.has(s.key) ? '▾' : '▸'}</span>
+						<span>{s.label}</span>
+						<span class="count">{s.parts.length} piezas</span>
+					</button>
+					{#if open.has(s.key)}
+						{#each s.parts as part (part.id)}
+							{@render row(part, true)}
+						{/each}
+					{/if}
+				{/each}
+			{/if}
 		</div>
 	{/each}
-	{#if app.plan}
-		<h3>Uniones <span class="count">{app.plan.joints.length}</span></h3>
-		<div class="joints">
-			{#each app.plan.joints as j (j.id)}
-				<div class="joint">
-					<span class="id">{j.id}</span>
-					<span class="kind">{j.kind}</span>
-					<span>{j.edgePart} → {j.facePart}</span>
-					<span class="dims">{j.fasteners.length} fij.</span>
-				</div>
-			{/each}
-		</div>
-	{/if}
 </div>
+
+{#snippet row(part: Part, nested = false)}
+	<button class="part" class:nested class:selected={app.selectedPart === part.id} title="{part.id} · {part.material}" onclick={() => app.selectPart(part.id)}>
+		<span>{partName(part.name)}</span>
+		<span class="dims">{size(part.dims)}</span>
+	</button>
+{/snippet}
 
 <style>
 	.tree {
@@ -63,10 +115,9 @@
 	}
 	.group-head {
 		display: flex;
-		gap: 6px;
+		gap: 2px;
 		align-items: center;
-		font-weight: 600;
-		margin-top: 6px;
+		margin-top: 4px;
 	}
 	.eye {
 		border: none;
@@ -76,28 +127,53 @@
 		color: #555;
 		padding: 0 2px;
 	}
+	button {
+		font: inherit;
+	}
+	.fold {
+		display: flex;
+		gap: 6px;
+		align-items: baseline;
+		flex: 1;
+		border: none;
+		background: none;
+		padding: 2px 4px;
+		cursor: pointer;
+		text-align: left;
+		border-radius: 3px;
+		font-weight: 600;
+	}
+	.fold.sub {
+		width: 100%;
+		padding-left: 24px;
+		font-weight: 500;
+	}
+	.fold:hover {
+		background: #eef2f7;
+	}
+	.caret {
+		color: #999;
+		width: 10px;
+	}
 	.count {
 		color: #888;
 		font-weight: 400;
+		margin-left: auto;
 	}
-	.part,
-	.joint {
-		display: grid;
-		grid-template-columns: 42px 1fr auto;
-		gap: 6px;
+	.part {
+		display: flex;
+		justify-content: space-between;
+		gap: 8px;
 		width: 100%;
 		text-align: left;
 		border: none;
 		background: none;
-		padding: 2px 4px 2px 22px;
+		padding: 2px 4px 2px 32px;
 		cursor: pointer;
-		font: inherit;
 		border-radius: 3px;
 	}
-	.joint {
-		grid-template-columns: 38px 60px 1fr auto;
-		padding-left: 4px;
-		cursor: default;
+	.part.nested {
+		padding-left: 46px;
 	}
 	.part:hover {
 		background: #eef2f7;
@@ -105,15 +181,9 @@
 	.part.selected {
 		background: #ffe0c7;
 	}
-	.id {
-		color: #345;
-		font-family: ui-monospace, monospace;
-	}
-	.kind {
-		color: #777;
-	}
 	.dims {
 		color: #888;
 		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
 	}
 </style>

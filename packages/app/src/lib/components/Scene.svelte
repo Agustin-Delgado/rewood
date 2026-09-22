@@ -14,6 +14,8 @@
 	import { app, type ViewName } from '$lib/state.svelte';
 	import { explodeOffsets, faceNormalWorld, faceUvToWorld, toThree } from '$lib/geometry';
 	import { hardwareSymbols, type HardwareSymbol, type Prim } from '$lib/hardware3d';
+	import { motions, partMatrix, type Motion } from '$lib/motion';
+	import Instances from './Instances.svelte';
 
 	interactivity();
 	const { size } = useThrelte();
@@ -22,9 +24,6 @@
 	// Offsets from every part, hidden ones included, so hiding a component
 	// does not move the rest.
 	const offsets = $derived(explodeOffsets(app.plan?.parts ?? [], app.explode));
-	function offsetOf(part: Part): [number, number, number] {
-		return toThree(offsets.get(part.id) ?? [0, 0, 0]);
-	}
 
 	const bounds = $derived.by(() => {
 		let max = [1, 1, 1];
@@ -122,11 +121,89 @@
 		return out;
 	});
 
+	// --- where every part is drawn ----------------------------------------------
+	// Exploded offset, then the opening (a door turning on its hinge line,
+	// a drawer on its slides). Holes and hardware ride on their part's
+	// matrix, so nothing below recomputes geometry when the view moves.
+	const moves = $derived(app.plan ? motions(app.plan) : new Map<string, Motion>());
+
+	// Doors and drawers ease to where they were asked to go.
+	const opening = $state<{ progress: Record<string, number> }>({ progress: {} });
+	$effect(() => {
+		const want = new Map<string, number>();
+		for (const m of moves.values()) want.set(m.key, app.openAll || app.opened.has(m.key) ? 1 : 0);
+		let frame = 0;
+		let last = performance.now();
+		const step = (now: number) => {
+			const dt = Math.min(0.05, Math.max(0, now - last) / 1000);
+			last = now;
+			let moving = false;
+			const next: Record<string, number> = {};
+			for (const [key, target] of want) {
+				const cur = untrack(() => opening.progress[key]) ?? 0;
+				const v = cur < target ? Math.min(target, cur + dt * 2.2) : Math.max(target, cur - dt * 2.2);
+				next[key] = v;
+				if (v !== target) moving = true;
+			}
+			opening.progress = next;
+			if (moving) frame = requestAnimationFrame(step);
+		};
+		frame = requestAnimationFrame(step);
+		return () => cancelAnimationFrame(frame);
+	});
+
+	const matrices = $derived.by(() => {
+		const out = new Map<string, THREE.Matrix4>();
+		for (const p of app.plan?.parts ?? []) {
+			const m = moves.get(p.id);
+			out.set(p.id, partMatrix(m, m ? (opening.progress[m.key] ?? 0) : 0, offsets.get(p.id)));
+		}
+		return out;
+	});
+	const IDENTITY = new THREE.Matrix4();
+	const matrixOf = (id: string) => matrices.get(id) ?? IDENTITY;
+	function pose(id: string): { position: [number, number, number]; quaternion: [number, number, number, number] } {
+		const p = new THREE.Vector3();
+		const q = new THREE.Quaternion();
+		matrixOf(id).decompose(p, q, new THREE.Vector3());
+		return { position: [p.x, p.y, p.z], quaternion: [q.x, q.y, q.z, q.w] };
+	}
+
 	// --- hardware -------------------------------------------------------------
+	// Laid out once per plan on the assembled furniture; the matrices above
+	// place it.
 	const symbols = $derived.by(() => {
 		if (!app.showHardware || !app.plan) return [] as HardwareSymbol[];
-		return hardwareSymbols(app.plan, parts, offsets, (id) => app.libraries?.hardware.items[id], app.explode > 0);
+		return hardwareSymbols(app.plan, parts, (id) => app.libraries?.hardware.items[id]);
 	});
+	type Placed = { sym: HardwareSymbol; prim: Prim; local: THREE.Matrix4 };
+	const UP = new THREE.Vector3(0, 1, 0);
+	function along(axis: Vec3): THREE.Quaternion {
+		return new THREE.Quaternion().setFromUnitVectors(UP, new THREE.Vector3(...toThree(axis)).normalize());
+	}
+	const placed = $derived.by(() => {
+		const out: Record<Prim['shape'], Placed[]> = { cyl: [], box: [], sphere: [] };
+		for (const sym of symbols) {
+			for (const prim of sym.prims) {
+				const pos = new THREE.Vector3(...toThree(prim.pos));
+				const local =
+					prim.shape === 'cyl'
+						? new THREE.Matrix4().compose(pos, along(prim.axis), new THREE.Vector3(prim.r, prim.len, prim.r))
+						: prim.shape === 'box'
+							? new THREE.Matrix4().compose(pos, new THREE.Quaternion(), new THREE.Vector3(...toThree(prim.size)))
+							: new THREE.Matrix4().compose(pos, new THREE.Quaternion(), new THREE.Vector3(prim.r, prim.r, prim.r));
+				out[prim.shape].push({ sym, prim, local });
+			}
+		}
+		return out;
+	});
+	/** A bridging body (a dowel) sits halfway between its two parts. */
+	function ownerMatrix(sym: HardwareSymbol, owner: string | null): THREE.Matrix4 {
+		if (owner) return matrixOf(owner);
+		const a = new THREE.Vector3().setFromMatrixPosition(matrixOf(sym.joint.edgePart));
+		const b = new THREE.Vector3().setFromMatrixPosition(matrixOf(sym.joint.facePart));
+		return new THREE.Matrix4().makeTranslation(a.add(b).multiplyScalar(0.5));
+	}
 	function symbolColour(s: HardwareSymbol, prim: Prim): string {
 		const sel = app.selectedFastener;
 		if (sel && sel.joint === s.joint.id && sel.index === s.index) return '#ff3b1f';
@@ -134,16 +211,44 @@
 		if (app.selectedPart && (s.joint.edgePart === app.selectedPart || s.joint.facePart === app.selectedPart)) return '#ff8c42';
 		return prim.colour;
 	}
-	const UP = new THREE.Vector3(0, 1, 0);
-	function quatAlong(axis: Vec3): [number, number, number, number] {
-		const q = new THREE.Quaternion().setFromUnitVectors(UP, new THREE.Vector3(...toThree(axis)).normalize());
-		return [q.x, q.y, q.z, q.w];
+	const scratch = new THREE.Matrix4();
+	const tint = new THREE.Color();
+	function fillPrims(list: Placed[]) {
+		return (mesh: THREE.InstancedMesh) => {
+			list.forEach((x, i) => {
+				mesh.setMatrixAt(i, scratch.multiplyMatrices(ownerMatrix(x.sym, x.prim.owner), x.local));
+				mesh.setColorAt(i, tint.set(symbolColour(x.sym, x.prim)));
+			});
+		};
 	}
+	function pickPrim(list: Placed[]) {
+		return (i: number) => {
+			const x = list[i];
+			if (x) app.selectFastener(x.sym.joint.id, x.sym.index);
+		};
+	}
+	const unitCyl = new THREE.CylinderGeometry(1, 1, 1, 20);
+	const unitBox = new THREE.BoxGeometry(1, 1, 1);
+	const unitSphere = new THREE.SphereGeometry(1, 16, 12);
+	const unitEdges = new THREE.EdgesGeometry(unitBox);
+	const holeCyl = new THREE.CylinderGeometry(1, 1, 1, 16);
+	const metal = new THREE.MeshStandardMaterial({ metalness: 0.5, roughness: 0.4 });
+	const holeMaterial = new THREE.MeshStandardMaterial({ color: '#2b2b2b' });
+	const grooveMaterial = new THREE.MeshStandardMaterial({ color: '#3a3a3a' });
+
 	/** Every leader of the exploded view in one geometry. */
 	const leaders = $derived.by(() => {
 		const pts: number[] = [];
-		for (const s of symbols) {
-			for (const [a, b] of s.leaders) pts.push(...toThree(a), ...toThree(b));
+		if (app.explode > 0) {
+			const v = new THREE.Vector3();
+			for (const s of symbols) {
+				for (const l of s.leaders) {
+					v.set(...toThree(l.a)).applyMatrix4(matrixOf(l.pa));
+					pts.push(v.x, v.y, v.z);
+					v.set(...toThree(l.b)).applyMatrix4(matrixOf(l.pb));
+					pts.push(v.x, v.y, v.z);
+				}
+			}
 		}
 		const g = new THREE.BufferGeometry();
 		g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
@@ -180,54 +285,72 @@
 			part.aabb.max[2] - part.aabb.min[2]
 		]);
 	}
-	/** One box per part, shared by its faces and its outline. */
-	const boxes = $derived(new Map(parts.map((p) => [p.id, new THREE.BoxGeometry(...size3(p))])));
 
-	type Hole = { pos: [number, number, number]; quat: [number, number, number, number]; r: number; len: number };
-	type Slot = { pos: [number, number, number]; size: [number, number, number] };
-
-	function holesOf(part: Part): Hole[] {
-		const out: Hole[] = [];
-		for (const op of part.operations) {
-			if (op.type !== 'DRILL') continue;
-			const n = faceNormalWorld(part.placement, op.face);
-			const depth = op.depth ?? (op.face === 'front' || op.face === 'back' ? part.dims.thickness : 0);
-			const surface = faceUvToWorld(part, op.face, op.u, op.v);
-			// Sits half inside the panel; the visible half marks the hole mouth.
-			const c = [
-				surface[0] - (n[0] * depth) / 2 + n[0] * 0.2,
-				surface[1] - (n[1] * depth) / 2 + n[1] * 0.2,
-				surface[2] - (n[2] * depth) / 2 + n[2] * 0.2
-			] as const;
-			out.push({
-				pos: toThree([c[0], c[1], c[2]]),
-				quat: quatAlong(n),
-				r: op.diameter / 2,
-				len: depth + 0.4
-			});
-		}
-		return out;
+	/** A double click on a door or a drawer opens or shuts it. */
+	function toggleFront(part: Part, e: { stopPropagation: () => void }) {
+		const m = moves.get(part.id);
+		if (!m) return;
+		e.stopPropagation();
+		app.toggleOpen(m.key, [...new Set([...moves.values()].map((x) => x.key))]);
 	}
 
-	function slotsOf(part: Part): Slot[] {
-		const out: Slot[] = [];
-		for (const op of part.operations) {
-			if (op.type !== 'GROOVE') continue;
-			const a = faceUvToWorld(part, op.face, op.from[0], op.from[1]);
-			const b = faceUvToWorld(part, op.face, op.to[0], op.to[1]);
-			const n = faceNormalWorld(part.placement, op.face);
-			const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
-			const d = [Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1]), Math.abs(b[2] - a[2])];
-			const s: number[] = [0, 0, 0];
-			for (let i = 0; i < 3; i++) {
-				if (n[i] !== 0) s[i] = op.depth;
-				else if (d[i] > 0.001) s[i] = d[i];
-				else s[i] = op.width;
+	// --- holes and grooves --------------------------------------------------------
+	// One matrix per mark on its part's assembled frame, computed per plan.
+	type Mark = { part: string; local: THREE.Matrix4 };
+	const holes = $derived.by(() => {
+		const out: Mark[] = [];
+		if (!app.showHoles) return out;
+		for (const part of parts) {
+			for (const op of part.operations) {
+				if (op.type !== 'DRILL') continue;
+				const n = faceNormalWorld(part.placement, op.face);
+				const depth = op.depth ?? (op.face === 'front' || op.face === 'back' ? part.dims.thickness : 0);
+				const surface = faceUvToWorld(part, op.face, op.u, op.v);
+				// Sits half inside the panel; the visible half marks the hole mouth.
+				const c: Vec3 = [
+					surface[0] - (n[0] * depth) / 2 + n[0] * 0.2,
+					surface[1] - (n[1] * depth) / 2 + n[1] * 0.2,
+					surface[2] - (n[2] * depth) / 2 + n[2] * 0.2
+				];
+				const r = op.diameter / 2;
+				out.push({
+					part: part.id,
+					local: new THREE.Matrix4().compose(new THREE.Vector3(...toThree(c)), along(n), new THREE.Vector3(r, depth + 0.4, r))
+				});
 			}
-			const c = [mid[0] - (n[0] * op.depth) / 2 + n[0] * 0.2, mid[1] - (n[1] * op.depth) / 2 + n[1] * 0.2, mid[2] - (n[2] * op.depth) / 2 + n[2] * 0.2];
-			out.push({ pos: toThree([c[0], c[1], c[2]]), size: toThree([s[0], s[1], s[2]]) });
 		}
 		return out;
+	});
+	const grooves = $derived.by(() => {
+		const out: Mark[] = [];
+		if (!app.showHoles) return out;
+		for (const part of parts) {
+			for (const op of part.operations) {
+				if (op.type !== 'GROOVE') continue;
+				const a = faceUvToWorld(part, op.face, op.from[0], op.from[1]);
+				const b = faceUvToWorld(part, op.face, op.to[0], op.to[1]);
+				const n = faceNormalWorld(part.placement, op.face);
+				const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2];
+				const d = [Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1]), Math.abs(b[2] - a[2])];
+				const s: Vec3 = [0, 0, 0];
+				for (let i = 0; i < 3; i++) {
+					if (n[i] !== 0) s[i] = op.depth;
+					else if (d[i] > 0.001) s[i] = d[i];
+					else s[i] = op.width;
+				}
+				const c: Vec3 = [mid[0] - (n[0] * op.depth) / 2 + n[0] * 0.2, mid[1] - (n[1] * op.depth) / 2 + n[1] * 0.2, mid[2] - (n[2] * op.depth) / 2 + n[2] * 0.2];
+				out.push({
+					part: part.id,
+					local: new THREE.Matrix4().compose(new THREE.Vector3(...toThree(c)), new THREE.Quaternion(), new THREE.Vector3(...toThree(s)))
+				});
+			}
+		}
+		return out;
+	});
+	function fillMarks(list: Mark[]) {
+		return (mesh: THREE.InstancedMesh) => {
+			list.forEach((x, i) => mesh.setMatrixAt(i, scratch.multiplyMatrices(matrixOf(x.part), x.local)));
+		};
 	}
 </script>
 
@@ -257,55 +380,24 @@
 <T.GridHelper args={[Math.max(bounds[0], bounds[1]) * 2, 20, '#bbb', '#ddd']} position={[bounds[0] / 2, floor - 1, bounds[1] / 2]} />
 
 {#each parts as part (part.id)}
-	{@const box = boxes.get(part.id)}
-	<T.Group position={offsetOf(part)}>
-		<T.Mesh position={centre(part)} geometry={box} onclick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); app.selectPart(part.id); }}>
+	{@const at = pose(part.id)}
+	<T.Group position={at.position} quaternion={at.quaternion}>
+		<T.Mesh position={centre(part)} scale={size3(part)} geometry={unitBox} onclick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); app.selectPart(part.id); }} ondblclick={(e: { stopPropagation: () => void }) => toggleFront(part, e)}>
 			<T.MeshStandardMaterial color={colourOf(part)} roughness={0.8} />
 		</T.Mesh>
 		<!-- The outline makes the elevations readable: face against face
 		     of the same colour has no edge otherwise. -->
-		<T.LineSegments position={centre(part)}>
-			<T.EdgesGeometry args={[box]} />
+		<T.LineSegments position={centre(part)} scale={size3(part)} geometry={unitEdges}>
 			<T.LineBasicMaterial color="#3a3025" transparent opacity={0.35} />
 		</T.LineSegments>
-		{#if app.showHoles}
-			{#each holesOf(part) as hole, i (part.id + ':h' + i)}
-				<T.Mesh position={hole.pos} quaternion={hole.quat}>
-					<T.CylinderGeometry args={[hole.r, hole.r, hole.len, 16]} />
-					<T.MeshStandardMaterial color="#2b2b2b" />
-				</T.Mesh>
-			{/each}
-			{#each slotsOf(part) as slot, i (part.id + ':g' + i)}
-				<T.Mesh position={slot.pos}>
-					<T.BoxGeometry args={slot.size} />
-					<T.MeshStandardMaterial color="#3a3a3a" />
-				</T.Mesh>
-			{/each}
-		{/if}
 	</T.Group>
 {/each}
 
-{#each symbols as s (s.key)}
-	{#each s.prims as prim, i (s.key + ':' + i)}
-		{@const colour = symbolColour(s, prim)}
-		{#if prim.shape === 'cyl'}
-			<T.Mesh position={toThree(prim.pos)} quaternion={quatAlong(prim.axis)} onclick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); app.selectFastener(s.joint.id, s.index); }}>
-				<T.CylinderGeometry args={[prim.r, prim.r, prim.len, 20]} />
-				<T.MeshStandardMaterial color={colour} metalness={0.5} roughness={0.4} />
-			</T.Mesh>
-		{:else if prim.shape === 'box'}
-			<T.Mesh position={toThree(prim.pos)} onclick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); app.selectFastener(s.joint.id, s.index); }}>
-				<T.BoxGeometry args={toThree(prim.size)} />
-				<T.MeshStandardMaterial color={colour} metalness={0.5} roughness={0.4} />
-			</T.Mesh>
-		{:else}
-			<T.Mesh position={toThree(prim.pos)} onclick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); app.selectFastener(s.joint.id, s.index); }}>
-				<T.SphereGeometry args={[prim.r, 16, 12]} />
-				<T.MeshStandardMaterial color={colour} metalness={0.5} roughness={0.4} />
-			</T.Mesh>
-		{/if}
-	{/each}
-{/each}
+<Instances geometry={holeCyl} material={holeMaterial} count={holes.length} fill={fillMarks(holes)} />
+<Instances geometry={unitBox} material={grooveMaterial} count={grooves.length} fill={fillMarks(grooves)} />
+<Instances geometry={unitCyl} material={metal} count={placed.cyl.length} fill={fillPrims(placed.cyl)} onclick={pickPrim(placed.cyl)} />
+<Instances geometry={unitBox} material={metal} count={placed.box.length} fill={fillPrims(placed.box)} onclick={pickPrim(placed.box)} />
+<Instances geometry={unitSphere} material={metal} count={placed.sphere.length} fill={fillPrims(placed.sphere)} onclick={pickPrim(placed.sphere)} />
 
 {#if app.explode > 0}
 	<T.LineSegments geometry={leaders}>

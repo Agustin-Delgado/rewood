@@ -313,13 +313,13 @@
     "shelf_left.count": 1.0,
     "shelf_left.depth": 416.8,
     "shelf_left.length": 500.0,
-    "shelf_left.pin_holes_per_row": 21.0,
+    "shelf_left.pin_holes_per_row": 1.0,
     "shelf_left.pin_rows": 4.0,
     "shelf_right.bay_height": 358.0,
     "shelf_right.count": 1.0,
     "shelf_right.depth": 416.8,
     "shelf_right.length": 500.0,
-    "shelf_right.pin_holes_per_row": 21.0,
+    "shelf_right.pin_holes_per_row": 1.0,
     "shelf_right.pin_rows": 4.0
   },
   "parts": [
@@ -511,7 +511,7 @@
           "id": "P001-OP10",
           "face": "front",
           "type": "DRILL",
-          "u": 69.0,
+          "u": 389.0,
           "v": 37.0,
           "diameter": 5.0,
           "depth": 12.0,
@@ -527,327 +527,7 @@
           "id": "P001-OP11",
           "face": "front",
           "type": "DRILL",
-          "u": 101.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 1,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP12",
-          "face": "front",
-          "type": "DRILL",
-          "u": 133.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 2,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP13",
-          "face": "front",
-          "type": "DRILL",
-          "u": 165.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 3,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP14",
-          "face": "front",
-          "type": "DRILL",
-          "u": 197.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 4,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP15",
-          "face": "front",
-          "type": "DRILL",
-          "u": 229.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 5,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP16",
-          "face": "front",
-          "type": "DRILL",
-          "u": 261.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 6,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP17",
-          "face": "front",
-          "type": "DRILL",
-          "u": 293.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 7,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP18",
-          "face": "front",
-          "type": "DRILL",
-          "u": 325.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 8,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP19",
-          "face": "front",
-          "type": "DRILL",
-          "u": 357.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 9,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP20",
-          "face": "front",
-          "type": "DRILL",
           "u": 389.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 10,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP21",
-          "face": "front",
-          "type": "DRILL",
-          "u": 421.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 11,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP22",
-          "face": "front",
-          "type": "DRILL",
-          "u": 453.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 12,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP23",
-          "face": "front",
-          "type": "DRILL",
-          "u": 485.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 13,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP24",
-          "face": "front",
-          "type": "DRILL",
-          "u": 517.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 14,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP25",
-          "face": "front",
-          "type": "DRILL",
-          "u": 549.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 15,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP26",
-          "face": "front",
-          "type": "DRILL",
-          "u": 581.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 16,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP27",
-          "face": "front",
-          "type": "DRILL",
-          "u": 613.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 17,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP28",
-          "face": "front",
-          "type": "DRILL",
-          "u": 645.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 18,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP29",
-          "face": "front",
-          "type": "DRILL",
-          "u": 677.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 19,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP30",
-          "face": "front",
-          "type": "DRILL",
-          "u": 709.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J021",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 20,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP31",
-          "face": "front",
-          "type": "DRILL",
-          "u": 69.0,
           "v": 399.8,
           "diameter": 5.0,
           "depth": 12.0,
@@ -860,327 +540,71 @@
           }
         },
         {
-          "id": "P001-OP32",
-          "face": "front",
-          "type": "DRILL",
-          "u": 101.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 1,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP33",
+          "id": "P001-OP12",
           "face": "front",
           "type": "DRILL",
           "u": 133.0,
-          "v": 399.8,
+          "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 2,
-            "label": "pin"
+            "joint": "J053",
+            "hardware": "hinge_35_overlay",
+            "fastener": 0,
+            "label": "plate_a"
           }
         },
         {
-          "id": "P001-OP34",
+          "id": "P001-OP13",
           "face": "front",
           "type": "DRILL",
-          "u": 165.0,
-          "v": 399.8,
+          "u": 101.0,
+          "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 3,
-            "label": "pin"
+            "joint": "J053",
+            "hardware": "hinge_35_overlay",
+            "fastener": 0,
+            "label": "plate_b"
           }
         },
         {
-          "id": "P001-OP35",
-          "face": "front",
-          "type": "DRILL",
-          "u": 197.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 4,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP36",
-          "face": "front",
-          "type": "DRILL",
-          "u": 229.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 5,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP37",
-          "face": "front",
-          "type": "DRILL",
-          "u": 261.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 6,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP38",
-          "face": "front",
-          "type": "DRILL",
-          "u": 293.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 7,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP39",
-          "face": "front",
-          "type": "DRILL",
-          "u": 325.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 8,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP40",
-          "face": "front",
-          "type": "DRILL",
-          "u": 357.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 9,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP41",
-          "face": "front",
-          "type": "DRILL",
-          "u": 389.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 10,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP42",
-          "face": "front",
-          "type": "DRILL",
-          "u": 421.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 11,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP43",
-          "face": "front",
-          "type": "DRILL",
-          "u": 453.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 12,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP44",
-          "face": "front",
-          "type": "DRILL",
-          "u": 485.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 13,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP45",
-          "face": "front",
-          "type": "DRILL",
-          "u": 517.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 14,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP46",
-          "face": "front",
-          "type": "DRILL",
-          "u": 549.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 15,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP47",
-          "face": "front",
-          "type": "DRILL",
-          "u": 581.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 16,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP48",
-          "face": "front",
-          "type": "DRILL",
-          "u": 613.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 17,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP49",
-          "face": "front",
-          "type": "DRILL",
-          "u": 645.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 18,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P001-OP50",
+          "id": "P001-OP14",
           "face": "front",
           "type": "DRILL",
           "u": 677.0,
-          "v": 399.8,
+          "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 19,
-            "label": "pin"
+            "joint": "J053",
+            "hardware": "hinge_35_overlay",
+            "fastener": 1,
+            "label": "plate_a"
           }
         },
         {
-          "id": "P001-OP51",
+          "id": "P001-OP15",
           "face": "front",
           "type": "DRILL",
-          "u": 709.0,
-          "v": 399.8,
+          "u": 645.0,
+          "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J022",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 20,
-            "label": "pin"
+            "joint": "J053",
+            "hardware": "hinge_35_overlay",
+            "fastener": 1,
+            "label": "plate_b"
           }
         },
         {
-          "id": "P001-OP52",
+          "id": "P001-OP16",
           "face": "bottom",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
@@ -1380,7 +804,7 @@
           "id": "P002-OP10",
           "face": "front",
           "type": "DRILL",
-          "u": 69.0,
+          "u": 389.0,
           "v": 413.0,
           "diameter": 5.0,
           "depth": 12.0,
@@ -1396,327 +820,7 @@
           "id": "P002-OP11",
           "face": "front",
           "type": "DRILL",
-          "u": 101.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 1,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP12",
-          "face": "front",
-          "type": "DRILL",
-          "u": 133.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 2,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP13",
-          "face": "front",
-          "type": "DRILL",
-          "u": 165.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 3,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP14",
-          "face": "front",
-          "type": "DRILL",
-          "u": 197.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 4,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP15",
-          "face": "front",
-          "type": "DRILL",
-          "u": 229.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 5,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP16",
-          "face": "front",
-          "type": "DRILL",
-          "u": 261.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 6,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP17",
-          "face": "front",
-          "type": "DRILL",
-          "u": 293.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 7,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP18",
-          "face": "front",
-          "type": "DRILL",
-          "u": 325.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 8,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP19",
-          "face": "front",
-          "type": "DRILL",
-          "u": 357.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 9,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP20",
-          "face": "front",
-          "type": "DRILL",
           "u": 389.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 10,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP21",
-          "face": "front",
-          "type": "DRILL",
-          "u": 421.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 11,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP22",
-          "face": "front",
-          "type": "DRILL",
-          "u": 453.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 12,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP23",
-          "face": "front",
-          "type": "DRILL",
-          "u": 485.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 13,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP24",
-          "face": "front",
-          "type": "DRILL",
-          "u": 517.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 14,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP25",
-          "face": "front",
-          "type": "DRILL",
-          "u": 549.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 15,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP26",
-          "face": "front",
-          "type": "DRILL",
-          "u": 581.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 16,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP27",
-          "face": "front",
-          "type": "DRILL",
-          "u": 613.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 17,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP28",
-          "face": "front",
-          "type": "DRILL",
-          "u": 645.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 18,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP29",
-          "face": "front",
-          "type": "DRILL",
-          "u": 677.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 19,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP30",
-          "face": "front",
-          "type": "DRILL",
-          "u": 709.0,
-          "v": 413.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J027",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 20,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP31",
-          "face": "front",
-          "type": "DRILL",
-          "u": 69.0,
           "v": 50.2,
           "diameter": 5.0,
           "depth": 12.0,
@@ -1729,327 +833,7 @@
           }
         },
         {
-          "id": "P002-OP32",
-          "face": "front",
-          "type": "DRILL",
-          "u": 101.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 1,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP33",
-          "face": "front",
-          "type": "DRILL",
-          "u": 133.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 2,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP34",
-          "face": "front",
-          "type": "DRILL",
-          "u": 165.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 3,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP35",
-          "face": "front",
-          "type": "DRILL",
-          "u": 197.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 4,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP36",
-          "face": "front",
-          "type": "DRILL",
-          "u": 229.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 5,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP37",
-          "face": "front",
-          "type": "DRILL",
-          "u": 261.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 6,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP38",
-          "face": "front",
-          "type": "DRILL",
-          "u": 293.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 7,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP39",
-          "face": "front",
-          "type": "DRILL",
-          "u": 325.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 8,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP40",
-          "face": "front",
-          "type": "DRILL",
-          "u": 357.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 9,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP41",
-          "face": "front",
-          "type": "DRILL",
-          "u": 389.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 10,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP42",
-          "face": "front",
-          "type": "DRILL",
-          "u": 421.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 11,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP43",
-          "face": "front",
-          "type": "DRILL",
-          "u": 453.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 12,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP44",
-          "face": "front",
-          "type": "DRILL",
-          "u": 485.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 13,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP45",
-          "face": "front",
-          "type": "DRILL",
-          "u": 517.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 14,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP46",
-          "face": "front",
-          "type": "DRILL",
-          "u": 549.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 15,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP47",
-          "face": "front",
-          "type": "DRILL",
-          "u": 581.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 16,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP48",
-          "face": "front",
-          "type": "DRILL",
-          "u": 613.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 17,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP49",
-          "face": "front",
-          "type": "DRILL",
-          "u": 645.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 18,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP50",
-          "face": "front",
-          "type": "DRILL",
-          "u": 677.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 19,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP51",
-          "face": "front",
-          "type": "DRILL",
-          "u": 709.0,
-          "v": 50.2,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J028",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 20,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P002-OP52",
+          "id": "P002-OP12",
           "face": "top",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
@@ -3087,7 +1871,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 16.0,
-          "v": 384.0,
+          "v": 351.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3103,7 +1887,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 48.0,
-          "v": 384.0,
+          "v": 351.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3119,7 +1903,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 16.0,
-          "v": 416.0,
+          "v": 383.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3135,7 +1919,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 48.0,
-          "v": 416.0,
+          "v": 383.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3151,7 +1935,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 493.0,
-          "v": 384.0,
+          "v": 351.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3167,7 +1951,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 525.0,
-          "v": 384.0,
+          "v": 351.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3183,7 +1967,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 493.0,
-          "v": 416.0,
+          "v": 383.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3199,7 +1983,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 525.0,
-          "v": 416.0,
+          "v": 383.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3215,7 +1999,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1039.0,
-          "v": 384.0,
+          "v": 351.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3231,7 +2015,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1071.0,
-          "v": 384.0,
+          "v": 351.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3247,7 +2031,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1039.0,
-          "v": 416.0,
+          "v": 383.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3263,7 +2047,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1071.0,
-          "v": 416.0,
+          "v": 383.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3279,7 +2063,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1516.0,
-          "v": 384.0,
+          "v": 351.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3295,7 +2079,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1548.0,
-          "v": 384.0,
+          "v": 351.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3311,7 +2095,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1516.0,
-          "v": 416.0,
+          "v": 383.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3327,7 +2111,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1548.0,
-          "v": 416.0,
+          "v": 383.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -3634,7 +2418,7 @@
           "id": "P006-OP13",
           "face": "back",
           "type": "DRILL",
-          "u": 51.0,
+          "u": 371.0,
           "v": 37.0,
           "diameter": 5.0,
           "depth": 12.0,
@@ -3650,804 +2434,164 @@
           "id": "P006-OP14",
           "face": "back",
           "type": "DRILL",
-          "u": 83.0,
-          "v": 37.0,
+          "u": 371.0,
+          "v": 399.8,
           "diameter": 5.0,
           "depth": 12.0,
           "through": false,
           "source": {
-            "joint": "J023",
+            "joint": "J024",
             "hardware": "shelf_pin_row_5",
-            "fastener": 1,
+            "fastener": 0,
             "label": "pin"
           }
         },
         {
           "id": "P006-OP15",
-          "face": "back",
+          "face": "front",
           "type": "DRILL",
-          "u": 115.0,
+          "u": 26.5,
           "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 2,
-            "label": "pin"
+            "joint": "J035",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_front"
           }
         },
         {
           "id": "P006-OP16",
-          "face": "back",
+          "face": "front",
           "type": "DRILL",
-          "u": 147.0,
-          "v": 37.0,
+          "u": 26.5,
+          "v": 197.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 3,
-            "label": "pin"
+            "joint": "J035",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_mid"
           }
         },
         {
           "id": "P006-OP17",
-          "face": "back",
+          "face": "front",
           "type": "DRILL",
-          "u": 179.0,
-          "v": 37.0,
+          "u": 26.5,
+          "v": 357.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 4,
-            "label": "pin"
+            "joint": "J035",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_rear"
           }
         },
         {
           "id": "P006-OP18",
-          "face": "back",
+          "face": "front",
           "type": "DRILL",
-          "u": 211.0,
+          "u": 282.5,
           "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 5,
-            "label": "pin"
+            "joint": "J043",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_front"
           }
         },
         {
           "id": "P006-OP19",
-          "face": "back",
+          "face": "front",
           "type": "DRILL",
-          "u": 243.0,
-          "v": 37.0,
+          "u": 282.5,
+          "v": 197.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 6,
-            "label": "pin"
+            "joint": "J043",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_mid"
           }
         },
         {
           "id": "P006-OP20",
-          "face": "back",
+          "face": "front",
           "type": "DRILL",
-          "u": 275.0,
-          "v": 37.0,
+          "u": 282.5,
+          "v": 357.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 7,
-            "label": "pin"
+            "joint": "J043",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_rear"
           }
         },
         {
           "id": "P006-OP21",
-          "face": "back",
+          "face": "front",
           "type": "DRILL",
-          "u": 307.0,
+          "u": 538.5,
           "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 8,
-            "label": "pin"
+            "joint": "J051",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_front"
           }
         },
         {
           "id": "P006-OP22",
-          "face": "back",
+          "face": "front",
           "type": "DRILL",
-          "u": 339.0,
-          "v": 37.0,
+          "u": 538.5,
+          "v": 197.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 9,
-            "label": "pin"
+            "joint": "J051",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_mid"
           }
         },
         {
           "id": "P006-OP23",
-          "face": "back",
+          "face": "front",
           "type": "DRILL",
-          "u": 371.0,
-          "v": 37.0,
+          "u": 538.5,
+          "v": 357.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 10,
-            "label": "pin"
+            "joint": "J051",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_rear"
           }
         },
         {
           "id": "P006-OP24",
-          "face": "back",
-          "type": "DRILL",
-          "u": 403.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 11,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP25",
-          "face": "back",
-          "type": "DRILL",
-          "u": 435.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 12,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP26",
-          "face": "back",
-          "type": "DRILL",
-          "u": 467.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 13,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP27",
-          "face": "back",
-          "type": "DRILL",
-          "u": 499.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 14,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP28",
-          "face": "back",
-          "type": "DRILL",
-          "u": 531.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 15,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP29",
-          "face": "back",
-          "type": "DRILL",
-          "u": 563.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 16,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP30",
-          "face": "back",
-          "type": "DRILL",
-          "u": 595.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 17,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP31",
-          "face": "back",
-          "type": "DRILL",
-          "u": 627.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 18,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP32",
-          "face": "back",
-          "type": "DRILL",
-          "u": 659.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 19,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP33",
-          "face": "back",
-          "type": "DRILL",
-          "u": 691.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J023",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 20,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP34",
-          "face": "back",
-          "type": "DRILL",
-          "u": 51.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 0,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP35",
-          "face": "back",
-          "type": "DRILL",
-          "u": 83.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 1,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP36",
-          "face": "back",
-          "type": "DRILL",
-          "u": 115.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 2,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP37",
-          "face": "back",
-          "type": "DRILL",
-          "u": 147.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 3,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP38",
-          "face": "back",
-          "type": "DRILL",
-          "u": 179.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 4,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP39",
-          "face": "back",
-          "type": "DRILL",
-          "u": 211.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 5,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP40",
-          "face": "back",
-          "type": "DRILL",
-          "u": 243.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 6,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP41",
-          "face": "back",
-          "type": "DRILL",
-          "u": 275.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 7,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP42",
-          "face": "back",
-          "type": "DRILL",
-          "u": 307.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 8,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP43",
-          "face": "back",
-          "type": "DRILL",
-          "u": 339.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 9,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP44",
-          "face": "back",
-          "type": "DRILL",
-          "u": 371.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 10,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP45",
-          "face": "back",
-          "type": "DRILL",
-          "u": 403.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 11,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP46",
-          "face": "back",
-          "type": "DRILL",
-          "u": 435.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 12,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP47",
-          "face": "back",
-          "type": "DRILL",
-          "u": 467.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 13,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP48",
-          "face": "back",
-          "type": "DRILL",
-          "u": 499.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 14,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP49",
-          "face": "back",
-          "type": "DRILL",
-          "u": 531.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 15,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP50",
-          "face": "back",
-          "type": "DRILL",
-          "u": 563.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 16,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP51",
-          "face": "back",
-          "type": "DRILL",
-          "u": 595.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 17,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP52",
-          "face": "back",
-          "type": "DRILL",
-          "u": 627.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 18,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP53",
-          "face": "back",
-          "type": "DRILL",
-          "u": 659.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 19,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP54",
-          "face": "back",
-          "type": "DRILL",
-          "u": 691.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J024",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 20,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P006-OP55",
-          "face": "front",
-          "type": "DRILL",
-          "u": 26.5,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J035",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_front"
-          }
-        },
-        {
-          "id": "P006-OP56",
-          "face": "front",
-          "type": "DRILL",
-          "u": 26.5,
-          "v": 197.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J035",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_mid"
-          }
-        },
-        {
-          "id": "P006-OP57",
-          "face": "front",
-          "type": "DRILL",
-          "u": 26.5,
-          "v": 357.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J035",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_rear"
-          }
-        },
-        {
-          "id": "P006-OP58",
-          "face": "front",
-          "type": "DRILL",
-          "u": 282.5,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J043",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_front"
-          }
-        },
-        {
-          "id": "P006-OP59",
-          "face": "front",
-          "type": "DRILL",
-          "u": 282.5,
-          "v": 197.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J043",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_mid"
-          }
-        },
-        {
-          "id": "P006-OP60",
-          "face": "front",
-          "type": "DRILL",
-          "u": 282.5,
-          "v": 357.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J043",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_rear"
-          }
-        },
-        {
-          "id": "P006-OP61",
-          "face": "front",
-          "type": "DRILL",
-          "u": 538.5,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J051",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_front"
-          }
-        },
-        {
-          "id": "P006-OP62",
-          "face": "front",
-          "type": "DRILL",
-          "u": 538.5,
-          "v": 197.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J051",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_mid"
-          }
-        },
-        {
-          "id": "P006-OP63",
-          "face": "front",
-          "type": "DRILL",
-          "u": 538.5,
-          "v": 357.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J051",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_rear"
-          }
-        },
-        {
-          "id": "P006-OP64",
           "face": "back",
           "type": "DRILL",
           "u": 367.0,
@@ -4463,7 +2607,7 @@
           }
         },
         {
-          "id": "P006-OP65",
+          "id": "P006-OP25",
           "face": "back",
           "type": "DRILL",
           "u": 367.0,
@@ -4479,7 +2623,7 @@
           }
         },
         {
-          "id": "P006-OP66",
+          "id": "P006-OP26",
           "face": "bottom",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
@@ -4725,7 +2869,7 @@
           "id": "P007-OP13",
           "face": "front",
           "type": "DRILL",
-          "u": 51.0,
+          "u": 371.0,
           "v": 37.0,
           "diameter": 5.0,
           "depth": 12.0,
@@ -4741,804 +2885,228 @@
           "id": "P007-OP14",
           "face": "front",
           "type": "DRILL",
-          "u": 83.0,
-          "v": 37.0,
+          "u": 371.0,
+          "v": 399.8,
           "diameter": 5.0,
           "depth": 12.0,
           "through": false,
           "source": {
-            "joint": "J025",
+            "joint": "J026",
             "hardware": "shelf_pin_row_5",
-            "fastener": 1,
+            "fastener": 0,
             "label": "pin"
           }
         },
         {
           "id": "P007-OP15",
-          "face": "front",
+          "face": "back",
           "type": "DRILL",
-          "u": 115.0,
+          "u": 26.5,
           "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 2,
-            "label": "pin"
+            "joint": "J036",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_front"
           }
         },
         {
           "id": "P007-OP16",
-          "face": "front",
+          "face": "back",
           "type": "DRILL",
-          "u": 147.0,
-          "v": 37.0,
+          "u": 26.5,
+          "v": 197.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 3,
-            "label": "pin"
+            "joint": "J036",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_mid"
           }
         },
         {
           "id": "P007-OP17",
-          "face": "front",
+          "face": "back",
           "type": "DRILL",
-          "u": 179.0,
-          "v": 37.0,
+          "u": 26.5,
+          "v": 357.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 4,
-            "label": "pin"
+            "joint": "J036",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_rear"
           }
         },
         {
           "id": "P007-OP18",
-          "face": "front",
+          "face": "back",
           "type": "DRILL",
-          "u": 211.0,
+          "u": 282.5,
           "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 5,
-            "label": "pin"
+            "joint": "J044",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_front"
           }
         },
         {
           "id": "P007-OP19",
-          "face": "front",
+          "face": "back",
           "type": "DRILL",
-          "u": 243.0,
-          "v": 37.0,
+          "u": 282.5,
+          "v": 197.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 6,
-            "label": "pin"
+            "joint": "J044",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_mid"
           }
         },
         {
           "id": "P007-OP20",
-          "face": "front",
+          "face": "back",
           "type": "DRILL",
-          "u": 275.0,
-          "v": 37.0,
+          "u": 282.5,
+          "v": 357.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 7,
-            "label": "pin"
+            "joint": "J044",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_rear"
           }
         },
         {
           "id": "P007-OP21",
-          "face": "front",
+          "face": "back",
           "type": "DRILL",
-          "u": 307.0,
+          "u": 538.5,
           "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 8,
-            "label": "pin"
+            "joint": "J052",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_front"
           }
         },
         {
           "id": "P007-OP22",
-          "face": "front",
+          "face": "back",
           "type": "DRILL",
-          "u": 339.0,
-          "v": 37.0,
+          "u": 538.5,
+          "v": 197.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 9,
-            "label": "pin"
+            "joint": "J052",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_mid"
           }
         },
         {
           "id": "P007-OP23",
-          "face": "front",
+          "face": "back",
           "type": "DRILL",
-          "u": 371.0,
-          "v": 37.0,
+          "u": 538.5,
+          "v": 357.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 10,
-            "label": "pin"
+            "joint": "J052",
+            "hardware": "slide_ball_soft_400",
+            "fastener": 0,
+            "label": "cabinet_rear"
           }
         },
         {
           "id": "P007-OP24",
           "face": "front",
           "type": "DRILL",
-          "u": 403.0,
+          "u": 115.0,
           "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 11,
-            "label": "pin"
+            "joint": "J056",
+            "hardware": "hinge_35_half_soft",
+            "fastener": 0,
+            "label": "plate_a"
           }
         },
         {
           "id": "P007-OP25",
           "face": "front",
           "type": "DRILL",
-          "u": 435.0,
+          "u": 83.0,
           "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 12,
-            "label": "pin"
+            "joint": "J056",
+            "hardware": "hinge_35_half_soft",
+            "fastener": 0,
+            "label": "plate_b"
           }
         },
         {
           "id": "P007-OP26",
           "face": "front",
           "type": "DRILL",
-          "u": 467.0,
+          "u": 659.0,
           "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 13,
-            "label": "pin"
+            "joint": "J056",
+            "hardware": "hinge_35_half_soft",
+            "fastener": 1,
+            "label": "plate_a"
           }
         },
         {
           "id": "P007-OP27",
           "face": "front",
           "type": "DRILL",
-          "u": 499.0,
+          "u": 627.0,
           "v": 37.0,
           "diameter": 5.0,
-          "depth": 12.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 14,
-            "label": "pin"
+            "joint": "J056",
+            "hardware": "hinge_35_half_soft",
+            "fastener": 1,
+            "label": "plate_b"
           }
         },
         {
           "id": "P007-OP28",
-          "face": "front",
-          "type": "DRILL",
-          "u": 531.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 15,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP29",
-          "face": "front",
-          "type": "DRILL",
-          "u": 563.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 16,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP30",
-          "face": "front",
-          "type": "DRILL",
-          "u": 595.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 17,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP31",
-          "face": "front",
-          "type": "DRILL",
-          "u": 627.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 18,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP32",
-          "face": "front",
-          "type": "DRILL",
-          "u": 659.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 19,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP33",
-          "face": "front",
-          "type": "DRILL",
-          "u": 691.0,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J025",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 20,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP34",
-          "face": "front",
-          "type": "DRILL",
-          "u": 51.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 0,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP35",
-          "face": "front",
-          "type": "DRILL",
-          "u": 83.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 1,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP36",
-          "face": "front",
-          "type": "DRILL",
-          "u": 115.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 2,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP37",
-          "face": "front",
-          "type": "DRILL",
-          "u": 147.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 3,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP38",
-          "face": "front",
-          "type": "DRILL",
-          "u": 179.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 4,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP39",
-          "face": "front",
-          "type": "DRILL",
-          "u": 211.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 5,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP40",
-          "face": "front",
-          "type": "DRILL",
-          "u": 243.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 6,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP41",
-          "face": "front",
-          "type": "DRILL",
-          "u": 275.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 7,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP42",
-          "face": "front",
-          "type": "DRILL",
-          "u": 307.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 8,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP43",
-          "face": "front",
-          "type": "DRILL",
-          "u": 339.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 9,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP44",
-          "face": "front",
-          "type": "DRILL",
-          "u": 371.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 10,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP45",
-          "face": "front",
-          "type": "DRILL",
-          "u": 403.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 11,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP46",
-          "face": "front",
-          "type": "DRILL",
-          "u": 435.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 12,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP47",
-          "face": "front",
-          "type": "DRILL",
-          "u": 467.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 13,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP48",
-          "face": "front",
-          "type": "DRILL",
-          "u": 499.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 14,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP49",
-          "face": "front",
-          "type": "DRILL",
-          "u": 531.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 15,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP50",
-          "face": "front",
-          "type": "DRILL",
-          "u": 563.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 16,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP51",
-          "face": "front",
-          "type": "DRILL",
-          "u": 595.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 17,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP52",
-          "face": "front",
-          "type": "DRILL",
-          "u": 627.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 18,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP53",
-          "face": "front",
-          "type": "DRILL",
-          "u": 659.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 19,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP54",
-          "face": "front",
-          "type": "DRILL",
-          "u": 691.0,
-          "v": 399.8,
-          "diameter": 5.0,
-          "depth": 12.0,
-          "through": false,
-          "source": {
-            "joint": "J026",
-            "hardware": "shelf_pin_row_5",
-            "fastener": 20,
-            "label": "pin"
-          }
-        },
-        {
-          "id": "P007-OP55",
-          "face": "back",
-          "type": "DRILL",
-          "u": 26.5,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J036",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_front"
-          }
-        },
-        {
-          "id": "P007-OP56",
-          "face": "back",
-          "type": "DRILL",
-          "u": 26.5,
-          "v": 197.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J036",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_mid"
-          }
-        },
-        {
-          "id": "P007-OP57",
-          "face": "back",
-          "type": "DRILL",
-          "u": 26.5,
-          "v": 357.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J036",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_rear"
-          }
-        },
-        {
-          "id": "P007-OP58",
-          "face": "back",
-          "type": "DRILL",
-          "u": 282.5,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J044",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_front"
-          }
-        },
-        {
-          "id": "P007-OP59",
-          "face": "back",
-          "type": "DRILL",
-          "u": 282.5,
-          "v": 197.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J044",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_mid"
-          }
-        },
-        {
-          "id": "P007-OP60",
-          "face": "back",
-          "type": "DRILL",
-          "u": 282.5,
-          "v": 357.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J044",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_rear"
-          }
-        },
-        {
-          "id": "P007-OP61",
-          "face": "back",
-          "type": "DRILL",
-          "u": 538.5,
-          "v": 37.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J052",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_front"
-          }
-        },
-        {
-          "id": "P007-OP62",
-          "face": "back",
-          "type": "DRILL",
-          "u": 538.5,
-          "v": 197.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J052",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_mid"
-          }
-        },
-        {
-          "id": "P007-OP63",
-          "face": "back",
-          "type": "DRILL",
-          "u": 538.5,
-          "v": 357.0,
-          "diameter": 5.0,
-          "depth": 11.0,
-          "through": false,
-          "source": {
-            "joint": "J052",
-            "hardware": "slide_ball_soft_400",
-            "fastener": 0,
-            "label": "cabinet_rear"
-          }
-        },
-        {
-          "id": "P007-OP64",
           "face": "bottom",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
@@ -5739,7 +3307,7 @@
         "origin": [
           19.0,
           13.2,
-          376.0
+          391.5
         ],
         "x": "pos_x",
         "y": "pos_y"
@@ -5748,12 +3316,12 @@
         "min": [
           19.0,
           13.2,
-          376.0
+          391.5
         ],
         "max": [
           517.0,
           430.0,
-          394.0
+          409.5
         ]
       },
       "operations": [
@@ -5790,7 +3358,7 @@
         "origin": [
           1083.0,
           13.2,
-          376.0
+          391.5
         ],
         "x": "pos_x",
         "y": "pos_y"
@@ -5799,12 +3367,12 @@
         "min": [
           1083.0,
           13.2,
-          376.0
+          391.5
         ],
         "max": [
           1581.0,
           430.0,
-          394.0
+          409.5
         ]
       },
       "operations": [
@@ -9800,12 +7368,12 @@
       "contact": {
         "min": [
           50.0,
-          400.0,
+          367.0,
           0.0
         ],
         "max": [
           50.0,
-          400.0,
+          367.0,
           0.0
         ]
       },
@@ -9817,7 +7385,7 @@
           "index": 0,
           "position": [
             50.0,
-            400.0,
+            367.0,
             0.0
           ]
         }
@@ -9835,12 +7403,12 @@
       "contact": {
         "min": [
           527.0,
-          400.0,
+          367.0,
           0.0
         ],
         "max": [
           527.0,
-          400.0,
+          367.0,
           0.0
         ]
       },
@@ -9852,7 +7420,7 @@
           "index": 0,
           "position": [
             527.0,
-            400.0,
+            367.0,
             0.0
           ]
         }
@@ -9870,12 +7438,12 @@
       "contact": {
         "min": [
           1073.0,
-          400.0,
+          367.0,
           0.0
         ],
         "max": [
           1073.0,
-          400.0,
+          367.0,
           0.0
         ]
       },
@@ -9887,7 +7455,7 @@
           "index": 0,
           "position": [
             1073.0,
-            400.0,
+            367.0,
             0.0
           ]
         }
@@ -9905,12 +7473,12 @@
       "contact": {
         "min": [
           1550.0,
-          400.0,
+          367.0,
           0.0
         ],
         "max": [
           1550.0,
-          400.0,
+          367.0,
           0.0
         ]
       },
@@ -9922,7 +7490,7 @@
           "index": 0,
           "position": [
             1550.0,
-            400.0,
+            367.0,
             0.0
           ]
         }
@@ -10081,16 +7649,16 @@
         "min": [
           18.0,
           413.0,
-          69.0
+          389.0
         ],
         "max": [
           18.0,
           413.0,
-          709.0
+          389.0
         ]
       },
       "axis": "pos_z",
-      "length": 640.0,
+      "length": 0.0,
       "fasteners": [
         {
           "hardware": "shelf_pin_row_5",
@@ -10098,187 +7666,7 @@
           "position": [
             18.0,
             413.0,
-            69.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 1,
-          "position": [
-            18.0,
-            413.0,
-            101.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 2,
-          "position": [
-            18.0,
-            413.0,
-            133.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 3,
-          "position": [
-            18.0,
-            413.0,
-            165.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 4,
-          "position": [
-            18.0,
-            413.0,
-            197.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 5,
-          "position": [
-            18.0,
-            413.0,
-            229.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 6,
-          "position": [
-            18.0,
-            413.0,
-            261.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 7,
-          "position": [
-            18.0,
-            413.0,
-            293.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 8,
-          "position": [
-            18.0,
-            413.0,
-            325.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 9,
-          "position": [
-            18.0,
-            413.0,
-            357.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 10,
-          "position": [
-            18.0,
-            413.0,
             389.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 11,
-          "position": [
-            18.0,
-            413.0,
-            421.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 12,
-          "position": [
-            18.0,
-            413.0,
-            453.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 13,
-          "position": [
-            18.0,
-            413.0,
-            485.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 14,
-          "position": [
-            18.0,
-            413.0,
-            517.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 15,
-          "position": [
-            18.0,
-            413.0,
-            549.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 16,
-          "position": [
-            18.0,
-            413.0,
-            581.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 17,
-          "position": [
-            18.0,
-            413.0,
-            613.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 18,
-          "position": [
-            18.0,
-            413.0,
-            645.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 19,
-          "position": [
-            18.0,
-            413.0,
-            677.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 20,
-          "position": [
-            18.0,
-            413.0,
-            709.0
           ]
         }
       ]
@@ -10296,16 +7684,16 @@
         "min": [
           18.0,
           50.2,
-          69.0
+          389.0
         ],
         "max": [
           18.0,
           50.2,
-          709.0
+          389.0
         ]
       },
       "axis": "pos_z",
-      "length": 640.0,
+      "length": 0.0,
       "fasteners": [
         {
           "hardware": "shelf_pin_row_5",
@@ -10313,187 +7701,7 @@
           "position": [
             18.0,
             50.2,
-            69.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 1,
-          "position": [
-            18.0,
-            50.2,
-            101.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 2,
-          "position": [
-            18.0,
-            50.2,
-            133.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 3,
-          "position": [
-            18.0,
-            50.2,
-            165.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 4,
-          "position": [
-            18.0,
-            50.2,
-            197.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 5,
-          "position": [
-            18.0,
-            50.2,
-            229.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 6,
-          "position": [
-            18.0,
-            50.2,
-            261.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 7,
-          "position": [
-            18.0,
-            50.2,
-            293.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 8,
-          "position": [
-            18.0,
-            50.2,
-            325.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 9,
-          "position": [
-            18.0,
-            50.2,
-            357.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 10,
-          "position": [
-            18.0,
-            50.2,
             389.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 11,
-          "position": [
-            18.0,
-            50.2,
-            421.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 12,
-          "position": [
-            18.0,
-            50.2,
-            453.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 13,
-          "position": [
-            18.0,
-            50.2,
-            485.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 14,
-          "position": [
-            18.0,
-            50.2,
-            517.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 15,
-          "position": [
-            18.0,
-            50.2,
-            549.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 16,
-          "position": [
-            18.0,
-            50.2,
-            581.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 17,
-          "position": [
-            18.0,
-            50.2,
-            613.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 18,
-          "position": [
-            18.0,
-            50.2,
-            645.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 19,
-          "position": [
-            18.0,
-            50.2,
-            677.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 20,
-          "position": [
-            18.0,
-            50.2,
-            709.0
           ]
         }
       ]
@@ -10511,16 +7719,16 @@
         "min": [
           518.0,
           413.0,
-          69.0
+          389.0
         ],
         "max": [
           518.0,
           413.0,
-          709.0
+          389.0
         ]
       },
       "axis": "pos_z",
-      "length": 640.0,
+      "length": 0.0,
       "fasteners": [
         {
           "hardware": "shelf_pin_row_5",
@@ -10528,187 +7736,7 @@
           "position": [
             518.0,
             413.0,
-            69.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 1,
-          "position": [
-            518.0,
-            413.0,
-            101.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 2,
-          "position": [
-            518.0,
-            413.0,
-            133.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 3,
-          "position": [
-            518.0,
-            413.0,
-            165.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 4,
-          "position": [
-            518.0,
-            413.0,
-            197.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 5,
-          "position": [
-            518.0,
-            413.0,
-            229.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 6,
-          "position": [
-            518.0,
-            413.0,
-            261.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 7,
-          "position": [
-            518.0,
-            413.0,
-            293.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 8,
-          "position": [
-            518.0,
-            413.0,
-            325.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 9,
-          "position": [
-            518.0,
-            413.0,
-            357.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 10,
-          "position": [
-            518.0,
-            413.0,
             389.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 11,
-          "position": [
-            518.0,
-            413.0,
-            421.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 12,
-          "position": [
-            518.0,
-            413.0,
-            453.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 13,
-          "position": [
-            518.0,
-            413.0,
-            485.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 14,
-          "position": [
-            518.0,
-            413.0,
-            517.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 15,
-          "position": [
-            518.0,
-            413.0,
-            549.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 16,
-          "position": [
-            518.0,
-            413.0,
-            581.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 17,
-          "position": [
-            518.0,
-            413.0,
-            613.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 18,
-          "position": [
-            518.0,
-            413.0,
-            645.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 19,
-          "position": [
-            518.0,
-            413.0,
-            677.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 20,
-          "position": [
-            518.0,
-            413.0,
-            709.0
           ]
         }
       ]
@@ -10726,16 +7754,16 @@
         "min": [
           518.0,
           50.2,
-          69.0
+          389.0
         ],
         "max": [
           518.0,
           50.2,
-          709.0
+          389.0
         ]
       },
       "axis": "pos_z",
-      "length": 640.0,
+      "length": 0.0,
       "fasteners": [
         {
           "hardware": "shelf_pin_row_5",
@@ -10743,187 +7771,7 @@
           "position": [
             518.0,
             50.2,
-            69.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 1,
-          "position": [
-            518.0,
-            50.2,
-            101.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 2,
-          "position": [
-            518.0,
-            50.2,
-            133.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 3,
-          "position": [
-            518.0,
-            50.2,
-            165.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 4,
-          "position": [
-            518.0,
-            50.2,
-            197.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 5,
-          "position": [
-            518.0,
-            50.2,
-            229.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 6,
-          "position": [
-            518.0,
-            50.2,
-            261.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 7,
-          "position": [
-            518.0,
-            50.2,
-            293.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 8,
-          "position": [
-            518.0,
-            50.2,
-            325.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 9,
-          "position": [
-            518.0,
-            50.2,
-            357.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 10,
-          "position": [
-            518.0,
-            50.2,
             389.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 11,
-          "position": [
-            518.0,
-            50.2,
-            421.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 12,
-          "position": [
-            518.0,
-            50.2,
-            453.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 13,
-          "position": [
-            518.0,
-            50.2,
-            485.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 14,
-          "position": [
-            518.0,
-            50.2,
-            517.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 15,
-          "position": [
-            518.0,
-            50.2,
-            549.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 16,
-          "position": [
-            518.0,
-            50.2,
-            581.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 17,
-          "position": [
-            518.0,
-            50.2,
-            613.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 18,
-          "position": [
-            518.0,
-            50.2,
-            645.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 19,
-          "position": [
-            518.0,
-            50.2,
-            677.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 20,
-          "position": [
-            518.0,
-            50.2,
-            709.0
           ]
         }
       ]
@@ -10941,16 +7789,16 @@
         "min": [
           1082.0,
           413.0,
-          69.0
+          389.0
         ],
         "max": [
           1082.0,
           413.0,
-          709.0
+          389.0
         ]
       },
       "axis": "pos_z",
-      "length": 640.0,
+      "length": 0.0,
       "fasteners": [
         {
           "hardware": "shelf_pin_row_5",
@@ -10958,187 +7806,7 @@
           "position": [
             1082.0,
             413.0,
-            69.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 1,
-          "position": [
-            1082.0,
-            413.0,
-            101.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 2,
-          "position": [
-            1082.0,
-            413.0,
-            133.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 3,
-          "position": [
-            1082.0,
-            413.0,
-            165.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 4,
-          "position": [
-            1082.0,
-            413.0,
-            197.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 5,
-          "position": [
-            1082.0,
-            413.0,
-            229.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 6,
-          "position": [
-            1082.0,
-            413.0,
-            261.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 7,
-          "position": [
-            1082.0,
-            413.0,
-            293.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 8,
-          "position": [
-            1082.0,
-            413.0,
-            325.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 9,
-          "position": [
-            1082.0,
-            413.0,
-            357.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 10,
-          "position": [
-            1082.0,
-            413.0,
             389.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 11,
-          "position": [
-            1082.0,
-            413.0,
-            421.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 12,
-          "position": [
-            1082.0,
-            413.0,
-            453.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 13,
-          "position": [
-            1082.0,
-            413.0,
-            485.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 14,
-          "position": [
-            1082.0,
-            413.0,
-            517.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 15,
-          "position": [
-            1082.0,
-            413.0,
-            549.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 16,
-          "position": [
-            1082.0,
-            413.0,
-            581.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 17,
-          "position": [
-            1082.0,
-            413.0,
-            613.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 18,
-          "position": [
-            1082.0,
-            413.0,
-            645.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 19,
-          "position": [
-            1082.0,
-            413.0,
-            677.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 20,
-          "position": [
-            1082.0,
-            413.0,
-            709.0
           ]
         }
       ]
@@ -11156,16 +7824,16 @@
         "min": [
           1082.0,
           50.2,
-          69.0
+          389.0
         ],
         "max": [
           1082.0,
           50.2,
-          709.0
+          389.0
         ]
       },
       "axis": "pos_z",
-      "length": 640.0,
+      "length": 0.0,
       "fasteners": [
         {
           "hardware": "shelf_pin_row_5",
@@ -11173,187 +7841,7 @@
           "position": [
             1082.0,
             50.2,
-            69.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 1,
-          "position": [
-            1082.0,
-            50.2,
-            101.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 2,
-          "position": [
-            1082.0,
-            50.2,
-            133.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 3,
-          "position": [
-            1082.0,
-            50.2,
-            165.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 4,
-          "position": [
-            1082.0,
-            50.2,
-            197.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 5,
-          "position": [
-            1082.0,
-            50.2,
-            229.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 6,
-          "position": [
-            1082.0,
-            50.2,
-            261.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 7,
-          "position": [
-            1082.0,
-            50.2,
-            293.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 8,
-          "position": [
-            1082.0,
-            50.2,
-            325.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 9,
-          "position": [
-            1082.0,
-            50.2,
-            357.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 10,
-          "position": [
-            1082.0,
-            50.2,
             389.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 11,
-          "position": [
-            1082.0,
-            50.2,
-            421.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 12,
-          "position": [
-            1082.0,
-            50.2,
-            453.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 13,
-          "position": [
-            1082.0,
-            50.2,
-            485.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 14,
-          "position": [
-            1082.0,
-            50.2,
-            517.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 15,
-          "position": [
-            1082.0,
-            50.2,
-            549.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 16,
-          "position": [
-            1082.0,
-            50.2,
-            581.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 17,
-          "position": [
-            1082.0,
-            50.2,
-            613.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 18,
-          "position": [
-            1082.0,
-            50.2,
-            645.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 19,
-          "position": [
-            1082.0,
-            50.2,
-            677.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 20,
-          "position": [
-            1082.0,
-            50.2,
-            709.0
           ]
         }
       ]
@@ -11371,16 +7859,16 @@
         "min": [
           1582.0,
           413.0,
-          69.0
+          389.0
         ],
         "max": [
           1582.0,
           413.0,
-          709.0
+          389.0
         ]
       },
       "axis": "pos_z",
-      "length": 640.0,
+      "length": 0.0,
       "fasteners": [
         {
           "hardware": "shelf_pin_row_5",
@@ -11388,187 +7876,7 @@
           "position": [
             1582.0,
             413.0,
-            69.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 1,
-          "position": [
-            1582.0,
-            413.0,
-            101.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 2,
-          "position": [
-            1582.0,
-            413.0,
-            133.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 3,
-          "position": [
-            1582.0,
-            413.0,
-            165.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 4,
-          "position": [
-            1582.0,
-            413.0,
-            197.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 5,
-          "position": [
-            1582.0,
-            413.0,
-            229.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 6,
-          "position": [
-            1582.0,
-            413.0,
-            261.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 7,
-          "position": [
-            1582.0,
-            413.0,
-            293.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 8,
-          "position": [
-            1582.0,
-            413.0,
-            325.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 9,
-          "position": [
-            1582.0,
-            413.0,
-            357.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 10,
-          "position": [
-            1582.0,
-            413.0,
             389.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 11,
-          "position": [
-            1582.0,
-            413.0,
-            421.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 12,
-          "position": [
-            1582.0,
-            413.0,
-            453.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 13,
-          "position": [
-            1582.0,
-            413.0,
-            485.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 14,
-          "position": [
-            1582.0,
-            413.0,
-            517.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 15,
-          "position": [
-            1582.0,
-            413.0,
-            549.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 16,
-          "position": [
-            1582.0,
-            413.0,
-            581.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 17,
-          "position": [
-            1582.0,
-            413.0,
-            613.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 18,
-          "position": [
-            1582.0,
-            413.0,
-            645.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 19,
-          "position": [
-            1582.0,
-            413.0,
-            677.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 20,
-          "position": [
-            1582.0,
-            413.0,
-            709.0
           ]
         }
       ]
@@ -11586,16 +7894,16 @@
         "min": [
           1582.0,
           50.2,
-          69.0
+          389.0
         ],
         "max": [
           1582.0,
           50.2,
-          709.0
+          389.0
         ]
       },
       "axis": "pos_z",
-      "length": 640.0,
+      "length": 0.0,
       "fasteners": [
         {
           "hardware": "shelf_pin_row_5",
@@ -11603,187 +7911,7 @@
           "position": [
             1582.0,
             50.2,
-            69.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 1,
-          "position": [
-            1582.0,
-            50.2,
-            101.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 2,
-          "position": [
-            1582.0,
-            50.2,
-            133.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 3,
-          "position": [
-            1582.0,
-            50.2,
-            165.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 4,
-          "position": [
-            1582.0,
-            50.2,
-            197.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 5,
-          "position": [
-            1582.0,
-            50.2,
-            229.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 6,
-          "position": [
-            1582.0,
-            50.2,
-            261.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 7,
-          "position": [
-            1582.0,
-            50.2,
-            293.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 8,
-          "position": [
-            1582.0,
-            50.2,
-            325.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 9,
-          "position": [
-            1582.0,
-            50.2,
-            357.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 10,
-          "position": [
-            1582.0,
-            50.2,
             389.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 11,
-          "position": [
-            1582.0,
-            50.2,
-            421.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 12,
-          "position": [
-            1582.0,
-            50.2,
-            453.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 13,
-          "position": [
-            1582.0,
-            50.2,
-            485.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 14,
-          "position": [
-            1582.0,
-            50.2,
-            517.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 15,
-          "position": [
-            1582.0,
-            50.2,
-            549.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 16,
-          "position": [
-            1582.0,
-            50.2,
-            581.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 17,
-          "position": [
-            1582.0,
-            50.2,
-            613.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 18,
-          "position": [
-            1582.0,
-            50.2,
-            645.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 19,
-          "position": [
-            1582.0,
-            50.2,
-            677.0
-          ]
-        },
-        {
-          "hardware": "shelf_pin_row_5",
-          "index": 20,
-          "position": [
-            1582.0,
-            50.2,
-            709.0
           ]
         }
       ]
@@ -13080,7 +9208,7 @@
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/abs_1mm/-",
-      "operations": 52,
+      "operations": 16,
       "weightKg": 4.054
     },
     {
@@ -13097,7 +9225,7 @@
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/-/abs_1mm",
-      "operations": 52,
+      "operations": 12,
       "weightKg": 4.054
     },
     {
@@ -13165,7 +9293,7 @@
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/abs_1mm/-",
-      "operations": 66,
+      "operations": 26,
       "weightKg": 3.751
     },
     {
@@ -13182,7 +9310,7 @@
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/abs_1mm/-",
-      "operations": 64,
+      "operations": 28,
       "weightKg": 3.751
     },
     {
@@ -13581,7 +9709,7 @@
       {
         "hardware": "shelf_pin_row_5",
         "name": "Hilera Sistema 32 para soportes Ø5",
-        "quantity": 168,
+        "quantity": 8,
         "items": [],
         "cost": 0.0
       },
@@ -13909,25 +10037,25 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 4054.463,
+    "totalSeconds": 3874.028,
     "programs": [
       {
         "part": "P001",
         "setup": "A",
-        "operations": 52,
+        "operations": 16,
         "toolChanges": 4,
-        "cutMm": 7753.5,
-        "rapidMm": 8116.283,
-        "seconds": 272.854
+        "cutMm": 7317.5,
+        "rapidMm": 8094.347,
+        "seconds": 231.988
       },
       {
         "part": "P002",
         "setup": "A",
-        "operations": 52,
+        "operations": 12,
         "toolChanges": 4,
-        "cutMm": 7753.5,
-        "rapidMm": 7901.313,
-        "seconds": 272.209
+        "cutMm": 7273.5,
+        "rapidMm": 6858.715,
+        "seconds": 224.081
       },
       {
         "part": "P003",
@@ -13953,8 +10081,8 @@
         "operations": 32,
         "toolChanges": 1,
         "cutMm": 384.0,
-        "rapidMm": 5843.589,
-        "seconds": 61.531
+        "rapidMm": 5837.217,
+        "seconds": 61.512
       },
       {
         "part": "P005",
@@ -13977,20 +10105,20 @@
       {
         "part": "P006",
         "setup": "B",
-        "operations": 44,
+        "operations": 4,
         "toolChanges": 2,
-        "cutMm": 528.0,
-        "rapidMm": 3149.51,
-        "seconds": 74.949
+        "cutMm": 48.0,
+        "rapidMm": 1193.052,
+        "seconds": 24.079
       },
       {
         "part": "P007",
         "setup": "A",
-        "operations": 55,
+        "operations": 19,
         "toolChanges": 4,
-        "cutMm": 3173.1,
-        "rapidMm": 3886.735,
-        "seconds": 150.349
+        "cutMm": 2737.1,
+        "rapidMm": 3969.24,
+        "seconds": 109.797
       },
       {
         "part": "P007",

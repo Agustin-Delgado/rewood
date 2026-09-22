@@ -11,6 +11,7 @@
 	<div class="overlay">
 		<label><input type="checkbox" bind:checked={app.showHoles} /> perforaciones</label>
 		<label><input type="checkbox" bind:checked={app.showHardware} /> herrajes</label>
+		<button class="open" class:on={app.openAll} title="Abrir o cerrar puertas y cajones (doble clic en uno lo abre solo a él)" onclick={() => app.setOpenAll(!app.openAll)}>{app.openAll ? 'cerrar' : 'abrir'}</button>
 		<label title="vista explotada">explotar <input type="range" min="0" max="2" step="0.05" bind:value={app.explode} /></label>
 		<span class="views">
 			{#each VIEWS as v (v.id)}
@@ -62,6 +63,20 @@
 		border-radius: 3px;
 		background: #fff;
 		cursor: pointer;
+	}
+	.open {
+		font: inherit;
+		font-size: 11px;
+		padding: 1px 8px;
+		border: 1px solid #d1d5db;
+		border-radius: 3px;
+		background: #fff;
+		cursor: pointer;
+	}
+	.open.on {
+		background: #ff8c42;
+		border-color: #ff8c42;
+		color: #fff;
 	}
 	.views button.on {
 		background: #1f2937;

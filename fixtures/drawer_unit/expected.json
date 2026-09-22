@@ -1614,7 +1614,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 16.0,
-          "v": 434.0,
+          "v": 401.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -1630,7 +1630,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 48.0,
-          "v": 434.0,
+          "v": 401.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -1646,7 +1646,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 16.0,
-          "v": 466.0,
+          "v": 433.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -1662,7 +1662,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 48.0,
-          "v": 466.0,
+          "v": 433.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -1678,7 +1678,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 516.0,
-          "v": 434.0,
+          "v": 401.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -1694,7 +1694,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 548.0,
-          "v": 434.0,
+          "v": 401.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -1710,7 +1710,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 516.0,
-          "v": 466.0,
+          "v": 433.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -1726,7 +1726,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 548.0,
-          "v": 466.0,
+          "v": 433.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -5069,12 +5069,12 @@
       "contact": {
         "min": [
           50.0,
-          450.0,
+          417.0,
           0.0
         ],
         "max": [
           50.0,
-          450.0,
+          417.0,
           0.0
         ]
       },
@@ -5086,7 +5086,7 @@
           "index": 0,
           "position": [
             50.0,
-            450.0,
+            417.0,
             0.0
           ]
         }
@@ -5104,12 +5104,12 @@
       "contact": {
         "min": [
           550.0,
-          450.0,
+          417.0,
           0.0
         ],
         "max": [
           550.0,
-          450.0,
+          417.0,
           0.0
         ]
       },
@@ -5121,7 +5121,7 @@
           "index": 0,
           "position": [
             550.0,
-            450.0,
+            417.0,
             0.0
           ]
         }
@@ -6760,7 +6760,7 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 2921.94,
+    "totalSeconds": 2921.886,
     "programs": [
       {
         "part": "P001",
@@ -6804,8 +6804,8 @@
         "operations": 16,
         "toolChanges": 1,
         "cutMm": 192.0,
-        "rapidMm": 2662.355,
-        "seconds": 33.987
+        "rapidMm": 2644.168,
+        "seconds": 33.933
       },
       {
         "part": "P005",

@@ -158,7 +158,12 @@ fn row_contact(parts: &[Part], ip: usize, from: Vec3, to: Vec3, face: Face) -> C
     let p = &parts[ip];
     let normal = p.placement.world_axis(face.normal_local());
     let d = to - from;
-    let axis = Axis::from_vec(d * (1.0 / d.length()));
+    // A one-hole row (a shelf that does not move) has no direction.
+    let axis = if d.length() < crate::units::EPS {
+        Axis::PosZ
+    } else {
+        Axis::from_vec(d * (1.0 / d.length()))
+    };
     Contact {
         rect: Aabb {
             min: Vec3(from.0.min(to.0), from.1.min(to.1), from.2.min(to.2)),

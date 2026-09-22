@@ -200,7 +200,7 @@ fn a_raised_carcass_keeps_hinges_on_its_shelf_pin_rows() {
             "",
             &format!(
                 r#"{{ "type": "carcass", "id": "c", "width": 450, "origin": {{ "z": {z} }}, "joint": {{ "hardware": ["minifix_15", "dowel_8x30"] }}, "back": {{ "material": "hdf_3" }} }},
-                {{ "type": "shelves", "id": "s", "count": 2, "support": "pins" }},
+                {{ "type": "shelves", "id": "s", "count": 2, "support": "pins", "pins": {{ "adjust": 2000 }} }},
                 {{ "type": "doors", "id": "d", "count": 1, "handle": {{ "hardware": ["handle_bar_128"] }} }}"#
             ),
         );
@@ -320,4 +320,84 @@ fn options_resolve_their_bounds_and_flag_values_outside_them() {
     assert_eq!(codes(&plan, "SPEC-502").len(), 1);
     let plan = rewood_core::compile_json(&json.replace(r#""param": "side""#, r#""param": "nope""#));
     assert_eq!(codes(&plan, "SPEC-501").len(), 1);
+}
+
+#[test]
+fn front_legs_stand_behind_the_plinth_and_a_clash_is_caught() {
+    let carcass = |id: &str, x: f64| {
+        format!(
+            r#"{{ "type": "carcass", "id": "{id}", "width": 450, "origin": {{ "x": {x} }}, "joint": {{ "hardware": ["minifix_15", "dowel_8x30"] }}, "back": {{ "material": "hdf_3" }}, "legs": {{ "plinth": {{ "setback": 40 }} }} }}"#
+        )
+    };
+    let plan = rewood_core::compile_json(&spec(DIMS, "", &carcass("c", 0.0)));
+    assert_eq!(plan.status, PlanStatus::Ok, "{:#?}", plan.diagnostics);
+    assert!(
+        codes(&plan, "FAB-102").is_empty(),
+        "{:#?}",
+        codes(&plan, "FAB-102")
+    );
+    let plinth = plan.parts.iter().find(|p| p.role == "plinth").unwrap();
+    let front_legs: Vec<_> = plan
+        .joints
+        .iter()
+        .filter(|j| j.hardware[0].starts_with("leg_"))
+        .flat_map(|j| &j.fasteners)
+        .filter(|f| f.position.1 > 225.0)
+        .collect();
+    assert!(!front_legs.is_empty());
+    for leg in front_legs {
+        // Base plate (Ø50) behind the plinth's inner face.
+        assert!(
+            leg.position.1 + 25.0 <= plinth.aabb.min.1 + 1e-6,
+            "{leg:?} vs {:?}",
+            plinth.aabb
+        );
+    }
+
+    // Two carcasses run into each other: their legs do too.
+    let clash = spec(
+        DIMS,
+        "",
+        &format!("{}, {}", carcass("a", 0.0), carcass("b", 380.0)),
+    );
+    let plan = rewood_core::compile_json(&clash);
+    assert!(!codes(&plan, "FAB-102").is_empty());
+}
+
+#[test]
+fn shelves_on_pins_get_only_the_holes_they_rest_on() {
+    let pins = |adjust: &str| {
+        let json = spec(
+            DIMS,
+            "",
+            &format!(
+                r#"{CARCASS}, {{ "type": "shelves", "id": "s", "count": 2, "support": "pins"{adjust} }}"#
+            ),
+        );
+        let plan = rewood_core::compile_json(&json);
+        assert_eq!(plan.status, PlanStatus::Ok, "{:#?}", plan.diagnostics);
+        let holes = plan
+            .parts
+            .iter()
+            .flat_map(|p| &p.operations)
+            .filter(|o| {
+                o.source
+                    .as_ref()
+                    .is_some_and(|s| s.hardware == "shelf_pin_row_5")
+            })
+            .count();
+        (plan, holes)
+    };
+    // Two shelves, four holes each.
+    let (plan, holes) = pins("");
+    assert_eq!(holes, 8);
+    // Each shelf sits on its pins: underside 2.5 mm over a grid line.
+    for shelf in of(&plan, "s") {
+        let z = shelf.aabb.min.2 - 2.5;
+        let steps = (z - 37.0) / 32.0;
+        assert!((steps - steps.round()).abs() < 1e-9, "{z}");
+    }
+    // One grid line of travel each way: three holes per row per shelf.
+    let (_, holes) = pins(r#", "pins": { "adjust": 32 }"#);
+    assert_eq!(holes, 24);
 }

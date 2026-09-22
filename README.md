@@ -133,9 +133,8 @@ trae la spec que compiló, su estado, los hallazgos y cuántas correcciones
 hicieron falta. El modelo nunca ve ni decide una perforación: la arquitectura
 del §43 tal cual. Está detrás del trait `Model`, y el bucle se prueba con un
 modelo guionado (`FakeModel`) que primero propone correderas de 450 en un
-mueble de 400 de fondo y después lo corrige. Con el servidor sin clave la UI
-lo dice; con clave, la pestaña **Asistente** conversa, aplica la spec que
-vuelve y muestra el estado. No se probó contra la API real en este entorno
+mueble de 400 de fondo y después lo corrige. La UI ya no tiene pestaña de
+asistente: el endpoint sigue en el servidor. No se probó contra la API real en este entorno
 (no había clave): el cliente HTTP sigue el formato Messages con tool use.
 
 CORS abierto (no hay autenticación ni nada por usuario todavía). Con
@@ -172,7 +171,9 @@ cotas que calculó el motor (el ancho de la cajonera baja si hay dos) y el
 hallazgo con su arreglo si un valor queda afuera. Arriba, la variante, las
 medidas totales, piezas, herrajes y si es fabricable.
 
-Árbol de componentes y piezas (mostrar/ocultar por componente), vista 3D con
+Árbol de piezas por componente con nombres legibles ("Cajones · módulo 2",
+cada cajón plegado con sus seis piezas, medidas redondeadas; mostrar/ocultar
+por componente), vista 3D con
 cada pieza como caja en su `aabb` con su contorno, perforaciones como cilindros
 y ranuras como huecos (calculados desde el mismo (u, v) del plan, no geometría
 propia), y **los herrajes dibujados como lo que son** donde el plan puso sus
@@ -180,12 +181,17 @@ agujeros (`lib/hardware3d.ts`, a partir del `source` de cada operación):
 tarugo, excéntrica con su perno, tornillo, cazoleta con brazo y base, dos
 guías por corredera, tirador o botón, pata, cierre y su placa, pasador de
 estante; clickeables como antes. Un deslizador de vista explotada (misma regla
-que `export/explode.rs`) en la que cada herraje viaja con la pieza que lo
-lleva, lo que une dos piezas flota entre ambas y una línea guía une los dos
+que `export/explode.rs`) y un botón **abrir** que gira cada puerta sobre la
+línea de sus bisagras y saca cada cajón sobre sus correderas (doble clic en
+una puerta o un cajón abre sólo ése; `lib/motion.ts`); en los dos cada
+herraje viaja con la pieza que lo lleva, lo que une dos piezas flota entre ambas y una línea guía une los dos
 agujeros que aparea. Botones de vista: perspectiva, alzados frontal y
 posterior, laterales y planta (sin perspectiva, como los planos; se pueden
-orbitar igual). Panel de parámetros que recompila en vivo, valores derivados, detalle y operaciones de
-la pieza seleccionada, editor de componentes por formulario (agregar, quitar,
+orbitar igual). Agujeros, ranuras y herrajes se dibujan instanciados (una
+llamada por forma) y el plan vive fuera del proxy reactivo de Svelte: mover el
+explotado o un deslizador de medida no reconstruye la escena. Panel de
+parámetros con los nombres de la plantilla que recompila en vivo, valores
+calculados plegados, detalle de la pieza seleccionada, editor de componentes por formulario (agregar, quitar,
 reordenar; bahía, zona, cantidades, materiales, cantos, herrajes, bisagras,
 correderas y tiradores elegidos de las bibliotecas que expone el motor con
 `libraries()`; restricciones con su hallazgo al lado; sobreescrituras de
@@ -279,22 +285,29 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   al final, incluida la de los puntos de anclaje de tiradores y patas.
 - Patas y zócalo: `legs: { hardware: ["leg_adjustable_100"], inset: 50,
   maxSpacing: 600, plinth?: { setback: 40, material?, clips: ["plinth_clip"] } }`
-  en la carcasa. Dos filas de patas (a `inset` del frente y del fondo)
-  repartidas a lo ancho por la regla de la pata; cada una es una unión
+  en la carcasa. Dos filas de patas (a `inset` del fondo; la delantera, si
+  hay zócalo, detrás de él: `setback` + espesor del zócalo + radio de la base,
+  así el zócalo nunca atraviesa una pata) repartidas a lo ancho por la regla de la pata; cada una es una unión
   `fixture` sobre la cara exterior de la base con el patrón de tornillos del
   herraje (`offsetAlong`/`offsetAcross`). El zócalo es un panel entre los
   laterales, retirado `setback` del frente, con clips (`fixture` sobre su
   cara interior) en cada pata delantera; el manual lo presenta después de
   las patas. El origen del mueble sigue en la cara inferior de la base:
   las patas quedan en z < 0 (los planos y el 3D lo contemplan). `SPEC-312/313`
-  si el retiro no deja la base de la pata bajo el panel o el zócalo no toca
-  las patas.
+  si el retiro no deja la base de la pata bajo el panel o las dos filas no
+  entran en la profundidad. `FAB-102` vigila lo mismo desde afuera: el volumen
+  de cada pata (su base, a toda su altura) contra toda pieza y contra las
+  otras patas.
 - Estantes: `count: N` los reparte parejos en la zona (retranqueo 20 por
-  defecto). Con `support: "pins"` son **regulables**: no llevan unión; cada
-  panel de la bahía recibe dos hileras Sistema 32 (`row`, herraje
+  defecto). Con `support: "pins"` apoyan en soportes: no llevan unión; cada
+  estante baja a la línea de la grilla Sistema 32 más cercana (`row`, herraje
   `shelf_pin_row_5`: Ø5×12 cada 32 mm, a 37 del frente y a 37 del fondo,
-  desde 37 sobre el piso de la carcasa y una hilera libre bajo y sobre la
-  zona), el estante queda 1 mm corto por lado y cuatro `shelf_pin_5` por
+  desde 37 sobre el piso de la carcasa, una línea libre bajo y sobre la
+  zona) y los paneles llevan **sólo los agujeros donde apoya**: cuatro por
+  estante. `pins: { adjust: 96 }` los hace **regulables**: suma ese recorrido
+  (en mm, de a 32) arriba y abajo de cada estante, y los tramos que se tocan
+  se unen en una hilera; un `adjust` tan alto como la zona da la hilera
+  completa de siempre (`fixtures/bookcase_adjustable` usa 96). El estante queda 1 mm corto por lado y cuatro `shelf_pin_5` por
   estante van a la BOM por cantidad. Las cazoletas de las bisagras se
   ajustan a esa grilla (53 + 32k sobre el piso), así los dos agujeros de su
   base caen exactamente en la hilera y no se perforan dos veces (un

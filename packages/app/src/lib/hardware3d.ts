@@ -6,14 +6,20 @@
  * (`source` ties each one to its joint and fastener) and the sizes are
  * symbols, not supplier drawings.
  *
- * Bodies screwed to one part move with that part in the exploded view;
- * what bridges two parts (a dowel, a bolt, a screw) floats between them,
- * and a leader joins the two holes it mates so the eye can follow it.
+ * Everything is laid out on the assembled furniture; each primitive names
+ * the part it is screwed to (`owner`), so the viewer moves it with that
+ * part when the view explodes or a door opens. What bridges two parts (a
+ * dowel, a bolt, a screw) has no owner and floats between them, and a
+ * leader joins the two holes it mates so the eye can follow it.
  */
 import type { HardwareDef, Joint, ManufacturingPlan, Part, Vec3 } from '@rewood/engine/browser';
 import { add, faceNormalWorld, faceUvToWorld, scale, zAxis } from './geometry';
 
-export type Prim = { colour: string } & (
+export type Prim = {
+	colour: string;
+	/** The part it moves with; null = halfway between the joint's two parts. */
+	owner: string | null;
+} & (
 	| { shape: 'cyl'; pos: Vec3; axis: Vec3; r: number; len: number }
 	| { shape: 'box'; pos: Vec3; size: Vec3 }
 	| { shape: 'sphere'; pos: Vec3; r: number }
@@ -24,8 +30,8 @@ export type HardwareSymbol = {
 	joint: Joint;
 	index: number;
 	prims: Prim[];
-	/** Mated holes pulled apart by the exploded view, one segment each. */
-	leaders: [Vec3, Vec3][];
+	/** Mated holes, one segment each, every end with the part it sits on. */
+	leaders: Leader[];
 };
 
 /** One drilled hole of a fastener: its mouth and outward normal, in furniture space. */
@@ -115,16 +121,15 @@ function guessKind(id: string): string {
 	return id.split('_')[0];
 }
 
+export type Leader = { a: Vec3; pa: string; b: Vec3; pb: string };
+
 export function hardwareSymbols(
 	plan: ManufacturingPlan,
 	parts: Part[],
-	offsets: Map<string, Vec3>,
-	def: (id: string) => HardwareDef | undefined,
-	exploded: boolean
+	def: (id: string) => HardwareDef | undefined
 ): HardwareSymbol[] {
 	const visible = new Map(parts.map((p) => [p.id, p]));
 	const all = new Map(plan.parts.map((p) => [p.id, p]));
-	const off = (part: Part): Vec3 => offsets.get(part.id) ?? ZERO;
 
 	// Every sourced hole, by the fastener that asked for it.
 	const holes = new Map<string, Hole[]>();
@@ -165,18 +170,17 @@ export function hardwareSymbols(
 			const sym: HardwareSymbol = { key: `${joint.id}:${index}`, joint, index, prims: [], leaders: [] };
 			const prims = sym.prims;
 			const shown = (part: Part | null) => (part ? visible.has(part.id) : both);
-			const at = (part: Part | null): Vec3 => (part ? off(part) : mid(off(edge), off(face)));
 			const cyl = (pos: Vec3, axis: Vec3, r: number, l: number, colour: string, part: Part | null) => {
-				if (shown(part)) prims.push({ shape: 'cyl', pos: add(pos, at(part)), axis, r, len: l, colour });
+				if (shown(part)) prims.push({ shape: 'cyl', pos, axis, r, len: l, colour, owner: part?.id ?? null });
 			};
 			const box = (pos: Vec3, size: Vec3, colour: string, part: Part | null) => {
-				if (shown(part)) prims.push({ shape: 'box', pos: add(pos, at(part)), size, colour });
+				if (shown(part)) prims.push({ shape: 'box', pos, size, colour, owner: part?.id ?? null });
 			};
 			const sphere = (pos: Vec3, r: number, colour: string, part: Part | null) => {
-				if (shown(part)) prims.push({ shape: 'sphere', pos: add(pos, at(part)), r, colour });
+				if (shown(part)) prims.push({ shape: 'sphere', pos, r, colour, owner: part?.id ?? null });
 			};
-			const leader = (a: Vec3, b: Vec3) => {
-				if (exploded && both) sym.leaders.push([a, b]);
+			const leader = (a: Vec3, pa: Part, b: Vec3, pb: Part) => {
+				if (both) sym.leaders.push({ a, pa: pa.id, b, pb: pb.id });
 			};
 			// A body that fills a hole and shows its head at the mouth.
 			const plug = (h: Hole, colour: string, extra = 0.3) =>
@@ -191,7 +195,7 @@ export function hardwareSymbols(
 						// Its middle on the contact plane, half in each part.
 						const centre = add(hf.p, scale(hf.n, (he.depth - hf.depth) / 2));
 						cyl(centre, hf.n, hf.d / 2, he.depth + hf.depth, BEECH, null);
-						leader(add(hf.p, off(hf.part)), add(he.p, off(he.part)));
+						leader(hf.p, hf.part, he.p, he.part);
 					} else if (hs[0]) plug(hs[0], BEECH);
 					break;
 				}
@@ -205,7 +209,7 @@ export function hardwareSymbols(
 						const reach = bolt?.depth ?? 34;
 						cyl(add(thread.p, scale(thread.n, (reach - thread.depth) / 2)), thread.n, 3.5, reach + thread.depth, ZINC, thread.part);
 						cyl(add(thread.p, scale(thread.n, reach - 1.5)), thread.n, 4.5, 3, ZINC, thread.part);
-						if (bolt) leader(add(thread.p, off(thread.part)), add(bolt.p, off(bolt.part)));
+						if (bolt) leader(thread.p, thread.part, bolt.p, bolt.part);
 					}
 					break;
 				}
@@ -217,7 +221,7 @@ export function hardwareSymbols(
 						const l = through.part.dims.thickness + (pilot?.depth ?? 20);
 						cyl(sub(through.p, scale(through.n, l / 2)), through.n, (pilot?.d ?? 4) / 2 + 0.6, l, ZINC, through.part);
 						cyl(add(through.p, scale(through.n, 0.6)), through.n, through.d / 2 + 1.5, 1.4, ZINC, through.part);
-						if (pilot) leader(add(sub(through.p, scale(through.n, through.part.dims.thickness)), off(through.part)), add(pilot.p, off(pilot.part)));
+						if (pilot) leader(sub(through.p, scale(through.n, through.part.dims.thickness)), through.part, pilot.p, pilot.part);
 					} else if (hs[0]) plug(hs[0], ZINC);
 					break;
 				}
@@ -245,7 +249,7 @@ export function hardwareSymbols(
 					const reach = Math.abs(d[0] * n[0] + d[1] * n[1] + d[2] * n[2]) + 8;
 					box(add(cup.p, scale(n, 1 + reach / 2)), sized(hingeAxis, n, 12, reach, 12), STEEL, edge);
 					box(plate, sized(hingeAxis, s, 44, 4, 30), ZINC, face);
-					leader(add(add(cup.p, scale(n, reach)), off(edge)), add(plate, off(face)));
+					leader(add(cup.p, scale(n, reach)), edge, plate, face);
 					break;
 				}
 				case 'handle': {
@@ -282,11 +286,11 @@ export function hardwareSymbols(
 							pos[i] = front + 32 - (span + 75) / 2;
 						}
 						box(pos, sized(axis, n, span + 75, 6, height), colour, group[0].part);
-						return add(pos, off(group[0].part));
+						return pos;
 					};
 					const a = rail(hs.filter((h) => h.part === face), ZINC);
 					const b = rail(hs.filter((h) => h.part === edge), STEEL);
-					if (a && b) leader(a, b);
+					if (a && b) leader(a, face, b, edge);
 					break;
 				}
 				case 'leg': {

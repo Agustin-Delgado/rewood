@@ -2134,7 +2134,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 16.0,
-          "v": 494.0,
+          "v": 461.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -2150,7 +2150,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 48.0,
-          "v": 494.0,
+          "v": 461.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -2166,7 +2166,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 16.0,
-          "v": 526.0,
+          "v": 493.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -2182,7 +2182,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 48.0,
-          "v": 526.0,
+          "v": 493.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -2198,7 +2198,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 566.0,
-          "v": 494.0,
+          "v": 461.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -2214,7 +2214,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 598.0,
-          "v": 494.0,
+          "v": 461.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -2230,7 +2230,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 566.0,
-          "v": 526.0,
+          "v": 493.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -2246,7 +2246,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 598.0,
-          "v": 526.0,
+          "v": 493.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -2262,7 +2262,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1116.0,
-          "v": 494.0,
+          "v": 461.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -2278,7 +2278,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1148.0,
-          "v": 494.0,
+          "v": 461.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -2294,7 +2294,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1116.0,
-          "v": 526.0,
+          "v": 493.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -2310,7 +2310,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 1148.0,
-          "v": 526.0,
+          "v": 493.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -6871,12 +6871,12 @@
       "contact": {
         "min": [
           50.0,
-          510.0,
+          477.0,
           0.0
         ],
         "max": [
           50.0,
-          510.0,
+          477.0,
           0.0
         ]
       },
@@ -6888,7 +6888,7 @@
           "index": 0,
           "position": [
             50.0,
-            510.0,
+            477.0,
             0.0
           ]
         }
@@ -6906,12 +6906,12 @@
       "contact": {
         "min": [
           600.0,
-          510.0,
+          477.0,
           0.0
         ],
         "max": [
           600.0,
-          510.0,
+          477.0,
           0.0
         ]
       },
@@ -6923,7 +6923,7 @@
           "index": 0,
           "position": [
             600.0,
-            510.0,
+            477.0,
             0.0
           ]
         }
@@ -6941,12 +6941,12 @@
       "contact": {
         "min": [
           1150.0,
-          510.0,
+          477.0,
           0.0
         ],
         "max": [
           1150.0,
-          510.0,
+          477.0,
           0.0
         ]
       },
@@ -6958,7 +6958,7 @@
           "index": 0,
           "position": [
             1150.0,
-            510.0,
+            477.0,
             0.0
           ]
         }
@@ -9193,7 +9193,7 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 3942.879,
+    "totalSeconds": 3942.845,
     "programs": [
       {
         "part": "P001",
@@ -9237,8 +9237,8 @@
         "operations": 24,
         "toolChanges": 1,
         "cutMm": 288.0,
-        "rapidMm": 4641.932,
-        "seconds": 48.926
+        "rapidMm": 4630.659,
+        "seconds": 48.892
       },
       {
         "part": "P005",

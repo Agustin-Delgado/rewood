@@ -40,7 +40,7 @@ export const VIEWS: { id: ViewName; name: string; title: string }[] = [
 
 class AppState {
 	engine: Engine | null = $state(null);
-	libraries: LibrariesSnapshot | null = $state(null);
+	libraries: LibrariesSnapshot | null = $state.raw(null);
 	spec: FurnitureSpec = $state(variantSpec(VARIANTS[0]));
 	/** The catalogue variant on screen; null once a spec comes from elsewhere. */
 	variant: string | null = $state(VARIANTS[0].id);
@@ -48,7 +48,9 @@ class AppState {
 	/** The raw JSON text when the user edits the spec by hand. */
 	specText: string = $state('');
 	specError: string | null = $state(null);
-	plan: ManufacturingPlan | null = $state(null);
+	// Raw: replaced whole on every compile and never edited in place; a deep
+	// proxy over thousands of operations made every read in the viewer pay.
+	plan: ManufacturingPlan | null = $state.raw(null);
 	selectedPart: string | null = $state(null);
 	/** A fastener clicked in the viewer: its joint and index within it. */
 	selectedFastener: { joint: string; index: number } | null = $state(null);
@@ -60,6 +62,26 @@ class AppState {
 	showHardware: boolean = $state(true);
 	/** Exploded view: 0 assembled, 1 the documentation's spread. */
 	explode: number = $state(0);
+	/** Every door and drawer open (the viewer animates to it). */
+	openAll: boolean = $state(false);
+	/** Doors and drawers opened one by one, by motion key (see `motion.ts`). */
+	opened: Set<string> = $state(new Set());
+
+	/** Open or shut one front; `all` are every front's keys, for when all were open. */
+	toggleOpen(key: string, all: string[]) {
+		const next = this.openAll ? new Set(all) : new Set(this.opened);
+		this.openAll = false;
+		if (next.has(key)) next.delete(key);
+		else next.add(key);
+		this.opened = next;
+	}
+
+	/** The "abrir" button: everything open, or everything shut. */
+	setOpenAll(open: boolean) {
+		this.openAll = open;
+		this.opened = new Set();
+	}
+
 	/** Where the camera looks from: a perspective corner, or a flat elevation. */
 	view: ViewName = $state('iso');
 	/** Bumped on every view request so asking for the current view re-frames it. */
@@ -74,8 +96,6 @@ class AppState {
 	server: ServerClient = $state(new ServerClient(''));
 	serverStatus: 'off' | 'ok' | 'error' = $state('off');
 	serverEngine: string | null = $state(null);
-	/** Model name when the server has the assistant on. */
-	assistantModel: string | null = $state(null);
 	serverError: string | null = $state(null);
 	projects: Project[] = $state([]);
 	furnitureList: FurnitureSummary[] = $state([]);
@@ -103,7 +123,6 @@ class AppState {
 		try {
 			const h = await this.server.health();
 			this.serverEngine = h.engine;
-			this.assistantModel = h.assistant ? h.model : null;
 			this.serverStatus = 'ok';
 			this.serverError = null;
 		} catch (e) {
@@ -191,6 +210,7 @@ class AppState {
 		this.selectedPart = null;
 		this.selectedFastener = null;
 		this.hiddenComponents = new Set();
+		this.opened = new Set();
 		this.current = null;
 		this.dirty = false;
 		this.recompile();
@@ -219,7 +239,7 @@ class AppState {
 		this.applySpec(this.engine.applyFix(this.spec, fix));
 	}
 
-	/** A spec proposed by the assistant: replaces what is on screen. */
+	/** A whole new spec (a fix applied by the engine): replaces what is on screen. */
 	applySpec(spec: FurnitureSpec) {
 		this.spec = spec;
 		this.variant = null;
