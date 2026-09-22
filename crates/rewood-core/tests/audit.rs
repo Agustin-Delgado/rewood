@@ -668,6 +668,7 @@ fn variants() -> Vec<(String, String, Vec<&'static str>)> {
         "tv_unit",
         "desk",
         "sideboard",
+        "wardrobe_modules",
     ] {
         let path = format!(
             "{}/../../fixtures/{f}/input.json",
@@ -808,5 +809,103 @@ fn every_furniture_passes_the_bench_audit() {
         let a = audit(&name, &plan, &libs, &allowed);
         all.extend(a.violations);
     }
+    assert!(all.is_empty(), "\n{}\n", all.join("\n"));
+}
+
+/// What a person may pick on a template has to be buildable: every
+/// option's extremes (and every choice), one at a time from the template's
+/// defaults, and the options a choice switches on at their extremes too,
+/// pass the same audit as the fixtures. Design warnings are allowed; a
+/// FATAL, an ERROR or a failed check is not.
+#[test]
+fn every_option_value_is_manufacturable() {
+    use rewood_core::options::OptionKind;
+    use serde_json::{json, Value};
+
+    // Design warnings say "probably not what you want", with the number
+    // behind it; they never stop a piece from being made.
+    const ALLOWED: &[&str] = &[
+        "DESIGN-101",
+        "DESIGN-102",
+        "DESIGN-103",
+        "DESIGN-104",
+        "DESIGN-105",
+        "DESIGN-106",
+        "DESIGN-107",
+        "DESIGN-108",
+        "DESIGN-110",
+        "DESIGN-111",
+        "DESIGN-112",
+        "DESIGN-113",
+        "DESIGN-114",
+        "DESIGN-115",
+        "DESIGN-116",
+        "DESIGN-117",
+        "SPEC-211",
+        "CON-001",
+    ];
+    let libs = Libraries::default();
+    let dir = format!("{}/../../fixtures", env!("CARGO_MANIFEST_DIR"));
+    let mut names: Vec<String> = std::fs::read_dir(&dir)
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .map(|e| e.file_name().to_string_lossy().to_string())
+        .filter(|n| n != "invalid_cabinet")
+        .collect();
+    names.sort();
+
+    let values = |o: &rewood_core::options::PlanOption| -> Vec<Value> {
+        match o.kind {
+            OptionKind::Toggle => vec![json!(true), json!(false)],
+            OptionKind::Choice => o.choices.iter().map(|c| json!(c.value)).collect(),
+            OptionKind::Number => [o.min, o.max]
+                .into_iter()
+                .flatten()
+                .map(|v| json!(v))
+                .collect(),
+        }
+    };
+    let with = |spec: &Value, param: &str, v: &Value| -> Value {
+        let mut s = spec.clone();
+        s["parameters"][param] = v.clone();
+        s
+    };
+    let mut all = Vec::new();
+    let mut checked = 0;
+    let mut run = |label: String, spec: &Value| -> ManufacturingPlan {
+        let plan = rewood_core::compile_json(&spec.to_string());
+        all.extend(audit(&label, &plan, &libs, ALLOWED).violations);
+        checked += 1;
+        plan
+    };
+    for name in names {
+        let text = std::fs::read_to_string(format!("{dir}/{name}/input.json")).unwrap();
+        let base: Value = serde_json::from_str(&text).unwrap();
+        if base.get("options").is_none() {
+            continue;
+        }
+        let plan = run(name.clone(), &base);
+        for o in plan.options.iter().filter(|o| o.active) {
+            for v in values(o) {
+                let spec = with(&base, &o.param, &v);
+                let p2 = run(format!("{name} {}={v}", o.param), &spec);
+                if o.kind == OptionKind::Number {
+                    continue;
+                }
+                // What this choice switches on, at its own extremes.
+                for o2 in p2.options.iter().filter(|o2| {
+                    o2.active && !plan.options.iter().any(|b| b.param == o2.param && b.active)
+                }) {
+                    for v2 in values(o2) {
+                        run(
+                            format!("{name} {}={v} {}={v2}", o.param, o2.param),
+                            &with(&spec, &o2.param, &v2),
+                        );
+                    }
+                }
+            }
+        }
+    }
+    assert!(checked > 100, "sólo {checked} variantes");
     assert!(all.is_empty(), "\n{}\n", all.join("\n"));
 }

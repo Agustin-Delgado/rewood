@@ -9,6 +9,12 @@
     "depth": 300,
     "divider_z": 1000
   },
+  "options": [
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": 400, "max": 1000, "step": 10, "unit": "mm" },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": 1600, "max": 2400, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 200, "max": 450, "step": 10, "unit": "mm" },
+    { "param": "divider_z", "label": "Altura del estante fijo", "group": "Interior", "min": 600, "max": "height - 600", "step": 10, "unit": "mm" }
+  ],
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",
   "components": [

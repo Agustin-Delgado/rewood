@@ -210,10 +210,72 @@
   "manufacturingBlocked": false,
   "parameters": {
     "depth": 450.0,
+    "drawers": 3.0,
     "height": 770.0,
     "side_bay": 500.0,
     "width": 1600.0
   },
+  "options": [
+    {
+      "param": "width",
+      "label": "Ancho",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 1600.0,
+      "min": 1472.0,
+      "max": 2400.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "height",
+      "label": "Alto",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 770.0,
+      "min": 600.0,
+      "max": 900.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "depth",
+      "label": "Profundidad",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 450.0,
+      "min": 430.0,
+      "max": 550.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "side_bay",
+      "label": "Ancho de los módulos laterales",
+      "group": "Interior",
+      "kind": "number",
+      "value": 500.0,
+      "min": 300.0,
+      "max": 560.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "drawers",
+      "label": "Cajones",
+      "group": "Interior",
+      "kind": "number",
+      "value": 3.0,
+      "min": 1.0,
+      "max": 5.0,
+      "step": 1.0,
+      "active": true
+    }
+  ],
   "derived": {
     "carcass.back_length": 1579.0,
     "carcass.back_width": 749.0,

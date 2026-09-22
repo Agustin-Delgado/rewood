@@ -21,6 +21,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         id,
         carcass,
         bay,
+        last_bay,
         zone,
         count,
         front_height,
@@ -38,6 +39,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         front_fixing,
         handle,
         edges,
+        ..
     } = spec
     else {
         unreachable!()
@@ -47,7 +49,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let slide = &ctx.slide_variant(id, slide, *soft_close)?;
 
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
-    let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
+    let bays = ctx.bays_for(id, &carcass, bay.as_ref(), last_bay.as_ref())?;
     let spec_zone = zone.as_ref();
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
     // Inner drawers sit inside the opening, between top and bottom.

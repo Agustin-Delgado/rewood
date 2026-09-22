@@ -1,115 +1,134 @@
 {
   "schemaVersion": "1.0",
   "id": "desk",
-  "name": "Escritorio 1400×740×560: cajonera, gabinete y tapa",
+  "name": "Escritorio",
   "parameters": {
     "width": 1400,
-    "height": 720,
-    "depth": 560,
-    "pedestal": 400,
-    "knee": "width - 2 * pedestal"
+    "height": 740,
+    "depth": 600,
+    "left": 1,
+    "right": 2,
+    "left_drawers": 3,
+    "right_drawers": 3,
+    "pedestal_width": 400,
+    "modesty": true,
+    "top_thickness": 18,
+    "overhang": 20,
+    "plinth": 100,
+    "base": "height - top_thickness",
+    "base_depth": "depth - overhang",
+    "left_room": "if(left == 0, top_thickness, pedestal_width)",
+    "right_room": "if(right == 0, top_thickness, pedestal_width)",
+    "knee": "width - left_room - right_room"
   },
+  "options": [
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": "550 + left_room + right_room", "max": 2400, "step": 10, "unit": "mm" },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": 680, "max": 800, "step": 5, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 500, "max": 800, "step": 10, "unit": "mm" },
+    {
+      "param": "left",
+      "label": "Lado izquierdo",
+      "group": "Apoyos",
+      "choices": [
+        { "value": 0, "label": "lateral" },
+        { "value": 1, "label": "cajonera" },
+        { "value": 2, "label": "gabinete" }
+      ]
+    },
+    { "param": "left_drawers", "label": "Cajones a la izquierda", "group": "Apoyos", "min": 1, "max": 4, "step": 1, "when": "left == 1" },
+    {
+      "param": "right",
+      "label": "Lado derecho",
+      "group": "Apoyos",
+      "choices": [
+        { "value": 0, "label": "lateral" },
+        { "value": 1, "label": "cajonera" },
+        { "value": 2, "label": "gabinete" }
+      ]
+    },
+    { "param": "right_drawers", "label": "Cajones a la derecha", "group": "Apoyos", "min": 1, "max": 4, "step": 1, "when": "right == 1" },
+    { "param": "pedestal_width", "label": "Ancho de cajonera o gabinete", "group": "Apoyos", "min": 300, "max": "min(600, floor((width - 550 - if(left == 0, top_thickness, 0) - if(right == 0, top_thickness, 0)) / if(left > 0 and right > 0, 20, 10)) * 10)", "step": 10, "unit": "mm", "when": "left > 0 or right > 0" },
+    { "param": "modesty", "label": "Faldón", "group": "Apoyos", "help": "Panel entre los apoyos, bajo la tapa: sin él un escritorio sobre laterales se mueve de costado." }
+  ],
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",
   "components": [
     {
       "type": "carcass",
       "id": "left",
-      "width": "pedestal",
-      "joint": {
-        "hardware": [
-          "minifix_15",
-          "dowel_8x30"
-        ]
-      },
-      "back": {
-        "material": "hdf_3"
-      },
-      "legs": {
-        "plinth": {
-          "setback": 40
-        }
-      }
-    },
-    {
-      "type": "carcass",
-      "id": "right",
-      "width": "pedestal",
-      "origin": {
-        "x": "pedestal + knee"
-      },
-      "joint": {
-        "hardware": [
-          "minifix_15",
-          "dowel_8x30"
-        ]
-      },
-      "back": {
-        "material": "hdf_3"
-      },
-      "legs": {
-        "plinth": {
-          "setback": 40
-        }
-      }
+      "when": "left > 0",
+      "width": "pedestal_width",
+      "height": "base - plinth",
+      "depth": "base_depth",
+      "origin": { "z": "plinth" },
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
     },
     {
       "type": "drawers",
-      "id": "drawers",
+      "id": "left_drawers",
       "carcass": "left",
-      "count": 3,
-      "joint": {
-        "hardware": [
-          "dowel_8x30"
-        ],
-        "placement": {
-          "endOffset": 40,
-          "maxSpacing": 150
-        }
-      },
-      "slide": {
-        "hardware": [
-          "slide_ball_450"
-        ]
-      },
-      "handle": {
-        "hardware": [
-          "handle_bar_128"
-        ]
-      }
+      "when": "left == 1",
+      "count": "left_drawers",
+      "joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 40, "maxSpacing": 150 } },
+      "slide": { "hardware": ["slide_ball_450"] },
+      "handle": { "hardware": ["handle_bar_128"] }
     },
-    {
-      "type": "shelves",
-      "id": "shelf",
-      "carcass": "right",
-      "count": 1,
-      "support": "pins"
-    },
+    { "type": "shelves", "id": "left_shelf", "carcass": "left", "when": "left == 2", "count": 1, "support": "pins" },
     {
       "type": "doors",
-      "id": "door",
-      "carcass": "right",
+      "id": "left_door",
+      "carcass": "left",
+      "when": "left == 2",
       "count": 1,
-      "handle": {
-        "hardware": [
-          "handle_bar_128"
-        ]
-      }
+      "handle": { "hardware": ["handle_bar_128"] }
     },
+    { "type": "panel", "id": "left_panel", "when": "left == 0", "x": 0, "facing": "right", "depth": "base_depth", "height": "base" },
+    {
+      "type": "carcass",
+      "id": "right",
+      "when": "right > 0",
+      "width": "pedestal_width",
+      "height": "base - plinth",
+      "depth": "base_depth",
+      "origin": { "x": "width - pedestal_width", "z": "plinth" },
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
+    },
+    {
+      "type": "drawers",
+      "id": "right_drawers",
+      "carcass": "right",
+      "when": "right == 1",
+      "count": "right_drawers",
+      "joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 40, "maxSpacing": 150 } },
+      "slide": { "hardware": ["slide_ball_450"] },
+      "handle": { "hardware": ["handle_bar_128"] }
+    },
+    { "type": "shelves", "id": "right_shelf", "carcass": "right", "when": "right == 2", "count": 1, "support": "pins" },
+    {
+      "type": "doors",
+      "id": "right_door",
+      "carcass": "right",
+      "when": "right == 2",
+      "count": 1,
+      "handle": { "hardware": ["handle_bar_128"] }
+    },
+    { "type": "panel", "id": "right_panel", "when": "right == 0", "x": "width", "facing": "left", "depth": "base_depth", "height": "base" },
     {
       "type": "worktop",
       "id": "top",
-      "overhang": {
-        "front": 20,
-        "sides": 0
-      }
-    }
+      "overhang": { "front": "overhang", "sides": 0 }
+    },
+    { "type": "modesty", "id": "modesty", "when": "modesty", "height": 300, "inset": 20 }
   ],
   "constraints": [
     {
       "id": "knee_room",
       "expr": "knee >= 550",
-      "message": "Entre las cajoneras tienen que quedar al menos 550 mm para las piernas"
+      "message": "Entre los apoyos tienen que quedar al menos 550 mm para las piernas"
     }
   ]
 }

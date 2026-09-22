@@ -8,6 +8,12 @@
     "depth": 400,
     "drawer_zone": 180
   },
+  "options": [
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": 350, "max": 650, "step": 10, "unit": "mm" },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": 450, "max": 700, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 380, "max": 500, "step": 10, "unit": "mm" },
+    { "param": "drawer_zone", "label": "Alto del cajón", "group": "Interior", "min": 120, "max": 250, "step": 5, "unit": "mm" }
+  ],
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",
   "components": [

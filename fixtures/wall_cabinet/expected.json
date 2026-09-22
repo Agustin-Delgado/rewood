@@ -210,10 +210,78 @@
   "manufacturingBlocked": false,
   "parameters": {
     "depth": 350.0,
+    "door_count": 2.0,
     "height": 720.0,
     "shelf_count": 1.0,
     "width": 900.0
   },
+  "options": [
+    {
+      "param": "width",
+      "label": "Ancho",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 900.0,
+      "min": 300.0,
+      "max": 1200.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "height",
+      "label": "Alto",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 720.0,
+      "min": 300.0,
+      "max": 1000.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "depth",
+      "label": "Profundidad",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 350.0,
+      "min": 250.0,
+      "max": 400.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "shelf_count",
+      "label": "Estantes",
+      "group": "Interior",
+      "kind": "number",
+      "value": 1.0,
+      "min": 0.0,
+      "max": 4.0,
+      "step": 1.0,
+      "active": true
+    },
+    {
+      "param": "door_count",
+      "label": "Puertas",
+      "group": "Interior",
+      "kind": "choice",
+      "value": 2.0,
+      "choices": [
+        {
+          "value": 1.0,
+          "label": "una"
+        },
+        {
+          "value": 2.0,
+          "label": "dos"
+        }
+      ],
+      "active": true
+    }
+  ],
   "derived": {
     "carcass.back_length": 879.0,
     "carcass.back_width": 699.0,

@@ -9,6 +9,12 @@
     "middle": 800,
     "t": 18
   },
+  "options": [
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": "middle + 672", "max": 2400, "step": 10, "unit": "mm" },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": 300, "max": 500, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 380, "max": 500, "step": 10, "unit": "mm" },
+    { "param": "middle", "label": "Hueco del medio", "group": "Interior", "min": 400, "max": "min(900, width - 672)", "step": 10, "unit": "mm", "help": "Más de 900 mm, la tapa y el estante del medio se pandean." }
+  ],
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",
   "components": [

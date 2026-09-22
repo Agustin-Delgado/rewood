@@ -39,9 +39,9 @@ crates/rewood-server servicio HTTP (axum): proyectos, muebles versionados, recá
 packages/engine      @rewood/engine: tipos TS + wrapper sobre el WASM (node y browser)
 packages/app         UI SvelteKit + Threlte: árbol, 3D, parámetros, hallazgos, despiece, paquete
 fixtures/<nombre>/   input.json + expected.json (regresión byte a byte):
-                     basic_cabinet, drawer_unit, wardrobe_1800, wardrobe_rail, bookcase_fixed,
-                     bookcase_adjustable, kitchen_run, nightstand, wall_cabinet, tv_unit, desk,
-                     sideboard, invalid_cabinet
+                     basic_cabinet, drawer_unit, wardrobe_1800, wardrobe_modules, wardrobe_rail,
+                     bookcase_fixed, bookcase_adjustable, kitchen_run, nightstand, wall_cabinet,
+                     tv_unit, desk, sideboard, invalid_cabinet
 ```
 
 Dentro de `rewood-core`:
@@ -53,7 +53,9 @@ Dentro de `rewood-core`:
 | `spec` | formato de entrada propio, versionado (`schemaVersion: "1.0"`), `deny_unknown_fields` |
 | `geometry` | paneles rectangulares en marcos alineados a ejes, caras semánticas, mapeo cara↔(u,v) |
 | `library` | materiales, cantos, herrajes y perfil de fabricación (JSON embebido en `data/`, sobreescribible por id desde la spec) |
-| `components` | generadores: `carcass`, `shelves`, `doors`, `drawers`, `rail`, `worktop` → piezas + pedidos de unión |
+| `components` | generadores: `carcass`, `shelves`, `doors`, `drawers`, `rail`, `worktop`, `panel`, `modesty` → piezas + pedidos de unión; `when` decide cuáles entran |
+| `options` | opciones de plantilla: cotas resueltas, valores fuera de rango (`SPEC-50x`) |
+| `stagger` | agujeros de dos uniones que se cruzan en un panel: corre el herraje que se puede correr a lo largo de su línea |
 | `joints` | siete tipos de unión (`butt`, `hinge`, `slide`, `face_to_face`, `handle`, `fixture` para patas, clips y colgadores, `row` para hileras Sistema 32), reparto de herrajes a lo largo (y en filas) de la unión, perforaciones por herraje |
 | `rules` | reglas de fabricación (`FAB-*`), puras y en orden fijo |
 | `cam` | toolpaths independientes de máquina (taladro, ranura, contorno, taladro horizontal) por pieza y puesta, giro a 90° cuando sólo entra así en la mesa, y `PostProcessor` con `GenericIso` |
@@ -154,6 +156,21 @@ UI:
 pnpm build:wasm:web && pnpm dev     # http://localhost:5173
 pnpm build:app                      # estático en packages/app/build
 ```
+
+**Catálogo y diseño.** El botón del encabezado abre el catálogo: categorías
+(placares, escritorios, cocina, dormitorio, living, bibliotecas) y, en cada
+una, sus variantes como tarjetas con el alzado frontal del plan que compila
+el motor para esa variante (`lib/catalog.ts`). Una variante es una plantilla
+del repo más los valores de sus opciones: "escritorio con cajonera" y
+"escritorio simple" son `fixtures/desk` con los lados puestos distinto;
+"placard con cajonera doble" es `fixtures/wardrobe_modules` con dos módulos
+de cajones. La pestaña **Diseño** dibuja las opciones que el plan trae
+resueltas (`plan.options`): números con deslizador o con botones cuando
+son pocos valores, interruptores, elecciones; sólo las que aplican (los
+cajones de la izquierda aparecen si a la izquierda hay cajonera), con las
+cotas que calculó el motor (el ancho de la cajonera baja si hay dos) y el
+hallazgo con su arreglo si un valor queda afuera. Arriba, la variante, las
+medidas totales, piezas, herrajes y si es fabricable.
 
 Árbol de componentes y piezas (mostrar/ocultar por componente), vista 3D con
 cada pieza como caja en su `aabb` con su contorno, perforaciones como cilindros
@@ -281,8 +298,10 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   estante van a la BOM por cantidad. Las cazoletas de las bisagras se
   ajustan a esa grilla (53 + 32k sobre el piso), así los dos agujeros de su
   base caen exactamente en la hilera y no se perforan dos veces (un
-  agujero de hilera ya hecho absorbe el de la base; cualquier otro par de
-  agujeros superpuestos sigue siendo `FAB-205`). En una alacena colgada la
+  agujero de hilera ya hecho absorbe el de la base). La grilla se mide desde
+  el piso de la carcasa esté donde esté (una cajonera sobre zócalo, con
+  `origin.z`, la tiene corrida con ella). En una puerta baja, dos bisagras
+  que caen en la misma línea de grilla se separan a la siguiente. En una alacena colgada la
   hilera trasera termina bajo los colgadores. El manual coloca los
   regulables al final, con el mueble cerrado. `positions: [1000, "divider_z"]` en cambio pone **estantes fijos**
   a esas alturas (cara inferior, mm desde la base): toman toda la profundidad
@@ -360,6 +379,45 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   dibuja como barra entre sus dos soportes y el manual lo coloca al final.
   `fixtures/wardrobe_rail` junta barral, cajones interiores retranqueados y
   puerta embutida a la izquierda con puerta superpuesta a la derecha.
+- Componentes opcionales: todo componente acepta `when`, una condición sobre
+  los parámetros (`"when": "drawers > 0"`, `"when": "pedestal"`). Si da
+  `false` el componente no se genera, y tampoco lo que cuelga de él
+  (estantes o puertas de una carcasa apagada, el faldón de una tapa
+  apagada); el plan los lista en `inactive`. Una condición que no da
+  verdadero o falso es `SPEC-103`. Las restricciones también aceptan `when`
+  (la luz para las piernas no aplica sin cajonera).
+- Rango de bahías: `bay` + `lastBay` en estantes, puertas, cajones y barral
+  repite el componente en cada bahía del rango, cada una con su juego (una
+  cajonera doble son dos pilas lado a lado, cada una entre sus paneles).
+  En puertas, `span` sigue agrupando bahías bajo una misma puerta.
+  `SPEC-204` si el rango está vacío o se sale de la carcasa.
+- Lateral de apoyo: `{ "type": "panel", "x": "width", "facing": "left" }` es
+  un panel vertical suelto que sostiene una tapa (la punta de un escritorio
+  sin cajonera): `x` es su cara exterior y `facing` hacia dónde mira la
+  interior, donde van los agujeros. La tapa de trabajo apoya en carcasas y
+  laterales (todos si no nombra ninguno) y se une al canto superior del
+  lateral con su `joint` (minifix + tarugo). Faldón: `{ "type": "modesty",
+  "height": 300, "inset": 20 }` pone un panel en cada hueco entre apoyos
+  bajo la tapa, a `inset` del fondo, unido a los dos apoyos; es lo que
+  impide que un escritorio sobre laterales se mueva de costado, así que sin
+  él (o con un lateral que no sostiene nada) el motor avisa `DESIGN-117`.
+  `SPEC-322/323` si no hay medida o tapa.
+- Opciones: `"options": [{ "param": "drawers", "label": "Cajones", "group":
+  "Cajonera", "min": 1, "max": "floor(height / 150)", "step": 1, "when":
+  "pedestal" }]` declara lo que una persona elige sobre esa plantilla, cada
+  opción atada a un parámetro literal: un parámetro booleano es un
+  interruptor, `choices: [{ "value": 0, "label": "lateral" }, …]` una
+  elección, lo demás un número entre cotas. Las cotas son expresiones (el
+  ancho mínimo del placard depende de cuántos módulos tiene; el ancho de la
+  cajonera, de si hay una o dos). El motor las resuelve y las pone en
+  `plan.options`; un valor fuera de cota es `SPEC-503` con el arreglo
+  "dejarlo en …", una opción sobre una fórmula `SPEC-502`, sobre un
+  parámetro que no existe `SPEC-501`. Las opciones no cambian cómo se
+  construye nada: lo cambian los parámetros que mueven. **Toda cota es
+  fabricable**: el banco de auditoría (`tests/audit.rs`) compila cada fixture
+  con cada opción en cada extremo (y en cada elección, más las opciones que
+  esa elección enciende) y exige lo mismo que a los fixtures: ningún ERROR
+  ni FATAL, ninguna pieza que pise a otra, ningún agujero que no aparee.
 
 ## Convenciones geométricas
 
@@ -516,6 +574,22 @@ los cortes reconstruidos. Una pieza que sólo entra en la mesa de costado se
 programa girada 90° (`ROTATED 90` en la cabecera; `FAB-302` ya aceptaba las
 dos orientaciones, el CAM tenía que hacerlo también).
 
+### Agujeros que se cruzan en un panel
+
+Un divisor con estantes a la misma altura de los dos lados, dos cajoneras
+que lo comparten, el tornillo de una corredera frente a la base de una
+bisagra: dos uniones perforan el mismo punto desde caras opuestas. Antes de
+las reglas, `stagger` corre uno de los dos a lo largo de su línea de unión,
+como haría un carpintero: un tarugo, una excéntrica o un tornillo de frente
+de a 16 mm; el par de tornillos de una corredera a los agujeros siguientes
+del riel (32 mm); una bisagra, cazoleta y base juntas, un paso de la grilla
+Sistema 32. Nunca más cerca de la punta que el herraje más cercano de esa
+unión, y el tarugo se mueve antes que la excéntrica. Las hileras de
+soportes no se mueven. Lo que no se puede despejar sigue siendo `FAB-205`
+(dos herrajes de un mismo tipo en una misma unión son el reparto del autor:
+`fixtures/invalid_cabinet` usa un tarugo con el reparto de la excéntrica y
+ahí el tarugo se corre).
+
 ## Diagnósticos
 
 Cada hallazgo tiene `code`, `severity` (`INFO`/`WARNING`/`ERROR`/`FATAL`),
@@ -525,7 +599,7 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 
 | familia | qué cubre |
 |---|---|
-| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo (`212`), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`), cajones interiores en el plano de una puerta embutida (`214`, con el retranqueo como arreglo) |
+| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes; `103` un `when` que no es condición; `322/323` lateral o faldón sin medida o sin tapa; `501–503` opciones sobre un parámetro inexistente, sobre una fórmula, o con el valor fuera de cota); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo (`212`), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`), cajones interiores en el plano de una puerta embutida (`214`, con el retranqueo como arreglo) |
 | `PARAM-*` | ciclos o expresiones inválidas en parámetros |
 | `LIB-*` | material, canto o herraje desconocido |
 | `CON-001` | una restricción declarada no se cumple |
@@ -533,7 +607,7 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 | `FAB-1xx` | geometría: piezas superpuestas |
 | `FAB-2xx` | mecanizado: perforación fuera de cara, distancia al borde, profundidad, cruces de perforaciones, ranura, mecha inexistente, operación no admitida, perforación que cae dentro de una ranura (`208`: el tarugo iría donde corre el fondo) |
 | `FAB-3xx` | material/máquina: no sale de la placa, excede el área de trabajo, espesor incompatible con el herraje |
-| `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra; `111` carga: puerta más pesada que lo que aguantan sus bisagras, o cajón cuya caja más 10 kg de contenido supera la corredera (`maxLoadKg` del herraje; el peso sale de la densidad del material); `113` (info) medida escrita como número donde va un parámetro; `114` barral con menos de 900 mm libres debajo; `115` tapa de trabajo de más de 2400 o con más de 1200 de luz entre carcasas; `116` cierres: push-open con cierre suave (lo anula) o con tirador (info), o dos puertas por bahía sin tapa ni base al borde de la zona donde apoyar el cierre |
+| `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra; `111` carga: puerta más pesada que lo que aguantan sus bisagras, o cajón cuya caja más 10 kg de contenido supera la corredera (`maxLoadKg` del herraje; el peso sale de la densidad del material); `113` (info) medida escrita como número donde va un parámetro; `114` barral con menos de 900 mm libres debajo; `115` tapa de trabajo de más de 2400 o con más de 1200 de luz entre apoyos; `117` tapa sobre laterales sueltos sin faldón, o lateral que no sostiene nada; `116` cierres: push-open con cierre suave (lo anula) o con tirador (info), o dos puertas por bahía sin tapa ni base al borde de la zona donde apoyar el cierre |
 | `CAM-2xx` | sin herramienta para una ranura o el contorno; perforación de canto sin taladro horizontal |
 | `STAGE-*` | aviso de algo que la etapa actual no cubre (ninguno activo hoy) |
 
@@ -576,6 +650,13 @@ en la pestaña Hallazgos selecciona la pieza y despliega el componente.
   de borde a borde y sale numerado en tres etapas (`cuts` del layout, dibujadas
   en `nesting.svg` y en la pestaña Placas), a costa de aprovechamiento. Sin
   piezas no rectangulares.
+- Las opciones se barren de a una desde los valores de cada variante (más
+  las que enciende cada elección): dos extremos combinados pueden dar un
+  hallazgo que ninguno da solo. El motor lo dice igual; el configurador no
+  lo evita.
+- El fondo de un placard es una sola placa de HDF: más de ~1850 de ancho no
+  sale de una placa y por eso `wardrobe_modules` topa ahí. Un fondo por
+  módulo (con ranura en los divisores) es otro componente.
 - Varias carcasas se posicionan por `origin` absoluto; no hay restricciones
   relativas ("m2 pegada a la derecha de m1") ni piezas compartidas entre
   módulos (un lateral común), y las patas son por módulo.

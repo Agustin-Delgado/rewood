@@ -216,6 +216,78 @@
     "low_count": 2.0,
     "width": 900.0
   },
+  "options": [
+    {
+      "param": "width",
+      "label": "Ancho",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 900.0,
+      "min": 400.0,
+      "max": 900.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "height",
+      "label": "Alto",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 2000.0,
+      "min": 1600.0,
+      "max": 2400.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "depth",
+      "label": "Profundidad",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 320.0,
+      "min": 200.0,
+      "max": 450.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "fixed_z",
+      "label": "Altura del estante fijo",
+      "group": "Interior",
+      "kind": "number",
+      "value": 1000.0,
+      "min": 600.0,
+      "max": 1400.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "low_count",
+      "label": "Estantes abajo",
+      "group": "Interior",
+      "kind": "number",
+      "value": 2.0,
+      "min": 0.0,
+      "max": 5.0,
+      "step": 1.0,
+      "active": true
+    },
+    {
+      "param": "high_count",
+      "label": "Estantes arriba",
+      "group": "Interior",
+      "kind": "number",
+      "value": 3.0,
+      "min": 0.0,
+      "max": 6.0,
+      "step": 1.0,
+      "active": true
+    }
+  ],
   "derived": {
     "carcass.back_length": 879.0,
     "carcass.back_width": 1979.0,

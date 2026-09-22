@@ -7,8 +7,16 @@
     "module": 600,
     "height": 720,
     "depth": 560,
-    "count": 3
+    "count": 3,
+    "drawers": 3
   },
+  "options": [
+    { "param": "count", "label": "Módulos", "group": "Módulos", "min": 2, "max": 4, "step": 1 },
+    { "param": "module", "label": "Ancho de cada módulo", "group": "Módulos", "min": 300, "max": 900, "step": 50, "unit": "mm" },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": 600, "max": 900, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 500, "max": 650, "step": 10, "unit": "mm" },
+    { "param": "drawers", "label": "Cajones del módulo 2", "group": "Módulos", "min": 1, "max": 4, "step": 1 }
+  ],
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",
   "components": [
@@ -56,6 +64,7 @@
     {
       "type": "carcass",
       "id": "m3",
+      "when": "count >= 3",
       "width": "module",
       "origin": {
         "x": "2 * module"
@@ -101,7 +110,7 @@
       "type": "drawers",
       "id": "drawers_m2",
       "carcass": "m2",
-      "count": 3,
+      "count": "drawers",
       "joint": {
         "hardware": [
           "dowel_8x30"
@@ -137,6 +146,51 @@
       "type": "doors",
       "id": "door_m3",
       "carcass": "m3",
+      "count": 1,
+      "handle": {
+        "hardware": [
+          "handle_bar_128"
+        ]
+      }
+    },
+    {
+      "type": "carcass",
+      "id": "m4",
+      "when": "count >= 4",
+      "width": "module",
+      "origin": {
+        "x": "3 * module"
+      },
+      "joint": {
+        "hardware": [
+          "minifix_15",
+          "dowel_8x30"
+        ]
+      },
+      "back": {
+        "material": "hdf_3"
+      },
+      "legs": {
+        "plinth": {
+          "setback": 40
+        }
+      }
+    },
+    {
+      "type": "shelves",
+      "id": "shelf_m4",
+      "carcass": "m4",
+      "count": 1,
+      "joint": {
+        "hardware": [
+          "dowel_8x30"
+        ]
+      }
+    },
+    {
+      "type": "doors",
+      "id": "door_m4",
+      "carcass": "m4",
       "count": 1,
       "handle": {
         "hardware": [

@@ -19,10 +19,12 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         id,
         carcass,
         bay,
+        last_bay,
         zone,
         from_top,
         hardware,
         supports,
+        ..
     } = spec
     else {
         unreachable!()
@@ -30,7 +32,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let id = id.as_str();
 
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
-    let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
+    let bays = ctx.bays_for(id, &carcass, bay.as_ref(), last_bay.as_ref())?;
     let spec_zone = zone.as_ref();
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
     if let Some(z) = spec_zone {

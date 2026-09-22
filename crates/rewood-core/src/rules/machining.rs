@@ -5,15 +5,15 @@ use crate::model::{OpGeometry, Operation, Part};
 use crate::units::EPS;
 
 /// A hole as a cylinder in part space: axis segment plus radius.
-struct Cylinder {
-    start: Vec3,
-    end: Vec3,
-    radius: f64,
-    group: Option<(String, String, usize)>,
-    op_id: String,
+pub(crate) struct Cylinder {
+    pub start: Vec3,
+    pub end: Vec3,
+    pub radius: f64,
+    pub group: Option<(String, String, usize)>,
+    pub op_id: String,
 }
 
-fn cylinders(part: &Part, material_thickness: f64) -> Vec<Cylinder> {
+pub(crate) fn cylinders(part: &Part, material_thickness: f64) -> Vec<Cylinder> {
     part.operations
         .iter()
         .filter_map(|op| match &op.geometry {
@@ -51,7 +51,7 @@ fn cylinders(part: &Part, material_thickness: f64) -> Vec<Cylinder> {
 
 /// Closest distance between two segments (Ericson, Real-Time Collision
 /// Detection, 5.1.9).
-fn segment_distance(p1: Vec3, q1: Vec3, p2: Vec3, q2: Vec3) -> f64 {
+pub(crate) fn segment_distance(p1: Vec3, q1: Vec3, p2: Vec3, q2: Vec3) -> f64 {
     let d1 = q1 - p1;
     let d2 = q2 - p2;
     let r = p1 - p2;
@@ -429,7 +429,7 @@ impl Rule for OperationAllowed {
 struct Slot {
     min: Vec3,
     max: Vec3,
-    op_id: String,
+    pub op_id: String,
 }
 
 fn slots(part: &Part) -> Vec<Slot> {

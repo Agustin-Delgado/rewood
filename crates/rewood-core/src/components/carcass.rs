@@ -26,6 +26,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         legs,
         hanging,
         origin,
+        ..
     } = spec
     else {
         unreachable!()

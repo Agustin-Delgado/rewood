@@ -33,6 +33,10 @@ referencia es el PDF *CAD paramétrico y motor de fabricación para mobiliario*
   `WARNING` o `INFO`: se genera igual y se explica con el número que lo
   justifica. Un hallazgo nuevo lleva `entity` (componente o pieza) para que
   la UI lo ubique.
+- **Lo que se ofrece se puede fabricar.** Toda opción de un fixture
+  (`options`) la barre `every_option_value_is_manufacturable` en
+  `tests/audit.rs`, extremo por extremo. Si uno da ERROR o FATAL se ajusta
+  la cota (con una expresión si depende de otra medida), no el test.
 
 ## Idioma
 

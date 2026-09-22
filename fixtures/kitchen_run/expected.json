@@ -213,9 +213,75 @@
   "parameters": {
     "count": 3.0,
     "depth": 560.0,
+    "drawers": 3.0,
     "height": 720.0,
     "module": 600.0
   },
+  "options": [
+    {
+      "param": "count",
+      "label": "Módulos",
+      "group": "Módulos",
+      "kind": "number",
+      "value": 3.0,
+      "min": 2.0,
+      "max": 4.0,
+      "step": 1.0,
+      "active": true
+    },
+    {
+      "param": "module",
+      "label": "Ancho de cada módulo",
+      "group": "Módulos",
+      "kind": "number",
+      "value": 600.0,
+      "min": 300.0,
+      "max": 900.0,
+      "step": 50.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "height",
+      "label": "Alto",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 720.0,
+      "min": 600.0,
+      "max": 900.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "depth",
+      "label": "Profundidad",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 560.0,
+      "min": 500.0,
+      "max": 650.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "drawers",
+      "label": "Cajones del módulo 2",
+      "group": "Módulos",
+      "kind": "number",
+      "value": 3.0,
+      "min": 1.0,
+      "max": 4.0,
+      "step": 1.0,
+      "active": true
+    }
+  ],
+  "inactive": [
+    "m4",
+    "shelf_m4",
+    "door_m4"
+  ],
   "derived": {
     "door_m1.count": 1.0,
     "door_m1.door_height": 716.0,

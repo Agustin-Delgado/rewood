@@ -214,6 +214,56 @@
     "height": 550.0,
     "width": 450.0
   },
+  "options": [
+    {
+      "param": "width",
+      "label": "Ancho",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 450.0,
+      "min": 350.0,
+      "max": 650.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "height",
+      "label": "Alto",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 550.0,
+      "min": 450.0,
+      "max": 700.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "depth",
+      "label": "Profundidad",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 400.0,
+      "min": 380.0,
+      "max": 500.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "drawer_zone",
+      "label": "Alto del cajón",
+      "group": "Interior",
+      "kind": "number",
+      "value": 180.0,
+      "min": 120.0,
+      "max": 250.0,
+      "step": 5.0,
+      "unit": "mm",
+      "active": true
+    }
+  ],
   "derived": {
     "carcass.back_length": 429.0,
     "carcass.back_width": 529.0,

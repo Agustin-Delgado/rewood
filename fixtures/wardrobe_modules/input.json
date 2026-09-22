@@ -1,0 +1,130 @@
+{
+  "schemaVersion": "1.0",
+  "id": "wardrobe_modules",
+  "name": "Placard de módulos",
+  "parameters": {
+    "width": 1800,
+    "height": 2100,
+    "depth": 500,
+    "modules": 3,
+    "drawer_modules": 1,
+    "drawer_position": 1,
+    "drawers": 3,
+    "drawer_zone_top": 800,
+    "shelves": 2,
+    "drawer_first": "if(drawer_position == 0, 1, if(drawer_position == 2, modules - drawer_modules + 1, floor((modules - drawer_modules) / 2) + 1))",
+    "drawer_last": "drawer_first + drawer_modules - 1"
+  },
+  "options": [
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": "max(600, modules * 318 + 18)", "max": 1850, "step": 10, "unit": "mm", "help": "Más ancho, el fondo de HDF no sale de una placa." },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": 1600, "max": 2600, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 480, "max": 650, "step": 10, "unit": "mm" },
+    { "param": "modules", "label": "Módulos", "group": "Módulos", "min": "ceil((width - 18) / 918)", "max": "min(5, floor((width - 18) / 318))", "step": 1, "help": "Cada módulo lleva su puerta." },
+    { "param": "shelves", "label": "Estantes por módulo", "group": "Módulos", "min": 0, "max": 6, "step": 1 },
+    { "param": "drawer_modules", "label": "Módulos con cajones", "group": "Cajonera", "min": 0, "max": "modules", "step": 1, "help": "1 = una cajonera; 2 o 3 = cajoneras lado a lado, una por módulo." },
+    {
+      "param": "drawer_position",
+      "label": "Dónde va",
+      "group": "Cajonera",
+      "when": "drawer_modules > 0 and drawer_modules < modules",
+      "choices": [
+        { "value": 0, "label": "izquierda" },
+        { "value": 1, "label": "centro" },
+        { "value": 2, "label": "derecha" }
+      ]
+    },
+    { "param": "drawers", "label": "Cajones", "group": "Cajonera", "min": 1, "max": 6, "step": 1, "when": "drawer_modules > 0" },
+    { "param": "drawer_zone_top", "label": "Alto de la cajonera", "group": "Cajonera", "min": 300, "max": 1200, "step": 10, "unit": "mm", "when": "drawer_modules > 0" }
+  ],
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "bays": "modules",
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" }
+    },
+    {
+      "type": "drawers",
+      "id": "drawers",
+      "when": "drawer_modules > 0",
+      "bay": "drawer_first",
+      "lastBay": "drawer_last",
+      "zone": { "from": 0, "to": "drawer_zone_top" },
+      "count": "drawers",
+      "joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 40, "maxSpacing": 150 } },
+      "slide": { "hardware": ["slide_ball_450"] },
+      "handle": { "hardware": ["handle_bar_128"] }
+    },
+    {
+      "type": "shelves",
+      "id": "shelves_over",
+      "when": "drawer_modules > 0 and shelves > 0",
+      "bay": "drawer_first",
+      "lastBay": "drawer_last",
+      "zone": { "from": "drawer_zone_top", "to": "height" },
+      "count": "shelves",
+      "joint": { "hardware": ["dowel_8x30"] }
+    },
+    {
+      "type": "doors",
+      "id": "doors_over",
+      "when": "drawer_modules > 0",
+      "bay": "drawer_first",
+      "lastBay": "drawer_last",
+      "zone": { "from": "drawer_zone_top", "to": "height" },
+      "count": 1,
+      "handle": { "hardware": ["handle_bar_128"] }
+    },
+    {
+      "type": "shelves",
+      "id": "shelves_left",
+      "when": "drawer_first > 1 and shelves > 0",
+      "bay": 1,
+      "lastBay": "drawer_first - 1",
+      "count": "shelves",
+      "joint": { "hardware": ["dowel_8x30"] }
+    },
+    {
+      "type": "doors",
+      "id": "doors_left",
+      "when": "drawer_first > 1",
+      "bay": 1,
+      "lastBay": "drawer_first - 1",
+      "count": 1,
+      "handle": { "hardware": ["handle_bar_128"] }
+    },
+    {
+      "type": "shelves",
+      "id": "shelves_right",
+      "when": "drawer_last < modules and shelves > 0",
+      "bay": "drawer_last + 1",
+      "lastBay": "modules",
+      "count": "shelves",
+      "joint": { "hardware": ["dowel_8x30"] }
+    },
+    {
+      "type": "doors",
+      "id": "doors_right",
+      "when": "drawer_last < modules",
+      "bay": "drawer_last + 1",
+      "lastBay": "modules",
+      "count": 1,
+      "handle": { "hardware": ["handle_bar_128"] }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "shelf_span",
+      "expr": "carcass.bay_width <= 900",
+      "message": "Un estante de más de 900 mm de luz se pandea: sumá módulos"
+    },
+    {
+      "id": "drawer_modules_fit",
+      "expr": "drawer_modules <= modules",
+      "message": "No puede haber más módulos con cajones que módulos"
+    }
+  ]
+}

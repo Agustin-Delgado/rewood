@@ -61,6 +61,8 @@ export interface BackSpec {
 export interface CarcassSpec {
   type: 'carcass';
   id: string;
+  /** Boolean expression over the parameters; `false` leaves the component out (and what refers to it). */
+  when?: NumOrExpr;
   width?: NumOrExpr;
   height?: NumOrExpr;
   depth?: NumOrExpr;
@@ -102,9 +104,13 @@ export interface PlinthSpec {
 export interface ShelvesSpec {
   type: 'shelves';
   id: string;
+  /** Boolean expression over the parameters; `false` leaves the component out (and what refers to it). */
+  when?: NumOrExpr;
   carcass?: string;
   /** 1-based bay; omitted = every bay. */
   bay?: NumOrExpr;
+  /** Last bay of a range from `bay`: every bay in it gets its own set (a stack two or three modules wide). */
+  lastBay?: NumOrExpr;
   zone?: ZoneSpec;
   /** Shelves spread evenly over the zone. Exclusive with `positions`. */
   count?: NumOrExpr;
@@ -128,7 +134,9 @@ export interface ShelvesSpec {
 export interface WorktopSpec {
   type: 'worktop';
   id: string;
-  /** Carcass ids it rests on; empty = all. */
+  /** Boolean expression over the parameters; `false` leaves the component out (and what refers to it). */
+  when?: NumOrExpr;
+  /** Carcass and panel ids it rests on; empty = all of them. */
   carcasses?: string[];
   overhang?: { front?: NumOrExpr; back?: NumOrExpr; sides?: NumOrExpr };
   material?: string;
@@ -140,12 +148,16 @@ export interface WorktopSpec {
 export interface DoorsSpec {
   type: 'doors';
   id: string;
+  /** Boolean expression over the parameters; `false` leaves the component out (and what refers to it). */
+  when?: NumOrExpr;
   /** Consecutive bays one door set covers, from `bay`; default 1. */
   span?: NumOrExpr;
   /** `inset`: inside the opening, with an inset hinge. Default overlay. */
   mount?: FrontMount;
   carcass?: string;
   bay?: NumOrExpr;
+  /** Last bay of a range from `bay`: every bay in it gets its own set (a stack two or three modules wide). */
+  lastBay?: NumOrExpr;
   zone?: ZoneSpec;
   count: NumOrExpr;
   gap?: NumOrExpr;
@@ -168,12 +180,16 @@ export interface CatchSpec {
 export interface DrawersSpec {
   type: 'drawers';
   id: string;
+  /** Boolean expression over the parameters; `false` leaves the component out (and what refers to it). */
+  when?: NumOrExpr;
   /** `inset` = inner drawer (behind a door). Default overlay. */
   mount?: FrontMount;
   /** Inner drawers: fronts set back from the carcass front. */
   setback?: NumOrExpr;
   carcass?: string;
   bay?: NumOrExpr;
+  /** Last bay of a range from `bay`: every bay in it gets its own set (a stack two or three modules wide). */
+  lastBay?: NumOrExpr;
   zone?: ZoneSpec;
   count: NumOrExpr;
   frontHeight?: NumOrExpr;
@@ -195,11 +211,94 @@ export interface DrawersSpec {
   edges?: EdgeBanding;
 }
 
-export type ComponentSpec = CarcassSpec | ShelvesSpec | DoorsSpec | DrawersSpec | RailSpec | WorktopSpec;
+/** A free-standing panel holding a worktop up (a desk end without a pedestal). */
+export interface PanelSpec {
+  type: 'panel';
+  id: string;
+  /** Boolean expression over the parameters; `false` leaves the component out (and what refers to it). */
+  when?: NumOrExpr;
+  /** X of the outer face; default 0. */
+  x?: NumOrExpr;
+  /** Where the inner face looks: `right` = the panel at [x, x + t] (default), `left` = [x - t, x]. */
+  facing?: 'right' | 'left';
+  y?: NumOrExpr;
+  z?: NumOrExpr;
+  /** Default "depth". */
+  depth?: NumOrExpr;
+  /** Default "height". */
+  height?: NumOrExpr;
+  material?: string;
+  /** Into the worktop; default minifix + dowel. */
+  joint?: JointSpec;
+  edges?: EdgeBanding;
+}
+
+/** A modesty panel in every gap between the supports of a worktop, under it, near the back. */
+export interface ModestySpec {
+  type: 'modesty';
+  id: string;
+  /** Boolean expression over the parameters; `false` leaves the component out (and what refers to it). */
+  when?: NumOrExpr;
+  /** The worktop; omitted = the only one. */
+  worktop?: string;
+  /** Default 300. */
+  height?: NumOrExpr;
+  /** Back face from the back of the supports; default 20. */
+  inset?: NumOrExpr;
+  material?: string;
+  /** Into the supports at both ends; default minifix + dowel. */
+  joint?: JointSpec;
+  edges?: EdgeBanding;
+}
+
+export type ComponentSpec =
+  | CarcassSpec
+  | ShelvesSpec
+  | DoorsSpec
+  | DrawersSpec
+  | RailSpec
+  | WorktopSpec
+  | PanelSpec
+  | ModestySpec;
+
+/** A choice offered on a template, bound to a literal parameter. */
+export interface OptionSpec {
+  param: string;
+  label: string;
+  /** Heading the UI groups it under. */
+  group?: string;
+  help?: string;
+  min?: NumOrExpr;
+  max?: NumOrExpr;
+  step?: number;
+  unit?: string;
+  /** Pick one of these values instead of a number. */
+  choices?: { value: number; label: string }[];
+  /** `false` = does not apply right now (shown dimmed). */
+  when?: NumOrExpr;
+}
+
+/** An option as the engine resolved it: bounds evaluated, current value. */
+export interface PlanOption {
+  param: string;
+  label: string;
+  group?: string;
+  help?: string;
+  kind: 'number' | 'toggle' | 'choice';
+  value: number | boolean;
+  min?: number;
+  max?: number;
+  step?: number;
+  unit?: string;
+  choices?: { value: number; label: string }[];
+  active: boolean;
+}
 
 export interface ConstraintSpec {
   id: string;
   expr: string;
+  /** `false` = the rule does not apply. */
+  when?: NumOrExpr;
   severity?: Severity;
   message?: string;
 }
@@ -364,6 +463,8 @@ export interface FurnitureSpec {
   components: ComponentSpec[];
   constraints?: ConstraintSpec[];
   libraries?: LibraryOverrides;
+  /** What a person picks on this template; each option drives one parameter. */
+  options?: OptionSpec[];
 }
 
 // ---------------------------------------------------------------------------
@@ -474,8 +575,12 @@ export type FrontMount = 'overlay' | 'inset';
 export interface RailSpec {
   type: 'rail';
   id: string;
+  /** Boolean expression over the parameters; `false` leaves the component out (and what refers to it). */
+  when?: NumOrExpr;
   carcass?: string;
   bay?: NumOrExpr;
+  /** Last bay of a range from `bay`: every bay in it gets its own set (a stack two or three modules wide). */
+  lastBay?: NumOrExpr;
   zone?: ZoneSpec;
   /** Rail centre below the top of its zone; default 60. */
   fromTop?: NumOrExpr;
@@ -605,6 +710,10 @@ export interface ManufacturingPlan {
   status: PlanStatus;
   manufacturingBlocked: boolean;
   parameters: Record<string, number | boolean>;
+  /** The spec's options, resolved; absent when it has none. */
+  options?: PlanOption[];
+  /** Components left out by their `when`. */
+  inactive?: string[];
   derived: Record<string, number>;
   parts: Part[];
   joints: Joint[];

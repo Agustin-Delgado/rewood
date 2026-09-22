@@ -7,8 +7,18 @@
     "height": 2100,
     "depth": 560,
     "drawer_zone_top": 500,
-    "door_gap": 2
+    "door_gap": 2,
+    "drawers": 2,
+    "shelves": 4
   },
+  "options": [
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": 900, "max": 1800, "step": 10, "unit": "mm" },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": "drawer_zone_top + 1580", "max": 2600, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 540, "max": 650, "step": 10, "unit": "mm" },
+    { "param": "drawers", "label": "Cajones bajo el barral", "group": "Interior", "min": 1, "max": 3, "step": 1 },
+    { "param": "drawer_zone_top", "label": "Alto de los cajones", "group": "Interior", "min": 300, "max": "min(500, height - 1580)", "step": 10, "unit": "mm" },
+    { "param": "shelves", "label": "Estantes", "group": "Interior", "min": 0, "max": 6, "step": 1 }
+  ],
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",
   "components": [
@@ -26,7 +36,7 @@
       "id": "drawers",
       "bay": 1,
       "zone": { "from": 0, "to": "drawer_zone_top" },
-      "count": 2,
+      "count": "drawers",
       "mount": "inset",
       "setback": "carcass.thickness + door_gap",
       "joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 40, "maxSpacing": 150 } },
@@ -37,7 +47,7 @@
       "type": "shelves",
       "id": "shelves",
       "bay": 2,
-      "count": 4,
+      "count": "shelves",
       "joint": { "hardware": ["dowel_8x30"] }
     },
     {

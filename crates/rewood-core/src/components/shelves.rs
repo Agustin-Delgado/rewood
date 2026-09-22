@@ -24,6 +24,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         id,
         carcass,
         bay,
+        last_bay,
         zone,
         count,
         positions,
@@ -33,6 +34,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         joint,
         pins,
         edges,
+        ..
     } = spec
     else {
         unreachable!()
@@ -64,7 +66,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     }
 
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
-    let bays = ctx.bays_for(id, &carcass, bay.as_ref())?;
+    let bays = ctx.bays_for(id, &carcass, bay.as_ref(), last_bay.as_ref())?;
     let spec_zone = zone.as_ref();
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
     ctx.occupy(id, OccupancyKind::Shelves, &carcass, &bays, zone);
@@ -306,7 +308,9 @@ fn pin_rows(
     let pitch = row.placement.pitch.unwrap_or(super::PIN_PITCH);
     // First and last hole on the grid inside the zone, one pitch clear
     // of its ends so the lowest shelf still has room under it.
-    let origin = carcass.origin.2 + GRID_ORIGIN;
+    // Carcass space: the rows move with the carcass's origin afterwards,
+    // like the hinges snapped to the same grid.
+    let origin = GRID_ORIGIN;
     let first = origin + ((z_lo + pitch - origin) / pitch).ceil() * pitch;
     let last = origin + ((z_hi - pitch - origin) / pitch).floor() * pitch;
     if last < first {

@@ -35,6 +35,49 @@ pub struct FurnitureSpec {
     pub constraints: Vec<ConstraintSpec>,
     #[serde(default)]
     pub libraries: LibraryOverrides,
+    /// The choices a person makes on this piece (how many drawers, which
+    /// side the pedestal goes), each one bound to a literal parameter. The
+    /// engine checks the values against the bounds and hands them to the
+    /// UI resolved; nothing else reads them.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub options: Vec<OptionSpec>,
+}
+
+/// One choice offered on a furniture template: a control over a
+/// parameter. The kind follows from the parameter and the fields: a
+/// boolean parameter is a switch, `choices` a pick among values, anything
+/// else a number between `min` and `max`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct OptionSpec {
+    pub param: String,
+    pub label: String,
+    /// Heading the UI groups options under ("Medidas", "Cajonera").
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub group: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub help: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub min: Option<NumOrExpr>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max: Option<NumOrExpr>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub step: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub unit: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub choices: Vec<ChoiceSpec>,
+    /// Boolean expression: `false` = the option does not apply right now
+    /// (drawer count with no pedestal). Its value is kept, not checked.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub when: Option<NumOrExpr>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ChoiceSpec {
+    pub value: f64,
+    pub label: String,
 }
 
 fn default_version() -> String {
@@ -194,6 +237,10 @@ pub enum ComponentSpec {
     #[serde(rename_all = "camelCase")]
     Carcass {
         id: String,
+        /// Boolean expression over the parameters; `false` leaves the
+        /// component out (and whatever refers to it). Omitted = always.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        when: Option<NumOrExpr>,
         #[serde(default = "expr_width")]
         width: NumOrExpr,
         #[serde(default = "expr_height")]
@@ -234,11 +281,19 @@ pub enum ComponentSpec {
     #[serde(rename_all = "camelCase")]
     Shelves {
         id: String,
+        /// Boolean expression over the parameters; `false` leaves the
+        /// component out (and whatever refers to it). Omitted = always.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        when: Option<NumOrExpr>,
         #[serde(default)]
         carcass: Option<String>,
         /// 1-based bay index; omitted = every bay.
         #[serde(default)]
         bay: Option<NumOrExpr>,
+        /// Last bay of a range starting at `bay`: every bay in between
+        /// gets its own set (a drawer stack two or three modules wide).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        last_bay: Option<NumOrExpr>,
         #[serde(default)]
         zone: Option<ZoneSpec>,
         /// Shelves spread evenly over the zone. Exclusive with `positions`.
@@ -274,11 +329,19 @@ pub enum ComponentSpec {
     #[serde(rename_all = "camelCase")]
     Doors {
         id: String,
+        /// Boolean expression over the parameters; `false` leaves the
+        /// component out (and whatever refers to it). Omitted = always.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        when: Option<NumOrExpr>,
         #[serde(default)]
         carcass: Option<String>,
         /// 1-based bay index; omitted = every bay.
         #[serde(default)]
         bay: Option<NumOrExpr>,
+        /// Last bay of a range starting at `bay`: every bay in between
+        /// gets its own set (a drawer stack two or three modules wide).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        last_bay: Option<NumOrExpr>,
         /// Consecutive bays one door set covers, from `bay` (a wide door
         /// over two narrow bays). Default 1.
         #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -319,11 +382,19 @@ pub enum ComponentSpec {
     #[serde(rename_all = "camelCase")]
     Drawers {
         id: String,
+        /// Boolean expression over the parameters; `false` leaves the
+        /// component out (and whatever refers to it). Omitted = always.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        when: Option<NumOrExpr>,
         #[serde(default)]
         carcass: Option<String>,
         /// 1-based bay index; omitted = every bay.
         #[serde(default)]
         bay: Option<NumOrExpr>,
+        /// Last bay of a range starting at `bay`: every bay in between
+        /// gets its own set (a drawer stack two or three modules wide).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        last_bay: Option<NumOrExpr>,
         #[serde(default)]
         zone: Option<ZoneSpec>,
         count: NumOrExpr,
@@ -381,11 +452,19 @@ pub enum ComponentSpec {
     #[serde(rename_all = "camelCase")]
     Rail {
         id: String,
+        /// Boolean expression over the parameters; `false` leaves the
+        /// component out (and whatever refers to it). Omitted = always.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        when: Option<NumOrExpr>,
         #[serde(default)]
         carcass: Option<String>,
         /// 1-based bay index; omitted = every bay.
         #[serde(default)]
         bay: Option<NumOrExpr>,
+        /// Last bay of a range starting at `bay`: every bay in between
+        /// gets its own set (a drawer stack two or three modules wide).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        last_bay: Option<NumOrExpr>,
         #[serde(default)]
         zone: Option<ZoneSpec>,
         /// Rail centre below the top of its zone (the carcass top).
@@ -403,6 +482,10 @@ pub enum ComponentSpec {
     #[serde(rename_all = "camelCase")]
     Worktop {
         id: String,
+        /// Boolean expression over the parameters; `false` leaves the
+        /// component out (and whatever refers to it). Omitted = always.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        when: Option<NumOrExpr>,
         /// Carcass ids it rests on; empty = every carcass.
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         carcasses: Vec<String>,
@@ -416,6 +499,83 @@ pub enum ComponentSpec {
         #[serde(default)]
         edges: EdgeBanding,
     },
+    /// A single vertical panel standing on the floor, holding a worktop
+    /// up (the end of a desk without a pedestal). Runs along Y from `y`
+    /// for `depth`, from `z` up for `height`.
+    #[serde(rename_all = "camelCase")]
+    Panel {
+        id: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        when: Option<NumOrExpr>,
+        /// X of the panel's outer face.
+        #[serde(default = "zero")]
+        x: NumOrExpr,
+        /// Where its inner face (and the fastener holes) looks: `right`
+        /// puts the panel at [x, x + t], `left` at [x - t, x].
+        #[serde(default)]
+        facing: PanelFacing,
+        #[serde(default = "zero")]
+        y: NumOrExpr,
+        #[serde(default = "zero")]
+        z: NumOrExpr,
+        #[serde(default = "expr_depth")]
+        depth: NumOrExpr,
+        #[serde(default = "expr_height")]
+        height: NumOrExpr,
+        #[serde(default)]
+        material: Option<String>,
+        /// Fasteners into the worktop resting on it.
+        #[serde(default = "panel_joint")]
+        joint: JointSpec,
+        #[serde(default)]
+        edges: EdgeBanding,
+    },
+    /// A modesty panel under a worktop: one vertical panel in every gap
+    /// between the carcasses and panels holding it up, near the back and
+    /// right under the top. It keeps the desk from racking sideways.
+    #[serde(rename_all = "camelCase")]
+    Modesty {
+        id: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        when: Option<NumOrExpr>,
+        /// The worktop it hangs under; omitted = the only one.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        worktop: Option<String>,
+        #[serde(default = "modesty_height")]
+        height: NumOrExpr,
+        /// Back face of the panel from the back of the supports.
+        #[serde(default = "modesty_inset")]
+        inset: NumOrExpr,
+        #[serde(default)]
+        material: Option<String>,
+        /// Fasteners at both ends, into the supports.
+        #[serde(default = "panel_joint")]
+        joint: JointSpec,
+        #[serde(default)]
+        edges: EdgeBanding,
+    },
+}
+
+/// Which way a free-standing panel's inner face looks.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PanelFacing {
+    #[default]
+    Right,
+    Left,
+}
+
+fn panel_joint() -> JointSpec {
+    JointSpec {
+        hardware: vec!["minifix_15".into(), "dowel_8x30".into()],
+        placement: None,
+    }
+}
+fn modesty_height() -> NumOrExpr {
+    num(300.0)
+}
+fn modesty_inset() -> NumOrExpr {
+    num(20.0)
 }
 
 /// How far a worktop sticks out past the carcasses under it, mm.
@@ -492,6 +652,33 @@ impl ComponentSpec {
             ComponentSpec::Drawers { .. } => "drawers",
             ComponentSpec::Rail { .. } => "rail",
             ComponentSpec::Worktop { .. } => "worktop",
+            ComponentSpec::Panel { .. } => "panel",
+            ComponentSpec::Modesty { .. } => "modesty",
+        }
+    }
+
+    /// The component's `when` condition, if it has one.
+    pub fn when(&self) -> Option<&NumOrExpr> {
+        match self {
+            ComponentSpec::Carcass { when, .. }
+            | ComponentSpec::Shelves { when, .. }
+            | ComponentSpec::Doors { when, .. }
+            | ComponentSpec::Drawers { when, .. }
+            | ComponentSpec::Rail { when, .. }
+            | ComponentSpec::Worktop { when, .. }
+            | ComponentSpec::Panel { when, .. }
+            | ComponentSpec::Modesty { when, .. } => when.as_ref(),
+        }
+    }
+
+    /// The carcass a dependent component names, if it names one.
+    pub fn carcass_ref(&self) -> Option<&str> {
+        match self {
+            ComponentSpec::Shelves { carcass, .. }
+            | ComponentSpec::Doors { carcass, .. }
+            | ComponentSpec::Drawers { carcass, .. }
+            | ComponentSpec::Rail { carcass, .. } => carcass.as_deref(),
+            _ => None,
         }
     }
 }
@@ -573,7 +760,9 @@ impl ComponentSpec {
             | ComponentSpec::Doors { id, .. }
             | ComponentSpec::Drawers { id, .. }
             | ComponentSpec::Rail { id, .. }
-            | ComponentSpec::Worktop { id, .. } => id,
+            | ComponentSpec::Worktop { id, .. }
+            | ComponentSpec::Panel { id, .. }
+            | ComponentSpec::Modesty { id, .. } => id,
         }
     }
 }
@@ -654,6 +843,10 @@ pub struct ConstraintSpec {
     pub severity: Severity,
     #[serde(default)]
     pub message: Option<String>,
+    /// Boolean expression: `false` = the rule does not apply (knee room
+    /// with no pedestal). Omitted = always.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub when: Option<NumOrExpr>,
 }
 
 fn constraint_severity() -> Severity {

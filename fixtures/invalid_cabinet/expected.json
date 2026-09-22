@@ -310,7 +310,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 791.0,
-          "v": 350.0,
+          "v": 334.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -326,7 +326,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 791.0,
-          "v": 50.0,
+          "v": 66.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -374,7 +374,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 9.0,
-          "v": 350.0,
+          "v": 334.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -390,7 +390,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 9.0,
-          "v": 50.0,
+          "v": 66.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -553,7 +553,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 791.0,
-          "v": 50.0,
+          "v": 66.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -569,7 +569,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 791.0,
-          "v": 350.0,
+          "v": 334.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -617,7 +617,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 9.0,
-          "v": 50.0,
+          "v": 66.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -633,7 +633,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 9.0,
-          "v": 350.0,
+          "v": 334.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -827,7 +827,7 @@
           "id": "P003-OP05",
           "face": "left",
           "type": "DRILL",
-          "u": 350.0,
+          "u": 334.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -843,7 +843,7 @@
           "id": "P003-OP06",
           "face": "left",
           "type": "DRILL",
-          "u": 50.0,
+          "u": 66.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -923,7 +923,7 @@
           "id": "P003-OP11",
           "face": "right",
           "type": "DRILL",
-          "u": 350.0,
+          "u": 334.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -939,7 +939,7 @@
           "id": "P003-OP12",
           "face": "right",
           "type": "DRILL",
-          "u": 50.0,
+          "u": 66.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1070,7 +1070,7 @@
           "id": "P004-OP05",
           "face": "left",
           "type": "DRILL",
-          "u": 50.0,
+          "u": 66.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1086,7 +1086,7 @@
           "id": "P004-OP06",
           "face": "left",
           "type": "DRILL",
-          "u": 350.0,
+          "u": 334.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1166,7 +1166,7 @@
           "id": "P004-OP11",
           "face": "right",
           "type": "DRILL",
-          "u": 50.0,
+          "u": 66.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1182,7 +1182,7 @@
           "id": "P004-OP12",
           "face": "right",
           "type": "DRILL",
-          "u": 350.0,
+          "u": 334.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1305,7 +1305,7 @@
           "index": 0,
           "position": [
             18.0,
-            50.0,
+            66.0,
             791.0
           ]
         },
@@ -1314,7 +1314,7 @@
           "index": 1,
           "position": [
             18.0,
-            350.0,
+            334.0,
             791.0
           ]
         }
@@ -1368,7 +1368,7 @@
           "index": 0,
           "position": [
             2982.0,
-            50.0,
+            66.0,
             791.0
           ]
         },
@@ -1377,7 +1377,7 @@
           "index": 1,
           "position": [
             2982.0,
-            350.0,
+            334.0,
             791.0
           ]
         }
@@ -1431,7 +1431,7 @@
           "index": 0,
           "position": [
             18.0,
-            50.0,
+            66.0,
             9.0
           ]
         },
@@ -1440,7 +1440,7 @@
           "index": 1,
           "position": [
             18.0,
-            350.0,
+            334.0,
             9.0
           ]
         }
@@ -1494,7 +1494,7 @@
           "index": 0,
           "position": [
             2982.0,
-            50.0,
+            66.0,
             9.0
           ]
         },
@@ -1503,7 +1503,7 @@
           "index": 1,
           "position": [
             2982.0,
-            350.0,
+            334.0,
             9.0
           ]
         }
@@ -1818,7 +1818,7 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 468.558,
+    "totalSeconds": 468.075,
     "programs": [
       {
         "part": "P001",
@@ -1826,8 +1826,8 @@
         "operations": 9,
         "toolChanges": 3,
         "cutMm": 2567.5,
-        "rapidMm": 4939.16,
-        "seconds": 66.972
+        "rapidMm": 4874.213,
+        "seconds": 66.778
       },
       {
         "part": "P002",
@@ -1835,8 +1835,8 @@
         "operations": 9,
         "toolChanges": 3,
         "cutMm": 2567.5,
-        "rapidMm": 5165.105,
-        "seconds": 67.65
+        "rapidMm": 5068.602,
+        "seconds": 67.361
       },
       {
         "part": "P003",
@@ -2034,134 +2034,6 @@
         "location": "P002-OP12",
         "message": "P002 / P002-OP12: perforación ciega de 17 mm en 17.8 mm de material deja 0.8 mm; el mínimo es 3 mm",
         "suggestion": "Reducí la profundidad o usá un material más grueso."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P001",
-        "location": "P001-OP01,P001-OP03",
-        "message": "P001: las perforaciones P001-OP01 y P001-OP03 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P001",
-        "location": "P001-OP02,P001-OP04",
-        "message": "P001: las perforaciones P001-OP02 y P001-OP04 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P001",
-        "location": "P001-OP05,P001-OP07",
-        "message": "P001: las perforaciones P001-OP05 y P001-OP07 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P001",
-        "location": "P001-OP06,P001-OP08",
-        "message": "P001: las perforaciones P001-OP06 y P001-OP08 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P002",
-        "location": "P002-OP01,P002-OP03",
-        "message": "P002: las perforaciones P002-OP01 y P002-OP03 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P002",
-        "location": "P002-OP02,P002-OP04",
-        "message": "P002: las perforaciones P002-OP02 y P002-OP04 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P002",
-        "location": "P002-OP05,P002-OP07",
-        "message": "P002: las perforaciones P002-OP05 y P002-OP07 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P002",
-        "location": "P002-OP06,P002-OP08",
-        "message": "P002: las perforaciones P002-OP06 y P002-OP08 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P003",
-        "location": "P003-OP02,P003-OP05",
-        "message": "P003: las perforaciones P003-OP02 y P003-OP05 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P003",
-        "location": "P003-OP04,P003-OP06",
-        "message": "P003: las perforaciones P003-OP04 y P003-OP06 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P003",
-        "location": "P003-OP08,P003-OP11",
-        "message": "P003: las perforaciones P003-OP08 y P003-OP11 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P003",
-        "location": "P003-OP10,P003-OP12",
-        "message": "P003: las perforaciones P003-OP10 y P003-OP12 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P004",
-        "location": "P004-OP02,P004-OP05",
-        "message": "P004: las perforaciones P004-OP02 y P004-OP05 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P004",
-        "location": "P004-OP04,P004-OP06",
-        "message": "P004: las perforaciones P004-OP04 y P004-OP06 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P004",
-        "location": "P004-OP08,P004-OP11",
-        "message": "P004: las perforaciones P004-OP08 y P004-OP11 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
-      },
-      {
-        "code": "FAB-205",
-        "severity": "ERROR",
-        "entity": "P004",
-        "location": "P004-OP10,P004-OP12",
-        "message": "P004: las perforaciones P004-OP10 y P004-OP12 se cruzan (distancia entre ejes 0 mm)",
-        "suggestion": "Cambiá el reparto de herrajes en la unión o el tipo de herraje."
       },
       {
         "code": "FAB-206",

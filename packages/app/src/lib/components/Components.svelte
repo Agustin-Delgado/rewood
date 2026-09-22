@@ -141,6 +141,12 @@
 			case 'worktop':
 				c = { type: 'worktop', id, overhang: { front: 20 } };
 				break;
+			case 'panel':
+				c = { type: 'panel', id, x: 0 };
+				break;
+			case 'modesty':
+				c = { type: 'modesty', id, height: 300 };
+				break;
 		}
 		app.spec.components.push(c);
 		app.touch();
@@ -156,6 +162,17 @@
 		[c[i], c[j]] = [c[j], c[i]];
 		app.touch();
 	}
+	const inactive = $derived(new Set(app.plan?.inactive ?? []));
+	const TYPE_ES: Record<ComponentSpec['type'], string> = {
+		carcass: 'carcasa',
+		shelves: 'estantes',
+		doors: 'puertas',
+		drawers: 'cajones',
+		rail: 'barral',
+		worktop: 'tapa',
+		panel: 'lateral',
+		modesty: 'faldón'
+	};
 	let open: Record<string, boolean> = $state({});
 	// A finding clicked in the bottom panel unfolds its component.
 	let cards: Record<string, HTMLElement> = $state({});
@@ -192,12 +209,13 @@
 	{#each app.spec.components as c, i (c.id)}
 		{@const findings = app.findingsFor(c.id)}
 		{@const level = worst(findings)}
-		<div class="card" class:failing={level === 'ERROR' || level === 'FATAL'} class:warning={level === 'WARNING'} bind:this={cards[c.id]}>
+		<div class="card" class:failing={level === 'ERROR' || level === 'FATAL'} class:warning={level === 'WARNING'} class:off={inactive.has(c.id)} bind:this={cards[c.id]}>
 			<div class="head">
 				<button class="fold" onclick={() => (open[c.id] = !open[c.id])}>{open[c.id] ? '▾' : '▸'}</button>
-				<span class="type">{c.type}</span>
+				<span class="type">{TYPE_ES[c.type]}</span>
 				<input class="id" value={c.id} onchange={(e) => setText(c, 'id', e.currentTarget.value)} />
 				{#if level}<button class="badge {level}" title="ver hallazgos" onclick={() => (open[c.id] = true)}>{findings.length}</button>{/if}
+				{#if inactive.has(c.id)}<span class="offtag" title={c.when !== undefined ? `condición: ${String(c.when)}` : 'depende de un componente apagado'}>apagado</span>{/if}
 				<span class="spacer"></span>
 				<button title="subir" onclick={() => move(i, -1)}>↑</button>
 				<button title="bajar" onclick={() => move(i, 1)}>↓</button>
@@ -205,6 +223,25 @@
 			</div>
 			{#if open[c.id]}
 				<div class="fields">
+					<label class="row"><span>condición</span>
+						<input class="mono" placeholder="siempre · ej. drawers > 0" value={show(c.when)}
+							onchange={(e) => { const raw = e.currentTarget.value.trim(); const rec = c as { when?: NumOrExpr }; if (raw === '' ) delete rec.when; else rec.when = raw === 'true' ? true : raw === 'false' ? false : raw; app.touch(); }} />
+					</label>
+					{#if c.type === 'panel'}
+						<label class="row"><span>x</span><input value={show(c.x ?? 0)} onchange={(e) => setField(c, 'x', e.currentTarget.value)} /></label>
+						<label class="row"><span>mira hacia</span>
+							<select value={c.facing ?? 'right'} onchange={(e) => { c.facing = e.currentTarget.value as 'right' | 'left'; app.touch(); }}>
+								<option value="right">la derecha (lateral izquierdo)</option>
+								<option value="left">la izquierda (lateral derecho)</option>
+							</select>
+						</label>
+						<label class="row"><span>profundidad</span><input value={show(c.depth ?? 'depth')} onchange={(e) => setField(c, 'depth', e.currentTarget.value)} /></label>
+						<label class="row"><span>alto</span><input value={show(c.height ?? 'height')} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
+					{:else if c.type === 'modesty'}
+						<label class="row"><span>tapa</span><input placeholder="la única" value={c.worktop ?? ''} onchange={(e) => setText(c, 'worktop', e.currentTarget.value.trim(), true)} /></label>
+						<label class="row"><span>alto</span><input value={show(c.height ?? 300)} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
+						<label class="row"><span>desde el fondo</span><input value={show(c.inset ?? 20)} onchange={(e) => setField(c, 'inset', e.currentTarget.value)} /></label>
+					{/if}
 					{#if c.type === 'carcass'}
 						<label class="row"><span>ancho</span><input value={show(c.width ?? 'width')} onchange={(e) => setField(c, 'width', e.currentTarget.value)} /></label>
 						<label class="row"><span>alto</span><input value={show(c.height ?? 'height')} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
@@ -241,8 +278,9 @@
 								</span>
 							</label>
 						{/if}
-					{:else if c.type !== 'worktop'}
+					{:else if c.type === 'shelves' || c.type === 'doors' || c.type === 'drawers' || c.type === 'rail'}
 						<label class="row"><span>bahía</span><input placeholder="todas" value={show(c.bay)} onchange={(e) => setField(c, 'bay', e.currentTarget.value, true)} /></label>
+						<label class="row"><span>hasta bahía</span><input placeholder="sólo esa" value={show(c.lastBay)} onchange={(e) => setField(c, 'lastBay', e.currentTarget.value, true)} /></label>
 						<label class="row"><span>zona</span>
 							<span class="inline">
 								<input type="checkbox" checked={!!c.zone} onchange={(e) => setZone(c, e.currentTarget.checked)} />
@@ -386,7 +424,7 @@
 	{/each}
 	<div class="add">
 		<select bind:value={newType}>
-			<option value="carcass">carcasa</option><option value="shelves">estantes</option><option value="doors">puertas</option><option value="drawers">cajones</option><option value="rail">barral</option><option value="worktop">tapa de trabajo</option>
+			<option value="carcass">carcasa</option><option value="shelves">estantes</option><option value="doors">puertas</option><option value="drawers">cajones</option><option value="rail">barral</option><option value="worktop">tapa de trabajo</option><option value="panel">lateral de apoyo</option><option value="modesty">faldón</option>
 		</select>
 		<button onclick={addComponent}>+ agregar</button>
 	</div>
@@ -442,6 +480,17 @@
 	}
 	.card.failing {
 		border-color: #c40;
+	}
+	.card.off {
+		opacity: 0.6;
+		border-style: dashed;
+	}
+	.offtag {
+		font-size: 10px;
+		color: #6b7280;
+		border: 1px solid #d1d5db;
+		border-radius: 8px;
+		padding: 0 6px;
 	}
 	.card.warning {
 		border-color: #d9a400;

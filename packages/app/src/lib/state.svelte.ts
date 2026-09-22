@@ -26,33 +26,7 @@ import {
 	type Project
 } from './server';
 
-import basicCabinet from '../../../../fixtures/basic_cabinet/input.json';
-import bookcase from '../../../../fixtures/bookcase_fixed/input.json';
-import kitchen from '../../../../fixtures/kitchen_run/input.json';
-import drawerUnit from '../../../../fixtures/drawer_unit/input.json';
-import wardrobe from '../../../../fixtures/wardrobe_1800/input.json';
-import wardrobeRail from '../../../../fixtures/wardrobe_rail/input.json';
-import nightstand from '../../../../fixtures/nightstand/input.json';
-import wallCabinet from '../../../../fixtures/wall_cabinet/input.json';
-import bookcaseAdjustable from '../../../../fixtures/bookcase_adjustable/input.json';
-import tvUnit from '../../../../fixtures/tv_unit/input.json';
-import desk from '../../../../fixtures/desk/input.json';
-import sideboard from '../../../../fixtures/sideboard/input.json';
-
-export const EXAMPLES: { id: string; name: string; spec: FurnitureSpec }[] = [
-	{ id: 'wardrobe_1800', name: 'Placard 1800 (3 módulos)', spec: wardrobe as FurnitureSpec },
-	{ id: 'wardrobe_rail', name: 'Placard 1200: barral, cajones interiores, puerta embutida', spec: wardrobeRail as unknown as FurnitureSpec },
-	{ id: 'basic_cabinet', name: 'Módulo básico 900×800', spec: basicCabinet as FurnitureSpec },
-	{ id: 'drawer_unit', name: 'Cajonera 600×700', spec: drawerUnit as FurnitureSpec },
-	{ id: 'bookcase_fixed', name: 'Biblioteca 800×2000 con estante fijo', spec: bookcase as FurnitureSpec },
-	{ id: 'kitchen_run', name: 'Bajo mesada 1800: 3 módulos', spec: kitchen as unknown as FurnitureSpec },
-	{ id: 'nightstand', name: 'Mesa de luz 450×550: cajón y puerta', spec: nightstand as unknown as FurnitureSpec },
-	{ id: 'wall_cabinet', name: 'Alacena colgante 900×720', spec: wallCabinet as unknown as FurnitureSpec },
-	{ id: 'bookcase_adjustable', name: 'Biblioteca 900×2000 con estantes regulables', spec: bookcaseAdjustable as unknown as FurnitureSpec },
-	{ id: 'tv_unit', name: 'Mueble de TV 1800×450', spec: tvUnit as unknown as FurnitureSpec },
-	{ id: 'desk', name: 'Escritorio 1400 con tapa', spec: desk as unknown as FurnitureSpec },
-	{ id: 'sideboard', name: 'Aparador 1600: push-open, cierre suave, patas 120', spec: sideboard as unknown as FurnitureSpec }
-];
+import { VARIANTS, findVariant, variantSpec } from './catalog';
 
 export type ViewName = 'iso' | 'front' | 'back' | 'left' | 'right' | 'top';
 export const VIEWS: { id: ViewName; name: string; title: string }[] = [
@@ -67,7 +41,10 @@ export const VIEWS: { id: ViewName; name: string; title: string }[] = [
 class AppState {
 	engine: Engine | null = $state(null);
 	libraries: LibrariesSnapshot | null = $state(null);
-	spec: FurnitureSpec = $state(structuredClone(EXAMPLES[0].spec));
+	spec: FurnitureSpec = $state(variantSpec(VARIANTS[0]));
+	/** The catalogue variant on screen; null once a spec comes from elsewhere. */
+	variant: string | null = $state(VARIANTS[0].id);
+	catalogOpen: boolean = $state(false);
 	/** The raw JSON text when the user edits the spec by hand. */
 	specText: string = $state('');
 	specError: string | null = $state(null);
@@ -180,6 +157,7 @@ class AppState {
 		this.hiddenComponents = new Set();
 		this.current = { id: f.id, projectId: f.projectId, version: f.version };
 		this.dirty = false;
+		this.variant = null;
 		this.recompile();
 		this.viewTick += 1;
 	}
@@ -201,10 +179,13 @@ class AppState {
 		if (this.selectedFastener && !this.fastener) this.selectedFastener = null;
 	}
 
-	loadExample(id: string) {
-		const ex = EXAMPLES.find((e) => e.id === id);
-		if (!ex) return;
-		this.spec = structuredClone(ex.spec);
+	/** Start from a catalogue variant: its template with its option values. */
+	loadVariant(id: string) {
+		const found = findVariant(id);
+		if (!found) return;
+		this.spec = variantSpec(found.variant);
+		this.variant = id;
+		this.catalogOpen = false;
 		this.specText = JSON.stringify(this.spec, null, 2);
 		this.specError = null;
 		this.selectedPart = null;
@@ -241,6 +222,7 @@ class AppState {
 	/** A spec proposed by the assistant: replaces what is on screen. */
 	applySpec(spec: FurnitureSpec) {
 		this.spec = spec;
+		this.variant = null;
 		this.specText = JSON.stringify(this.spec, null, 2);
 		this.specError = null;
 		this.dirty = true;
@@ -253,6 +235,7 @@ class AppState {
 		try {
 			const parsed = JSON.parse(text) as FurnitureSpec;
 			this.specError = null;
+			if (parsed.id !== this.spec.id) this.variant = null;
 			this.spec = parsed;
 			this.dirty = true;
 			this.recompile();

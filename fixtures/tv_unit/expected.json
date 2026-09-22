@@ -215,6 +215,57 @@
     "t": 18.0,
     "width": 1800.0
   },
+  "options": [
+    {
+      "param": "width",
+      "label": "Ancho",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 1800.0,
+      "min": 1472.0,
+      "max": 2400.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "height",
+      "label": "Alto",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 450.0,
+      "min": 300.0,
+      "max": 500.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "depth",
+      "label": "Profundidad",
+      "group": "Medidas",
+      "kind": "number",
+      "value": 420.0,
+      "min": 380.0,
+      "max": 500.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "middle",
+      "label": "Hueco del medio",
+      "group": "Interior",
+      "help": "Más de 900 mm, la tapa y el estante del medio se pandean.",
+      "kind": "number",
+      "value": 800.0,
+      "min": 400.0,
+      "max": 900.0,
+      "step": 10.0,
+      "unit": "mm",
+      "active": true
+    }
+  ],
   "derived": {
     "carcass.back_length": 1779.0,
     "carcass.back_width": 429.0,

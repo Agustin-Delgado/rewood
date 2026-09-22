@@ -313,6 +313,13 @@ pub struct ManufacturingPlan {
     pub status: PlanStatus,
     pub manufacturing_blocked: bool,
     pub parameters: BTreeMap<String, Value>,
+    /// The spec's options, resolved (§ template options). Defaulted: a
+    /// plan frozen before options existed has none.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub options: Vec<crate::options::PlanOption>,
+    /// Components left out by their `when`, in declaration order.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub inactive: Vec<String>,
     pub derived: BTreeMap<String, f64>,
     pub parts: Vec<Part>,
     pub joints: Vec<Joint>,

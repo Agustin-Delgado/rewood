@@ -7,11 +7,13 @@ mod carcass;
 mod doors;
 mod drawers;
 mod layout;
+mod modesty;
+mod panel;
 mod rail;
 mod shelves;
 mod worktop;
 
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::diagnostics::{Diagnostic, Diagnostics, Severity};
 use crate::expr::{Chain, Scope, Value};
@@ -159,6 +161,46 @@ pub enum OccupancyKind {
     Rail,
 }
 
+/// A free-standing panel, for the worktop that rests on it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PanelInfo {
+    pub part: String,
+    pub x0: f64,
+    pub x1: f64,
+    pub y0: f64,
+    pub y1: f64,
+    pub z_top: f64,
+    /// Fasteners into the worktop.
+    pub joint: JointSpec,
+}
+
+/// Something a worktop rests on, in furniture space.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Support {
+    pub id: String,
+    pub x0: f64,
+    pub x1: f64,
+    pub y0: f64,
+    pub y1: f64,
+    pub z_top: f64,
+    /// The panel facing left (outer face at `x0`) and right (at `x1`):
+    /// a carcass's two sides, or the one panel twice.
+    pub left_part: String,
+    pub right_part: String,
+    /// A free-standing panel's joint into the worktop; `None` = carcass.
+    pub panel: Option<JointSpec>,
+}
+
+/// A worktop as built, for the modesty panels hung under it.
+#[derive(Debug, Clone, PartialEq)]
+pub struct WorktopInfo {
+    pub id: String,
+    /// Height of its underside.
+    pub z_under: f64,
+    /// Sorted by X.
+    pub supports: Vec<Support>,
+}
+
 /// Hardware bought by the metre or per component rather than per
 /// fastener (a rail bar): goes straight to the BOM.
 #[derive(Debug, Clone, PartialEq)]
@@ -197,6 +239,13 @@ pub struct BuildCtx<'a> {
     pub carcass_of: BTreeMap<String, String>,
     pub occupancy: Vec<Occupancy>,
     pub extra_bom: Vec<ExtraBom>,
+    pub panels: BTreeMap<String, PanelInfo>,
+    pub worktops: BTreeMap<String, WorktopInfo>,
+    /// Worktops a modesty panel braces.
+    pub braced: BTreeSet<String>,
+    /// Components left out by their `when` (or by what they refer to),
+    /// in declaration order.
+    pub disabled: Vec<String>,
 }
 
 /// World axes whose facing edges get banded, from the component's choice
@@ -253,6 +302,10 @@ impl<'a> BuildCtx<'a> {
             carcass_of: BTreeMap::new(),
             occupancy: Vec::new(),
             extra_bom: Vec::new(),
+            panels: BTreeMap::new(),
+            worktops: BTreeMap::new(),
+            braced: BTreeSet::new(),
+            disabled: Vec::new(),
         }
     }
 
@@ -508,36 +561,55 @@ impl<'a> BuildCtx<'a> {
     }
 
     /// The bays a dependent component applies to: the one named by `bay`,
-    /// or all of them.
+    /// the range `bay`..=`lastBay`, or all of them.
     pub fn bays_for(
         &self,
         component: &str,
         carcass: &CarcassInfo,
         bay: Option<&ParamInput>,
+        last_bay: Option<&ParamInput>,
     ) -> Result<Vec<Bay>, Diagnostic> {
-        match bay {
-            None => Ok(carcass.bays.clone()),
-            Some(v) => {
-                let n = self.eval(component, "bay", v)?;
-                carcass
-                    .bays
-                    .iter()
-                    .find(|b| b.index as f64 == n)
-                    .cloned()
-                    .map(|b| vec![b])
-                    .ok_or_else(|| {
-                        Diagnostic::new(
-                            "SPEC-204",
-                            Severity::Fatal,
-                            format!(
-                                "el componente '{component}' pide la bahía {n} y la carcasa tiene {}",
-                                carcass.bays.len()
-                            ),
-                        )
-                        .entity(component)
-                    })
+        if bay.is_none() && last_bay.is_none() {
+            return Ok(carcass.bays.clone());
+        }
+        let first = match bay {
+            Some(v) => self.eval(component, "bay", v)?,
+            None => 1.0,
+        };
+        let last = match last_bay {
+            Some(v) => self.eval(component, "lastBay", v)?,
+            None => first,
+        };
+        let out_of_range = |n: f64| {
+            Diagnostic::new(
+                "SPEC-204",
+                Severity::Fatal,
+                format!(
+                    "el componente '{component}' pide la bahía {n} y la carcasa tiene {}",
+                    carcass.bays.len()
+                ),
+            )
+            .entity(component)
+        };
+        if last < first {
+            return Err(Diagnostic::new(
+                "SPEC-204",
+                Severity::Fatal,
+                format!("el componente '{component}' pide las bahías {first} a {last}: el rango está vacío"),
+            )
+            .entity(component));
+        }
+        for n in [first, last] {
+            if !carcass.bays.iter().any(|b| b.index as f64 == n) {
+                return Err(out_of_range(n));
             }
         }
+        Ok(carcass
+            .bays
+            .iter()
+            .filter(|b| b.index as f64 >= first && b.index as f64 <= last)
+            .cloned()
+            .collect())
     }
 
     /// Group consecutive bays into one virtual bay `span` wide, starting
@@ -804,6 +876,115 @@ impl<'a> BuildCtx<'a> {
         found
     }
 
+    /// Whether a component is built: its `when` holds, and so does the
+    /// carcass or worktop it refers to. A dependent of something left out
+    /// goes with it (no pedestal, no drawers in it).
+    fn included(&self, component: &ComponentSpec) -> Result<bool, Diagnostic> {
+        let id = component.id();
+        if let Some(when) = component.when() {
+            if !self.condition(id, "when", when)? {
+                return Ok(false);
+            }
+        }
+        let off = |x: &str| self.disabled.iter().any(|d| d == x);
+        let follows = match component {
+            ComponentSpec::Shelves { carcass, .. }
+            | ComponentSpec::Doors { carcass, .. }
+            | ComponentSpec::Drawers { carcass, .. }
+            | ComponentSpec::Rail { carcass, .. } => match carcass {
+                Some(c) => off(c),
+                // The only carcass it would take is gone.
+                None => self.carcasses.is_empty() && !self.disabled.is_empty(),
+            },
+            ComponentSpec::Worktop { carcasses, .. } => {
+                !carcasses.is_empty() && carcasses.iter().all(|c| off(c))
+            }
+            ComponentSpec::Modesty { worktop, .. } => match worktop {
+                Some(w) => off(w),
+                None => self.worktops.is_empty() && !self.disabled.is_empty(),
+            },
+            ComponentSpec::Carcass { .. } | ComponentSpec::Panel { .. } => false,
+        };
+        Ok(!follows)
+    }
+
+    /// A boolean field: a literal, or an expression that has to come out
+    /// true or false. `SPEC-103` otherwise.
+    pub fn condition(
+        &self,
+        component: &str,
+        field: &str,
+        v: &ParamInput,
+    ) -> Result<bool, Diagnostic> {
+        let bad = |why: String| {
+            Diagnostic::new(
+                "SPEC-103",
+                Severity::Fatal,
+                format!("el campo '{field}' de '{component}' {why}"),
+            )
+            .entity(component)
+        };
+        match v {
+            ParamInput::Bool(b) => Ok(*b),
+            ParamInput::Number(n) => {
+                Err(bad(format!("es el número {n} y se esperaba una condición")))
+            }
+            ParamInput::Expr(src) => {
+                let expr = crate::expr::Expr::parse(src)
+                    .map_err(|e| bad(format!("no se pudo interpretar: {e}")))?;
+                match expr.eval(&self.scope()) {
+                    Ok(Value::Bool(b)) => Ok(b),
+                    Ok(Value::Number(n)) => Err(bad(format!(
+                        "da {n} y se esperaba una condición (por ejemplo 'drawers > 0')"
+                    ))),
+                    Err(e) => Err(bad(format!("no se pudo evaluar: {e}"))),
+                }
+            }
+        }
+    }
+
+    /// DESIGN-117: a worktop standing on loose panels with nothing
+    /// bracing it sways sideways; a panel holding no worktop holds nothing.
+    fn check_bracing(&mut self) {
+        let mut out = Vec::new();
+        for w in self.worktops.values() {
+            if w.supports.iter().any(|s| s.panel.is_some()) && !self.braced.contains(&w.id) {
+                out.push(
+                    Diagnostic::new(
+                        "DESIGN-117",
+                        Severity::Warning,
+                        format!(
+                            "la tapa '{}' apoya en laterales sueltos y nada la arriostra: se mueve de costado",
+                            w.id
+                        ),
+                    )
+                    .entity(w.id.clone())
+                    .suggestion("Agregá un faldón ({ type: \"modesty\" }) entre los apoyos."),
+                );
+            }
+        }
+        for id in self.panels.keys() {
+            let holds = self
+                .worktops
+                .values()
+                .any(|w| w.supports.iter().any(|s| &s.id == id));
+            if !holds {
+                out.push(
+                    Diagnostic::new(
+                        "DESIGN-117",
+                        Severity::Warning,
+                        format!("el lateral '{id}' no sostiene ninguna tapa: queda suelto"),
+                    )
+                    .entity(id.clone())
+                    .suggestion("Declarale una tapa encima ({ type: \"worktop\" }) o sacalo."),
+                );
+            }
+        }
+        for d in out {
+            self.warn(d);
+        }
+    }
+
     /// Two components of the same kind name their parts alike ("Puerta 1"
     /// from each door set): a cut list with two different "Puerta 1" rows
     /// tells the workshop nothing. Suffix the component id wherever a
@@ -872,6 +1053,18 @@ pub fn expand(ctx: &mut BuildCtx<'_>) {
             );
             continue;
         }
+        match ctx.included(component) {
+            Ok(true) => {}
+            Ok(false) => {
+                ctx.disabled.push(component.id().to_string());
+                continue;
+            }
+            Err(d) => {
+                ctx.diagnostics.push(d);
+                ctx.disabled.push(component.id().to_string());
+                continue;
+            }
+        }
         let result = match component {
             ComponentSpec::Carcass { .. } => carcass::build(ctx, component),
             ComponentSpec::Shelves { .. } => shelves::build(ctx, component),
@@ -879,11 +1072,14 @@ pub fn expand(ctx: &mut BuildCtx<'_>) {
             ComponentSpec::Drawers { .. } => drawers::build(ctx, component),
             ComponentSpec::Rail { .. } => rail::build(ctx, component),
             ComponentSpec::Worktop { .. } => worktop::build(ctx, component),
+            ComponentSpec::Panel { .. } => panel::build(ctx, component),
+            ComponentSpec::Modesty { .. } => modesty::build(ctx, component),
         };
         if let Err(d) = result {
             ctx.diagnostics.push(d);
         }
     }
+    ctx.check_bracing();
     layout::check(ctx);
     ctx.disambiguate_names();
     ctx.apply_origins();

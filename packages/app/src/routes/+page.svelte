@@ -1,16 +1,24 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import JSZip from 'jszip';
-	import { app, EXAMPLES } from '$lib/state.svelte';
+	import { app } from '$lib/state.svelte';
+	import { findVariant } from '$lib/catalog';
 	import Viewer from '$lib/components/Viewer.svelte';
 	import Tree from '$lib/components/Tree.svelte';
 	import Properties from '$lib/components/Properties.svelte';
 	import Components from '$lib/components/Components.svelte';
 	import Assistant from '$lib/components/Assistant.svelte';
+	import Catalog from '$lib/components/Catalog.svelte';
+	import Design from '$lib/components/Design.svelte';
 	import Bottom from '$lib/components/Bottom.svelte';
 
-	let example = $state(EXAMPLES[0].id);
-	let rightTab: 'props' | 'comps' | 'ai' = $state('props');
+	let rightTab: 'design' | 'props' | 'comps' | 'ai' = $state('design');
+	const current = $derived(app.variant ? findVariant(app.variant) : null);
+	// A part clicked in the viewer is described in Parámetros.
+	$effect(() => {
+		const picked = app.selectedPart ?? app.selectedFastener;
+		if (picked && untrack(() => rightTab) === 'design') rightTab = 'props';
+	});
 	let loading = $state(true);
 
 	onMount(async () => {
@@ -53,14 +61,16 @@
 <div class="shell">
 	<header>
 		<span class="brand">rewood</span>
-		<label>
-			ejemplo
-			<select bind:value={example} onchange={() => app.loadExample(example)}>
-				{#each EXAMPLES as ex (ex.id)}
-					<option value={ex.id}>{ex.name}</option>
-				{/each}
-			</select>
-		</label>
+		<button class="catalog-btn" onclick={() => (app.catalogOpen = true)} disabled={loading} title="Elegir otro mueble">
+			<span class="grid-icon" aria-hidden="true"></span>
+			{#if current}
+				<span class="crumb">{current.category.name}</span>
+				<span class="sep">›</span>
+				<span>{current.variant.name}</span>
+			{:else}
+				<span>{app.spec.name}</span>
+			{/if}
+		</button>
 		<label class="file">
 			abrir spec…
 			<input type="file" accept="application/json" onchange={openFile} />
@@ -88,15 +98,17 @@
 		<main><Viewer /></main>
 		<aside class="right">
 			<div class="rtabs">
+				<button class:active={rightTab === 'design'} onclick={() => (rightTab = 'design')}>Diseño</button>
 				<button class:active={rightTab === 'props'} onclick={() => (rightTab = 'props')}>Parámetros</button>
 				<button class:active={rightTab === 'comps'} onclick={() => (rightTab = 'comps')}>Componentes</button>
 				<button class:active={rightTab === 'ai'} onclick={() => (rightTab = 'ai')}>Asistente</button>
 			</div>
 			<div class="rbody">
-				{#if rightTab === 'props'}<Properties />{:else if rightTab === 'comps'}<Components />{:else}<Assistant />{/if}
+				{#if rightTab === 'design'}<Design />{:else if rightTab === 'props'}<Properties />{:else if rightTab === 'comps'}<Components />{:else}<Assistant />{/if}
 			</div>
 		</aside>
 		<footer><Bottom /></footer>
+		<Catalog />
 	{/if}
 </div>
 
@@ -129,6 +141,32 @@
 	.brand {
 		font-weight: 700;
 		letter-spacing: 0.02em;
+	}
+	.catalog-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		border-color: #ff8c42;
+		font-weight: 600;
+	}
+	.catalog-btn:hover {
+		background: #fff7f0;
+	}
+	.catalog-btn .crumb {
+		color: #9ca3af;
+		font-weight: 400;
+	}
+	.catalog-btn .sep {
+		color: #d1d5db;
+	}
+	.grid-icon {
+		width: 10px;
+		height: 10px;
+		background:
+			linear-gradient(#ff8c42, #ff8c42) 0 0 / 4px 4px no-repeat,
+			linear-gradient(#ff8c42, #ff8c42) 6px 0 / 4px 4px no-repeat,
+			linear-gradient(#ff8c42, #ff8c42) 0 6px / 4px 4px no-repeat,
+			linear-gradient(#ff8c42, #ff8c42) 6px 6px / 4px 4px no-repeat;
 	}
 	.spacer {
 		flex: 1;

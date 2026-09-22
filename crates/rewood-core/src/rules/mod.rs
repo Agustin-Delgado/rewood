@@ -5,7 +5,7 @@
 
 mod design;
 mod geometry;
-mod machining;
+pub(crate) mod machining;
 mod material;
 
 use crate::diagnostics::{Diagnostic, Diagnostics};

@@ -23,11 +23,13 @@ pub mod joints;
 pub mod library;
 pub mod model;
 pub mod nesting;
+pub mod options;
 pub mod params;
 pub mod plan;
 pub mod rules;
 pub mod simulation;
 pub mod spec;
+mod stagger;
 pub mod units;
 
 use diagnostics::{Diagnostic, Diagnostics, Severity};
@@ -182,6 +184,7 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
         derived,
         diagnostics: component_diags,
         extra_bom,
+        disabled: inactive,
         ..
     } = ctx;
     diags.extend(component_diags);
@@ -189,6 +192,33 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
     // 3. Constraints over parameters and derived values.
     let scope = Chain(&derived, &params);
     for c in &spec.constraints {
+        let applies = match &c.when {
+            None => Ok(true),
+            Some(params::ParamInput::Bool(b)) => Ok(*b),
+            Some(params::ParamInput::Number(_)) => Err("'when' es un número".to_string()),
+            Some(params::ParamInput::Expr(src)) => {
+                match Expr::parse(src).and_then(|e| e.eval(&scope)) {
+                    Ok(Value::Bool(b)) => Ok(b),
+                    Ok(Value::Number(_)) => Err(format!("'when' no es una condición: {src}")),
+                    Err(e) => Err(format!("'when': {e}")),
+                }
+            }
+        };
+        match applies {
+            Ok(true) => {}
+            Ok(false) => continue,
+            Err(e) => {
+                diags.push(
+                    Diagnostic::new(
+                        "SPEC-402",
+                        Severity::Fatal,
+                        format!("la restricción '{}' no se pudo evaluar: {e}", c.id),
+                    )
+                    .entity(c.id.clone()),
+                );
+                continue;
+            }
+        }
         let outcome = Expr::parse(&c.expr).and_then(|e| e.eval(&scope));
         match outcome {
             Ok(Value::Bool(true)) => {}
@@ -225,8 +255,17 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
         }
     }
 
+    // Template options, resolved for the UI and checked against the values.
+    let (options, option_diags) = options::resolve(spec, &scope);
+    for d in option_diags {
+        diags.push(d);
+    }
+
     // 4. Joints -> fasteners -> holes.
-    let joints = joints::resolve(&mut parts, &joint_requests, libs, &mut diags);
+    let mut joints = joints::resolve(&mut parts, &joint_requests, libs, &mut diags);
+    // Fasteners of butt joints that run into another hole move along
+    // their joint line before anything checks them.
+    stagger::stagger(&mut parts, &mut joints, libs);
 
     // 5. Edge banding as operations, after the holes so ids stay stable.
     for part in &mut parts {
@@ -314,6 +353,8 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
         status,
         manufacturing_blocked: blocked,
         parameters: params.values(),
+        options,
+        inactive,
         derived,
         parts,
         joints,
@@ -352,6 +393,8 @@ fn empty_plan(
         status,
         manufacturing_blocked: blocked,
         parameters: Default::default(),
+        options: Vec::new(),
+        inactive: Vec::new(),
         derived: Default::default(),
         parts: Vec::new(),
         joints: Vec::new(),

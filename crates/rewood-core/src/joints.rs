@@ -464,6 +464,21 @@ pub fn resolve(
                     let back = (snapped - start) * contact.axis.sign();
                     *pos = back.clamp(0.0, length);
                 }
+                // On a short joint two fasteners can round to one grid
+                // line: the later one takes the next line, or goes if
+                // there is none left.
+                along_positions.sort_by(f64::total_cmp);
+                let mut spread: Vec<f64> = Vec::with_capacity(along_positions.len());
+                for pos in along_positions {
+                    let pos = match spread.last() {
+                        Some(&prev) if pos < prev + pitch - crate::units::EPS => prev + pitch,
+                        _ => pos,
+                    };
+                    if pos <= length + crate::units::EPS {
+                        spread.push(pos);
+                    }
+                }
+                along_positions = spread;
             }
             let grid = rows
                 .iter()
