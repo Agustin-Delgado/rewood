@@ -350,3 +350,108 @@ fn fronts_meeting_inside_a_carcass_keep_one_gap_and_front_height_occupies_what_i
         plan.diagnostics
     );
 }
+
+#[test]
+fn a_turned_carcass_is_the_same_furniture_turned() {
+    let spec = |rotation: u32| {
+        format!(
+            r#"{{
+  "schemaVersion": "1.0", "id": "t", "name": "t",
+  "parameters": {{ "width": 600, "height": 720, "depth": 560 }},
+  "material": "melamine_18", "edgeMaterial": "abs_1mm",
+  "components": [
+    {{ "type": "carcass", "id": "c", "bays": 2, "origin": {{ "x": 100, "y": 900, "rotation": {rotation} }}, "joint": {{ "hardware": ["dowel_8x30"] }}, "back": {{ "material": "hdf_3" }}, "legs": {{ "plinth": {{}} }} }},
+    {{ "type": "drawers", "id": "d", "bay": 1, "count": 2, "slide": {{ "hardware": ["slide_ball_450"] }}, "joint": {{ "hardware": ["dowel_8x30"] }}, "handle": {{ "hardware": ["handle_bar_128"] }} }},
+    {{ "type": "doors", "id": "o", "bay": 2, "count": 1, "catch": {{}} }}
+  ]
+}}"#
+        )
+    };
+    let flat = rewood_core::compile_json(&spec(0));
+    assert_eq!(flat.status, PlanStatus::Ok, "{:#?}", flat.diagnostics);
+    let pivot = rewood_core::geometry::Vec3(100.0, 900.0, 0.0);
+    for (deg, q) in [(90, 1), (180, 2), (270, 3)] {
+        let turned = rewood_core::compile_json(&spec(deg));
+        assert_eq!(
+            turned.status,
+            PlanStatus::Ok,
+            "{deg}: {:#?}",
+            turned.diagnostics
+        );
+        assert_eq!(turned.parts.len(), flat.parts.len());
+        for (a, b) in flat.parts.iter().zip(&turned.parts) {
+            assert_eq!(a.role, b.role);
+            assert_eq!(a.operations, b.operations, "{deg}: {}", a.role);
+            assert_eq!(a.aabb.turned_about(pivot, q), b.aabb, "{deg}: {}", a.role);
+        }
+        for (a, b) in flat.joints.iter().zip(&turned.joints) {
+            assert_eq!(a.fasteners.len(), b.fasteners.len());
+            for (fa, fb) in a.fasteners.iter().zip(&b.fasteners) {
+                assert_eq!(fa.position.turned_about(pivot, q), fb.position);
+            }
+        }
+        assert_eq!(turned.derived["c.rotation"], f64::from(deg));
+    }
+    let odd = rewood_core::compile_json(&spec(45));
+    assert!(odd.diagnostics.items.iter().any(|d| d.code == "SPEC-332"));
+}
+
+#[test]
+fn a_fixed_front_is_dowelled_to_the_edges_it_covers() {
+    let plan = rewood_core::compile_json(
+        r#"{
+  "schemaVersion": "1.0", "id": "f", "name": "f",
+  "parameters": { "width": 1000, "height": 720, "depth": 560 },
+  "material": "melamine_18", "edgeMaterial": "abs_1mm",
+  "components": [
+    { "type": "carcass", "id": "c", "bays": 2, "bayWidths": [600, "auto"], "joint": { "hardware": ["dowel_8x30"] }, "back": { "material": "hdf_3" } },
+    { "type": "doors", "id": "blind", "bay": 1, "count": 1, "fixed": true },
+    { "type": "doors", "id": "door", "bay": 2, "count": 1 }
+  ]
+}"#,
+    );
+    assert_eq!(plan.status, PlanStatus::Ok, "{:#?}", plan.diagnostics);
+    let front = part(&plan, "fixed_front_1");
+    assert_eq!(front.name, "Frente fijo 1");
+    let joints: Vec<_> = plan
+        .joints
+        .iter()
+        .filter(|j| j.component == "blind")
+        .collect();
+    // The left side, the top and the bottom; not the divider, covered only
+    // to its middle. No hinge.
+    let roles: Vec<&str> = joints
+        .iter()
+        .map(|j| {
+            let other = if j.face_part == front.id {
+                &j.edge_part
+            } else {
+                &j.face_part
+            };
+            plan.parts
+                .iter()
+                .find(|p| &p.id == other)
+                .unwrap()
+                .role
+                .as_str()
+        })
+        .collect();
+    assert_eq!(roles, ["side_left", "top", "bottom"]);
+    assert!(joints
+        .iter()
+        .all(|j| j.kind == "butt" && j.hardware == ["dowel_8x30"]));
+    let handled = rewood_core::compile_json(&serde_json::json!({
+        "schemaVersion": "1.0", "id": "f", "name": "f",
+        "parameters": { "width": 600, "height": 720, "depth": 560 },
+        "material": "melamine_18",
+        "components": [
+            { "type": "carcass", "id": "c", "joint": { "hardware": ["dowel_8x30"] } },
+            { "type": "doors", "id": "blind", "count": 1, "fixed": true, "handle": { "hardware": ["handle_bar_128"] } }
+        ]
+    }).to_string());
+    assert!(handled
+        .diagnostics
+        .items
+        .iter()
+        .any(|d| d.code == "SPEC-334"));
+}

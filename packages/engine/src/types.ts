@@ -77,7 +77,8 @@ export interface CarcassSpec {
   /** Legs under the bottom panel, optionally with a plinth. */
   legs?: LegsSpec;
   /** Where the carcass stands (bottom-left-back corner); modules side by side. */
-  origin?: { x?: NumOrExpr; y?: NumOrExpr; z?: NumOrExpr };
+  /** Where it stands; `rotation` 0/90/180/270 degrees counter-clockwise from above, about that point (270 = front looking at +X). */
+  origin?: { x?: NumOrExpr; y?: NumOrExpr; z?: NumOrExpr; rotation?: NumOrExpr };
   /** Wall-hung: a hanger on each side's inner face, top back corner. */
   hanging?: { hardware?: string[] };
 }
@@ -176,6 +177,10 @@ export interface DoorsSpec {
   /** A catch on the panel opposite the hinge (or under the top for a pair of doors) with its plate on the door. */
   catch?: CatchSpec;
   handle?: HandleSpec;
+  /** A fixed front (panel ciego): dowelled to the panels' front edges, no hinge, catch or handle. */
+  fixed?: boolean;
+  /** Fasteners of a fixed front; default dowels. */
+  fixing?: JointSpec;
   edges?: EdgeBanding;
 }
 

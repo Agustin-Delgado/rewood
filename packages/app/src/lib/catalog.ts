@@ -13,6 +13,7 @@ import bookcaseAdjustable from '../../../../fixtures/bookcase_adjustable/input.j
 import desk from '../../../../fixtures/desk/input.json';
 import drawerUnit from '../../../../fixtures/drawer_unit/input.json';
 import kitchen from '../../../../fixtures/kitchen_run/input.json';
+import kitchenCorner from '../../../../fixtures/kitchen_corner/input.json';
 import nightstand from '../../../../fixtures/nightstand/input.json';
 import sideboard from '../../../../fixtures/sideboard/input.json';
 import tvUnit from '../../../../fixtures/tv_unit/input.json';
@@ -142,6 +143,19 @@ export const CATALOG: Category[] = [
 		description: 'Bajo mesadas, alacenas y módulos sueltos.',
 		variants: [
 			{ id: 'kitchen_run', name: 'Bajo mesada', description: 'De dos a cuatro módulos con patas y zócalo; cajonera en el segundo.', spec: t(kitchen) },
+			{
+				id: 'kitchen_corner',
+				name: 'En L con esquinero',
+				description: 'Esquinero ciego con puerta, cajonera y módulos a un lado, otra hilera en la pared de al lado.',
+				spec: t(kitchenCorner)
+			},
+			{
+				id: 'kitchen_corner_long',
+				name: 'En L larga',
+				description: 'Tres módulos de cada lado del esquinero.',
+				spec: t(kitchenCorner),
+				preset: { a_modules: 3, b_modules: 3 }
+			},
 			{
 				id: 'kitchen_drawer_base',
 				name: 'Cajonero bajo mesada',
@@ -277,7 +291,7 @@ export interface Elevation {
 }
 
 const isFront = (p: Part) =>
-	(p.role.endsWith('_front') && !p.role.endsWith('box_front')) || p.role.includes('door');
+	(p.role.endsWith('_front') && !p.role.endsWith('box_front')) || p.role.includes('door') || p.role.includes('fixed_front');
 
 /**
  * The front elevation of a plan: every part's box seen from the front

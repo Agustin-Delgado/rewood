@@ -44,6 +44,17 @@ impl Vec3 {
             _ => self.2,
         }
     }
+
+    /// Turned `quarters` × 90° counter-clockwise (seen from above) about a
+    /// vertical line through `pivot`. Exact: only signs and swaps.
+    pub fn turned_about(self, pivot: Vec3, quarters: u8) -> Vec3 {
+        let (mut x, mut y) = (self.0 - pivot.0, self.1 - pivot.1);
+        for _ in 0..quarters % 4 {
+            (x, y) = (-y, x);
+        }
+        // `-0.0` would print differently from `0.0` in the plan.
+        Vec3(x + pivot.0 + 0.0, y + pivot.1 + 0.0, self.2)
+    }
 }
 
 impl Add for Vec3 {
@@ -101,6 +112,11 @@ impl Axis {
             (0, 0, -1) => Axis::NegZ,
             _ => panic!("not a unit axis: {v:?}"),
         }
+    }
+
+    /// Turned `quarters` × 90° counter-clockwise about the vertical.
+    pub fn turned(self, quarters: u8) -> Axis {
+        Axis::from_vec(self.vec().turned_about(Vec3::ZERO, quarters))
     }
 
     pub fn negate(self) -> Axis {
@@ -312,6 +328,16 @@ pub struct Aabb {
 }
 
 impl Aabb {
+    /// The box turned like [`Vec3::turned_about`].
+    pub fn turned_about(&self, pivot: Vec3, quarters: u8) -> Aabb {
+        let a = self.min.turned_about(pivot, quarters);
+        let b = self.max.turned_about(pivot, quarters);
+        Aabb {
+            min: Vec3(a.0.min(b.0), a.1.min(b.1), a.2.min(b.2)),
+            max: Vec3(a.0.max(b.0), a.1.max(b.1), a.2.max(b.2)),
+        }
+    }
+
     pub fn of_part(placement: &Placement, dims: Dims) -> Aabb {
         let a = placement.to_world(Vec3::ZERO);
         let b = placement.to_world(Vec3(dims.length, dims.width, dims.thickness));

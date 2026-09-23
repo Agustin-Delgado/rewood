@@ -35,6 +35,9 @@ const STRIKE_INSET: f64 = 8.0;
 /// this far below the top's underside.
 const CATCH_FROM_EDGE: f64 = 25.0;
 const STRIKE_DROP: f64 = 10.0;
+/// Edge a fixed front has to cover for a dowel into it: Ø8 with 4 mm of
+/// panel on each side.
+const FIXING_WIDTH: f64 = 16.0;
 
 pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnostic> {
     let ComponentSpec::Doors {
@@ -53,6 +56,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         soft_close,
         catch,
         handle,
+        fixed,
+        fixing,
         edges,
         ..
     } = spec
@@ -60,11 +65,27 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         unreachable!()
     };
     let id = id.as_str();
+    let fixed = *fixed;
+    if fixed && (*mount != FrontMount::Overlay || handle.is_some() || catch.is_some()) {
+        return Err(Diagnostic::new(
+            "SPEC-334",
+            Severity::Fatal,
+            format!("'{id}' es un frente fijo: va superpuesto, sin tirador ni cierre"),
+        )
+        .entity(id)
+        .suggestion("Sacá 'mount', 'handle' y 'catch', o sacá 'fixed'."));
+    }
+    let fixing = fixing.clone().unwrap_or_else(|| crate::spec::JointSpec {
+        hardware: vec!["dowel_8x30".into()],
+        placement: None,
+    });
 
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
     let bays = ctx.bays_for(id, &carcass, bay.as_ref(), last_bay.as_ref())?;
     let bays = ctx.span_bays(id, &carcass, bays, span.as_ref())?;
-    let run_middle = run_middle(ctx);
+    let run_middle = run_middle(ctx, carcass.turns);
+    // The carcass origin along its own run (turned back for a turned run).
+    let run_x = frame_x(carcass.origin, carcass.turns);
     let spec_zone = zone.as_ref();
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
     // An inset door lives inside the opening: between the top and bottom
@@ -108,7 +129,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             Some(front_y),
         );
     }
-    let hinge = hinge.as_ref();
+    let hinge = if fixed { None } else { hinge.as_ref() };
     // The catch and the plate it meets on the door.
     let catch = catch.as_ref().map(|c| {
         let strikes: Vec<String> = c
@@ -204,7 +225,9 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
 
     // What a cabinetmaker would say before cutting: none of it stops the
     // doors from being generated.
-    if door_width > 600.0 {
+    if fixed {
+        // A fixed front is as wide as the blind part it closes.
+    } else if door_width > 600.0 {
         ctx.warn(
             Diagnostic::new(
                 "DESIGN-102",
@@ -348,13 +371,18 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         for i in 0..count {
             n += 1;
             let x_left = c0 + gap + i as f64 * (width + gap);
+            let (noun, stem) = if fixed {
+                ("Frente fijo", "fixed_front")
+            } else {
+                ("Puerta", "door")
+            };
             let (name, role) = if many {
                 (
-                    format!("Puerta {n} bahía {}", bay.index),
-                    format!("bay{}_door_{}", bay.index, i + 1),
+                    format!("{noun} {n} bahía {}", bay.index),
+                    format!("bay{}_{stem}_{}", bay.index, i + 1),
                 )
             } else {
-                (format!("Puerta {n}"), format!("door_{n}"))
+                (format!("{noun} {n}"), format!("{stem}_{n}"))
             };
             let door = ctx.add_part(PartInit {
                 name,
@@ -372,6 +400,50 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 ),
                 banded_edges: &all_edges,
             });
+            if fixed {
+                // Joined to the front edges of the panels behind it (the
+                // bay's sides, the top, the bottom) where the front covers
+                // enough of the edge for a dowel: a divider, covered only
+                // to its middle, is too narrow.
+                let d = ctx.parts.iter().find(|q| q.id == door).map(|q| q.aabb);
+                let candidates: Vec<String> = [bay.left_part.clone(), bay.right_part.clone()]
+                    .into_iter()
+                    .chain(
+                        ctx.parts
+                            .iter()
+                            .filter(|q| {
+                                q.component == carcass.id && (q.role == "top" || q.role == "bottom")
+                            })
+                            .map(|q| q.id.clone()),
+                    )
+                    .collect();
+                let behind: Vec<String> = candidates
+                    .into_iter()
+                    .filter(|p| {
+                        let (Some(a), Some(d)) =
+                            (ctx.parts.iter().find(|q| q.id == *p).map(|q| q.aabb), d)
+                        else {
+                            return false;
+                        };
+                        let dx = a.max.0.min(d.max.0) - a.min.0.max(d.min.0);
+                        let dz = a.max.2.min(d.max.2) - a.min.2.max(d.min.2);
+                        dx.min(dz) >= FIXING_WIDTH - crate::units::EPS
+                    })
+                    .collect();
+                if behind.is_empty() {
+                    return Err(Diagnostic::new(
+                        "SPEC-334",
+                        Severity::Fatal,
+                        format!("'{id}': el frente fijo no cubre ningún canto donde fijarse"),
+                    )
+                    .entity(id)
+                    .suggestion("Un frente fijo tiene que tapar un lateral, la tapa o la base."));
+                }
+                for panel in &behind {
+                    ctx.request_joint(id, panel, &door, &fixing);
+                }
+                continue;
+            }
             // Two doors hang on their outer panels; one hangs where
             // `hingeSide` says, `auto` away from the furniture's middle.
             let on_right = if count == 1 {
@@ -400,7 +472,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                             (true, false) => true,
                             (false, true) => false,
                             _ => {
-                                let door_mid = carcass.origin.0 + x_left + width / 2.0;
+                                let door_mid = run_x + x_left + width / 2.0;
                                 run_middle.is_some_and(|m| door_mid > m + 1.0)
                             }
                         }
@@ -600,10 +672,17 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     Ok(())
 }
 
-/// The middle of the furniture along X: halfway across every carcass the
-/// spec switches on, the ones not built yet included (a run's last module
-/// may come after this door in the spec).
-fn run_middle(ctx: &BuildCtx<'_>) -> Option<f64> {
+/// X of a point in the frame of a run turned `turns` quarters: the point
+/// turned back.
+fn frame_x(p: Vec3, turns: u8) -> f64 {
+    p.turned_about(Vec3::ZERO, (4 - turns % 4) % 4).0
+}
+
+/// The middle of the run a carcass belongs to, along the run: halfway
+/// across every carcass turned the same way that the spec switches on, the
+/// ones not built yet included (a run's last module may come after this
+/// door in the spec).
+fn run_middle(ctx: &BuildCtx<'_>, turns: u8) -> Option<f64> {
     let mut lo = f64::INFINITY;
     let mut hi = f64::NEG_INFINITY;
     for c in &ctx.spec.components {
@@ -619,13 +698,29 @@ fn run_middle(ctx: &BuildCtx<'_>) -> Option<f64> {
         let Ok(w) = ctx.eval(id, "width", width) else {
             continue;
         };
-        let x = match origin {
-            Some(o) => match ctx.eval(id, "origin.x", &o.x) {
-                Ok(x) => x,
-                Err(_) => continue,
-            },
-            None => 0.0,
+        let (p, q) = match origin {
+            Some(o) => {
+                let (Ok(x), Ok(y)) = (
+                    ctx.eval(id, "origin.x", &o.x),
+                    ctx.eval(id, "origin.y", &o.y),
+                ) else {
+                    continue;
+                };
+                let q = match &o.rotation {
+                    Some(r) => match ctx.eval(id, "origin.rotation", r) {
+                        Ok(d) => (d / 90.0).round().rem_euclid(4.0) as u8,
+                        Err(_) => continue,
+                    },
+                    None => 0,
+                };
+                (Vec3(x, y, 0.0), q)
+            }
+            None => (Vec3::ZERO, 0),
         };
+        if q != turns {
+            continue;
+        }
+        let x = frame_x(p, q);
         lo = lo.min(x);
         hi = hi.max(x + w);
     }

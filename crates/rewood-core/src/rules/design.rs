@@ -234,28 +234,88 @@ struct Opened<'a> {
 
 /// Where a door hung on `panel` stands open at 95°: a slab its thickness
 /// wide on the hinge side, leaning out past square, as deep as the door is
-/// wide in front of it. And whether it hangs on its right.
+/// wide in front of it. And whether it hangs on its right (the carcass's
+/// +X before any turn). Works on any carcass turn: the door's thin
+/// horizontal axis is its facing, outwards away from the panel.
 fn door_swept(
     door: &crate::model::Part,
     panel: &crate::model::Part,
 ) -> (bool, crate::geometry::Aabb) {
     use crate::geometry::{Aabb, Vec3};
     let a = door.aabb;
-    let (w, t) = (a.max.0 - a.min.0, a.max.1 - a.min.1);
-    let right = (panel.aabb.min.0 + panel.aabb.max.0) > (a.min.0 + a.max.0);
-    let lean = w * OPEN_ANGLE_PAST_SQUARE.to_radians().sin();
-    let (x0, x1) = if right {
-        (a.max.0 - t, a.max.0 + lean)
+    let (dc, pc) = (a.center(), panel.aabb.center());
+    let size = a.size();
+    // Facing axis (thickness) and width axis, both horizontal.
+    let (ti, wi) = if size.0 < size.1 { (0, 1) } else { (1, 0) };
+    let (t, w) = (size.component(ti), size.component(wi));
+    let out = if dc.component(ti) >= pc.component(ti) {
+        1.0
     } else {
-        (a.min.0 - lean, a.min.0 + t)
+        -1.0
     };
+    let hinge_hi = pc.component(wi) > dc.component(wi);
+    let lean = w * OPEN_ANGLE_PAST_SQUARE.to_radians().sin();
+    let (w0, w1) = if hinge_hi {
+        (a.max.component(wi) - t, a.max.component(wi) + lean)
+    } else {
+        (a.min.component(wi) - lean, a.min.component(wi) + t)
+    };
+    let face = if out > 0.0 {
+        a.max.component(ti)
+    } else {
+        a.min.component(ti)
+    };
+    let (t0, t1) = if out > 0.0 {
+        (face, face + w)
+    } else {
+        (face - w, face)
+    };
+    let mut min = [0.0; 3];
+    let mut max = [0.0; 3];
+    (min[ti], max[ti], min[wi], max[wi]) = (t0, t1, w0, w1);
+    (min[2], max[2]) = (a.min.2, a.max.2);
+    // "Right" is the carcass's +X: the facing turned a quarter clockwise.
+    let facing = if ti == 1 {
+        Vec3(0.0, out, 0.0)
+    } else {
+        Vec3(out, 0.0, 0.0)
+    };
+    let right = Vec3(facing.1, -facing.0, 0.0);
+    let hinge = (pc - dc).dot(right) > 0.0;
     (
-        right,
+        hinge,
         Aabb {
-            min: Vec3(x0, a.max.1, a.min.2),
-            max: Vec3(x1, a.max.1 + w, a.max.2),
+            min: Vec3(min[0], min[1], min[2]),
+            max: Vec3(max[0], max[1], max[2]),
         },
     )
+}
+
+/// A drawer front pulled out by `travel`: along its facing, away from the
+/// box behind it.
+fn drawer_swept(
+    front: &crate::model::Part,
+    side: &crate::model::Part,
+    travel: f64,
+) -> crate::geometry::Aabb {
+    use crate::geometry::Vec3;
+    let a = front.aabb;
+    let size = a.size();
+    let ti = if size.0 < size.1 { 0 } else { 1 };
+    let out = a.center().component(ti) >= side.aabb.center().component(ti);
+    let mut min = [a.min.0, a.min.1, a.min.2];
+    let mut max = [a.max.0, a.max.1, a.max.2];
+    if out {
+        min[ti] = max[ti];
+        max[ti] += travel;
+    } else {
+        max[ti] = min[ti];
+        min[ti] -= travel;
+    }
+    crate::geometry::Aabb {
+        min: Vec3(min[0], min[1], min[2]),
+        max: Vec3(max[0], max[1], max[2]),
+    }
 }
 
 /// Room left between an open door and the inner drawer front beside it.
@@ -326,7 +386,6 @@ impl Rule for FrontsCollideOpen {
     }
 
     fn check(&self, input: &RuleInput<'_>) -> Vec<Diagnostic> {
-        use crate::geometry::{Aabb, Vec3};
         let part = |id: &str| input.parts.iter().find(|p| p.id == id);
         let mut opened: Vec<Opened> = Vec::new();
         let mut seen = std::collections::BTreeSet::new();
@@ -344,13 +403,14 @@ impl Rule for FrontsCollideOpen {
                     let (right, swept) = door_swept(door, panel);
                     // Alone in its bay: no other door of the component
                     // shares its height and meets it side by side.
+                    let wi = if a.size().0 < a.size().1 { 1 } else { 0 };
                     let alone = !input.parts.iter().any(|q| {
                         q.id != door.id
                             && q.component == door.component
                             && q.role.contains("door")
                             && (q.aabb.min.2 - a.min.2).abs() < 1.0
-                            && ((q.aabb.min.0 - a.max.0).abs() < 10.0
-                                || (a.min.0 - q.aabb.max.0).abs() < 10.0)
+                            && ((q.aabb.min.component(wi) - a.max.component(wi)).abs() < 10.0
+                                || (a.min.component(wi) - q.aabb.max.component(wi)).abs() < 10.0)
                     });
                     opened.push(Opened {
                         part: door,
@@ -379,13 +439,9 @@ impl Rule for FrontsCollideOpen {
                         .iter()
                         .find_map(|h| input.libs.hardware.get(h)?.slide.as_ref())
                         .map_or(0.0, |s| s.length);
-                    let a = front.aabb;
                     opened.push(Opened {
                         part: front,
-                        swept: Aabb {
-                            min: Vec3(a.min.0, a.max.1, a.min.2),
-                            max: Vec3(a.max.0, a.max.1 + travel, a.max.2),
-                        },
+                        swept: drawer_swept(front, side, travel),
                         door: None,
                     });
                 }
@@ -397,34 +453,54 @@ impl Rule for FrontsCollideOpen {
             let Some((right, alone)) = a.door else {
                 continue;
             };
-            // One finding per door, naming everything it runs into.
-            let hits: Vec<&Opened> = opened
+            // One finding per door, naming everything it runs into: other
+            // fronts opened, and fronts that stay where they are (a fixed
+            // front, or a closed front of a run at right angles).
+            let mut hits: Vec<(&crate::model::Part, bool)> = opened
                 .iter()
                 .enumerate()
                 .filter(|(k, b)| *k != i && a.swept.intersection(&b.swept).is_some())
-                .map(|(_, b)| b)
+                .map(|(_, b)| (b.part, true))
                 .collect();
+            for q in input.parts {
+                let front = q.role.contains("door")
+                    || q.role.contains("fixed_front")
+                    || (q.role.ends_with("_front") && !q.role.ends_with("box_front"));
+                if front
+                    && q.id != a.part.id
+                    && !hits.iter().any(|(h, _)| h.id == q.id)
+                    && a.swept.intersection(&q.aabb).is_some()
+                {
+                    hits.push((q, false));
+                }
+            }
             if hits.is_empty() {
                 continue;
             }
             let names: Vec<String> = hits
                 .iter()
-                .map(|b| format!("{} ({})", b.part.id, b.part.name))
+                .map(|(b, open)| {
+                    format!(
+                        "{} ({}){}",
+                        b.id,
+                        b.name,
+                        if *open { " abierto" } else { "" }
+                    )
+                })
                 .collect();
             let mut d = Diagnostic::new(
                 self.id(),
                 Severity::Warning,
                 format!(
-                    "al abrirse, {} ({}), con la bisagra a la {}, choca con {} abierto{}",
+                    "al abrirse, {} ({}), con la bisagra a la {}, choca con {}",
                     a.part.id,
                     a.part.name,
                     if right { "derecha" } else { "izquierda" },
                     names.join(", "),
-                    if hits.len() > 1 { "s" } else { "" }
                 ),
             )
             .entity(a.part.id.clone())
-            .location(hits[0].part.id.clone())
+            .location(hits[0].0.id.clone())
             .suggestion("Colgá la puerta del otro lado (hingeSide) o separá los frentes.");
             if alone {
                 let other = if right { "left" } else { "right" };

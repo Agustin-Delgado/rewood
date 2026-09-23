@@ -290,6 +290,7 @@
     "carcass.origin_x": 0.0,
     "carcass.origin_y": 0.0,
     "carcass.origin_z": 0.0,
+    "carcass.rotation": 0.0,
     "carcass.thickness": 18.0,
     "carcass.width": 800.0,
     "divider.count": 1.0,

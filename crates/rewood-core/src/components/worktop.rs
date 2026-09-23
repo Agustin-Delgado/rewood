@@ -67,6 +67,18 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             continue;
         }
         let c = ctx.carcass_for(id, Some(sid))?;
+        if c.turns != 0 {
+            return Err(Diagnostic::new(
+                "SPEC-333",
+                Severity::Fatal,
+                format!(
+                    "la tapa '{id}' no puede apoyar en '{}', que está girada: una tapa va sobre una hilera recta",
+                    c.id
+                ),
+            )
+            .entity(id)
+            .suggestion("Nombrá en 'carcasses' sólo los módulos sin girar (una tapa por hilera)."));
+        }
         under.push(Support {
             id: c.id.clone(),
             x0: c.origin.0,

@@ -58,6 +58,15 @@ fn build(spec: &FurnitureSpec, params: &ParamGraph, libs: &Libraries, hints: Hin
     ctx.pin_avoid = hints.pin_avoid;
     ctx.spacers = hints.spacers;
     components::expand(&mut ctx);
+    // Carcasses turned about their origin, with what is built on them.
+    let turns: std::collections::BTreeMap<String, (geometry::Vec3, u8)> = ctx
+        .carcass_of
+        .iter()
+        .filter_map(|(component, carcass)| {
+            let c = ctx.carcasses.get(carcass)?;
+            (c.turns != 0).then(|| (component.clone(), (c.origin, c.turns)))
+        })
+        .collect();
     let components::BuildCtx {
         mut parts,
         mut joint_requests,
@@ -86,6 +95,9 @@ fn build(spec: &FurnitureSpec, params: &ParamGraph, libs: &Libraries, hints: Hin
     // Fasteners of butt joints that run into another hole move along
     // their joint line before anything checks them.
     stagger::stagger(&mut parts, &mut joints, libs);
+    // Everything is generated and joined facing +Y; a turned carcass turns
+    // now, parts and joints alike, before any rule looks at the whole.
+    components::turn(&mut parts, &mut joints, &turns);
     Built {
         parts,
         joints,

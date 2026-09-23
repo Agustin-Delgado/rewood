@@ -396,6 +396,16 @@ pub enum ComponentSpec {
         /// Vertical handle on the opening edge.
         #[serde(default)]
         handle: Option<HandleSpec>,
+        /// A fixed front (panel ciego): the panel is not hung but joined
+        /// to the edges of the bay's panels with `fixing`. It closes the
+        /// blind part of a corner cabinet, or a sink base's false front.
+        /// Overlay only; no hinge, catch or handle.
+        #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+        fixed: bool,
+        /// Fasteners of a fixed front into the panels' front edges.
+        /// Default dowels.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        fixing: Option<JointSpec>,
         #[serde(default)]
         edges: EdgeBanding,
     },
@@ -806,6 +816,13 @@ pub struct OriginSpec {
     pub y: NumOrExpr,
     #[serde(default = "zero")]
     pub z: NumOrExpr,
+    /// Degrees, counter-clockwise seen from above, about the origin: 0,
+    /// 90, 180 or 270. A carcass at 270 has its front looking at +X (the
+    /// run on the left wall of an L kitchen): its width runs towards −Y
+    /// from the origin, its depth towards +X. Everything built on it
+    /// turns with it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rotation: Option<NumOrExpr>,
 }
 
 fn zero() -> NumOrExpr {

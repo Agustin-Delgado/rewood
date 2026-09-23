@@ -15,11 +15,18 @@ const DRAWER_OUT = 0.75;
 
 export type Motion =
 	| { key: string; kind: 'door'; pivot: Vec3; axis: Vec3; angle: number }
-	| { key: string; kind: 'drawer'; travel: number };
+	| { key: string; kind: 'drawer'; travel: Vec3 };
 
 function centre(p: Part): Vec3 {
 	return [(p.aabb.min[0] + p.aabb.max[0]) / 2, (p.aabb.min[1] + p.aabb.max[1]) / 2, (p.aabb.min[2] + p.aabb.max[2]) / 2];
 }
+
+/** The part's thinnest horizontal axis: the way a front faces. */
+function facingAxis(p: Part): 0 | 1 {
+	return p.aabb.max[0] - p.aabb.min[0] < p.aabb.max[1] - p.aabb.min[1] ? 0 : 1;
+}
+
+const AXIS_INDEX: Record<string, number> = { x: 0, y: 1, z: 2 };
 
 /** What moves when the furniture opens, by part id. */
 export function motions(plan: ManufacturingPlan): Map<string, Motion> {
@@ -28,23 +35,28 @@ export function motions(plan: ManufacturingPlan): Map<string, Motion> {
 
 	// Doors: the hinge side is where the panel it hangs on is; the door
 	// turns on its outer edge there (front face, the way a full overlay
-	// hinge swings it clear of the side).
+	// hinge swings it clear of the side). Fronts face +Y unless their
+	// carcass is turned; the door's own thin axis says which way.
 	for (const joint of plan.joints) {
 		if (joint.kind !== 'hinge' || out.has(joint.edgePart)) continue;
 		const door = byId.get(joint.edgePart);
 		const side = byId.get(joint.facePart);
 		if (!door || !side) continue;
-		const vertical = joint.axis.endsWith('z');
-		const i = vertical ? 0 : 2;
-		const onMin = centre(side)[i] < centre(door)[i];
-		const pivot: Vec3 = [0, door.aabb.max[1], 0];
-		pivot[i] = onMin ? door.aabb.min[i] : door.aabb.max[i];
-		pivot[vertical ? 2 : 0] = centre(door)[vertical ? 2 : 0];
-		const axis: Vec3 = vertical ? [0, 0, 1] : [1, 0, 0];
-		// Whichever way brings the door's middle out to the front.
+		const along = AXIS_INDEX[joint.axis.slice(-1)];
+		const fi = along === 2 ? facingAxis(door) : 1;
+		const i = [0, 1, 2].find((k) => k !== along && k !== fi) ?? 0;
+		const outwards = centre(door)[fi] >= centre(side)[fi] ? 1 : -1;
+		const pivot: Vec3 = [0, 0, 0];
+		pivot[fi] = outwards > 0 ? door.aabb.max[fi] : door.aabb.min[fi];
+		pivot[i] = centre(side)[i] < centre(door)[i] ? door.aabb.min[i] : door.aabb.max[i];
+		pivot[along] = centre(door)[along];
+		const axis: Vec3 = [0, 0, 0];
+		axis[along] = 1;
+		// Whichever way brings the door's middle out to the front, tried in
+		// three.js space, where it is applied (Y and Z swapped mirror it).
 		const probe = (angle: number) => {
 			const m = rotation(pivot, axis, angle);
-			return new THREE.Vector3(...toThree(centre(door))).applyMatrix4(m).z;
+			return new THREE.Vector3(...toThree(centre(door))).applyMatrix4(m).getComponent(toThree([0, 1, 2])[fi]) * outwards;
 		};
 		const angle = probe(DOOR_ANGLE) > probe(-DOOR_ANGLE) ? DOOR_ANGLE : -DOOR_ANGLE;
 		// Keyed by what it is, not by its id: ids renumber when a recompile
@@ -53,7 +65,7 @@ export function motions(plan: ManufacturingPlan): Map<string, Motion> {
 	}
 
 	// Drawers: every part of one drawer (front, box, bottom) runs out
-	// together, as far as a good part of its box.
+	// together, as far as a good part of its box, the way its front faces.
 	const drawers = new Map<string, Part[]>();
 	for (const p of plan.parts) {
 		const m = p.role.match(/^(.*drawer_\d+)_/);
@@ -62,9 +74,15 @@ export function motions(plan: ManufacturingPlan): Map<string, Motion> {
 		drawers.set(key, [...(drawers.get(key) ?? []), p]);
 	}
 	for (const [key, group] of drawers) {
-		const box = group.filter((p) => !p.role.endsWith('_front') || p.role.endsWith('box_front'));
-		const depth = Math.max(0, ...box.map((p) => p.aabb.max[1] - p.aabb.min[1]));
-		const travel = depth * DRAWER_OUT;
+		const front = group.find((p) => p.role.endsWith('_front') && !p.role.endsWith('box_front'));
+		const box = group.filter((p) => p !== front);
+		if (!front || box.length === 0) continue;
+		const fi = facingAxis(front);
+		const boxCentre = box.map(centre).reduce((a, c) => a + c[fi], 0) / box.length;
+		const outwards = centre(front)[fi] >= boxCentre ? 1 : -1;
+		const depth = Math.max(0, ...box.map((p) => p.aabb.max[fi] - p.aabb.min[fi]));
+		const travel: Vec3 = [0, 0, 0];
+		travel[fi] = outwards * depth * DRAWER_OUT;
 		for (const p of group) out.set(p.id, { key, kind: 'drawer', travel });
 	}
 	return out;
@@ -86,5 +104,6 @@ export function partMatrix(motion: Motion | undefined, t: number, offset: Vec3 |
 	if (offset) m.makeTranslation(...toThree(offset));
 	if (!motion || t <= 0) return m;
 	if (motion.kind === 'door') return m.multiply(rotation(motion.pivot, motion.axis, motion.angle * t));
-	return m.multiply(new THREE.Matrix4().makeTranslation(...toThree([0, motion.travel * t, 0])));
+	const [x, y, z] = motion.travel;
+	return m.multiply(new THREE.Matrix4().makeTranslation(...toThree([x * t, y * t, z * t])));
 }

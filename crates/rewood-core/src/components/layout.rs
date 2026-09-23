@@ -163,26 +163,50 @@ pub fn check(ctx: &mut BuildCtx<'_>) {
         }
     }
 
-    // Modules of a run: sorted by X, each against the next one that shares
-    // its height and depth range.
+    // Modules of a run: sorted along the run, each against the next one
+    // that shares its height and depth range. A turned run is compared in
+    // its own frame (turned back), and only with modules turned the same.
+    let frame = |c: &super::CarcassInfo| {
+        c.origin
+            .turned_about(crate::geometry::Vec3::ZERO, (4 - c.turns % 4) % 4)
+    };
     let mut run: Vec<_> = ctx.carcasses.values().collect();
     run.sort_by(|a, b| {
-        a.origin
-            .0
-            .partial_cmp(&b.origin.0)
-            .unwrap()
+        a.turns
+            .cmp(&b.turns)
+            .then_with(|| frame(a).0.partial_cmp(&frame(b).0).unwrap())
             .then_with(|| a.id.cmp(&b.id))
     });
     for (i, a) in run.iter().enumerate() {
+        let fa = frame(a);
         for b in &run[i + 1..] {
-            let same_row = a.origin.2 < b.origin.2 + b.height
-                && b.origin.2 < a.origin.2 + a.height
-                && a.origin.1 < b.origin.1 + b.depth
-                && b.origin.1 < a.origin.1 + a.depth;
+            if b.turns != a.turns {
+                break;
+            }
+            let fb = frame(b);
+            let same_row = fa.2 < fb.2 + b.height
+                && fb.2 < fa.2 + a.height
+                && fa.1 < fb.1 + b.depth
+                && fb.1 < fa.1 + a.depth;
             if !same_row {
                 continue;
             }
-            let gap = b.origin.0 - (a.origin.0 + a.width);
+            let gap = fb.0 - (fa.0 + a.width);
+            // The one-click fix writes `origin.x`, which only lines up a
+            // run that is not turned.
+            let fix = (a.turns == 0).then(|| {
+                (
+                    format!(
+                        "Pegar '{}' a '{}' (origin.x = {})",
+                        b.id,
+                        a.id,
+                        mm(a.origin.0 + a.width)
+                    ),
+                    b.id.clone(),
+                    "origin.x".to_string(),
+                    serde_json::json!(a.origin.0 + a.width),
+                )
+            });
             if gap < -EPS {
                 out.push(
                     Diagnostic::new(
@@ -197,18 +221,8 @@ pub fn check(ctx: &mut BuildCtx<'_>) {
                     )
                     .entity(b.id.clone())
                     .location(a.id.clone())
-                    .suggestion("Corré el 'origin.x' del segundo módulo al ancho del primero.")
-                    .fix(
-                        format!(
-                            "Pegar '{}' a '{}' (origin.x = {})",
-                            b.id,
-                            a.id,
-                            mm(a.origin.0 + a.width)
-                        ),
-                        b.id.clone(),
-                        "origin.x",
-                        serde_json::json!(a.origin.0 + a.width),
-                    ),
+                    .suggestion("Corré el origen del segundo módulo al ancho del primero.")
+                    .fix_opt(fix),
                 );
             } else if gap > EPS && gap <= RUN_GAP_MAX {
                 out.push(
@@ -225,14 +239,9 @@ pub fn check(ctx: &mut BuildCtx<'_>) {
                     .entity(b.id.clone())
                     .location(a.id.clone())
                     .suggestion(
-                        "Si van pegados, el 'origin.x' del segundo es el ancho acumulado de los anteriores.",
+                        "Si van pegados, el origen del segundo es el ancho acumulado de los anteriores.",
                     )
-                    .fix(
-                        format!("Pegar '{}' a '{}' (origin.x = {})", b.id, a.id, mm(a.origin.0 + a.width)),
-                        b.id.clone(),
-                        "origin.x",
-                        serde_json::json!(a.origin.0 + a.width),
-                    ),
+                    .fix_opt(fix),
                 );
             }
             // Only the nearest neighbour to the right matters for a gap.

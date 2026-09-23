@@ -109,6 +109,9 @@ pub struct CarcassInfo {
     /// Translation applied to every part of the carcass and of the
     /// components that refer to it, after generation.
     pub origin: Vec3,
+    /// Quarter turns about the origin, counter-clockwise from above,
+    /// applied once the joints are resolved (see `turn_parts`).
+    pub turns: u8,
     pub width: f64,
     pub height: f64,
     pub depth: f64,
@@ -1070,6 +1073,44 @@ impl<'a> BuildCtx<'a> {
                     _ => {}
                 }
             }
+        }
+    }
+}
+
+/// Turn the parts and joints of each turned carcass (and of what is built
+/// on it) about the carcass origin: `turns` maps a component to its
+/// carcass's origin and quarter turns. Operations live in part space and
+/// do not change.
+pub fn turn(
+    parts: &mut [Part],
+    joints: &mut [crate::model::Joint],
+    turns: &BTreeMap<String, (Vec3, u8)>,
+) {
+    if turns.is_empty() {
+        return;
+    }
+    for part in parts.iter_mut() {
+        let Some(&(pivot, q)) = turns.get(&part.component) else {
+            continue;
+        };
+        let p = &mut part.placement;
+        *p = Placement::new(
+            p.origin.turned_about(pivot, q),
+            p.x.turned(q),
+            p.y.turned(q),
+        );
+        // Turned as a box, not recomputed from the placement: the same
+        // numbers moved, with no new rounding.
+        part.aabb = part.aabb.turned_about(pivot, q);
+    }
+    for joint in joints.iter_mut() {
+        let Some(&(pivot, q)) = turns.get(&joint.component) else {
+            continue;
+        };
+        joint.contact = joint.contact.turned_about(pivot, q);
+        joint.axis = joint.axis.turned(q);
+        for f in &mut joint.fasteners {
+            f.position = f.position.turned_about(pivot, q);
         }
     }
 }

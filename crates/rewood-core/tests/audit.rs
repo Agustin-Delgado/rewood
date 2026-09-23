@@ -117,6 +117,99 @@ fn audit(name: &str, plan: &ManufacturingPlan, libs: &Libraries, allowed: &[&str
         }
     }
 
+    // Everything else is checked in each carcass's own frame: a turned
+    // module (the side run of an L kitchen) is turned back first.
+    for frame in frames(plan) {
+        audit_frame(&mut a, &frame, libs);
+    }
+    a
+}
+
+/// The plan split by carcass turn: parts and joints of the carcasses that
+/// are not turned (and of what is built on them) as they are, and each
+/// turned carcass with its dependents turned back about its origin.
+fn frames(plan: &ManufacturingPlan) -> Vec<ManufacturingPlan> {
+    let turns = |c: &str| {
+        plan.derived
+            .get(&format!("{c}.rotation"))
+            .map(|d| ((d / 90.0).round() as i64).rem_euclid(4) as u8)
+    };
+    if !plan
+        .derived
+        .iter()
+        .any(|(k, v)| k.ends_with(".rotation") && *v != 0.0)
+    {
+        return vec![plan.clone()];
+    }
+    let comp_of = |id: &str| {
+        plan.parts
+            .iter()
+            .find(|p| p.id == id)
+            .map(|p| p.component.clone())
+    };
+    // Each component's carcass: itself, or the carcass a joint of it
+    // reaches.
+    let mut carcass_of: BTreeMap<String, String> = BTreeMap::new();
+    for p in &plan.parts {
+        if turns(&p.component).is_some() {
+            carcass_of.insert(p.component.clone(), p.component.clone());
+        }
+    }
+    for j in &plan.joints {
+        if carcass_of.contains_key(&j.component) {
+            continue;
+        }
+        for id in [&j.edge_part, &j.face_part] {
+            if let Some(c) = comp_of(id).filter(|c| turns(c).is_some()) {
+                carcass_of.insert(j.component.clone(), c);
+                break;
+            }
+        }
+    }
+    let group = |component: &str| -> String {
+        match carcass_of.get(component) {
+            Some(c) if turns(c).unwrap_or(0) != 0 => c.clone(),
+            _ => String::new(),
+        }
+    };
+    let mut keys: Vec<String> = plan.parts.iter().map(|p| group(&p.component)).collect();
+    keys.sort();
+    keys.dedup();
+    keys.into_iter()
+        .map(|key| {
+            let mut sub = plan.clone();
+            sub.parts.retain(|p| group(&p.component) == key);
+            sub.joints.retain(|j| group(&j.component) == key);
+            if !key.is_empty() {
+                let q = (4 - turns(&key).unwrap()) % 4;
+                let pivot = Vec3(
+                    plan.derived[&format!("{key}.origin_x")],
+                    plan.derived[&format!("{key}.origin_y")],
+                    0.0,
+                );
+                for p in &mut sub.parts {
+                    let pl = p.placement;
+                    p.placement = rewood_core::geometry::Placement::new(
+                        pl.origin.turned_about(pivot, q),
+                        pl.x.turned(q),
+                        pl.y.turned(q),
+                    );
+                    p.aabb = rewood_core::geometry::Aabb::of_part(&p.placement, p.dims);
+                }
+                for j in &mut sub.joints {
+                    j.contact = j.contact.turned_about(pivot, q);
+                    j.axis = j.axis.turned(q);
+                    for f in &mut j.fasteners {
+                        f.position = f.position.turned_about(pivot, q);
+                    }
+                }
+            }
+            sub
+        })
+        .collect()
+}
+
+fn audit_frame(a: &mut Audit, plan: &ManufacturingPlan, libs: &Libraries) {
     // 2. Fasteners.
     let bbox = plan.parts.iter().fold(
         (
@@ -141,7 +234,12 @@ fn audit(name: &str, plan: &ManufacturingPlan, libs: &Libraries, allowed: &[&str
     let front_y = plan
         .parts
         .iter()
-        .filter(|p| !p.role.contains("door") && !p.role.ends_with("_front") && p.role != "worktop")
+        .filter(|p| {
+            !p.role.contains("door")
+                && !p.role.contains("fixed_front")
+                && !p.role.ends_with("_front")
+                && p.role != "worktop"
+        })
         .map(|p| p.aabb.max.1)
         .fold(f64::MIN, f64::max);
     for j in &plan.joints {
@@ -659,7 +757,6 @@ fn audit(name: &str, plan: &ManufacturingPlan, libs: &Libraries, allowed: &[&str
             a.note(format!("{}: {} y {} no se tocan", j.id, e.id, f.id));
         }
     }
-    a
 }
 
 fn variants() -> Vec<(String, String, Vec<&'static str>)> {
@@ -678,6 +775,7 @@ fn variants() -> Vec<(String, String, Vec<&'static str>)> {
         "desk",
         "sideboard",
         "wardrobe_modules",
+        "kitchen_corner",
     ] {
         let path = format!(
             "{}/../../fixtures/{f}/input.json",

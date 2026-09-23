@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "1.0",
+  "id": "kitchen_corner",
+  "name": "Cocina en L: esquinero ciego y dos hileras",
+  "version": "1.0",
+  "parameters": {
+    "height": 720,
+    "depth": 560,
+    "t": 18,
+    "corner_door": 410,
+    "clearance": 20,
+    "module": 600,
+    "a_modules": 2,
+    "b_modules": 1,
+    "drawers": 3,
+    "blind": "depth + t + 2 + clearance + 40",
+    "b_start": "depth + t + 2 + clearance",
+    "corner_width": "blind + corner_door"
+  },
+  "options": [
+    { "param": "corner_door", "label": "Hueco de la puerta del esquinero", "group": "Esquina", "min": 350, "max": 600, "step": 10, "unit": "mm", "help": "La parte ciega queda detrás de la otra hilera y mide lo que ella ocupa; esto es lo que queda para la puerta." },
+    { "param": "clearance", "label": "Luz en la esquina", "group": "Esquina", "min": 0, "max": 80, "step": 5, "unit": "mm", "help": "Separa la hilera del costado del frente del esquinero, para que tiradores y puertas no se toquen." },
+    { "param": "a_modules", "label": "Módulos junto al esquinero", "group": "Hileras", "min": 0, "max": 3, "step": 1, "help": "El primero es la cajonera." },
+    { "param": "b_modules", "label": "Módulos en la otra pared", "group": "Hileras", "min": 1, "max": 3, "step": 1 },
+    { "param": "module", "label": "Ancho de cada módulo", "group": "Hileras", "min": 400, "max": 600, "step": 50, "unit": "mm" },
+    { "param": "drawers", "label": "Cajones", "group": "Hileras", "min": 2, "max": 4, "step": 1, "when": "a_modules >= 1" },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": 600, "max": 900, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 500, "max": 650, "step": 10, "unit": "mm" }
+  ],
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "corner",
+      "width": "corner_width",
+      "bays": 2,
+      "bayWidths": ["blind - 1.5 * t", "auto"],
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
+    },
+    { "type": "shelves", "id": "corner_shelf", "carcass": "corner", "count": 1, "joint": { "hardware": ["dowel_8x30"] } },
+    { "type": "doors", "id": "corner_blind", "carcass": "corner", "bay": 1, "count": 1, "fixed": true },
+    {
+      "type": "doors",
+      "id": "corner_door",
+      "carcass": "corner",
+      "bay": 2,
+      "count": 1,
+      "hingeSide": "left",
+      "handle": { "hardware": ["handle_bar_128"] }
+    },
+    {
+      "type": "carcass",
+      "id": "a1",
+      "when": "a_modules >= 1",
+      "width": "module",
+      "origin": { "x": "corner_width" },
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
+    },
+    {
+      "type": "drawers",
+      "id": "a1_drawers",
+      "carcass": "a1",
+      "count": "drawers",
+      "joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 40, "maxSpacing": 150 } },
+      "slide": { "hardware": ["slide_ball_450"] },
+      "handle": { "hardware": ["handle_bar_128"] }
+    },
+    {
+      "type": "carcass",
+      "id": "a2",
+      "when": "a_modules >= 2",
+      "width": "module",
+      "origin": { "x": "corner_width + module" },
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
+    },
+    { "type": "shelves", "id": "a2_shelf", "carcass": "a2", "count": 1, "joint": { "hardware": ["dowel_8x30"] } },
+    { "type": "doors", "id": "a2_door", "carcass": "a2", "count": 1, "handle": { "hardware": ["handle_bar_128"] } },
+    {
+      "type": "carcass",
+      "id": "a3",
+      "when": "a_modules >= 3",
+      "width": "module",
+      "origin": { "x": "corner_width + 2 * module" },
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
+    },
+    { "type": "shelves", "id": "a3_shelf", "carcass": "a3", "count": 1, "joint": { "hardware": ["dowel_8x30"] } },
+    { "type": "doors", "id": "a3_door", "carcass": "a3", "count": 1, "handle": { "hardware": ["handle_bar_128"] } },
+    {
+      "type": "carcass",
+      "id": "b1",
+      "width": "module",
+      "origin": { "x": 0, "y": "b_start + module", "rotation": 270 },
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
+    },
+    { "type": "shelves", "id": "b1_shelf", "carcass": "b1", "count": 1, "joint": { "hardware": ["dowel_8x30"] } },
+    {
+      "type": "doors",
+      "id": "b1_door",
+      "carcass": "b1",
+      "count": 1,
+      "hingeSide": "left",
+      "handle": { "hardware": ["handle_bar_128"] }
+    },
+    {
+      "type": "carcass",
+      "id": "b2",
+      "when": "b_modules >= 2",
+      "width": "module",
+      "origin": { "x": 0, "y": "b_start + 2 * module", "rotation": 270 },
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
+    },
+    { "type": "shelves", "id": "b2_shelf", "carcass": "b2", "count": 1, "joint": { "hardware": ["dowel_8x30"] } },
+    { "type": "doors", "id": "b2_door", "carcass": "b2", "count": 1, "handle": { "hardware": ["handle_bar_128"] } },
+    {
+      "type": "carcass",
+      "id": "b3",
+      "when": "b_modules >= 3",
+      "width": "module",
+      "origin": { "x": 0, "y": "b_start + 3 * module", "rotation": 270 },
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
+    },
+    { "type": "shelves", "id": "b3_shelf", "carcass": "b3", "count": 1, "joint": { "hardware": ["dowel_8x30"] } },
+    { "type": "doors", "id": "b3_door", "carcass": "b3", "count": 1, "handle": { "hardware": ["handle_bar_128"] } }
+  ]
+}

@@ -437,6 +437,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         build_legs(ctx, id, legs, width, depth, t, &bottom, &dividers)?;
     }
 
+    let origin_spec = origin.as_ref();
     let origin = match origin {
         Some(o) => Vec3(
             ctx.eval(id, "origin.x", &o.x)?,
@@ -445,6 +446,25 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         ),
         None => Vec3(0.0, 0.0, 0.0),
     };
+    let turns = match origin_spec.and_then(|o| o.rotation.as_ref()) {
+        None => 0,
+        Some(r) => {
+            let deg = ctx.eval(id, "origin.rotation", r)?;
+            let q = deg / 90.0;
+            if !q.is_finite() || (q - q.round()).abs() > 1e-9 {
+                return Err(Diagnostic::new(
+                    "SPEC-332",
+                    Severity::Fatal,
+                    format!(
+                        "'{id}.origin.rotation' = {deg}: sólo se gira de a 90° (0, 90, 180 o 270)"
+                    ),
+                )
+                .entity(id));
+            }
+            q.round().rem_euclid(4.0) as u8
+        }
+    };
+    ctx.publish(id, "rotation", f64::from(turns) * 90.0);
     ctx.publish(id, "origin_x", origin.0);
     ctx.publish(id, "origin_y", origin.1);
     ctx.publish(id, "origin_z", origin.2);
@@ -454,6 +474,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         CarcassInfo {
             id: id.to_string(),
             origin,
+            turns,
             width,
             height,
             depth,

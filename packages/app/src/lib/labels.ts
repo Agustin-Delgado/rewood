@@ -3,7 +3,7 @@
  * for `drawers_m2`, "630 × 560 × 18" for a part's size. The ids stay in
  * tooltips; the workshop labels still carry the part ids.
  */
-import type { ComponentSpec, FurnitureSpec, ManufacturingPlan } from '@rewood/engine/browser';
+import type { ComponentSpec, FurnitureSpec, ManufacturingPlan, Part } from '@rewood/engine/browser';
 
 const NOUN: Record<ComponentSpec['type'], string> = {
 	carcass: 'Módulo',
@@ -23,17 +23,23 @@ const NOUN: Record<ComponentSpec['type'], string> = {
  */
 function baysOf(plan: ManufacturingPlan | null | undefined, component: string, carcass: string | undefined): string | null {
 	if (!plan || !carcass) return null;
-	const walls = plan.parts
-		.filter((p) => p.component === carcass && /^(side_left|side_right|divider_\d+)$/.test(p.role))
-		.map((p) => [p.aabb.min[0], p.aabb.max[0]] as const)
-		.sort((a, b) => a[0] - b[0]);
+	const wallParts = plan.parts.filter((p) => p.component === carcass && /^(side_left|side_right|divider_\d+)$/.test(p.role));
+	const left = wallParts.find((p) => p.role === 'side_left');
+	const right = wallParts.find((p) => p.role === 'side_right');
+	if (!left || !right) return null;
+	// Across the walls (X unless the carcass is turned), numbered from the
+	// left side as seen from the front.
+	const k = left.aabb.max[0] - left.aabb.min[0] < left.aabb.max[1] - left.aabb.min[1] ? 0 : 1;
+	const mid = (p: Part) => (p.aabb.min[k] + p.aabb.max[k]) / 2;
+	const dir = mid(right) > mid(left) ? 1 : -1;
+	const walls = wallParts.map((p) => [p.aabb.min[k], p.aabb.max[k]] as const).sort((a, b) => dir * (a[0] - b[0]));
 	if (walls.length < 3) return null;
-	const bays = walls.slice(1).map((w, i) => [walls[i][1], w[0]] as const);
+	const bays = walls.slice(1).map((w, i) => (dir > 0 ? [walls[i][1], w[0]] : [w[1], walls[i][0]]) as readonly [number, number]);
 	const own = plan.parts.filter((p) => p.component === component);
 	if (own.length === 0) return null;
 	const hit = new Set<number>();
 	for (const p of own) {
-		const c = (p.aabb.min[0] + p.aabb.max[0]) / 2;
+		const c = mid(p);
 		bays.forEach(([a, b], i) => {
 			if (c > a && c < b) hit.add(i + 1);
 		});
@@ -45,7 +51,9 @@ function baysOf(plan: ManufacturingPlan | null | undefined, component: string, c
 
 /** Label of every component of the spec, by id. */
 export function componentLabels(spec: FurnitureSpec, plan?: ManufacturingPlan | null): Map<string, string> {
-	const carcasses = spec.components.filter((c) => c.type === 'carcass').map((c) => c.id);
+	// Modules numbered as built: one left out by its `when` takes no number.
+	const off = new Set(plan?.inactive ?? []);
+	const carcasses = spec.components.filter((c) => c.type === 'carcass' && !off.has(c.id)).map((c) => c.id);
 	const many = carcasses.length > 1;
 	const moduleName = (id: string) => (many ? `módulo ${carcasses.indexOf(id) + 1}` : '');
 	const out = new Map<string, string>();
@@ -56,6 +64,7 @@ export function componentLabels(spec: FurnitureSpec, plan?: ManufacturingPlan | 
 		}
 		let noun = NOUN[c.type] ?? c.type;
 		if (c.type === 'drawers' && c.mount === 'inset') noun = 'Cajones interiores';
+		if (c.type === 'doors' && c.fixed) noun = 'Frente fijo';
 		const where: string[] = [];
 		const carcass = (c as { carcass?: string }).carcass ?? (many ? undefined : carcasses[0]);
 		if (carcass && many) where.push(moduleName(carcass));

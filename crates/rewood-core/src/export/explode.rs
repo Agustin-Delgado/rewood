@@ -29,6 +29,7 @@ pub fn offsets(plan: &ManufacturingPlan, factor: f64) -> BTreeMap<String, Vec3> 
         Module {
             centre: c,
             spread: 0.0,
+            run: Vec3(1.0, 0.0, 0.0),
         }
     };
     let mut out = BTreeMap::new();
@@ -37,15 +38,20 @@ pub fn offsets(plan: &ManufacturingPlan, factor: f64) -> BTreeMap<String, Vec3> 
         // furniture's centre and does not drift with any one module.
         let covered = modules
             .iter()
-            .filter(|m| p.aabb.min.0 <= m.centre.0 && m.centre.0 <= p.aabb.max.0)
+            .filter(|m| {
+                p.aabb.min.0 <= m.centre.0
+                    && m.centre.0 <= p.aabb.max.0
+                    && p.aabb.min.1 <= m.centre.1
+                    && m.centre.1 <= p.aabb.max.1
+            })
             .count();
         let m = if covered > 1 {
             &whole
         } else {
             &modules[module_of(&modules, p)]
         };
-        let mut off = offset_of(p, m.centre, step);
-        off.0 += m.spread * 2.0 * step;
+        let mut off = offset_of(p, m, step);
+        off = off + m.run * (m.spread * 2.0 * step);
         out.insert(
             p.id.clone(),
             Vec3(round3(off.0), round3(off.1), round3(off.2)),
@@ -60,12 +66,43 @@ pub fn offsets(plan: &ManufacturingPlan, factor: f64) -> BTreeMap<String, Vec3> 
 /// shelves of the bay they bound.
 struct Module {
     centre: Vec3,
-    /// Whole modules drift apart along X, two steps each: -1, 0, +1 for three.
+    /// Whole modules drift apart along their run, two steps each: -1, 0,
+    /// +1 for three.
     spread: f64,
+    /// Along the run, left to right seen from the front: +X unless the
+    /// carcass is turned. Its front looks this turned a quarter left.
+    run: Vec3,
+}
+
+impl Module {
+    fn front(&self) -> Vec3 {
+        Vec3(-self.run.1, self.run.0, 0.0)
+    }
 }
 
 fn modules(parts: &[Part]) -> Vec<Module> {
     let mut by_carcass: BTreeMap<&str, (Vec3, Vec3)> = BTreeMap::new();
+    // Each carcass's run direction, from its left side to its right one.
+    let mut sides: BTreeMap<&str, (Option<Vec3>, Option<Vec3>)> = BTreeMap::new();
+    for p in parts {
+        let c = p.aabb.center();
+        match p.role.as_str() {
+            "side_left" => sides.entry(p.component.as_str()).or_default().0 = Some(c),
+            "side_right" => sides.entry(p.component.as_str()).or_default().1 = Some(c),
+            _ => {}
+        }
+    }
+    let run_of = |component: &str| match sides.get(component) {
+        Some((Some(l), Some(r))) => {
+            let d = *r - *l;
+            if d.0.abs() >= d.1.abs() {
+                Vec3(d.0.signum(), 0.0, 0.0)
+            } else {
+                Vec3(0.0, d.1.signum(), 0.0)
+            }
+        }
+        _ => Vec3(1.0, 0.0, 0.0),
+    };
     for p in parts {
         if !matches!(
             p.role.as_str(),
@@ -88,7 +125,7 @@ fn modules(parts: &[Part]) -> Vec<Module> {
             e.1 .2.max(p.aabb.max.2),
         );
     }
-    let boxes: Vec<(Vec3, Vec3)> = if by_carcass.is_empty() {
+    let boxes: Vec<(Vec3, Vec3, Vec3)> = if by_carcass.is_empty() {
         let mut lo = Vec3(f64::MAX, f64::MAX, f64::MAX);
         let mut hi = Vec3(f64::MIN, f64::MIN, f64::MIN);
         for p in parts {
@@ -103,43 +140,64 @@ fn modules(parts: &[Part]) -> Vec<Module> {
                 hi.2.max(p.aabb.max.2),
             );
         }
-        vec![(lo, hi)]
+        vec![(lo, hi, Vec3(1.0, 0.0, 0.0))]
     } else {
-        by_carcass.into_values().collect()
+        by_carcass
+            .into_iter()
+            .map(|(c, (lo, hi))| (lo, hi, run_of(c)))
+            .collect()
     };
     let mut modules: Vec<Module> = boxes
         .iter()
-        .map(|(lo, hi)| Module {
+        .map(|(lo, hi, run)| Module {
             centre: Vec3(
                 (lo.0 + hi.0) / 2.0,
                 (lo.1 + hi.1) / 2.0,
                 (lo.2 + hi.2) / 2.0,
             ),
             spread: 0.0,
+            run: *run,
         })
         .collect();
     modules.sort_by(|a, b| a.centre.0.partial_cmp(&b.centre.0).unwrap());
-    let n = modules.len() as f64;
-    for (i, m) in modules.iter_mut().enumerate() {
-        m.spread = i as f64 - (n - 1.0) / 2.0;
+    // Modules of one run (the same direction) spread along it, in order.
+    let mut runs: Vec<Vec3> = modules.iter().map(|m| m.run).collect();
+    runs.dedup_by(|a, b| a == b);
+    for run in runs {
+        let mut idx: Vec<usize> = (0..modules.len())
+            .filter(|&i| modules[i].run == run)
+            .collect();
+        idx.sort_by(|&a, &b| {
+            modules[a]
+                .centre
+                .dot(run)
+                .partial_cmp(&modules[b].centre.dot(run))
+                .unwrap()
+        });
+        let n = idx.len() as f64;
+        for (k, i) in idx.into_iter().enumerate() {
+            modules[i].spread = k as f64 - (n - 1.0) / 2.0;
+        }
     }
     modules
 }
 
-/// The module a part belongs to: the one whose centre is nearest along X
+/// The module a part belongs to: the one whose centre is nearest in plan
 /// (a door overlaying its carcass, a drawer inside it).
 fn module_of(modules: &[Module], p: &Part) -> usize {
-    let cx = (p.aabb.min.0 + p.aabb.max.0) / 2.0;
+    let c = p.aabb.center();
+    let d = |m: &Module| (m.centre.0 - c.0).powi(2) + (m.centre.1 - c.1).powi(2);
     let mut best = 0;
     for (i, m) in modules.iter().enumerate() {
-        if (m.centre.0 - cx).abs() < (modules[best].centre.0 - cx).abs() {
+        if d(m) < d(&modules[best]) {
             best = i;
         }
     }
     best
 }
 
-fn offset_of(p: &Part, centre: Vec3, step: f64) -> Vec3 {
+fn offset_of(p: &Part, m: &Module, step: f64) -> Vec3 {
+    let centre = m.centre;
     let c = Vec3(
         (p.aabb.min.0 + p.aabb.max.0) / 2.0,
         (p.aabb.min.1 + p.aabb.max.1) / 2.0,
@@ -152,23 +210,25 @@ fn offset_of(p: &Part, centre: Vec3, step: f64) -> Vec3 {
     let normal = p.placement.z().vec();
     let d = (c.0 - centre.0) * normal.0 + (c.1 - centre.1) * normal.1 + (c.2 - centre.2) * normal.2;
     let sign = if d.abs() < 1e-6 { 0.0 } else { d.signum() };
-    let mut off = Vec3(
+    let off = Vec3(
         normal.0 * sign * step,
         normal.1 * sign * step,
         normal.2 * sign * step,
     );
     // Fronts and drawers come out of the cabinet first.
     let role = p.role.as_str();
-    if role.contains("door") {
-        off.1 += 1.5 * step;
+    let forward = if role.contains("door") || role.contains("fixed_front") {
+        1.5 * step
     } else if role.contains("drawer") {
-        off.1 += if role.ends_with("_front") && !role.contains("box_front") {
+        if role.ends_with("_front") && !role.contains("box_front") {
             2.0 * step
         } else {
             1.2 * step
-        };
-    }
-    off
+        }
+    } else {
+        0.0
+    };
+    off + m.front() * forward
 }
 
 /// Isometric projection: X to the right and down, Y (depth, towards the

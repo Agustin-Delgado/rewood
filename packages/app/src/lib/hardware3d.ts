@@ -124,6 +124,35 @@ function guessKind(id: string): string {
 
 export type Leader = { a: Vec3; pa: string; b: Vec3; pb: string };
 
+const AXIS_INDEX: Record<string, number> = { x: 0, y: 1, z: 2 };
+
+/** Unit vector of an axis name (`pos_x`, `neg_y`…). */
+function axisVec(a: string): Vec3 {
+	const v: Vec3 = [0, 0, 0];
+	v[AXIS_INDEX[a.slice(-1)]] = a.startsWith('neg') ? -1 : 1;
+	return v;
+}
+
+/**
+ * Which way a front faces out of the furniture: along its thin horizontal
+ * axis, away from the part it hangs on or is fixed to (+Y unless its
+ * carcass is turned).
+ */
+function outwardOf(plan: ManufacturingPlan, all: Map<string, Part>, part: Part): Vec3 {
+	const fi = part.aabb.max[0] - part.aabb.min[0] < part.aabb.max[1] - part.aabb.min[1] ? 0 : 1;
+	const centre = (p: Part) => (p.aabb.min[fi] + p.aabb.max[fi]) / 2;
+	for (const j of plan.joints) {
+		const other = j.edgePart === part.id ? j.facePart : j.facePart === part.id ? j.edgePart : null;
+		if (!other || other === part.id) continue;
+		const o = all.get(other);
+		if (!o || Math.abs(centre(o) - centre(part)) < 1e-6) continue;
+		const v: Vec3 = [0, 0, 0];
+		v[fi] = centre(part) > centre(o) ? 1 : -1;
+		return v;
+	}
+	return [0, 1, 0];
+}
+
 export function hardwareSymbols(
 	plan: ManufacturingPlan,
 	parts: Part[],
@@ -245,7 +274,10 @@ export function hardwareSymbols(
 					const i = s.findIndex((c) => Math.abs(c) > 0.5);
 					const plate = add(cup.p, scale(n, 37));
 					plate[i] = (s[i] > 0 ? face.aabb.max[i] : face.aabb.min[i]) + s[i] * 2;
-					plate[1] = face.aabb.max[1] - 37;
+					// 37 mm back from the side's front edge, where the door is.
+					const o = outwardOf(plan, all, edge);
+					const k = o.findIndex((c) => Math.abs(c) > 0.5);
+					plate[k] = (o[k] > 0 ? face.aabb.max[k] : face.aabb.min[k]) - o[k] * 37;
 					const d = sub(plate, cup.p);
 					const reach = Math.abs(d[0] * n[0] + d[1] * n[1] + d[2] * n[2]) + 8;
 					box(add(cup.p, scale(n, 1 + reach / 2)), sized(hingeAxis, n, 12, reach, 12), STEEL, edge);
@@ -255,9 +287,9 @@ export function hardwareSymbols(
 				}
 				case 'handle': {
 					if (hs.length === 0) break;
-					// On the face that looks out of the furniture (+Y), 28 mm off it.
-					const outer = hs.map((h) => (h.n[1] > 0 ? h.p : sub(h.p, scale(h.n, h.part.dims.thickness))));
-					const o: Vec3 = [0, 1, 0];
+					// On the face that looks out of the furniture, 28 mm off it.
+					const o = outwardOf(plan, all, edge);
+					const outer = hs.map((h) => (h.n[0] * o[0] + h.n[1] * o[1] + h.n[2] * o[2] > 0 ? h.p : sub(h.p, scale(h.n, h.part.dims.thickness))));
 					if (hs.length >= 2) {
 						const axis = norm(sub(outer[0], outer[1]));
 						const span = len(sub(outer[0], outer[1]));
@@ -283,8 +315,10 @@ export function hardwareSymbols(
 						const pos = add(c, scale(n, 3));
 						const i = axis.findIndex((v) => v > 0.5);
 						if (i >= 0) {
-							const front = Math.max(...group.map((h) => h.p[i]));
-							pos[i] = front + 32 - (span + 75) / 2;
+							// The joint runs from the front backwards.
+							const s = axisVec(joint.axis)[i] < 0 ? 1 : -1;
+							const front = s > 0 ? Math.max(...group.map((h) => h.p[i])) : Math.min(...group.map((h) => h.p[i]));
+							pos[i] = front + s * (32 - (span + 75) / 2);
 						}
 						box(pos, sized(axis, n, span + 75, 6, height), colour, group[0].part);
 						return pos;
@@ -304,9 +338,13 @@ export function hardwareSymbols(
 					const length = slide?.length ?? 450;
 					const n = facing(face, edge);
 					const i = n.findIndex((c) => Math.abs(c) > 0.5);
-					const pos: Vec3 = [f.position[0], face.aabb.max[1] - 5 - length / 2, f.position[2]];
+					// From 5 mm behind the panel's front edge, backwards.
+					const back = axisVec(joint.axis);
+					const k = back.findIndex((c) => Math.abs(c) > 0.5);
+					const pos: Vec3 = [...f.position];
+					pos[k] = back[k] < 0 ? face.aabb.max[k] - 5 - length / 2 : face.aabb.min[k] + 5 + length / 2;
 					pos[i] = (n[i] > 0 ? face.aabb.max[i] : face.aabb.min[i]) + n[i] * (thick / 2);
-					box(pos, sized([0, 1, 0], n, length, thick, 50), BLACK, face);
+					box(pos, sized(back.map(Math.abs) as Vec3, n, length, thick, 50), BLACK, face);
 					break;
 				}
 				case 'leg': {
@@ -342,7 +380,10 @@ export function hardwareSymbols(
 					const pos = add(c, scale(n, thick / 2));
 					// A catch body reaches the door it holds: its front end at
 					// the panel's front edge.
-					if (kind === 'catch' && Math.abs(axis[1]) > 0.5) pos[1] = face.aabb.max[1] - 1 - along / 2;
+					const back = axisVec(joint.axis);
+					const k = back.findIndex((c) => Math.abs(c) > 0.5);
+					if (kind === 'catch' && k !== 2 && Math.abs(axis[k]) > 0.5)
+						pos[k] = back[k] < 0 ? face.aabb.max[k] - 1 - along / 2 : face.aabb.min[k] + 1 + along / 2;
 					box(pos, sized(axis, n, along, thick, across), colour, face);
 					break;
 				}

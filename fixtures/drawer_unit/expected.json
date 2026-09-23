@@ -281,6 +281,7 @@
     "carcass.origin_z": 0.0,
     "carcass.plinth_height": 100.0,
     "carcass.plinth_length": 564.0,
+    "carcass.rotation": 0.0,
     "carcass.thickness": 18.0,
     "carcass.width": 600.0,
     "drawers.box_depth": 450.0,
