@@ -119,6 +119,20 @@ export const CATALOG: Category[] = [
 				description: 'Tapa sobre dos laterales con faldón, sin cajones.',
 				spec: t(desk),
 				preset: { left: 0, right: 0, width: 1200 }
+			},
+			{
+				id: 'desk_cabinet',
+				name: 'Con gabinete',
+				description: 'Gabinete con puerta y estante a la izquierda, lateral a la derecha.',
+				spec: t(desk),
+				preset: { left: 2, right: 0 }
+			},
+			{
+				id: 'desk_compact',
+				name: 'Compacto',
+				description: 'Un metro de ancho, cajonera angosta de tres.',
+				spec: t(desk),
+				preset: { width: 1000, left: 1, right: 0, pedestal_width: 300 }
 			}
 		]
 	},
@@ -128,7 +142,28 @@ export const CATALOG: Category[] = [
 		description: 'Bajo mesadas, alacenas y módulos sueltos.',
 		variants: [
 			{ id: 'kitchen_run', name: 'Bajo mesada', description: 'De dos a cuatro módulos con patas y zócalo; cajonera en el segundo.', spec: t(kitchen) },
+			{
+				id: 'kitchen_drawer_base',
+				name: 'Cajonero bajo mesada',
+				description: 'Un módulo de 600 con tres cajones, a la altura de la mesada.',
+				spec: t(drawerUnit),
+				preset: { width: 600, height: 720, depth: 560, drawer_count: 3 }
+			},
 			{ id: 'wall_cabinet', name: 'Alacena colgante', description: 'Colgada de la pared, una o dos puertas, estantes regulables.', spec: t(wallCabinet) },
+			{
+				id: 'wall_cabinet_single',
+				name: 'Alacena de una puerta',
+				description: 'Angosta, de 450, para completar una hilera.',
+				spec: t(wallCabinet),
+				preset: { width: 450, door_count: 1 }
+			},
+			{
+				id: 'wall_cabinet_hood',
+				name: 'Alacena sobre campana',
+				description: 'Baja y sin estantes, para ir sobre el extractor.',
+				spec: t(wallCabinet),
+				preset: { width: 600, height: 360, shelf_count: 0 }
+			},
 			{ id: 'basic_cabinet', name: 'Módulo básico', description: 'Carcasa con estantes y puertas.', spec: t(basicCabinet) }
 		]
 	},
@@ -138,7 +173,28 @@ export const CATALOG: Category[] = [
 		description: 'Mesas de luz y cajoneras.',
 		variants: [
 			{ id: 'nightstand', name: 'Mesa de luz', description: 'Cajón arriba, puerta y estante abajo.', spec: t(nightstand) },
-			{ id: 'drawer_unit', name: 'Cajonera', description: 'Cajones de arriba abajo, sobre patas con zócalo.', spec: t(drawerUnit) }
+			{
+				id: 'nightstand_two',
+				name: 'Mesa de luz de dos cajones',
+				description: 'Dos cajones iguales, sin puerta.',
+				spec: t(nightstand),
+				preset: { drawers: 2 }
+			},
+			{
+				id: 'nightstand_three',
+				name: 'Mesa de luz de tres cajones',
+				description: 'Más alta, tres cajones de arriba abajo.',
+				spec: t(nightstand),
+				preset: { drawers: 3, height: 600 }
+			},
+			{ id: 'drawer_unit', name: 'Cajonera', description: 'Cajones de arriba abajo, sobre patas con zócalo.', spec: t(drawerUnit) },
+			{
+				id: 'dresser',
+				name: 'Cómoda',
+				description: 'Cinco cajones anchos, de 900.',
+				spec: t(drawerUnit),
+				preset: { width: 900, height: 900, depth: 500, drawer_count: 5 }
+			}
 		]
 	},
 	{
@@ -147,6 +203,20 @@ export const CATALOG: Category[] = [
 		description: 'Muebles bajos, de TV y aparadores.',
 		variants: [
 			{ id: 'tv_unit', name: 'Mueble de TV', description: 'Cajones a los lados y hueco al medio.', spec: t(tvUnit) },
+			{
+				id: 'tv_unit_doors',
+				name: 'Mueble de TV con puertas',
+				description: 'Puertas push-open a los lados, sin tiradores.',
+				spec: t(tvUnit),
+				preset: { sides: 1 }
+			},
+			{
+				id: 'tv_unit_open',
+				name: 'Mueble de TV abierto',
+				description: 'Tres huecos con estante, sin frentes.',
+				spec: t(tvUnit),
+				preset: { sides: 2 }
+			},
 			{ id: 'sideboard', name: 'Aparador', description: 'Push-open, cajones con cierre suave y patas.', spec: t(sideboard) }
 		]
 	},
@@ -156,6 +226,13 @@ export const CATALOG: Category[] = [
 		description: 'Estantes fijos y regulables.',
 		variants: [
 			{ id: 'bookcase_fixed', name: 'Con estante fijo', description: 'Un estante estructural al medio y estantes fijos.', spec: t(bookcase) },
+			{
+				id: 'bookcase_doors',
+				name: 'Con puertas abajo',
+				description: 'Estantes a la vista arriba, cerrado con puertas bajo el estante fijo.',
+				spec: t(bookcase),
+				preset: { doors: true }
+			},
 			{ id: 'bookcase_adjustable', name: 'Regulable', description: 'Estantes sobre soportes Sistema 32, que se mueven.', spec: t(bookcaseAdjustable) }
 		]
 	}

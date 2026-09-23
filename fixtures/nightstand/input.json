@@ -6,13 +6,15 @@
     "width": 450,
     "height": 550,
     "depth": 400,
-    "drawer_zone": 180
+    "drawer_zone": 180,
+    "drawers": 1
   },
   "options": [
     { "param": "width", "label": "Ancho", "group": "Medidas", "min": 350, "max": 650, "step": 10, "unit": "mm" },
     { "param": "height", "label": "Alto", "group": "Medidas", "min": 450, "max": 700, "step": 10, "unit": "mm" },
     { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 380, "max": 500, "step": 10, "unit": "mm" },
-    { "param": "drawer_zone", "label": "Alto del cajón", "group": "Interior", "min": 120, "max": 250, "step": 5, "unit": "mm" }
+    { "param": "drawers", "label": "Cajones", "group": "Interior", "min": 1, "max": "min(3, floor((height - 36) / 130))", "step": 1, "help": "Con uno, abajo va una puerta con estante; con más, los cajones ocupan todo el alto." },
+    { "param": "drawer_zone", "label": "Alto del cajón", "group": "Interior", "min": 120, "max": 250, "step": 5, "unit": "mm", "when": "drawers == 1" }
   ],
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",
@@ -39,10 +41,10 @@
       "type": "drawers",
       "id": "drawer",
       "zone": {
-        "from": "height - drawer_zone",
+        "from": "if(drawers == 1, height - drawer_zone, 0)",
         "to": "height"
       },
-      "count": 1,
+      "count": "drawers",
       "joint": {
         "hardware": [
           "dowel_8x30"
@@ -66,6 +68,7 @@
     {
       "type": "shelves",
       "id": "shelf",
+      "when": "drawers == 1",
       "zone": {
         "from": 0,
         "to": "height - drawer_zone"
@@ -76,6 +79,7 @@
     {
       "type": "doors",
       "id": "door",
+      "when": "drawers == 1",
       "zone": {
         "from": 0,
         "to": "height - drawer_zone"
@@ -92,6 +96,7 @@
     {
       "id": "drawer_zone",
       "expr": "drawer_zone >= 120 and drawer_zone <= 250",
+      "when": "drawers == 1",
       "severity": "WARNING",
       "message": "El cajón de una mesa de luz va entre 120 y 250 mm de alto"
     }

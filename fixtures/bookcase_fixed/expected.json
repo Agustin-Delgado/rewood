@@ -211,6 +211,7 @@
   "parameters": {
     "depth": 300.0,
     "divider_z": 1000.0,
+    "doors": false,
     "height": 2000.0,
     "width": 800.0
   },
@@ -262,7 +263,19 @@
       "step": 10.0,
       "unit": "mm",
       "active": true
+    },
+    {
+      "param": "doors",
+      "label": "Puertas abajo",
+      "group": "Interior",
+      "help": "Cierra con puertas el tramo bajo el estante fijo.",
+      "kind": "toggle",
+      "value": false,
+      "active": true
     }
+  ],
+  "inactive": [
+    "doors_low"
   ],
   "derived": {
     "carcass.back_length": 779.0,

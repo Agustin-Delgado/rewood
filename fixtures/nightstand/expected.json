@@ -211,6 +211,7 @@
   "parameters": {
     "depth": 400.0,
     "drawer_zone": 180.0,
+    "drawers": 1.0,
     "height": 550.0,
     "width": 450.0
   },
@@ -249,6 +250,18 @@
       "max": 500.0,
       "step": 10.0,
       "unit": "mm",
+      "active": true
+    },
+    {
+      "param": "drawers",
+      "label": "Cajones",
+      "group": "Interior",
+      "help": "Con uno, abajo va una puerta con estante; con más, los cajones ocupan todo el alto.",
+      "kind": "number",
+      "value": 1.0,
+      "min": 1.0,
+      "max": 3.0,
+      "step": 1.0,
       "active": true
     },
     {

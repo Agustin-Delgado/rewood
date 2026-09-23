@@ -212,6 +212,7 @@
     "depth": 420.0,
     "height": 450.0,
     "middle": 800.0,
+    "sides": 0.0,
     "t": 18.0,
     "width": 1800.0
   },
@@ -264,7 +265,35 @@
       "step": 10.0,
       "unit": "mm",
       "active": true
+    },
+    {
+      "param": "sides",
+      "label": "A los lados",
+      "group": "Interior",
+      "kind": "choice",
+      "value": 0.0,
+      "choices": [
+        {
+          "value": 0.0,
+          "label": "cajones"
+        },
+        {
+          "value": 1.0,
+          "label": "puertas"
+        },
+        {
+          "value": 2.0,
+          "label": "abiertos"
+        }
+      ],
+      "active": true
     }
+  ],
+  "inactive": [
+    "door_left",
+    "door_right",
+    "side_shelves",
+    "side_shelves_right"
   ],
   "derived": {
     "carcass.back_length": 1779.0,

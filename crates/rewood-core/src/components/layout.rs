@@ -133,6 +133,16 @@ pub fn check(ctx: &mut BuildCtx<'_>) {
                     open.push((cursor, carcass.height));
                 }
                 for (z0, z1) in open {
+                    // Shelves in the open stretch make it a shelving
+                    // section left open on purpose (a bookcase with doors
+                    // below), not a hole in the front.
+                    let shelved = here.iter().any(|o| {
+                        o.kind == OccupancyKind::Shelves
+                            && o.zone.z1.min(z1) - o.zone.z0.max(z0) >= OPEN_MIN
+                    });
+                    if shelved {
+                        continue;
+                    }
                     out.push(
                         Diagnostic::new(
                             "SPEC-212",
