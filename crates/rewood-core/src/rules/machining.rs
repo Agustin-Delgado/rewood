@@ -559,47 +559,6 @@ impl Rule for HoleThroughGroove {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn segment_distance_cases() {
-        // Parallel, offset by 10.
-        let d = segment_distance(
-            Vec3(0.0, 0.0, 0.0),
-            Vec3(100.0, 0.0, 0.0),
-            Vec3(0.0, 10.0, 0.0),
-            Vec3(100.0, 10.0, 0.0),
-        );
-        assert!((d - 10.0).abs() < 1e-9);
-        // Perpendicular, crossing.
-        let d = segment_distance(
-            Vec3(0.0, 0.0, 0.0),
-            Vec3(100.0, 0.0, 0.0),
-            Vec3(50.0, -10.0, 0.0),
-            Vec3(50.0, 10.0, 0.0),
-        );
-        assert!(d.abs() < 1e-9);
-        // Perpendicular, one ends 5 short of the other.
-        let d = segment_distance(
-            Vec3(0.0, 0.0, 0.0),
-            Vec3(100.0, 0.0, 0.0),
-            Vec3(50.0, 5.0, 0.0),
-            Vec3(50.0, 20.0, 0.0),
-        );
-        assert!((d - 5.0).abs() < 1e-9);
-        // Degenerate (a point) vs segment.
-        let d = segment_distance(
-            Vec3(50.0, 3.0, 0.0),
-            Vec3(50.0, 3.0, 0.0),
-            Vec3(0.0, 0.0, 0.0),
-            Vec3(100.0, 0.0, 0.0),
-        );
-        assert!((d - 3.0).abs() < 1e-9);
-    }
-}
-
 /// FAB-210: a cutout too close to the edge of its panel, or cutting away a
 /// hole or a groove of the same part (a hinge plate, a joint, the back's
 /// groove would be left hanging in the opening).
@@ -711,5 +670,46 @@ impl Rule for CutoutPlacement {
             }
         }
         out
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn segment_distance_cases() {
+        // Parallel, offset by 10.
+        let d = segment_distance(
+            Vec3(0.0, 0.0, 0.0),
+            Vec3(100.0, 0.0, 0.0),
+            Vec3(0.0, 10.0, 0.0),
+            Vec3(100.0, 10.0, 0.0),
+        );
+        assert!((d - 10.0).abs() < 1e-9);
+        // Perpendicular, crossing.
+        let d = segment_distance(
+            Vec3(0.0, 0.0, 0.0),
+            Vec3(100.0, 0.0, 0.0),
+            Vec3(50.0, -10.0, 0.0),
+            Vec3(50.0, 10.0, 0.0),
+        );
+        assert!(d.abs() < 1e-9);
+        // Perpendicular, one ends 5 short of the other.
+        let d = segment_distance(
+            Vec3(0.0, 0.0, 0.0),
+            Vec3(100.0, 0.0, 0.0),
+            Vec3(50.0, 5.0, 0.0),
+            Vec3(50.0, 20.0, 0.0),
+        );
+        assert!((d - 5.0).abs() < 1e-9);
+        // Degenerate (a point) vs segment.
+        let d = segment_distance(
+            Vec3(50.0, 3.0, 0.0),
+            Vec3(50.0, 3.0, 0.0),
+            Vec3(0.0, 0.0, 0.0),
+            Vec3(100.0, 0.0, 0.0),
+        );
+        assert!((d - 3.0).abs() < 1e-9);
     }
 }
