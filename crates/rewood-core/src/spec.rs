@@ -276,6 +276,10 @@ pub enum ComponentSpec {
         /// One entry may be `"auto"` and takes what is left.
         #[serde(default, skip_serializing_if = "Vec::is_empty")]
         bay_widths: Vec<NumOrExpr>,
+        /// How far the dividers' front edge sits back from the carcass
+        /// front: room for the track of sliding doors. Default 0.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        divider_setback: Option<NumOrExpr>,
         #[serde(default)]
         edges: EdgeBanding,
         /// Legs under the bottom panel, optionally with a plinth.
@@ -406,6 +410,40 @@ pub enum ComponentSpec {
         /// Default dowels.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         fixing: Option<JointSpec>,
+        #[serde(default)]
+        edges: EdgeBanding,
+    },
+    /// Sliding doors across the whole carcass, inside the opening, on a
+    /// double track under the top and on the bottom: doors alternate
+    /// between the back and the front lane and overlap where they meet.
+    #[serde(rename_all = "camelCase")]
+    SlidingDoors {
+        id: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        when: Option<NumOrExpr>,
+        #[serde(default)]
+        carcass: Option<String>,
+        count: NumOrExpr,
+        /// How much neighbouring doors overlap, mm.
+        #[serde(default = "sliding_overlap")]
+        overlap: NumOrExpr,
+        /// Gap to the sides at each end.
+        #[serde(default = "door_gap")]
+        gap: NumOrExpr,
+        #[serde(default)]
+        material: Option<String>,
+        /// The track (`kind: sliding_track`, by the metre; its `sliding`
+        /// block sets lanes and clearances).
+        #[serde(default = "default_sliding_track")]
+        track: Vec<String>,
+        /// Screws holding the track to the top and the bottom.
+        #[serde(default = "default_track_screw")]
+        screws: Vec<String>,
+        /// Rollers under each door and guides on top, two of each.
+        #[serde(default = "default_sliding_roller")]
+        rollers: Vec<String>,
+        #[serde(default = "default_sliding_guide")]
+        guides: Vec<String>,
         #[serde(default)]
         edges: EdgeBanding,
     },
@@ -687,6 +725,7 @@ impl ComponentSpec {
             ComponentSpec::Worktop { .. } => "worktop",
             ComponentSpec::Panel { .. } => "panel",
             ComponentSpec::Modesty { .. } => "modesty",
+            ComponentSpec::SlidingDoors { .. } => "sliding_doors",
         }
     }
 
@@ -700,7 +739,8 @@ impl ComponentSpec {
             | ComponentSpec::Rail { when, .. }
             | ComponentSpec::Worktop { when, .. }
             | ComponentSpec::Panel { when, .. }
-            | ComponentSpec::Modesty { when, .. } => when.as_ref(),
+            | ComponentSpec::Modesty { when, .. }
+            | ComponentSpec::SlidingDoors { when, .. } => when.as_ref(),
         }
     }
 
@@ -710,6 +750,7 @@ impl ComponentSpec {
             ComponentSpec::Shelves { carcass, .. }
             | ComponentSpec::Doors { carcass, .. }
             | ComponentSpec::Drawers { carcass, .. }
+            | ComponentSpec::SlidingDoors { carcass, .. }
             | ComponentSpec::Rail { carcass, .. } => carcass.as_deref(),
             _ => None,
         }
@@ -782,6 +823,21 @@ fn expr_height() -> NumOrExpr {
 fn expr_depth() -> NumOrExpr {
     expr("depth")
 }
+fn sliding_overlap() -> NumOrExpr {
+    num(30.0)
+}
+fn default_sliding_track() -> Vec<String> {
+    vec!["sliding_track_2".into()]
+}
+fn default_track_screw() -> Vec<String> {
+    vec!["track_screw".into()]
+}
+fn default_sliding_roller() -> Vec<String> {
+    vec!["sliding_roller".into()]
+}
+fn default_sliding_guide() -> Vec<String> {
+    vec!["sliding_guide".into()]
+}
 fn door_gap() -> NumOrExpr {
     num(2.0)
 }
@@ -802,7 +858,8 @@ impl ComponentSpec {
             | ComponentSpec::Rail { id, .. }
             | ComponentSpec::Worktop { id, .. }
             | ComponentSpec::Panel { id, .. }
-            | ComponentSpec::Modesty { id, .. } => id,
+            | ComponentSpec::Modesty { id, .. }
+            | ComponentSpec::SlidingDoors { id, .. } => id,
         }
     }
 }

@@ -13,7 +13,8 @@ const NOUN: Record<ComponentSpec['type'], string> = {
 	rail: 'Barral',
 	worktop: 'Tapa de trabajo',
 	panel: 'Panel',
-	modesty: 'Faldón'
+	modesty: 'Faldón',
+	sliding_doors: 'Puertas corredizas'
 };
 
 /**

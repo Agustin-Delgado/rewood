@@ -74,7 +74,25 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let bays = ctx.bays_for(id, &carcass, bay.as_ref(), last_bay.as_ref())?;
     let spec_zone = zone.as_ref();
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
-    ctx.occupy(id, OccupancyKind::Shelves, &carcass, &bays, zone);
+    // The shelves' front edge, for the layout check against a door plane
+    // (an inset door, sliding doors); computed again below.
+    let front_edge = {
+        let fixed = !positions.is_empty();
+        match setback {
+            Some(s) => ctx.eval(id, "setback", s).unwrap_or(0.0),
+            None if fixed => 0.0,
+            None => 20.0,
+        }
+    };
+    let y_edge = carcass.depth - front_edge;
+    ctx.occupy_front(
+        id,
+        OccupancyKind::Shelves,
+        &carcass,
+        &bays,
+        zone,
+        Some((y_edge, y_edge)),
+    );
     {
         let mut fields: Vec<(&str, &crate::params::ParamInput)> = Vec::new();
         if let Some(z) = spec_zone {

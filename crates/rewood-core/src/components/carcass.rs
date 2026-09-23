@@ -22,6 +22,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         back,
         bays,
         bay_widths,
+        divider_setback,
         edges,
         legs,
         hanging,
@@ -42,6 +43,21 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let depth = ctx.eval(id, "depth", depth)?;
     let material = ctx.material_or_default(id, material.as_ref())?.to_string();
     let t = ctx.thickness_of(&material);
+    let divider_setback = match divider_setback {
+        Some(v) => ctx.eval(id, "dividerSetback", v)?,
+        None => 0.0,
+    };
+    if !(0.0..depth / 2.0).contains(&divider_setback) {
+        return Err(Diagnostic::new(
+            "SPEC-304",
+            Severity::Fatal,
+            format!(
+                "'{id}.dividerSetback' = {} mm: va de 0 a la mitad de la profundidad",
+                mm(divider_setback)
+            ),
+        )
+        .entity(id));
+    }
 
     if width <= 2.0 * t || height <= 2.0 * t || depth <= 0.0 {
         return Err(Diagnostic::new(
@@ -404,11 +420,15 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 role: &format!("divider_{k}"),
                 material: &material,
                 length: inner_height,
-                width: depth - inner_y0,
+                width: depth - inner_y0 - divider_setback,
                 grain: Grain::Length,
                 // Same frame as the left side: local +Z looks to +X, so the
                 // bay on its right sees `front` and the one on its left `back`.
-                placement: Placement::new(Vec3(x1, depth, t), Axis::PosZ, Axis::NegY),
+                placement: Placement::new(
+                    Vec3(x1, depth - divider_setback, t),
+                    Axis::PosZ,
+                    Axis::NegY,
+                ),
                 banded_edges: &front,
             });
             ctx.request_joint(id, &divider, &top, joint);
@@ -475,6 +495,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             id: id.to_string(),
             origin,
             turns,
+            divider_setback,
             width,
             height,
             depth,

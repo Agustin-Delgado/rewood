@@ -689,7 +689,11 @@ fn audit_frame(a: &mut Audit, plan: &ManufacturingPlan, libs: &Libraries) {
         let t = d.dims.thickness;
         let overlay = (d.aabb.max.1 - (front_y + t)).abs() < EPS;
         let inset = (d.aabb.max.1 - front_y).abs() < EPS;
-        if !overlay && !inset {
+        // A sliding door runs inside the opening, on its track.
+        let sliding = d.role.starts_with("sliding_door")
+            && d.aabb.max.1 < front_y
+            && d.aabb.min.1 > front_y - 80.0;
+        if !overlay && !inset && !sliding {
             a.note(format!(
                 "{}: frente de puerta en y={} (carcasa termina en {front_y})",
                 d.id, d.aabb.max.1
@@ -776,6 +780,7 @@ fn variants() -> Vec<(String, String, Vec<&'static str>)> {
         "sideboard",
         "wardrobe_modules",
         "kitchen_corner",
+        "wardrobe_sliding",
     ] {
         let path = format!(
             "{}/../../fixtures/{f}/input.json",

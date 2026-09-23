@@ -307,6 +307,20 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   controlan cada una en su marco (`SPEC-213`), la bisagra `auto` busca el
   medio de su propia hilera, y una tapa no apoya sobre módulos girados
   (`SPEC-333`).
+- Puertas corredizas (`sliding_doors`, `count` 2 a 4): cruzan toda la
+  carcasa dentro del hueco, sobre un riel doble bajo la tapa y sobre la base
+  (`track`, por metro, con su bloque `sliding`: carriles, paso, lo que ocupa
+  desde el frente y las luces arriba y abajo). Alternan carril (la primera
+  atrás) y se solapan `overlap` (30) donde se cruzan; cada una lleva dos
+  ruedas abajo y dos guías arriba atornilladas al dorso, y el riel va
+  atornillado cada 300 mm. Los divisores tienen que quedar detrás del riel
+  (`dividerSetback` en la carcasa; `SPEC-335` con el valor como arreglo), y
+  los estantes detrás del plano de las puertas (`SPEC-215`, con el
+  retranqueo como arreglo; vale igual para una puerta embutida); los
+  cajones, interiores y retranqueados (`SPEC-214`). Peso de la puerta contra
+  sus dos ruedas (`DESIGN-111`), más de 1200 de ancho (`DESIGN-102`).
+  `fixtures/wardrobe_sliding`. En el visor, "abrir" corre las puertas del
+  carril de adelante sobre las de atrás.
 - Frente fijo (`doors` con `fixed: true`): un panel ciego superpuesto,
   sin bisagra, tirador ni cierre (`SPEC-334`), unido con tarugos (`fixing`)
   a los cantos que tapa lo suficiente (laterales, tapa y base; un divisor,
@@ -569,6 +583,9 @@ Todo de catálogo corriente (Häfele/Hettich/Blum genérico), en
   vale sólo para el herraje cuyos agujeros pasantes cruzan esa cantidad de
   placa. Así el tirador pide M4×25 en una puerta (18 mm) y M4×45 en un
   frente de cajón con su frente interior detrás (36 mm).
+- `sliding_track_2` (riel doble por metro, `kind: sliding_track`),
+  `track_screw`, `sliding_roller` (`maxLoadKg` por rueda) y
+  `sliding_guide`: puertas corredizas.
 - `slide_spacer_16/22/28` (`kind: spacer`, `spacer.thickness`):
   distanciadores entre el panel y la corredera de un cajón interior.
 - `shelf_pin_row_5` + `shelf_pin_5` (Sistema 32), `rail_oval_30` +
@@ -676,7 +693,7 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 
 | familia | qué cubre |
 |---|---|
-| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes; `002` más de 2000 piezas, que es una cantidad desbocada y no un mueble; `103` un `when` que no es condición; `302` ranura del fondo fuera de la pieza; `304` retiros o luces negativos; `318` más estantes sobre soportes que líneas libres en la grilla; `322/323` lateral o faldón sin medida o sin tapa, faldón con retiro negativo; `324` tirador en un cajón interior que no entra en su retiro; `330` reparto de herrajes con `maxSpacing` ≤ 0; `332` giro que no es de a 90°; `333` tapa sobre módulos girados; `334` frente fijo embutido, con tirador o cierre, o sin canto donde fijarse; `501–503` opciones sobre un parámetro inexistente, sobre una fórmula, o con el valor fuera de cota); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo sin estantes (`212`; con estantes es una estantería a la vista a propósito, como una biblioteca con puertas abajo), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`), cajones interiores en el plano de una puerta embutida (`214`, con el retranqueo como arreglo) |
+| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes; `002` más de 2000 piezas, que es una cantidad desbocada y no un mueble; `103` un `when` que no es condición; `302` ranura del fondo fuera de la pieza; `304` retiros o luces negativos; `318` más estantes sobre soportes que líneas libres en la grilla; `322/323` lateral o faldón sin medida o sin tapa, faldón con retiro negativo; `324` tirador en un cajón interior que no entra en su retiro; `330` reparto de herrajes con `maxSpacing` ≤ 0; `332` giro que no es de a 90°; `333` tapa sobre módulos girados; `334` frente fijo embutido, con tirador o cierre, o sin canto donde fijarse; `335` corredizas sin riel de la biblioteca, más gruesas que su carril o con divisores que llegan al frente; `501–503` opciones sobre un parámetro inexistente, sobre una fórmula, o con el valor fuera de cota); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo sin estantes (`212`; con estantes es una estantería a la vista a propósito, como una biblioteca con puertas abajo), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`), estantes que llegan al plano de una puerta embutida o corrediza (`215`), cajones interiores en el plano de una puerta embutida (`214`, con el retranqueo como arreglo) |
 | `PARAM-*` | ciclos o expresiones inválidas en parámetros (un resultado que no es un número finito, como la raíz de un negativo, es error; `and`/`or` cortan en el lado que decide; más de 64 niveles de anidamiento o 2000 símbolos no se aceptan) |
 | `LIB-*` | material, canto o herraje desconocido |
 | `CON-001` | una restricción declarada no se cumple |

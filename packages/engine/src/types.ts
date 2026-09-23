@@ -73,10 +73,11 @@ export interface CarcassSpec {
   bays?: NumOrExpr;
   /** Explicit inner width per bay; one entry may be "auto". Overrides `bays`. */
   bayWidths?: NumOrExpr[];
+  /** Dividers' front edge back from the carcass front (room for a sliding door track). */
+  dividerSetback?: NumOrExpr;
   edges?: EdgeBanding;
   /** Legs under the bottom panel, optionally with a plinth. */
   legs?: LegsSpec;
-  /** Where the carcass stands (bottom-left-back corner); modules side by side. */
   /** Where it stands; `rotation` 0/90/180/270 degrees counter-clockwise from above, about that point (270 = front looking at +X). */
   origin?: { x?: NumOrExpr; y?: NumOrExpr; z?: NumOrExpr; rotation?: NumOrExpr };
   /** Wall-hung: a hanger on each side's inner face, top back corner. */
@@ -263,6 +264,26 @@ export interface ModestySpec {
   edges?: EdgeBanding;
 }
 
+export interface SlidingDoorsSpec {
+  type: 'sliding_doors';
+  id: string;
+  when?: NumOrExpr;
+  carcass?: string;
+  /** 2 to twice the track's lanes. */
+  count: NumOrExpr;
+  /** Where neighbouring doors meet; default 30. */
+  overlap?: NumOrExpr;
+  /** To the sides; default 2. */
+  gap?: NumOrExpr;
+  material?: string;
+  /** `kind: sliding_track` (by the metre); default `sliding_track_2`. */
+  track?: string[];
+  screws?: string[];
+  rollers?: string[];
+  guides?: string[];
+  edges?: EdgeBanding;
+}
+
 export type ComponentSpec =
   | CarcassSpec
   | ShelvesSpec
@@ -271,7 +292,8 @@ export type ComponentSpec =
   | RailSpec
   | WorktopSpec
   | PanelSpec
-  | ModestySpec;
+  | ModestySpec
+  | SlidingDoorsSpec;
 
 /** A choice offered on a template, bound to a literal parameter. */
 export interface OptionSpec {
@@ -380,6 +402,8 @@ export interface HardwareDef {
   slide?: { length: number; sideClearance: number; axisFromBoxBottom: number; softClose?: boolean; style?: string };
   /** Legs only. */
   leg?: { height: number; baseDiameter: number };
+  /** Sliding door tracks only: lanes, their pitch and the room the track takes. */
+  sliding?: { lanes: number; lanePitch: number; frontInset: number; depth: number; bottomClearance: number; topClearance: number };
   /** Spacers only: how far it moves a slide (and an inner drawer) off the panel, mm. */
   spacer?: { thickness: number };
   holes: HoleSpec[];

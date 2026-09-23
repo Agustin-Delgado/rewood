@@ -114,6 +114,9 @@ function guessKind(id: string): string {
 	if (id.startsWith('shelf_pin_row')) return 'pin_row';
 	if (id.startsWith('shelf_pin')) return 'pin';
 	if (id.startsWith('slide_spacer')) return 'spacer';
+	if (id.startsWith('track_screw')) return 'track_screw';
+	if (id.startsWith('sliding_roller')) return 'sliding_roller';
+	if (id.startsWith('sliding_guide')) return 'sliding_guide';
 	if (id.startsWith('rail_support')) return 'rail_support';
 	if (id.startsWith('cabinet_hanger')) return 'hanger';
 	if (id.startsWith('plinth_clip')) return 'clip';
@@ -182,8 +185,12 @@ export function hardwareSymbols(
 	}
 
 	const out: HardwareSymbol[] = [];
+	// How deep a sliding door track is, for drawing it.
+	const trackDepth = plan.bom.hardware.map((h) => def(h.hardware)?.sliding?.depth).find((d) => d) ?? 55;
 	for (const joint of plan.joints) {
-		if (joint.kind === 'row') continue;
+		// A System 32 row is holes, nothing to draw; a track's screw row
+		// carries the track itself.
+		if (joint.kind === 'row' && !joint.hardware.some((h) => (def(h)?.kind ?? guessKind(h)) === 'track_screw')) continue;
 		const edge = all.get(joint.edgePart);
 		const face = all.get(joint.facePart);
 		if (!edge || !face) continue;
@@ -356,6 +363,28 @@ export function hardwareSymbols(
 					cyl(add(c, scale(n, 1.5)), n, base / 2, 3, BLACK, face);
 					cyl(add(c, scale(n, 3 + (height - 9) / 2)), n, 14, height - 9, BLACK, face);
 					cyl(add(c, scale(n, height - 3)), n, 20, 6, BLACK, face);
+					break;
+				}
+				case 'track_screw': {
+					// The track along the row, drawn once, from its first screw.
+					if (index !== 0 || joint.fasteners.length === 0) break;
+					const ps = joint.fasteners.map((x) => x.position);
+					const n = hs[0]?.n ?? [0, 0, 1];
+					const lo: Vec3 = [0, 1, 2].map((k) => Math.min(...ps.map((p) => p[k]))) as Vec3;
+					const hi: Vec3 = [0, 1, 2].map((k) => Math.max(...ps.map((p) => p[k]))) as Vec3;
+					const along: Vec3 = hi[0] - lo[0] >= hi[1] - lo[1] ? [1, 0, 0] : [0, 1, 0];
+					const pos = add(mid(lo, hi), scale(n, 6));
+					const length = len(sub(hi, lo)) + 100;
+					box(pos, sized(along, n, length, 12, trackDepth), ZINC, face);
+					break;
+				}
+				case 'sliding_roller':
+				case 'sliding_guide': {
+					if (hs.length === 0) break;
+					const c = centroid(hs);
+					const n = hs[0].n;
+					const { axis } = spread(hs);
+					box(add(c, scale(n, 6)), sized(axis, n, 50, 12, 24), kind === 'sliding_roller' ? BLACK : ZINC, edge);
 					break;
 				}
 				case 'catch':

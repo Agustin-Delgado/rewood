@@ -64,6 +64,29 @@ export function motions(plan: ManufacturingPlan): Map<string, Motion> {
 		out.set(door.id, { key: `${door.component}:${door.role}`, kind: 'door', pivot, axis, angle });
 	}
 
+	// Sliding doors: the ones on the front lane (every second one) run over
+	// the door before them, as far as their width less the overlap.
+	const sliding = new Map<string, Map<number, Part>>();
+	for (const p of plan.parts) {
+		const m = p.role.match(/^sliding_door_(\d+)$/);
+		if (!m) continue;
+		const set = sliding.get(p.component) ?? new Map<number, Part>();
+		set.set(Number(m[1]), p);
+		sliding.set(p.component, set);
+	}
+	for (const set of sliding.values()) {
+		for (const [n, door] of set) {
+			const before = set.get(n - 1);
+			if (n % 2 !== 0 || !before) continue;
+			const wi = facingAxis(door) === 0 ? 1 : 0;
+			const width = door.aabb.max[wi] - door.aabb.min[wi];
+			const overlap = Math.max(0, Math.min(door.aabb.max[wi], before.aabb.max[wi]) - Math.max(door.aabb.min[wi], before.aabb.min[wi]));
+			const travel: Vec3 = [0, 0, 0];
+			travel[wi] = Math.sign(centre(before)[wi] - centre(door)[wi]) * (width - overlap);
+			out.set(door.id, { key: `${door.component}:${door.role}`, kind: 'drawer', travel });
+		}
+	}
+
 	// Drawers: every part of one drawer (front, box, bottom) runs out
 	// together, as far as a good part of its box, the way its front faces.
 	const drawers = new Map<string, Part[]>();
@@ -83,6 +106,19 @@ export function motions(plan: ManufacturingPlan): Map<string, Motion> {
 		const depth = Math.max(0, ...box.map((p) => p.aabb.max[fi] - p.aabb.min[fi]));
 		const travel: Vec3 = [0, 0, 0];
 		travel[fi] = outwards * depth * DRAWER_OUT;
+		// Behind a sliding door that stays where it is, a drawer does not
+		// come out: it would run through the door.
+		const wi = fi === 0 ? 1 : 0;
+		const blocked = [...sliding.values()].some((set) =>
+			[...set.values()].some((d) => {
+				const m = out.get(d.id);
+				const shift = m?.kind === 'drawer' ? m.travel[wi] : 0;
+				const cover = Math.min(d.aabb.max[wi] + shift, front.aabb.max[wi]) - Math.max(d.aabb.min[wi] + shift, front.aabb.min[wi]);
+				const levels = d.aabb.min[2] < front.aabb.max[2] && d.aabb.max[2] > front.aabb.min[2];
+				return levels && cover > (front.aabb.max[wi] - front.aabb.min[wi]) / 4;
+			})
+		);
+		if (blocked) continue;
 		for (const p of group) out.set(p.id, { key, kind: 'drawer', travel });
 	}
 	return out;

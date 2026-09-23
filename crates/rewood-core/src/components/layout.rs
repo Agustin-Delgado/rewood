@@ -113,6 +113,44 @@ pub fn check(ctx: &mut BuildCtx<'_>) {
                     }
                 }
             }
+            // Shelves reaching into the plane of a door that sits inside
+            // the opening (inset, sliding): it would not close.
+            for a in here.iter().filter(|o| o.kind == OccupancyKind::Doors) {
+                let Some((dy0, _)) = a.front_y else {
+                    continue;
+                };
+                for b in here.iter().filter(|o| o.kind == OccupancyKind::Shelves) {
+                    let Some((_, by1)) = b.front_y else {
+                        continue;
+                    };
+                    let overlap = a.zone.z1.min(b.zone.z1) - a.zone.z0.max(b.zone.z0);
+                    if overlap > EPS && by1 > dy0 + EPS {
+                        let setback = (carcass.depth - dy0 + 2.0).ceil();
+                        out.push(
+                            Diagnostic::new(
+                                "SPEC-215",
+                                Severity::Error,
+                                format!(
+                                    "los estantes de '{}' llegan hasta {} mm de profundidad y las puertas de '{}' empiezan en {}: no cierran en {bay_label}",
+                                    b.component,
+                                    mm(by1),
+                                    a.component,
+                                    mm(dy0)
+                                ),
+                            )
+                            .entity(b.component.clone())
+                            .location(a.component.clone())
+                            .suggestion("Retranqueá los estantes ('setback') detrás de las puertas.")
+                            .fix(
+                                format!("Retranquear {} mm", mm(setback)),
+                                b.component.clone(),
+                                "setback",
+                                serde_json::json!(setback),
+                            ),
+                        );
+                    }
+                }
+            }
             // A bay with fronts that do not reach all of its height.
             let mut fronts: Vec<(f64, f64)> = here
                 .iter()

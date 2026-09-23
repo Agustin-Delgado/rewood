@@ -11,6 +11,7 @@ mod modesty;
 mod panel;
 mod rail;
 mod shelves;
+mod sliding;
 mod worktop;
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -112,6 +113,8 @@ pub struct CarcassInfo {
     /// Quarter turns about the origin, counter-clockwise from above,
     /// applied once the joints are resolved (see `turn_parts`).
     pub turns: u8,
+    /// Dividers' front edge back from the carcass front (sliding doors).
+    pub divider_setback: f64,
     pub width: f64,
     pub height: f64,
     pub depth: f64,
@@ -932,6 +935,7 @@ impl<'a> BuildCtx<'a> {
             ComponentSpec::Shelves { carcass, .. }
             | ComponentSpec::Doors { carcass, .. }
             | ComponentSpec::Drawers { carcass, .. }
+            | ComponentSpec::SlidingDoors { carcass, .. }
             | ComponentSpec::Rail { carcass, .. } => match carcass {
                 Some(c) => off(c),
                 // The only carcass it would take is gone.
@@ -1153,6 +1157,7 @@ pub fn expand(ctx: &mut BuildCtx<'_>) {
             ComponentSpec::Worktop { .. } => worktop::build(ctx, component),
             ComponentSpec::Panel { .. } => panel::build(ctx, component),
             ComponentSpec::Modesty { .. } => modesty::build(ctx, component),
+            ComponentSpec::SlidingDoors { .. } => sliding::build(ctx, component),
         };
         if let Err(d) = result {
             ctx.diagnostics.push(d);

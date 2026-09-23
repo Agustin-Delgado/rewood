@@ -261,7 +261,9 @@ pub fn purchasing(bom: &Bom, libs: &Libraries) -> Vec<PurchaseOrder> {
                     name: item.name.clone(),
                     quantity: item.quantity,
                     // A rail bar is bought by the metre.
-                    unit: if def.is_some_and(|d| d.kind == "rail") {
+                    unit: if def
+                        .is_some_and(|d| matches!(d.kind.as_str(), "rail" | "sliding_track"))
+                    {
                         "m"
                     } else {
                         "u"

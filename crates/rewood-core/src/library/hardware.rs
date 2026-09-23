@@ -172,6 +172,9 @@ pub struct HardwareDef {
     /// Hinges only: which door mount the arm is made for.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hinge: Option<HingeSpec>,
+    /// Sliding door tracks only: lanes and the room they take.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sliding: Option<SlidingSpec>,
     /// Spacers only: a block screwed between the carcass panel and a
     /// slide, so an inner drawer clears the door swung open in front of it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -249,6 +252,24 @@ pub struct CatchSpec {
     pub push: bool,
 }
 
+/// A double (or triple) track for sliding doors, screwed under the top and
+/// on the bottom inside the opening.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SlidingSpec {
+    pub lanes: u32,
+    /// From one lane's door face to the next one's.
+    pub lane_pitch: f64,
+    /// Front of the track back from the carcass front.
+    pub front_inset: f64,
+    /// Depth the track takes, front to back.
+    pub depth: f64,
+    /// Door bottom above the bottom panel (rollers), door top below the
+    /// top panel (guides).
+    pub bottom_clearance: f64,
+    pub top_clearance: f64,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct SpacerSpec {
@@ -277,10 +298,17 @@ impl HardwareDef {
             JointKind::Fixture { .. } => {
                 matches!(
                     self.kind.as_str(),
-                    "leg" | "clip" | "rail_support" | "hanger" | "catch" | "strike"
+                    "leg"
+                        | "clip"
+                        | "rail_support"
+                        | "hanger"
+                        | "catch"
+                        | "strike"
+                        | "sliding_roller"
+                        | "sliding_guide"
                 )
             }
-            JointKind::Row { .. } => self.kind == "pin_row",
+            JointKind::Row { .. } => matches!(self.kind.as_str(), "pin_row" | "track_screw"),
             JointKind::Butt | JointKind::FaceToFace => !matches!(
                 self.kind.as_str(),
                 "hinge"
@@ -296,6 +324,10 @@ impl HardwareDef {
                     | "catch"
                     | "strike"
                     | "spacer"
+                    | "sliding_track"
+                    | "track_screw"
+                    | "sliding_roller"
+                    | "sliding_guide"
             ),
         }
     }

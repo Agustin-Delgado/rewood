@@ -356,6 +356,28 @@ pub fn steps(plan: &ManufacturingPlan) -> Vec<Step> {
                     );
                 }
             }
+            "doors" if parts.iter().all(|p| p.role.starts_with("sliding_door")) => {
+                push(
+                    format!("Montar las puertas corredizas de '{component}'"),
+                    parts.iter().map(|p| part_label(plan, &p.id)).collect(),
+                    count_hw(&joint_ids),
+                    vec![
+                        "Atornillá el riel inferior sobre la base y el superior bajo la tapa, alineados y a ras del frente del riel, sobre sus pilotos.".into(),
+                        "Ruedas abajo y guías arriba, en el dorso de cada puerta, sobre sus pilotos.".into(),
+                        "Calzá cada puerta primero arriba y bajala sobre el riel inferior: la primera en el carril de atrás, la siguiente en el de adelante, y así. Regulá las ruedas hasta que los cantos queden paralelos a los laterales.".into(),
+                    ],
+                );
+            }
+            "doors" if parts.iter().all(|p| p.role.contains("fixed_front")) => {
+                push(
+                    format!("Fijar el frente fijo de '{component}'"),
+                    parts.iter().map(|p| part_label(plan, &p.id)).collect(),
+                    count_hw(&joint_ids),
+                    vec![
+                        "Encolá los tarugos en los cantos de la carcasa, presentá el frente a ras y apretá; no lleva bisagras.".into(),
+                    ],
+                );
+            }
             "doors" => {
                 let mut notes = vec![
                     "Cazoletas en el dorso de la puerta (Ø35), bases en la cara interior del panel a 37 mm del frente; enganchá y regulá en las tres direcciones.".into(),

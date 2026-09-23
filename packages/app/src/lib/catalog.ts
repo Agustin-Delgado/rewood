@@ -21,6 +21,7 @@ import wallCabinet from '../../../../fixtures/wall_cabinet/input.json';
 import wardrobe from '../../../../fixtures/wardrobe_1800/input.json';
 import wardrobeModules from '../../../../fixtures/wardrobe_modules/input.json';
 import wardrobeRail from '../../../../fixtures/wardrobe_rail/input.json';
+import wardrobeSliding from '../../../../fixtures/wardrobe_sliding/input.json';
 
 export type Preset = Record<string, number | boolean>;
 
@@ -80,6 +81,19 @@ export const CATALOG: Category[] = [
 				name: 'Con barral',
 				description: 'Barral para colgar, cajones interiores y puerta embutida.',
 				spec: t(wardrobeRail)
+			},
+			{
+				id: 'wardrobe_sliding',
+				name: 'Con puertas corredizas',
+				description: 'Dos puertas sobre riel doble, barral a un lado, cajones interiores y estantes al otro.',
+				spec: t(wardrobeSliding)
+			},
+			{
+				id: 'wardrobe_sliding_three',
+				name: 'Corredizas de tres puertas',
+				description: 'Tres puertas que se cruzan en dos carriles.',
+				spec: t(wardrobeSliding),
+				preset: { doors: 3 }
 			},
 			{
 				id: 'wardrobe_1800',

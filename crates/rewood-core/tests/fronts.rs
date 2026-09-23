@@ -455,3 +455,63 @@ fn a_fixed_front_is_dowelled_to_the_edges_it_covers() {
         .iter()
         .any(|d| d.code == "SPEC-334"));
 }
+
+#[test]
+fn sliding_doors_share_the_opening_on_two_lanes_and_keep_the_interior_behind() {
+    let spec = r#"{
+  "schemaVersion": "1.0", "id": "s", "name": "s",
+  "parameters": { "width": 1800, "height": 2100, "depth": 600 },
+  "material": "melamine_18", "edgeMaterial": "abs_1mm",
+  "components": [
+    { "type": "carcass", "id": "c", "bays": 2, "dividerSetback": 60, "joint": { "hardware": ["dowel_8x30"] }, "back": { "material": "hdf_3" } },
+    { "type": "shelves", "id": "sh", "bay": 2, "count": 3, "setback": 65, "joint": { "hardware": ["dowel_8x30"] } },
+    { "type": "sliding_doors", "id": "d", "count": 2 }
+  ]
+}"#;
+    let plan = rewood_core::compile_json(spec);
+    assert_eq!(plan.status, PlanStatus::Ok, "{:#?}", plan.diagnostics);
+    let a = part(&plan, "sliding_door_1");
+    let b = part(&plan, "sliding_door_2");
+    // (1764 − 4 + 30) / 2 each, overlapping 30 in the middle.
+    assert_eq!(a.dims.width, 895.0);
+    assert_eq!(a.aabb.max.0 - b.aabb.min.0, 30.0);
+    // The first in the back lane, the second one lane (25) in front.
+    assert_eq!(b.aabb.max.1 - a.aabb.max.1, 25.0);
+    assert!(b.aabb.max.1 < 600.0);
+    // Two rollers and two guides a door, the track by the metre.
+    let fittings = plan
+        .joints
+        .iter()
+        .filter(|j| j.kind == "fixture" && j.component == "d")
+        .count();
+    assert_eq!(fittings, 8);
+    let track = plan
+        .bom
+        .hardware
+        .iter()
+        .find(|h| h.hardware == "sliding_track_2")
+        .unwrap();
+    assert_eq!(track.items[0].quantity, 1.764);
+
+    // Dividers up to the front: the track does not fit, and the fix says
+    // how far to take them back.
+    let flush = spec.replace(r#""dividerSetback": 60, "#, "");
+    let plan = rewood_core::compile_json(&flush);
+    let d = plan
+        .diagnostics
+        .items
+        .iter()
+        .find(|d| d.code == "SPEC-335")
+        .unwrap();
+    assert_eq!(d.fix.as_ref().unwrap().field, "dividerSetback");
+    // Shelves at their usual 20 reach into the doors' plane.
+    let shallow = spec.replace(r#""setback": 65, "#, "");
+    let plan = rewood_core::compile_json(&shallow);
+    let d = plan
+        .diagnostics
+        .items
+        .iter()
+        .find(|d| d.code == "SPEC-215")
+        .unwrap();
+    assert_eq!(d.fix.as_ref().unwrap().value, serde_json::json!(54.0));
+}

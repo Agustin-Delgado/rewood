@@ -168,6 +168,9 @@
 			case 'modesty':
 				c = { type: 'modesty', id, height: 300 };
 				break;
+			case 'sliding_doors':
+				c = { type: 'sliding_doors', id, count: 2 };
+				break;
 		}
 		app.spec.components.push(c);
 		app.touch();
@@ -192,7 +195,8 @@
 		rail: 'barral',
 		worktop: 'tapa',
 		panel: 'lateral',
-		modesty: 'faldón'
+		modesty: 'faldón',
+		sliding_doors: 'corredizas'
 	};
 	let open: Record<string, boolean> = $state({});
 	// A finding clicked in the bottom panel unfolds its component.
@@ -261,6 +265,11 @@
 						</label>
 						<label class="row"><span>profundidad</span><input value={show(c.depth ?? 'depth')} onchange={(e) => setField(c, 'depth', e.currentTarget.value)} /></label>
 						<label class="row"><span>alto</span><input value={show(c.height ?? 'height')} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
+					{:else if c.type === 'sliding_doors'}
+						<label class="row"><span>carcasa</span><input placeholder="la única" value={c.carcass ?? ''} onchange={(e) => setText(c, 'carcass', e.currentTarget.value.trim(), true)} /></label>
+						<label class="row"><span>puertas</span><input value={show(c.count)} onchange={(e) => setField(c, 'count', e.currentTarget.value)} /></label>
+						<label class="row"><span>solape</span><input value={show(c.overlap ?? 30)} onchange={(e) => setField(c, 'overlap', e.currentTarget.value)} /></label>
+						<label class="row"><span>luz a los lados</span><input value={show(c.gap ?? 2)} onchange={(e) => setField(c, 'gap', e.currentTarget.value)} /></label>
 					{:else if c.type === 'modesty'}
 						<label class="row"><span>tapa</span><input placeholder="la única" value={c.worktop ?? ''} onchange={(e) => setText(c, 'worktop', e.currentTarget.value.trim(), true)} /></label>
 						<label class="row"><span>alto</span><input value={show(c.height ?? 300)} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
@@ -272,8 +281,17 @@
 						<label class="row"><span>profundidad</span><input value={show(c.depth ?? 'depth')} onchange={(e) => setField(c, 'depth', e.currentTarget.value)} /></label>
 						<label class="row"><span>origen x,y,z</span>
 							<input placeholder="0, 0, 0" value={c.origin ? [c.origin.x ?? 0, c.origin.y ?? 0, c.origin.z ?? 0].map(show).join(', ') : ''}
-								onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) { const [x, y, z] = raw.split(',').map((v) => numOrExpr(v || '0')); c.origin = { x: x ?? 0, y: y ?? 0, z: z ?? 0 }; } else delete c.origin; app.touch(); }} />
+								onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) { const [x, y, z] = raw.split(',').map((v) => numOrExpr(v || '0')); c.origin = { ...(c.origin ?? {}), x: x ?? 0, y: y ?? 0, z: z ?? 0 }; } else if (c.origin?.rotation !== undefined) c.origin = { rotation: c.origin.rotation }; else delete c.origin; app.touch(); }} />
 						</label>
+						<label class="row" title="Alrededor del origen, visto desde arriba"><span>giro</span>
+							<select value={String(c.origin?.rotation ?? 0)} onchange={(e) => { const v = Number(e.currentTarget.value); if (v) c.origin = { ...(c.origin ?? {}), rotation: v }; else if (c.origin) delete c.origin.rotation; app.touch(); }}>
+								<option value="0">sin girar (frente hacia adelante)</option>
+								<option value="90">90° (frente hacia la izquierda)</option>
+								<option value="180">180° (frente hacia atrás)</option>
+								<option value="270">270° (frente hacia la derecha)</option>
+							</select>
+						</label>
+						<label class="row" title="Lugar para el riel de puertas corredizas"><span>retiro divisores</span><input placeholder="0" value={show(c.dividerSetback)} onchange={(e) => setField(c, 'dividerSetback', e.currentTarget.value, true)} /></label>
 						<label class="row"><span>bahías</span><input value={show(c.bays ?? 1)} onchange={(e) => setField(c, 'bays', e.currentTarget.value)} /></label>
 						<label class="row"><span>anchos</span>
 							<input placeholder="reparto parejo · ej. 500, auto, 400" value={(c.bayWidths ?? []).join(', ')}
@@ -401,7 +419,7 @@
 						</select>
 					</label>
 					{/if}
-					{#if c.type !== 'doors' && c.type !== 'rail' && c.type !== 'worktop' && !(c.type === 'shelves' && c.support === 'pins')}
+					{#if c.type !== 'doors' && c.type !== 'rail' && c.type !== 'worktop' && c.type !== 'sliding_doors' && !(c.type === 'shelves' && c.support === 'pins')}
 						{@const hw = c.joint?.hardware ?? []}
 						<div class="row"><span>herrajes</span>
 							<span class="chips">
@@ -457,7 +475,7 @@
 	{/each}
 	<div class="add">
 		<select bind:value={newType}>
-			<option value="carcass">carcasa</option><option value="shelves">estantes</option><option value="doors">puertas</option><option value="drawers">cajones</option><option value="rail">barral</option><option value="worktop">tapa de trabajo</option><option value="panel">lateral de apoyo</option><option value="modesty">faldón</option>
+			<option value="carcass">carcasa</option><option value="shelves">estantes</option><option value="doors">puertas</option><option value="drawers">cajones</option><option value="rail">barral</option><option value="worktop">tapa de trabajo</option><option value="panel">lateral de apoyo</option><option value="modesty">faldón</option><option value="sliding_doors">puertas corredizas</option>
 		</select>
 		<button onclick={addComponent}>+ agregar</button>
 	</div>
