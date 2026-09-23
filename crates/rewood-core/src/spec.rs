@@ -462,8 +462,9 @@ pub enum ComponentSpec {
         gap: NumOrExpr,
         #[serde(default)]
         material: Option<String>,
-        /// The track (`kind: sliding_track`, by the metre; its `sliding`
-        /// block sets lanes and clearances).
+        /// The track or kits (`kind: sliding_track`; their `sliding` block
+        /// sets lanes and clearances). With kits by width, the shortest
+        /// that spans the opening.
         #[serde(default = "default_sliding_track")]
         track: Vec<String>,
         /// Screws holding the track to the top and the bottom.
@@ -943,7 +944,11 @@ fn sliding_overlap() -> NumOrExpr {
     num(30.0)
 }
 fn default_sliding_track() -> Vec<String> {
-    vec!["sliding_track_2".into()]
+    vec![
+        "sliding_kit_2m".into(),
+        "sliding_kit_3m".into(),
+        "sliding_kit_4m".into(),
+    ]
 }
 fn default_track_screw() -> Vec<String> {
     vec!["track_screw".into()]

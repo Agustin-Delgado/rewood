@@ -247,11 +247,11 @@
       },
       "cut": {
         "length": 800.0,
-        "width": 399.0
+        "width": 399.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -471,8 +471,8 @@
           "id": "P001-OP13",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 800.0
         }
       ]
@@ -490,11 +490,11 @@
       },
       "cut": {
         "length": 800.0,
-        "width": 399.0
+        "width": 399.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -714,8 +714,8 @@
           "id": "P002-OP13",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 800.0
         }
       ]
@@ -733,11 +733,11 @@
       },
       "cut": {
         "length": 2964.0,
-        "width": 399.0
+        "width": 399.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -957,8 +957,8 @@
           "id": "P003-OP13",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 2964.0
         }
       ]
@@ -976,11 +976,11 @@
       },
       "cut": {
         "length": 2964.0,
-        "width": 399.0
+        "width": 399.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -1200,8 +1200,8 @@
           "id": "P004-OP13",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 2964.0
         }
       ]
@@ -1219,11 +1219,11 @@
       },
       "cut": {
         "length": 2964.0,
-        "width": 379.0
+        "width": 379.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -1251,8 +1251,8 @@
           "id": "P005-OP01",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 2964.0
         }
       ]
@@ -1645,12 +1645,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 800.0,
-      "cutWidth": 399.0,
+      "cutWidth": 399.55,
       "finishedLength": 800.0,
       "finishedWidth": 400.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/abs_1mm/-",
+      "edges": "-/-/pvc_0_45mm/-",
       "operations": 13,
       "weightKg": 3.744
     },
@@ -1662,12 +1662,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 800.0,
-      "cutWidth": 399.0,
+      "cutWidth": 399.55,
       "finishedLength": 800.0,
       "finishedWidth": 400.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 13,
       "weightKg": 3.744
     },
@@ -1679,12 +1679,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 2964.0,
-      "cutWidth": 399.0,
+      "cutWidth": 399.55,
       "finishedLength": 2964.0,
       "finishedWidth": 400.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/abs_1mm/-",
+      "edges": "-/-/pvc_0_45mm/-",
       "operations": 13,
       "weightKg": 13.872
     },
@@ -1696,12 +1696,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 2964.0,
-      "cutWidth": 399.0,
+      "cutWidth": 399.55,
       "finishedLength": 2964.0,
       "finishedWidth": 400.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 13,
       "weightKg": 13.872
     },
@@ -1713,12 +1713,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 2964.0,
-      "cutWidth": 379.0,
+      "cutWidth": 379.55,
       "finishedLength": 2964.0,
       "finishedWidth": 380.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 1,
       "weightKg": 13.178
     }
@@ -1727,13 +1727,13 @@
     "sheets": [
       {
         "material": "melamine_18",
-        "name": "Melamina 18 mm",
+        "name": "Melamina 18 mm (1,83 × 2,75)",
         "parts": 5,
-        "netAreaM2": 4.127,
+        "netAreaM2": 4.133,
         "sheetLength": 2750.0,
         "sheetWidth": 1830.0,
         "estimatedSheets": 1,
-        "yieldRatio": 0.82,
+        "yieldRatio": 0.821,
         "cost": 0.0
       }
     ],
@@ -1773,8 +1773,8 @@
     ],
     "consumables": [
       {
-        "material": "abs_1mm",
-        "name": "Canto ABS 1 mm",
+        "material": "pvc_0_45mm",
+        "name": "Tapacanto PVC 22 × 0,45 mm",
         "lengthM": 10.492,
         "cost": 0.0
       }
@@ -1784,10 +1784,10 @@
     "machiningCost": 0.0,
     "totalCost": 0.0,
     "unpriced": [
-      "abs_1mm",
       "melamine_18",
       "minifix_15",
-      "máquina"
+      "máquina",
+      "pvc_0_45mm"
     ]
   },
   "nesting": [
@@ -1802,19 +1802,19 @@
           "x": 10.0,
           "y": 10.0,
           "length": 800.0,
-          "width": 399.0,
+          "width": 399.55,
           "rotated": false
         },
         {
           "part": "P002",
           "x": 10.0,
-          "y": 413.0,
+          "y": 413.55,
           "length": 800.0,
-          "width": 399.0,
+          "width": 399.55,
           "rotated": false
         }
       ],
-      "usedAreaM2": 0.638,
+      "usedAreaM2": 0.639,
       "wasteRatio": 0.873
     }
   ],
@@ -1877,8 +1877,8 @@
       "lines": [
         {
           "kind": "edge_band",
-          "id": "abs_1mm",
-          "name": "Canto ABS 1 mm",
+          "id": "pvc_0_45mm",
+          "name": "Tapacanto PVC 22 × 0,45 mm",
           "quantity": 10.492,
           "unit": "m",
           "unitPrice": 0.0,
@@ -1887,7 +1887,7 @@
         {
           "kind": "sheet",
           "id": "melamine_18",
-          "name": "Melamina 18 mm (2750×1830)",
+          "name": "Melamina 18 mm (1,83 × 2,75) (2750×1830)",
           "quantity": 1.0,
           "unit": "placas",
           "unitPrice": 0.0,
@@ -2098,40 +2098,40 @@
         "code": "FAB-301",
         "severity": "ERROR",
         "entity": "P003",
-        "message": "P003 (Tapa): 2964×399 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm (útil 2730×1810 con 10 de margen)",
+        "message": "P003 (Tapa): 2964×399.55 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm (1,83 × 2,75) (útil 2730×1810 con 10 de margen)",
         "suggestion": "Dividí el componente o cambiá la orientación de la veta."
       },
       {
         "code": "FAB-301",
         "severity": "ERROR",
         "entity": "P004",
-        "message": "P004 (Base): 2964×399 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm (útil 2730×1810 con 10 de margen)",
+        "message": "P004 (Base): 2964×399.55 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm (1,83 × 2,75) (útil 2730×1810 con 10 de margen)",
         "suggestion": "Dividí el componente o cambiá la orientación de la veta."
       },
       {
         "code": "FAB-301",
         "severity": "ERROR",
         "entity": "P005",
-        "message": "P005 (Estante 1): 2964×379 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm (útil 2730×1810 con 10 de margen)",
+        "message": "P005 (Estante 1): 2964×379.55 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm (1,83 × 2,75) (útil 2730×1810 con 10 de margen)",
         "suggestion": "Dividí el componente o cambiá la orientación de la veta."
       },
       {
         "code": "FAB-302",
         "severity": "ERROR",
         "entity": "P003",
-        "message": "P003 (Tapa): 2964×399 mm excede el área de trabajo de 'generic_cnc' (2800×2070 mm)"
+        "message": "P003 (Tapa): 2964×399.55 mm excede el área de trabajo de 'generic_cnc' (2800×2070 mm)"
       },
       {
         "code": "FAB-302",
         "severity": "ERROR",
         "entity": "P004",
-        "message": "P004 (Base): 2964×399 mm excede el área de trabajo de 'generic_cnc' (2800×2070 mm)"
+        "message": "P004 (Base): 2964×399.55 mm excede el área de trabajo de 'generic_cnc' (2800×2070 mm)"
       },
       {
         "code": "FAB-302",
         "severity": "ERROR",
         "entity": "P005",
-        "message": "P005 (Estante 1): 2964×379 mm excede el área de trabajo de 'generic_cnc' (2800×2070 mm)"
+        "message": "P005 (Estante 1): 2964×379.55 mm excede el área de trabajo de 'generic_cnc' (2800×2070 mm)"
       },
       {
         "code": "FAB-304",
@@ -2169,7 +2169,7 @@
         "code": "DESIGN-101",
         "severity": "WARNING",
         "entity": "carcass",
-        "message": "tapa y base de 'carcass': 2964 mm de luz en Melamina 18 mm, que aguanta 900 sin pandear",
+        "message": "tapa y base de 'carcass': 2964 mm de luz en Melamina 18 mm (1,83 × 2,75), que aguanta 900 sin pandear",
         "suggestion": "Partí el ancho con un divisor (bays: 2) o usá una placa más gruesa.",
         "fix": {
           "label": "Dividir en 2 bahías",
@@ -2183,7 +2183,7 @@
         "severity": "WARNING",
         "entity": "shelves",
         "location": "P005",
-        "message": "el panel P005 de 'shelves': 2964 mm de luz en Melamina 18 mm, que aguanta 900 sin pandear",
+        "message": "el panel P005 de 'shelves': 2964 mm de luz en Melamina 18 mm (1,83 × 2,75), que aguanta 900 sin pandear",
         "suggestion": "Partí el ancho con un divisor (bays), agregá un estante fijo o usá una placa más gruesa."
       },
       {

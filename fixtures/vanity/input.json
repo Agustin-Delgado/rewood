@@ -18,7 +18,7 @@
     { "param": "doors", "label": "Puertas", "group": "Frente", "choices": [{ "value": 1, "label": "una" }, { "value": 2, "label": "dos" }], "help": "Más de 600 de ancho, dos." }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",
@@ -31,7 +31,7 @@
       "type": "sink",
       "id": "sink_inset",
       "when": "basin == 0",
-      "hardware": ["sink_inset_500x400"],
+      "hardware": ["sink_ferrum_imola"],
       "passage": {}
     },
     {

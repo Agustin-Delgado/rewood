@@ -18,7 +18,7 @@
     { "param": "sides", "label": "A los lados", "group": "Interior", "choices": [{ "value": 0, "label": "cajones" }, { "value": 1, "label": "puertas" }, { "value": 2, "label": "abiertos" }, { "value": 3, "label": "rebatibles" }] }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

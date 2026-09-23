@@ -289,7 +289,7 @@ mod tests {
         assert!(dxf.contains("DRILL_FRONT_D8_L13"));
         assert!(dxf.contains("DRILL_FRONT_D5_L11_5"));
         assert!(dxf.contains("GROOVE_FRONT_W3_2_L8"));
-        assert!(dxf.contains("EDGE_BAND_1"));
+        assert!(dxf.contains("EDGE_BAND_0_45"));
         assert_eq!(dxf.matches("\nCIRCLE\n").count(), 16);
         // Deterministic: same part, same bytes.
         assert_eq!(dxf, part_dxf(side));

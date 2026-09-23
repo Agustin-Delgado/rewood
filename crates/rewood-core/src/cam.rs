@@ -875,7 +875,7 @@ mod tests {
         profile.workflow = Workflow::NestedRouter;
         // The top: banded on its front edge (its local bottom).
         let top = plan.parts.iter().find(|p| p.role == "top").unwrap();
-        let band = 1.0;
+        let band = 0.45; // tapacanto PVC 22 × 0,45
         let mut diags = Diagnostics::default();
         let progs = programs(top, &profile, &mut diags);
         assert!(diags.items.is_empty(), "{:#?}", diags);

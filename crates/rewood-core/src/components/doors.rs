@@ -294,6 +294,35 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     ctx.publish(id, "count", count as f64);
     ctx.publish(id, "door_width", door_width);
     ctx.publish(id, "door_height", door_height);
+    // A hinge made for doors up to a size (a glass clamp hinge).
+    if let Some(h) = hinge {
+        let limit = h
+            .hardware
+            .iter()
+            .filter_map(|x| ctx.libs.hardware.get(x))
+            .find_map(|d| d.hinge.as_ref()?.max_door.map(|m| (d.name.clone(), m)));
+        if let Some((name, [mw, mh])) = limit {
+            let (w, hh) = (door_width, door_height);
+            if w > mw + crate::units::EPS || hh > mh + crate::units::EPS {
+                ctx.warn(
+                    Diagnostic::new(
+                        "SPEC-337",
+                        Severity::Error,
+                        format!(
+                            "'{id}': puertas de {}×{} mm y '{}' es para puertas de hasta {}×{}",
+                            mm(w),
+                            mm(hh),
+                            name,
+                            mm(mw),
+                            mm(mh)
+                        ),
+                    )
+                    .entity(id)
+                    .suggestion("Puertas más chicas (más puertas o una zona más baja)."),
+                );
+            }
+        }
+    }
 
     // What a cabinetmaker would say before cutting: none of it stops the
     // doors from being generated.

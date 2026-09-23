@@ -433,11 +433,11 @@
       },
       "cut": {
         "length": 622.0,
-        "width": 579.0
+        "width": 579.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -784,8 +784,8 @@
           "id": "P001-OP21",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 622.0
         }
       ],
@@ -806,11 +806,11 @@
       },
       "cut": {
         "length": 622.0,
-        "width": 579.0
+        "width": 579.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -1221,8 +1221,8 @@
           "id": "P002-OP25",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 622.0
         }
       ],
@@ -1243,11 +1243,11 @@
       },
       "cut": {
         "length": 364.0,
-        "width": 579.0
+        "width": 579.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -1610,8 +1610,8 @@
           "id": "P003-OP22",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 364.0
         }
       ],
@@ -1632,11 +1632,11 @@
       },
       "cut": {
         "length": 364.0,
-        "width": 579.0
+        "width": 579.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -2159,8 +2159,8 @@
           "id": "P004-OP32",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 364.0
         }
       ],
@@ -2331,15 +2331,15 @@
         "thickness": 18.0
       },
       "cut": {
-        "length": 394.0,
-        "width": 202.667
+        "length": 395.1,
+        "width": 203.767
       },
       "grain": "length",
       "edges": {
-        "left": "abs_1mm",
-        "right": "abs_1mm",
-        "bottom": "abs_1mm",
-        "top": "abs_1mm"
+        "left": "pvc_0_45mm",
+        "right": "pvc_0_45mm",
+        "bottom": "pvc_0_45mm",
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -2463,32 +2463,32 @@
           "id": "P007-OP07",
           "face": "left",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 204.667
         },
         {
           "id": "P007-OP08",
           "face": "right",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 204.667
         },
         {
           "id": "P007-OP09",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 396.0
         },
         {
           "id": "P007-OP10",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 396.0
         }
       ]
@@ -2506,11 +2506,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -2665,8 +2665,8 @@
           "id": "P008-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -2687,11 +2687,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -2846,8 +2846,8 @@
           "id": "P009-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -2868,11 +2868,11 @@
       },
       "cut": {
         "length": 302.6,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -3075,8 +3075,8 @@
           "id": "P010-OP12",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 302.6
         }
       ],
@@ -3097,11 +3097,11 @@
       },
       "cut": {
         "length": 302.6,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -3208,8 +3208,8 @@
           "id": "P011-OP06",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 302.6
         }
       ],
@@ -3275,15 +3275,15 @@
         "thickness": 18.0
       },
       "cut": {
-        "length": 394.0,
-        "width": 202.667
+        "length": 395.1,
+        "width": 203.767
       },
       "grain": "length",
       "edges": {
-        "left": "abs_1mm",
-        "right": "abs_1mm",
-        "bottom": "abs_1mm",
-        "top": "abs_1mm"
+        "left": "pvc_0_45mm",
+        "right": "pvc_0_45mm",
+        "bottom": "pvc_0_45mm",
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -3407,32 +3407,32 @@
           "id": "P013-OP07",
           "face": "left",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 204.667
         },
         {
           "id": "P013-OP08",
           "face": "right",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 204.667
         },
         {
           "id": "P013-OP09",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 396.0
         },
         {
           "id": "P013-OP10",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 396.0
         }
       ]
@@ -3450,11 +3450,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -3609,8 +3609,8 @@
           "id": "P014-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -3631,11 +3631,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -3790,8 +3790,8 @@
           "id": "P015-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -3812,11 +3812,11 @@
       },
       "cut": {
         "length": 302.6,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -4019,8 +4019,8 @@
           "id": "P016-OP12",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 302.6
         }
       ],
@@ -4041,11 +4041,11 @@
       },
       "cut": {
         "length": 302.6,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -4152,8 +4152,8 @@
           "id": "P017-OP06",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 302.6
         }
       ],
@@ -4219,15 +4219,15 @@
         "thickness": 18.0
       },
       "cut": {
-        "length": 394.0,
-        "width": 202.667
+        "length": 395.1,
+        "width": 203.767
       },
       "grain": "length",
       "edges": {
-        "left": "abs_1mm",
-        "right": "abs_1mm",
-        "bottom": "abs_1mm",
-        "top": "abs_1mm"
+        "left": "pvc_0_45mm",
+        "right": "pvc_0_45mm",
+        "bottom": "pvc_0_45mm",
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -4351,32 +4351,32 @@
           "id": "P019-OP07",
           "face": "left",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 204.667
         },
         {
           "id": "P019-OP08",
           "face": "right",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 204.667
         },
         {
           "id": "P019-OP09",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 396.0
         },
         {
           "id": "P019-OP10",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 396.0
         }
       ]
@@ -4394,11 +4394,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -4553,8 +4553,8 @@
           "id": "P020-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -4575,11 +4575,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -4734,8 +4734,8 @@
           "id": "P021-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -4756,11 +4756,11 @@
       },
       "cut": {
         "length": 302.6,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -4963,8 +4963,8 @@
           "id": "P022-OP12",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 302.6
         }
       ],
@@ -4985,11 +4985,11 @@
       },
       "cut": {
         "length": 302.6,
-        "width": 163.667
+        "width": 164.217
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -5096,8 +5096,8 @@
           "id": "P023-OP06",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 302.6
         }
       ],
@@ -5164,11 +5164,11 @@
       },
       "cut": {
         "length": 622.0,
-        "width": 579.0
+        "width": 579.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -5467,8 +5467,8 @@
           "id": "P025-OP18",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 622.0
         }
       ],
@@ -5489,11 +5489,11 @@
       },
       "cut": {
         "length": 622.0,
-        "width": 579.0
+        "width": 579.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -5792,8 +5792,8 @@
           "id": "P026-OP18",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 622.0
         }
       ],
@@ -5814,11 +5814,11 @@
       },
       "cut": {
         "length": 364.0,
-        "width": 579.0
+        "width": 579.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -6181,8 +6181,8 @@
           "id": "P027-OP22",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 364.0
         }
       ],
@@ -6203,11 +6203,11 @@
       },
       "cut": {
         "length": 364.0,
-        "width": 579.0
+        "width": 579.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -6730,8 +6730,8 @@
           "id": "P028-OP32",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 364.0
         }
       ],
@@ -6903,11 +6903,11 @@
       },
       "cut": {
         "length": 362.0,
-        "width": 545.8
+        "width": 546.35
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -6935,8 +6935,8 @@
           "id": "P031-OP01",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 362.0
         }
       ]
@@ -6953,15 +6953,15 @@
         "thickness": 18.0
       },
       "cut": {
-        "length": 616.0,
-        "width": 394.0
+        "length": 617.1,
+        "width": 395.1
       },
       "grain": "length",
       "edges": {
-        "left": "abs_1mm",
-        "right": "abs_1mm",
-        "bottom": "abs_1mm",
-        "top": "abs_1mm"
+        "left": "pvc_0_45mm",
+        "right": "pvc_0_45mm",
+        "bottom": "pvc_0_45mm",
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -7117,32 +7117,32 @@
           "id": "P032-OP09",
           "face": "left",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 396.0
         },
         {
           "id": "P032-OP10",
           "face": "right",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 396.0
         },
         {
           "id": "P032-OP11",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 618.0
         },
         {
           "id": "P032-OP12",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 618.0
         }
       ]
@@ -7159,14 +7159,14 @@
         "thickness": 18.0
       },
       "cut": {
-        "length": 1398.0,
-        "width": 599.0
+        "length": 1399.1,
+        "width": 599.55
       },
       "grain": "length",
       "edges": {
-        "left": "abs_1mm",
-        "right": "abs_1mm",
-        "bottom": "abs_1mm"
+        "left": "pvc_0_45mm",
+        "right": "pvc_0_45mm",
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -7386,24 +7386,24 @@
           "id": "P033-OP13",
           "face": "left",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 600.0
         },
         {
           "id": "P033-OP14",
           "face": "right",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 600.0
         },
         {
           "id": "P033-OP15",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 1400.0
         }
       ]
@@ -7421,11 +7421,11 @@
       },
       "cut": {
         "length": 600.0,
-        "width": 299.0
+        "width": 299.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -7645,8 +7645,8 @@
           "id": "P034-OP13",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 600.0
         }
       ]
@@ -10193,12 +10193,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 622.0,
-      "cutWidth": 579.0,
+      "cutWidth": 579.55,
       "finishedLength": 622.0,
       "finishedWidth": 580.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/abs_1mm/-",
+      "edges": "-/-/pvc_0_45mm/-",
       "operations": 21,
       "weightKg": 4.221
     },
@@ -10210,12 +10210,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 622.0,
-      "cutWidth": 579.0,
+      "cutWidth": 579.55,
       "finishedLength": 622.0,
       "finishedWidth": 580.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 25,
       "weightKg": 4.221
     },
@@ -10228,12 +10228,12 @@
       "quantity": 2,
       "material": "melamine_18",
       "cutLength": 364.0,
-      "cutWidth": 579.0,
+      "cutWidth": 579.55,
       "finishedLength": 364.0,
       "finishedWidth": 580.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/abs_1mm/-",
+      "edges": "-/-/pvc_0_45mm/-",
       "operations": 22,
       "weightKg": 2.47
     },
@@ -10246,12 +10246,12 @@
       "quantity": 2,
       "material": "melamine_18",
       "cutLength": 364.0,
-      "cutWidth": 579.0,
+      "cutWidth": 579.55,
       "finishedLength": 364.0,
       "finishedWidth": 580.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 32,
       "weightKg": 2.47
     },
@@ -10300,13 +10300,13 @@
       "name": "Frente cajón",
       "quantity": 3,
       "material": "melamine_18",
-      "cutLength": 394.0,
-      "cutWidth": 202.667,
+      "cutLength": 395.1,
+      "cutWidth": 203.767,
       "finishedLength": 396.0,
       "finishedWidth": 204.667,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
+      "edges": "pvc_0_45mm/pvc_0_45mm/pvc_0_45mm/pvc_0_45mm",
       "operations": 10,
       "weightKg": 0.948
     },
@@ -10320,12 +10320,12 @@
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 450.0,
-      "cutWidth": 163.667,
+      "cutWidth": 164.217,
       "finishedLength": 450.0,
       "finishedWidth": 164.667,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 9,
       "weightKg": 0.867
     },
@@ -10339,12 +10339,12 @@
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 450.0,
-      "cutWidth": 163.667,
+      "cutWidth": 164.217,
       "finishedLength": 450.0,
       "finishedWidth": 164.667,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 9,
       "weightKg": 0.867
     },
@@ -10358,12 +10358,12 @@
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 302.6,
-      "cutWidth": 163.667,
+      "cutWidth": 164.217,
       "finishedLength": 302.6,
       "finishedWidth": 164.667,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 12,
       "weightKg": 0.583
     },
@@ -10377,12 +10377,12 @@
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 302.6,
-      "cutWidth": 163.667,
+      "cutWidth": 164.217,
       "finishedLength": 302.6,
       "finishedWidth": 164.667,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 6,
       "weightKg": 0.583
     },
@@ -10413,12 +10413,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 622.0,
-      "cutWidth": 579.0,
+      "cutWidth": 579.55,
       "finishedLength": 622.0,
       "finishedWidth": 580.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/abs_1mm/-",
+      "edges": "-/-/pvc_0_45mm/-",
       "operations": 18,
       "weightKg": 4.221
     },
@@ -10430,12 +10430,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 622.0,
-      "cutWidth": 579.0,
+      "cutWidth": 579.55,
       "finishedLength": 622.0,
       "finishedWidth": 580.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 18,
       "weightKg": 4.221
     },
@@ -10447,12 +10447,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 362.0,
-      "cutWidth": 545.8,
+      "cutWidth": 546.35,
       "finishedLength": 362.0,
       "finishedWidth": 546.8,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 1,
       "weightKg": 2.316
     },
@@ -10463,13 +10463,13 @@
       "name": "Puerta 1",
       "quantity": 1,
       "material": "melamine_18",
-      "cutLength": 616.0,
-      "cutWidth": 394.0,
+      "cutLength": 617.1,
+      "cutWidth": 395.1,
       "finishedLength": 618.0,
       "finishedWidth": 396.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
+      "edges": "pvc_0_45mm/pvc_0_45mm/pvc_0_45mm/pvc_0_45mm",
       "operations": 12,
       "weightKg": 2.863
     },
@@ -10480,13 +10480,13 @@
       "name": "Tapa de trabajo",
       "quantity": 1,
       "material": "melamine_18",
-      "cutLength": 1398.0,
-      "cutWidth": 599.0,
+      "cutLength": 1399.1,
+      "cutWidth": 599.55,
       "finishedLength": 1400.0,
       "finishedWidth": 600.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "abs_1mm/abs_1mm/abs_1mm/-",
+      "edges": "pvc_0_45mm/pvc_0_45mm/pvc_0_45mm/-",
       "operations": 15,
       "weightKg": 9.828
     },
@@ -10498,12 +10498,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 600.0,
-      "cutWidth": 299.0,
+      "cutWidth": 299.55,
       "finishedLength": 600.0,
       "finishedWidth": 300.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/abs_1mm/-",
+      "edges": "-/-/pvc_0_45mm/-",
       "operations": 13,
       "weightKg": 2.106
     }
@@ -10512,24 +10512,24 @@
     "sheets": [
       {
         "material": "hdf_3",
-        "name": "Fibrofácil HDF 3 mm",
+        "name": "Fondo fibrofácil blanco 3 mm (1,83 × 2,60)",
         "parts": 5,
         "netAreaM2": 0.864,
-        "sheetLength": 2750.0,
+        "sheetLength": 2600.0,
         "sheetWidth": 1830.0,
         "estimatedSheets": 1,
-        "yieldRatio": 0.172,
+        "yieldRatio": 0.182,
         "cost": 0.0
       },
       {
         "material": "melamine_18",
-        "name": "Melamina 18 mm",
+        "name": "Melamina 18 mm (1,83 × 2,75)",
         "parts": 29,
-        "netAreaM2": 4.792,
+        "netAreaM2": 4.802,
         "sheetLength": 2750.0,
         "sheetWidth": 1830.0,
         "estimatedSheets": 2,
-        "yieldRatio": 0.476,
+        "yieldRatio": 0.477,
         "cost": 0.0
       }
     ],
@@ -10549,11 +10549,11 @@
       },
       {
         "hardware": "handle_bar_128",
-        "name": "Tirador barra 128 mm entre centros",
+        "name": "Manija barral 128 mm entre centros",
         "quantity": 4,
         "items": [
           {
-            "name": "Tirador barra 128 mm",
+            "name": "Manija barral 128 mm",
             "quantity": 4.0,
             "cost": 0.0
           },
@@ -10572,11 +10572,11 @@
       },
       {
         "hardware": "hinge_35_overlay",
-        "name": "Bisagra cazoleta Ø35 superpuesta (base cruz)",
+        "name": "Bisagra cazoleta Ø35 codo 0 (superpuesta)",
         "quantity": 2,
         "items": [
           {
-            "name": "Bisagra cazoleta Ø35 superpuesta",
+            "name": "Bisagra cazoleta Ø35 codo 0 (superpuesta)",
             "quantity": 2.0,
             "cost": 0.0
           },
@@ -10590,11 +10590,11 @@
       },
       {
         "hardware": "leg_adjustable_100",
-        "name": "Pata regulable 100 mm (base Ø50)",
+        "name": "Pata plástica regulable 100–150 mm (a 100 mm)",
         "quantity": 8,
         "items": [
           {
-            "name": "Pata regulable 100 mm",
+            "name": "Pata plástica regulable 100–150 mm con clip",
             "quantity": 8.0,
             "cost": 0.0
           },
@@ -10689,8 +10689,8 @@
     ],
     "consumables": [
       {
-        "material": "abs_1mm",
-        "name": "Canto ABS 1 mm",
+        "material": "pvc_0_45mm",
+        "name": "Tapacanto PVC 22 × 0,45 mm",
         "lengthM": 17.654,
         "cost": 0.0
       }
@@ -10700,7 +10700,6 @@
     "machiningCost": 0.0,
     "totalCost": 0.0,
     "unpriced": [
-      "abs_1mm",
       "dowel_8x30",
       "handle_bar_128",
       "hdf_3",
@@ -10710,6 +10709,7 @@
       "minifix_15",
       "máquina",
       "plinth_clip",
+      "pvc_0_45mm",
       "screw_4x30_face",
       "shelf_pin_5",
       "slide_ball_450"
@@ -10719,7 +10719,7 @@
     {
       "material": "hdf_3",
       "index": 1,
-      "sheetLength": 2750.0,
+      "sheetLength": 2600.0,
       "sheetWidth": 1830.0,
       "parts": [
         {
@@ -10764,7 +10764,7 @@
         }
       ],
       "usedAreaM2": 0.864,
-      "wasteRatio": 0.828
+      "wasteRatio": 0.818
     },
     {
       "material": "melamine_18",
@@ -10776,189 +10776,189 @@
           "part": "P033",
           "x": 10.0,
           "y": 10.0,
-          "length": 1398.0,
-          "width": 599.0,
+          "length": 1399.1,
+          "width": 599.55,
           "rotated": false
         },
         {
           "part": "P001",
           "x": 10.0,
-          "y": 613.0,
+          "y": 613.55,
           "length": 622.0,
-          "width": 579.0,
+          "width": 579.55,
           "rotated": false
         },
         {
           "part": "P002",
           "x": 10.0,
-          "y": 1196.0,
+          "y": 1197.1,
           "length": 622.0,
-          "width": 579.0,
+          "width": 579.55,
           "rotated": false
         },
         {
           "part": "P025",
           "x": 636.0,
-          "y": 613.0,
+          "y": 613.55,
           "length": 622.0,
-          "width": 579.0,
+          "width": 579.55,
           "rotated": false
         },
         {
           "part": "P026",
           "x": 636.0,
-          "y": 1196.0,
+          "y": 1197.1,
           "length": 622.0,
-          "width": 579.0,
+          "width": 579.55,
           "rotated": false
         },
         {
           "part": "P032",
-          "x": 1412.0,
+          "x": 1413.1,
           "y": 10.0,
-          "length": 616.0,
-          "width": 394.0,
+          "length": 617.1,
+          "width": 395.1,
           "rotated": false
         },
         {
           "part": "P003",
-          "x": 2032.0,
+          "x": 2034.2,
           "y": 10.0,
           "length": 364.0,
-          "width": 579.0,
+          "width": 579.55,
           "rotated": false
         },
         {
           "part": "P004",
-          "x": 1412.0,
-          "y": 408.0,
+          "x": 1413.1,
+          "y": 409.1,
           "length": 364.0,
-          "width": 579.0,
+          "width": 579.55,
           "rotated": false
         },
         {
           "part": "P027",
           "x": 1262.0,
-          "y": 991.0,
+          "y": 992.65,
           "length": 364.0,
-          "width": 579.0,
+          "width": 579.55,
           "rotated": false
         },
         {
           "part": "P028",
           "x": 1630.0,
-          "y": 991.0,
+          "y": 992.65,
           "length": 364.0,
-          "width": 579.0,
+          "width": 579.55,
           "rotated": false
         },
         {
           "part": "P031",
           "x": 1998.0,
-          "y": 593.0,
+          "y": 593.55,
           "length": 362.0,
-          "width": 545.8,
+          "width": 546.35,
           "rotated": false
         },
         {
           "part": "P034",
           "x": 1998.0,
-          "y": 1142.8,
+          "y": 1143.9,
           "length": 600.0,
-          "width": 299.0,
+          "width": 299.55,
           "rotated": false
         },
         {
           "part": "P007",
           "x": 1262.0,
-          "y": 1574.0,
-          "length": 394.0,
-          "width": 202.667,
+          "y": 1576.2,
+          "length": 395.1,
+          "width": 203.767,
           "rotated": false
         },
         {
           "part": "P013",
-          "x": 1660.0,
-          "y": 1574.0,
-          "length": 394.0,
-          "width": 202.667,
+          "x": 1661.1,
+          "y": 1576.2,
+          "length": 395.1,
+          "width": 203.767,
           "rotated": false
         },
         {
           "part": "P019",
-          "x": 2058.0,
-          "y": 1445.8,
-          "length": 394.0,
-          "width": 202.667,
+          "x": 2060.2,
+          "y": 1447.45,
+          "length": 395.1,
+          "width": 203.767,
           "rotated": false
         },
         {
           "part": "P008",
-          "x": 2058.0,
-          "y": 1652.467,
+          "x": 2060.2,
+          "y": 1655.217,
           "length": 450.0,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P010",
-          "x": 2400.0,
+          "x": 2402.2,
           "y": 10.0,
           "length": 302.6,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P011",
-          "x": 2400.0,
-          "y": 177.667,
+          "x": 2402.2,
+          "y": 178.217,
           "length": 302.6,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P016",
-          "x": 2400.0,
-          "y": 345.333,
+          "x": 2402.2,
+          "y": 346.433,
           "length": 302.6,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P017",
-          "x": 2400.0,
-          "y": 513.0,
+          "x": 2402.2,
+          "y": 514.65,
           "length": 302.6,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P022",
           "x": 2364.0,
-          "y": 680.667,
+          "y": 682.867,
           "length": 302.6,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P023",
           "x": 2364.0,
-          "y": 848.333,
+          "y": 851.083,
           "length": 302.6,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P006",
           "x": 2364.0,
-          "y": 1016.0,
+          "y": 1019.3,
           "length": 364.0,
           "width": 100.0,
           "rotated": false
         }
       ],
-      "usedAreaM2": 4.387,
-      "wasteRatio": 0.128
+      "usedAreaM2": 4.396,
+      "wasteRatio": 0.127
     },
     {
       "material": "melamine_18",
@@ -10971,52 +10971,52 @@
           "x": 10.0,
           "y": 10.0,
           "length": 450.0,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P014",
           "x": 10.0,
-          "y": 177.667,
+          "y": 178.217,
           "length": 450.0,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P015",
           "x": 10.0,
-          "y": 345.333,
+          "y": 346.433,
           "length": 450.0,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P020",
           "x": 10.0,
-          "y": 513.0,
+          "y": 514.65,
           "length": 450.0,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P021",
           "x": 10.0,
-          "y": 680.667,
+          "y": 682.867,
           "length": 450.0,
-          "width": 163.667,
+          "width": 164.217,
           "rotated": false
         },
         {
           "part": "P030",
           "x": 10.0,
-          "y": 848.333,
+          "y": 851.083,
           "length": 364.0,
           "width": 100.0,
           "rotated": false
         }
       ],
-      "usedAreaM2": 0.405,
-      "wasteRatio": 0.92
+      "usedAreaM2": 0.406,
+      "wasteRatio": 0.919
     }
   ],
   "machining": {
@@ -11474,8 +11474,8 @@
       "lines": [
         {
           "kind": "edge_band",
-          "id": "abs_1mm",
-          "name": "Canto ABS 1 mm",
+          "id": "pvc_0_45mm",
+          "name": "Tapacanto PVC 22 × 0,45 mm",
           "quantity": 17.654,
           "unit": "m",
           "unitPrice": 0.0,
@@ -11484,7 +11484,7 @@
         {
           "kind": "sheet",
           "id": "hdf_3",
-          "name": "Fibrofácil HDF 3 mm (2750×1830)",
+          "name": "Fondo fibrofácil blanco 3 mm (1,83 × 2,60) (2600×1830)",
           "quantity": 1.0,
           "unit": "placas",
           "unitPrice": 0.0,
@@ -11493,7 +11493,7 @@
         {
           "kind": "sheet",
           "id": "melamine_18",
-          "name": "Melamina 18 mm (2750×1830)",
+          "name": "Melamina 18 mm (1,83 × 2,75) (2750×1830)",
           "quantity": 2.0,
           "unit": "placas",
           "unitPrice": 0.0,
@@ -11519,7 +11519,7 @@
         {
           "kind": "hardware",
           "id": "hinge_35_overlay",
-          "name": "Bisagra cazoleta Ø35 superpuesta",
+          "name": "Bisagra cazoleta Ø35 codo 0 (superpuesta)",
           "quantity": 2.0,
           "unit": "u",
           "unitPrice": 0.0,
@@ -11554,8 +11554,17 @@
         },
         {
           "kind": "hardware",
+          "id": "handle_bar_128",
+          "name": "Manija barral 128 mm",
+          "quantity": 4.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
           "id": "leg_adjustable_100",
-          "name": "Pata regulable 100 mm",
+          "name": "Pata plástica regulable 100–150 mm con clip",
           "quantity": 8.0,
           "unit": "u",
           "unitPrice": 0.0,
@@ -11584,15 +11593,6 @@
           "id": "dowel_8x30",
           "name": "Tarugo 8×30",
           "quantity": 52.0,
-          "unit": "u",
-          "unitPrice": 0.0,
-          "cost": 0.0
-        },
-        {
-          "kind": "hardware",
-          "id": "handle_bar_128",
-          "name": "Tirador barra 128 mm",
-          "quantity": 4.0,
           "unit": "u",
           "unitPrice": 0.0,
           "cost": 0.0

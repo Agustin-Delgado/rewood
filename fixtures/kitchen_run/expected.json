@@ -377,11 +377,11 @@
       },
       "cut": {
         "length": 720.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -680,8 +680,8 @@
           "id": "P001-OP18",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 720.0
         }
       ],
@@ -702,11 +702,11 @@
       },
       "cut": {
         "length": 720.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -941,8 +941,8 @@
           "id": "P002-OP14",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 720.0
         }
       ],
@@ -963,11 +963,11 @@
       },
       "cut": {
         "length": 564.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -1234,8 +1234,8 @@
           "id": "P003-OP16",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 564.0
         }
       ],
@@ -1256,11 +1256,11 @@
       },
       "cut": {
         "length": 564.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -1783,8 +1783,8 @@
           "id": "P004-OP32",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 564.0
         }
       ],
@@ -1956,11 +1956,11 @@
       },
       "cut": {
         "length": 720.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -2307,8 +2307,8 @@
           "id": "P007-OP21",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 720.0
         }
       ],
@@ -2329,11 +2329,11 @@
       },
       "cut": {
         "length": 720.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -2680,8 +2680,8 @@
           "id": "P008-OP21",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 720.0
         }
       ],
@@ -2702,11 +2702,11 @@
       },
       "cut": {
         "length": 564.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -2973,8 +2973,8 @@
           "id": "P009-OP16",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 564.0
         }
       ],
@@ -2995,11 +2995,11 @@
       },
       "cut": {
         "length": 564.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -3522,8 +3522,8 @@
           "id": "P010-OP32",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 564.0
         }
       ],
@@ -3695,11 +3695,11 @@
       },
       "cut": {
         "length": 720.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -3934,8 +3934,8 @@
           "id": "P013-OP14",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 720.0
         }
       ],
@@ -3956,11 +3956,11 @@
       },
       "cut": {
         "length": 720.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -4259,8 +4259,8 @@
           "id": "P014-OP18",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 720.0
         }
       ],
@@ -4281,11 +4281,11 @@
       },
       "cut": {
         "length": 564.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "bottom": "abs_1mm"
+        "bottom": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -4552,8 +4552,8 @@
           "id": "P015-OP16",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 564.0
         }
       ],
@@ -4574,11 +4574,11 @@
       },
       "cut": {
         "length": 564.0,
-        "width": 559.0
+        "width": 559.55
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -5101,8 +5101,8 @@
           "id": "P016-OP32",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 564.0
         }
       ],
@@ -5274,11 +5274,11 @@
       },
       "cut": {
         "length": 564.0,
-        "width": 525.8
+        "width": 526.35
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -5370,8 +5370,8 @@
           "id": "P019-OP05",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 564.0
         }
       ]
@@ -5388,15 +5388,15 @@
         "thickness": 18.0
       },
       "cut": {
-        "length": 714.0,
-        "width": 594.0
+        "length": 715.1,
+        "width": 595.1
       },
       "grain": "length",
       "edges": {
-        "left": "abs_1mm",
-        "right": "abs_1mm",
-        "bottom": "abs_1mm",
-        "top": "abs_1mm"
+        "left": "pvc_0_45mm",
+        "right": "pvc_0_45mm",
+        "bottom": "pvc_0_45mm",
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -5552,32 +5552,32 @@
           "id": "P020-OP09",
           "face": "left",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 596.0
         },
         {
           "id": "P020-OP10",
           "face": "right",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 596.0
         },
         {
           "id": "P020-OP11",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 716.0
         },
         {
           "id": "P020-OP12",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 716.0
         }
       ]
@@ -5594,15 +5594,15 @@
         "thickness": 18.0
       },
       "cut": {
-        "length": 594.0,
-        "width": 235.333
+        "length": 595.1,
+        "width": 236.433
       },
       "grain": "length",
       "edges": {
-        "left": "abs_1mm",
-        "right": "abs_1mm",
-        "bottom": "abs_1mm",
-        "top": "abs_1mm"
+        "left": "pvc_0_45mm",
+        "right": "pvc_0_45mm",
+        "bottom": "pvc_0_45mm",
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -5758,32 +5758,32 @@
           "id": "P021-OP09",
           "face": "left",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 237.333
         },
         {
           "id": "P021-OP10",
           "face": "right",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 237.333
         },
         {
           "id": "P021-OP11",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 596.0
         },
         {
           "id": "P021-OP12",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 596.0
         }
       ]
@@ -5801,11 +5801,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -5960,8 +5960,8 @@
           "id": "P022-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -5982,11 +5982,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -6141,8 +6141,8 @@
           "id": "P023-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -6163,11 +6163,11 @@
       },
       "cut": {
         "length": 502.6,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -6402,8 +6402,8 @@
           "id": "P024-OP14",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 502.6
         }
       ],
@@ -6424,11 +6424,11 @@
       },
       "cut": {
         "length": 502.6,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -6535,8 +6535,8 @@
           "id": "P025-OP06",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 502.6
         }
       ],
@@ -6602,15 +6602,15 @@
         "thickness": 18.0
       },
       "cut": {
-        "length": 594.0,
-        "width": 235.333
+        "length": 595.1,
+        "width": 236.433
       },
       "grain": "length",
       "edges": {
-        "left": "abs_1mm",
-        "right": "abs_1mm",
-        "bottom": "abs_1mm",
-        "top": "abs_1mm"
+        "left": "pvc_0_45mm",
+        "right": "pvc_0_45mm",
+        "bottom": "pvc_0_45mm",
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -6766,32 +6766,32 @@
           "id": "P027-OP09",
           "face": "left",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 237.333
         },
         {
           "id": "P027-OP10",
           "face": "right",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 237.333
         },
         {
           "id": "P027-OP11",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 596.0
         },
         {
           "id": "P027-OP12",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 596.0
         }
       ]
@@ -6809,11 +6809,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -6968,8 +6968,8 @@
           "id": "P028-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -6990,11 +6990,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -7149,8 +7149,8 @@
           "id": "P029-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -7171,11 +7171,11 @@
       },
       "cut": {
         "length": 502.6,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -7410,8 +7410,8 @@
           "id": "P030-OP14",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 502.6
         }
       ],
@@ -7432,11 +7432,11 @@
       },
       "cut": {
         "length": 502.6,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -7543,8 +7543,8 @@
           "id": "P031-OP06",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 502.6
         }
       ],
@@ -7610,15 +7610,15 @@
         "thickness": 18.0
       },
       "cut": {
-        "length": 594.0,
-        "width": 235.333
+        "length": 595.1,
+        "width": 236.433
       },
       "grain": "length",
       "edges": {
-        "left": "abs_1mm",
-        "right": "abs_1mm",
-        "bottom": "abs_1mm",
-        "top": "abs_1mm"
+        "left": "pvc_0_45mm",
+        "right": "pvc_0_45mm",
+        "bottom": "pvc_0_45mm",
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -7774,32 +7774,32 @@
           "id": "P033-OP09",
           "face": "left",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 237.333
         },
         {
           "id": "P033-OP10",
           "face": "right",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 237.333
         },
         {
           "id": "P033-OP11",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 596.0
         },
         {
           "id": "P033-OP12",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 596.0
         }
       ]
@@ -7817,11 +7817,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -7976,8 +7976,8 @@
           "id": "P034-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -7998,11 +7998,11 @@
       },
       "cut": {
         "length": 450.0,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -8157,8 +8157,8 @@
           "id": "P035-OP09",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 450.0
         }
       ],
@@ -8179,11 +8179,11 @@
       },
       "cut": {
         "length": 502.6,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -8418,8 +8418,8 @@
           "id": "P036-OP14",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 502.6
         }
       ],
@@ -8440,11 +8440,11 @@
       },
       "cut": {
         "length": 502.6,
-        "width": 196.333
+        "width": 196.883
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -8551,8 +8551,8 @@
           "id": "P037-OP06",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 502.6
         }
       ],
@@ -8619,11 +8619,11 @@
       },
       "cut": {
         "length": 564.0,
-        "width": 525.8
+        "width": 526.35
       },
       "grain": "length",
       "edges": {
-        "top": "abs_1mm"
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -8715,8 +8715,8 @@
           "id": "P039-OP05",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 564.0
         }
       ]
@@ -8733,15 +8733,15 @@
         "thickness": 18.0
       },
       "cut": {
-        "length": 714.0,
-        "width": 594.0
+        "length": 715.1,
+        "width": 595.1
       },
       "grain": "length",
       "edges": {
-        "left": "abs_1mm",
-        "right": "abs_1mm",
-        "bottom": "abs_1mm",
-        "top": "abs_1mm"
+        "left": "pvc_0_45mm",
+        "right": "pvc_0_45mm",
+        "bottom": "pvc_0_45mm",
+        "top": "pvc_0_45mm"
       },
       "placement": {
         "origin": [
@@ -8897,32 +8897,32 @@
           "id": "P040-OP09",
           "face": "left",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 596.0
         },
         {
           "id": "P040-OP10",
           "face": "right",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 596.0
         },
         {
           "id": "P040-OP11",
           "face": "bottom",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 716.0
         },
         {
           "id": "P040-OP12",
           "face": "top",
           "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
+          "material": "pvc_0_45mm",
+          "thickness": 0.45,
           "length": 716.0
         }
       ]
@@ -11850,12 +11850,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 720.0,
-      "cutWidth": 559.0,
+      "cutWidth": 559.55,
       "finishedLength": 720.0,
       "finishedWidth": 560.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/abs_1mm/-",
+      "edges": "-/-/pvc_0_45mm/-",
       "operations": 18,
       "weightKg": 4.717
     },
@@ -11867,12 +11867,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 720.0,
-      "cutWidth": 559.0,
+      "cutWidth": 559.55,
       "finishedLength": 720.0,
       "finishedWidth": 560.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 14,
       "weightKg": 4.717
     },
@@ -11886,12 +11886,12 @@
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 564.0,
-      "cutWidth": 559.0,
+      "cutWidth": 559.55,
       "finishedLength": 564.0,
       "finishedWidth": 560.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/abs_1mm/-",
+      "edges": "-/-/pvc_0_45mm/-",
       "operations": 16,
       "weightKg": 3.695
     },
@@ -11905,12 +11905,12 @@
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 564.0,
-      "cutWidth": 559.0,
+      "cutWidth": 559.55,
       "finishedLength": 564.0,
       "finishedWidth": 560.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 32,
       "weightKg": 3.695
     },
@@ -11960,12 +11960,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 720.0,
-      "cutWidth": 559.0,
+      "cutWidth": 559.55,
       "finishedLength": 720.0,
       "finishedWidth": 560.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/abs_1mm/-",
+      "edges": "-/-/pvc_0_45mm/-",
       "operations": 21,
       "weightKg": 4.717
     },
@@ -11977,12 +11977,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 720.0,
-      "cutWidth": 559.0,
+      "cutWidth": 559.55,
       "finishedLength": 720.0,
       "finishedWidth": 560.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 21,
       "weightKg": 4.717
     },
@@ -11994,12 +11994,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 720.0,
-      "cutWidth": 559.0,
+      "cutWidth": 559.55,
       "finishedLength": 720.0,
       "finishedWidth": 560.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/abs_1mm/-",
+      "edges": "-/-/pvc_0_45mm/-",
       "operations": 14,
       "weightKg": 4.717
     },
@@ -12011,12 +12011,12 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 720.0,
-      "cutWidth": 559.0,
+      "cutWidth": 559.55,
       "finishedLength": 720.0,
       "finishedWidth": 560.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 18,
       "weightKg": 4.717
     },
@@ -12029,12 +12029,12 @@
       "quantity": 2,
       "material": "melamine_18",
       "cutLength": 564.0,
-      "cutWidth": 525.8,
+      "cutWidth": 526.35,
       "finishedLength": 564.0,
       "finishedWidth": 526.8,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 5,
       "weightKg": 3.476
     },
@@ -12045,13 +12045,13 @@
       "name": "Puerta 1 (door_m1)",
       "quantity": 1,
       "material": "melamine_18",
-      "cutLength": 714.0,
-      "cutWidth": 594.0,
+      "cutLength": 715.1,
+      "cutWidth": 595.1,
       "finishedLength": 716.0,
       "finishedWidth": 596.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
+      "edges": "pvc_0_45mm/pvc_0_45mm/pvc_0_45mm/pvc_0_45mm",
       "operations": 12,
       "weightKg": 4.993
     },
@@ -12064,13 +12064,13 @@
       "name": "Frente cajón",
       "quantity": 3,
       "material": "melamine_18",
-      "cutLength": 594.0,
-      "cutWidth": 235.333,
+      "cutLength": 595.1,
+      "cutWidth": 236.433,
       "finishedLength": 596.0,
       "finishedWidth": 237.333,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
+      "edges": "pvc_0_45mm/pvc_0_45mm/pvc_0_45mm/pvc_0_45mm",
       "operations": 12,
       "weightKg": 1.655
     },
@@ -12084,12 +12084,12 @@
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 450.0,
-      "cutWidth": 196.333,
+      "cutWidth": 196.883,
       "finishedLength": 450.0,
       "finishedWidth": 197.333,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 9,
       "weightKg": 1.039
     },
@@ -12103,12 +12103,12 @@
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 450.0,
-      "cutWidth": 196.333,
+      "cutWidth": 196.883,
       "finishedLength": 450.0,
       "finishedWidth": 197.333,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 9,
       "weightKg": 1.039
     },
@@ -12122,12 +12122,12 @@
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 502.6,
-      "cutWidth": 196.333,
+      "cutWidth": 196.883,
       "finishedLength": 502.6,
       "finishedWidth": 197.333,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 14,
       "weightKg": 1.16
     },
@@ -12141,12 +12141,12 @@
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 502.6,
-      "cutWidth": 196.333,
+      "cutWidth": 196.883,
       "finishedLength": 502.6,
       "finishedWidth": 197.333,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
+      "edges": "-/-/-/pvc_0_45mm",
       "operations": 6,
       "weightKg": 1.16
     },
@@ -12176,13 +12176,13 @@
       "name": "Puerta 1 (door_m3)",
       "quantity": 1,
       "material": "melamine_18",
-      "cutLength": 714.0,
-      "cutWidth": 594.0,
+      "cutLength": 715.1,
+      "cutWidth": 595.1,
       "finishedLength": 716.0,
       "finishedWidth": 596.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
+      "edges": "pvc_0_45mm/pvc_0_45mm/pvc_0_45mm/pvc_0_45mm",
       "operations": 12,
       "weightKg": 4.993
     }
@@ -12191,24 +12191,24 @@
     "sheets": [
       {
         "material": "hdf_3",
-        "name": "Fibrofácil HDF 3 mm",
+        "name": "Fondo fibrofácil blanco 3 mm (1,83 × 2,60)",
         "parts": 6,
         "netAreaM2": 1.88,
-        "sheetLength": 2750.0,
+        "sheetLength": 2600.0,
         "sheetWidth": 1830.0,
         "estimatedSheets": 1,
-        "yieldRatio": 0.374,
+        "yieldRatio": 0.395,
         "cost": 14000.0
       },
       {
         "material": "melamine_18",
-        "name": "Melamina 18 mm",
+        "name": "Melamina 18 mm (1,83 × 2,75)",
         "parts": 34,
-        "netAreaM2": 7.459,
+        "netAreaM2": 7.472,
         "sheetLength": 2750.0,
         "sheetWidth": 1830.0,
         "estimatedSheets": 2,
-        "yieldRatio": 0.741,
+        "yieldRatio": 0.742,
         "cost": 104000.0
       }
     ],
@@ -12228,7 +12228,7 @@
       },
       {
         "hardware": "handle_bar_128",
-        "name": "Tirador barra 128 mm entre centros",
+        "name": "Manija barral 128 mm entre centros",
         "quantity": 5,
         "items": [
           {
@@ -12251,7 +12251,7 @@
       },
       {
         "hardware": "hinge_35_overlay",
-        "name": "Bisagra cazoleta Ø35 superpuesta (base cruz)",
+        "name": "Bisagra cazoleta Ø35 codo 0 (superpuesta)",
         "quantity": 4,
         "items": [
           {
@@ -12269,7 +12269,7 @@
       },
       {
         "hardware": "leg_adjustable_100",
-        "name": "Pata regulable 100 mm (base Ø50)",
+        "name": "Pata plástica regulable 100–150 mm (a 100 mm)",
         "quantity": 12,
         "items": [
           {
@@ -12355,23 +12355,26 @@
     ],
     "consumables": [
       {
-        "material": "abs_1mm",
-        "name": "Canto ABS 1 mm",
+        "material": "pvc_0_45mm",
+        "name": "Tapacanto PVC 22 × 0,45 mm",
         "lengthM": 24.796,
-        "cost": 10414.152
+        "cost": 0.0
       }
     ],
     "totalWeightKg": 92.35,
-    "materialsCost": 201194.152,
+    "materialsCost": 190780.0,
     "machiningCost": 40852.72,
-    "totalCost": 242046.872,
-    "currency": "ARS"
+    "totalCost": 231632.72,
+    "currency": "ARS",
+    "unpriced": [
+      "pvc_0_45mm"
+    ]
   },
   "nesting": [
     {
       "material": "hdf_3",
       "index": 1,
-      "sheetLength": 2750.0,
+      "sheetLength": 2600.0,
       "sheetWidth": 1830.0,
       "parts": [
         {
@@ -12408,15 +12411,15 @@
         },
         {
           "part": "P032",
-          "x": 2192.0,
-          "y": 10.0,
-          "length": 429.0,
-          "width": 517.6,
-          "rotated": true
+          "x": 10.0,
+          "y": 713.0,
+          "length": 517.6,
+          "width": 429.0,
+          "rotated": false
         },
         {
           "part": "P038",
-          "x": 10.0,
+          "x": 531.6,
           "y": 713.0,
           "length": 517.6,
           "width": 429.0,
@@ -12424,14 +12427,14 @@
         }
       ],
       "usedAreaM2": 1.88,
-      "wasteRatio": 0.626,
+      "wasteRatio": 0.605,
       "cuts": [
         {
           "order": 1,
           "stage": 1,
           "x0": 0.0,
           "y0": 8.0,
-          "x1": 2750.0,
+          "x1": 2600.0,
           "y1": 8.0
         },
         {
@@ -12439,7 +12442,7 @@
           "stage": 1,
           "x0": 0.0,
           "y0": 711.0,
-          "x1": 2750.0,
+          "x1": 2600.0,
           "y1": 711.0
         },
         {
@@ -12447,7 +12450,7 @@
           "stage": 1,
           "x0": 0.0,
           "y0": 1144.0,
-          "x1": 2750.0,
+          "x1": 2600.0,
           "y1": 1144.0
         },
         {
@@ -12493,25 +12496,25 @@
         {
           "order": 9,
           "stage": 2,
-          "x0": 2623.0,
-          "y0": 8.0,
-          "x1": 2623.0,
-          "y1": 711.0
-        },
-        {
-          "order": 10,
-          "stage": 2,
           "x0": 8.0,
           "y0": 711.0,
           "x1": 8.0,
           "y1": 1144.0
         },
         {
-          "order": 11,
+          "order": 10,
           "stage": 2,
           "x0": 529.6,
           "y0": 711.0,
           "x1": 529.6,
+          "y1": 1144.0
+        },
+        {
+          "order": 11,
+          "stage": 2,
+          "x0": 1051.2,
+          "y0": 711.0,
+          "x1": 1051.2,
           "y1": 1144.0
         },
         {
@@ -12520,14 +12523,6 @@
           "x0": 1757.0,
           "y0": 529.6,
           "x1": 2190.0,
-          "y1": 529.6
-        },
-        {
-          "order": 13,
-          "stage": 3,
-          "x0": 2190.0,
-          "y0": 529.6,
-          "x1": 2623.0,
           "y1": 529.6
         }
       ]
@@ -12542,101 +12537,101 @@
           "part": "P020",
           "x": 10.0,
           "y": 10.0,
-          "length": 714.0,
-          "width": 594.0,
+          "length": 715.1,
+          "width": 595.1,
           "rotated": false
         },
         {
           "part": "P040",
-          "x": 728.0,
+          "x": 729.1,
           "y": 10.0,
-          "length": 714.0,
-          "width": 594.0,
+          "length": 715.1,
+          "width": 595.1,
           "rotated": false
         },
         {
           "part": "P001",
-          "x": 1446.0,
+          "x": 1448.2,
           "y": 10.0,
           "length": 720.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         },
         {
           "part": "P009",
-          "x": 2170.0,
+          "x": 2172.2,
           "y": 10.0,
           "length": 564.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         },
         {
           "part": "P002",
           "x": 10.0,
-          "y": 608.0,
+          "y": 609.1,
           "length": 720.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         },
         {
           "part": "P007",
           "x": 734.0,
-          "y": 608.0,
+          "y": 609.1,
           "length": 720.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         },
         {
           "part": "P008",
           "x": 1458.0,
-          "y": 608.0,
+          "y": 609.1,
           "length": 720.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         },
         {
           "part": "P024",
           "x": 2182.0,
-          "y": 608.0,
+          "y": 609.1,
           "length": 502.6,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P013",
           "x": 10.0,
-          "y": 1171.0,
+          "y": 1172.65,
           "length": 720.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         },
         {
           "part": "P014",
           "x": 734.0,
-          "y": 1171.0,
+          "y": 1172.65,
           "length": 720.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         },
         {
           "part": "P003",
           "x": 1458.0,
-          "y": 1171.0,
+          "y": 1172.65,
           "length": 564.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         },
         {
           "part": "P004",
           "x": 2026.0,
-          "y": 1171.0,
+          "y": 1172.65,
           "length": 564.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         }
       ],
-      "usedAreaM2": 4.308,
-      "wasteRatio": 0.144,
+      "usedAreaM2": 4.314,
+      "wasteRatio": 0.143,
       "cuts": [
         {
           "order": 1,
@@ -12650,25 +12645,25 @@
           "order": 2,
           "stage": 1,
           "x0": 0.0,
-          "y0": 606.0,
+          "y0": 607.1,
           "x1": 2750.0,
-          "y1": 606.0
+          "y1": 607.1
         },
         {
           "order": 3,
           "stage": 1,
           "x0": 0.0,
-          "y0": 1169.0,
+          "y0": 1170.65,
           "x1": 2750.0,
-          "y1": 1169.0
+          "y1": 1170.65
         },
         {
           "order": 4,
           "stage": 1,
           "x0": 0.0,
-          "y0": 1732.0,
+          "y0": 1734.2,
           "x1": 2750.0,
-          "y1": 1732.0
+          "y1": 1734.2
         },
         {
           "order": 5,
@@ -12676,143 +12671,143 @@
           "x0": 8.0,
           "y0": 8.0,
           "x1": 8.0,
-          "y1": 606.0
+          "y1": 607.1
         },
         {
           "order": 6,
           "stage": 2,
-          "x0": 726.0,
+          "x0": 727.1,
           "y0": 8.0,
-          "x1": 726.0,
-          "y1": 606.0
+          "x1": 727.1,
+          "y1": 607.1
         },
         {
           "order": 7,
           "stage": 2,
-          "x0": 1444.0,
+          "x0": 1446.2,
           "y0": 8.0,
-          "x1": 1444.0,
-          "y1": 606.0
+          "x1": 1446.2,
+          "y1": 607.1
         },
         {
           "order": 8,
           "stage": 2,
-          "x0": 2168.0,
+          "x0": 2170.2,
           "y0": 8.0,
-          "x1": 2168.0,
-          "y1": 606.0
+          "x1": 2170.2,
+          "y1": 607.1
         },
         {
           "order": 9,
           "stage": 2,
-          "x0": 2736.0,
+          "x0": 2738.2,
           "y0": 8.0,
-          "x1": 2736.0,
-          "y1": 606.0
+          "x1": 2738.2,
+          "y1": 607.1
         },
         {
           "order": 10,
           "stage": 2,
           "x0": 8.0,
-          "y0": 606.0,
+          "y0": 607.1,
           "x1": 8.0,
-          "y1": 1169.0
+          "y1": 1170.65
         },
         {
           "order": 11,
           "stage": 2,
           "x0": 732.0,
-          "y0": 606.0,
+          "y0": 607.1,
           "x1": 732.0,
-          "y1": 1169.0
+          "y1": 1170.65
         },
         {
           "order": 12,
           "stage": 2,
           "x0": 1456.0,
-          "y0": 606.0,
+          "y0": 607.1,
           "x1": 1456.0,
-          "y1": 1169.0
+          "y1": 1170.65
         },
         {
           "order": 13,
           "stage": 2,
           "x0": 2180.0,
-          "y0": 606.0,
+          "y0": 607.1,
           "x1": 2180.0,
-          "y1": 1169.0
+          "y1": 1170.65
         },
         {
           "order": 14,
           "stage": 2,
           "x0": 2686.6,
-          "y0": 606.0,
+          "y0": 607.1,
           "x1": 2686.6,
-          "y1": 1169.0
+          "y1": 1170.65
         },
         {
           "order": 15,
           "stage": 2,
           "x0": 8.0,
-          "y0": 1169.0,
+          "y0": 1170.65,
           "x1": 8.0,
-          "y1": 1732.0
+          "y1": 1734.2
         },
         {
           "order": 16,
           "stage": 2,
           "x0": 732.0,
-          "y0": 1169.0,
+          "y0": 1170.65,
           "x1": 732.0,
-          "y1": 1732.0
+          "y1": 1734.2
         },
         {
           "order": 17,
           "stage": 2,
           "x0": 1456.0,
-          "y0": 1169.0,
+          "y0": 1170.65,
           "x1": 1456.0,
-          "y1": 1732.0
+          "y1": 1734.2
         },
         {
           "order": 18,
           "stage": 2,
           "x0": 2024.0,
-          "y0": 1169.0,
+          "y0": 1170.65,
           "x1": 2024.0,
-          "y1": 1732.0
+          "y1": 1734.2
         },
         {
           "order": 19,
           "stage": 2,
           "x0": 2592.0,
-          "y0": 1169.0,
+          "y0": 1170.65,
           "x1": 2592.0,
-          "y1": 1732.0
+          "y1": 1734.2
         },
         {
           "order": 20,
           "stage": 3,
-          "x0": 1444.0,
-          "y0": 571.0,
-          "x1": 2168.0,
-          "y1": 571.0
+          "x0": 1446.2,
+          "y0": 571.55,
+          "x1": 2170.2,
+          "y1": 571.55
         },
         {
           "order": 21,
           "stage": 3,
-          "x0": 2168.0,
-          "y0": 571.0,
-          "x1": 2736.0,
-          "y1": 571.0
+          "x0": 2170.2,
+          "y0": 571.55,
+          "x1": 2738.2,
+          "y1": 571.55
         },
         {
           "order": 22,
           "stage": 3,
           "x0": 2180.0,
-          "y0": 806.333,
+          "y0": 807.983,
           "x1": 2686.6,
-          "y1": 806.333
+          "y1": 807.983
         }
       ]
     },
@@ -12827,7 +12822,7 @@
           "x": 10.0,
           "y": 10.0,
           "length": 564.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         },
         {
@@ -12835,7 +12830,7 @@
           "x": 578.0,
           "y": 10.0,
           "length": 564.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         },
         {
@@ -12843,7 +12838,7 @@
           "x": 1146.0,
           "y": 10.0,
           "length": 564.0,
-          "width": 559.0,
+          "width": 559.55,
           "rotated": false
         },
         {
@@ -12851,7 +12846,7 @@
           "x": 1714.0,
           "y": 10.0,
           "length": 564.0,
-          "width": 525.8,
+          "width": 526.35,
           "rotated": false
         },
         {
@@ -12859,125 +12854,125 @@
           "x": 2282.0,
           "y": 10.0,
           "length": 450.0,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P039",
           "x": 10.0,
-          "y": 573.0,
+          "y": 573.55,
           "length": 564.0,
-          "width": 525.8,
+          "width": 526.35,
           "rotated": false
         },
         {
           "part": "P021",
           "x": 578.0,
-          "y": 573.0,
-          "length": 594.0,
-          "width": 235.333,
+          "y": 573.55,
+          "length": 595.1,
+          "width": 236.433,
           "rotated": false
         },
         {
           "part": "P027",
-          "x": 1176.0,
-          "y": 573.0,
-          "length": 594.0,
-          "width": 235.333,
+          "x": 1177.1,
+          "y": 573.55,
+          "length": 595.1,
+          "width": 236.433,
           "rotated": false
         },
         {
           "part": "P033",
-          "x": 1774.0,
-          "y": 573.0,
-          "length": 594.0,
-          "width": 235.333,
+          "x": 1776.2,
+          "y": 573.55,
+          "length": 595.1,
+          "width": 236.433,
           "rotated": false
         },
         {
           "part": "P025",
           "x": 10.0,
-          "y": 1102.8,
+          "y": 1103.9,
           "length": 502.6,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P030",
           "x": 516.6,
-          "y": 1102.8,
+          "y": 1103.9,
           "length": 502.6,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P031",
           "x": 1023.2,
-          "y": 1102.8,
+          "y": 1103.9,
           "length": 502.6,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P036",
           "x": 1529.8,
-          "y": 1102.8,
+          "y": 1103.9,
           "length": 502.6,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P037",
           "x": 2036.4,
-          "y": 1102.8,
+          "y": 1103.9,
           "length": 502.6,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P023",
           "x": 10.0,
-          "y": 1303.133,
+          "y": 1304.783,
           "length": 450.0,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P028",
           "x": 464.0,
-          "y": 1303.133,
+          "y": 1304.783,
           "length": 450.0,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P029",
           "x": 918.0,
-          "y": 1303.133,
+          "y": 1304.783,
           "length": 450.0,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P034",
           "x": 1372.0,
-          "y": 1303.133,
+          "y": 1304.783,
           "length": 450.0,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P035",
           "x": 1826.0,
-          "y": 1303.133,
+          "y": 1304.783,
           "length": 450.0,
-          "width": 196.333,
+          "width": 196.883,
           "rotated": false
         },
         {
           "part": "P006",
           "x": 10.0,
-          "y": 1503.467,
+          "y": 1505.667,
           "length": 564.0,
           "width": 100.0,
           "rotated": false
@@ -12985,7 +12980,7 @@
         {
           "part": "P012",
           "x": 578.0,
-          "y": 1503.467,
+          "y": 1505.667,
           "length": 564.0,
           "width": 100.0,
           "rotated": false
@@ -12993,14 +12988,14 @@
         {
           "part": "P018",
           "x": 1146.0,
-          "y": 1503.467,
+          "y": 1505.667,
           "length": 564.0,
           "width": 100.0,
           "rotated": false
         }
       ],
-      "usedAreaM2": 3.151,
-      "wasteRatio": 0.374,
+      "usedAreaM2": 3.158,
+      "wasteRatio": 0.372,
       "cuts": [
         {
           "order": 1,
@@ -13014,41 +13009,41 @@
           "order": 2,
           "stage": 1,
           "x0": 0.0,
-          "y0": 571.0,
+          "y0": 571.55,
           "x1": 2750.0,
-          "y1": 571.0
+          "y1": 571.55
         },
         {
           "order": 3,
           "stage": 1,
           "x0": 0.0,
-          "y0": 1100.8,
+          "y0": 1101.9,
           "x1": 2750.0,
-          "y1": 1100.8
+          "y1": 1101.9
         },
         {
           "order": 4,
           "stage": 1,
           "x0": 0.0,
-          "y0": 1301.133,
+          "y0": 1302.783,
           "x1": 2750.0,
-          "y1": 1301.133
+          "y1": 1302.783
         },
         {
           "order": 5,
           "stage": 1,
           "x0": 0.0,
-          "y0": 1501.467,
+          "y0": 1503.667,
           "x1": 2750.0,
-          "y1": 1501.467
+          "y1": 1503.667
         },
         {
           "order": 6,
           "stage": 1,
           "x0": 0.0,
-          "y0": 1605.467,
+          "y0": 1607.667,
           "x1": 2750.0,
-          "y1": 1605.467
+          "y1": 1607.667
         },
         {
           "order": 7,
@@ -13056,7 +13051,7 @@
           "x0": 8.0,
           "y0": 8.0,
           "x1": 8.0,
-          "y1": 571.0
+          "y1": 571.55
         },
         {
           "order": 8,
@@ -13064,7 +13059,7 @@
           "x0": 576.0,
           "y0": 8.0,
           "x1": 576.0,
-          "y1": 571.0
+          "y1": 571.55
         },
         {
           "order": 9,
@@ -13072,7 +13067,7 @@
           "x0": 1144.0,
           "y0": 8.0,
           "x1": 1144.0,
-          "y1": 571.0
+          "y1": 571.55
         },
         {
           "order": 10,
@@ -13080,7 +13075,7 @@
           "x0": 1712.0,
           "y0": 8.0,
           "x1": 1712.0,
-          "y1": 571.0
+          "y1": 571.55
         },
         {
           "order": 11,
@@ -13088,7 +13083,7 @@
           "x0": 2280.0,
           "y0": 8.0,
           "x1": 2280.0,
-          "y1": 571.0
+          "y1": 571.55
         },
         {
           "order": 12,
@@ -13096,215 +13091,215 @@
           "x0": 2734.0,
           "y0": 8.0,
           "x1": 2734.0,
-          "y1": 571.0
+          "y1": 571.55
         },
         {
           "order": 13,
           "stage": 2,
           "x0": 8.0,
-          "y0": 571.0,
+          "y0": 571.55,
           "x1": 8.0,
-          "y1": 1100.8
+          "y1": 1101.9
         },
         {
           "order": 14,
           "stage": 2,
           "x0": 576.0,
-          "y0": 571.0,
+          "y0": 571.55,
           "x1": 576.0,
-          "y1": 1100.8
+          "y1": 1101.9
         },
         {
           "order": 15,
           "stage": 2,
-          "x0": 1174.0,
-          "y0": 571.0,
-          "x1": 1174.0,
-          "y1": 1100.8
+          "x0": 1175.1,
+          "y0": 571.55,
+          "x1": 1175.1,
+          "y1": 1101.9
         },
         {
           "order": 16,
           "stage": 2,
-          "x0": 1772.0,
-          "y0": 571.0,
-          "x1": 1772.0,
-          "y1": 1100.8
+          "x0": 1774.2,
+          "y0": 571.55,
+          "x1": 1774.2,
+          "y1": 1101.9
         },
         {
           "order": 17,
           "stage": 2,
-          "x0": 2370.0,
-          "y0": 571.0,
-          "x1": 2370.0,
-          "y1": 1100.8
+          "x0": 2373.3,
+          "y0": 571.55,
+          "x1": 2373.3,
+          "y1": 1101.9
         },
         {
           "order": 18,
           "stage": 2,
           "x0": 8.0,
-          "y0": 1100.8,
+          "y0": 1101.9,
           "x1": 8.0,
-          "y1": 1301.133
+          "y1": 1302.783
         },
         {
           "order": 19,
           "stage": 2,
           "x0": 514.6,
-          "y0": 1100.8,
+          "y0": 1101.9,
           "x1": 514.6,
-          "y1": 1301.133
+          "y1": 1302.783
         },
         {
           "order": 20,
           "stage": 2,
           "x0": 1021.2,
-          "y0": 1100.8,
+          "y0": 1101.9,
           "x1": 1021.2,
-          "y1": 1301.133
+          "y1": 1302.783
         },
         {
           "order": 21,
           "stage": 2,
           "x0": 1527.8,
-          "y0": 1100.8,
+          "y0": 1101.9,
           "x1": 1527.8,
-          "y1": 1301.133
+          "y1": 1302.783
         },
         {
           "order": 22,
           "stage": 2,
           "x0": 2034.4,
-          "y0": 1100.8,
+          "y0": 1101.9,
           "x1": 2034.4,
-          "y1": 1301.133
+          "y1": 1302.783
         },
         {
           "order": 23,
           "stage": 2,
           "x0": 2541.0,
-          "y0": 1100.8,
+          "y0": 1101.9,
           "x1": 2541.0,
-          "y1": 1301.133
+          "y1": 1302.783
         },
         {
           "order": 24,
           "stage": 2,
           "x0": 8.0,
-          "y0": 1301.133,
+          "y0": 1302.783,
           "x1": 8.0,
-          "y1": 1501.467
+          "y1": 1503.667
         },
         {
           "order": 25,
           "stage": 2,
           "x0": 462.0,
-          "y0": 1301.133,
+          "y0": 1302.783,
           "x1": 462.0,
-          "y1": 1501.467
+          "y1": 1503.667
         },
         {
           "order": 26,
           "stage": 2,
           "x0": 916.0,
-          "y0": 1301.133,
+          "y0": 1302.783,
           "x1": 916.0,
-          "y1": 1501.467
+          "y1": 1503.667
         },
         {
           "order": 27,
           "stage": 2,
           "x0": 1370.0,
-          "y0": 1301.133,
+          "y0": 1302.783,
           "x1": 1370.0,
-          "y1": 1501.467
+          "y1": 1503.667
         },
         {
           "order": 28,
           "stage": 2,
           "x0": 1824.0,
-          "y0": 1301.133,
+          "y0": 1302.783,
           "x1": 1824.0,
-          "y1": 1501.467
+          "y1": 1503.667
         },
         {
           "order": 29,
           "stage": 2,
           "x0": 2278.0,
-          "y0": 1301.133,
+          "y0": 1302.783,
           "x1": 2278.0,
-          "y1": 1501.467
+          "y1": 1503.667
         },
         {
           "order": 30,
           "stage": 2,
           "x0": 8.0,
-          "y0": 1501.467,
+          "y0": 1503.667,
           "x1": 8.0,
-          "y1": 1605.467
+          "y1": 1607.667
         },
         {
           "order": 31,
           "stage": 2,
           "x0": 576.0,
-          "y0": 1501.467,
+          "y0": 1503.667,
           "x1": 576.0,
-          "y1": 1605.467
+          "y1": 1607.667
         },
         {
           "order": 32,
           "stage": 2,
           "x0": 1144.0,
-          "y0": 1501.467,
+          "y0": 1503.667,
           "x1": 1144.0,
-          "y1": 1605.467
+          "y1": 1607.667
         },
         {
           "order": 33,
           "stage": 2,
           "x0": 1712.0,
-          "y0": 1501.467,
+          "y0": 1503.667,
           "x1": 1712.0,
-          "y1": 1605.467
+          "y1": 1607.667
         },
         {
           "order": 34,
           "stage": 3,
           "x0": 1712.0,
-          "y0": 537.8,
+          "y0": 538.35,
           "x1": 2280.0,
-          "y1": 537.8
+          "y1": 538.35
         },
         {
           "order": 35,
           "stage": 3,
           "x0": 2280.0,
-          "y0": 208.333,
+          "y0": 208.883,
           "x1": 2734.0,
-          "y1": 208.333
+          "y1": 208.883
         },
         {
           "order": 36,
           "stage": 3,
           "x0": 576.0,
-          "y0": 810.333,
-          "x1": 1174.0,
-          "y1": 810.333
+          "y0": 811.983,
+          "x1": 1175.1,
+          "y1": 811.983
         },
         {
           "order": 37,
           "stage": 3,
-          "x0": 1174.0,
-          "y0": 810.333,
-          "x1": 1772.0,
-          "y1": 810.333
+          "x0": 1175.1,
+          "y0": 811.983,
+          "x1": 1774.2,
+          "y1": 811.983
         },
         {
           "order": 38,
           "stage": 3,
-          "x0": 1772.0,
-          "y0": 810.333,
-          "x1": 2370.0,
-          "y1": 810.333
+          "x0": 1774.2,
+          "y0": 811.983,
+          "x1": 2373.3,
+          "y1": 811.983
         }
       ]
     }
@@ -13791,17 +13786,17 @@
       "lines": [
         {
           "kind": "edge_band",
-          "id": "abs_1mm",
-          "name": "Canto ABS 1 mm",
+          "id": "pvc_0_45mm",
+          "name": "Tapacanto PVC 22 × 0,45 mm",
           "quantity": 24.796,
           "unit": "m",
-          "unitPrice": 420.0,
-          "cost": 10414.32
+          "unitPrice": 0.0,
+          "cost": 0.0
         },
         {
           "kind": "sheet",
           "id": "hdf_3",
-          "name": "Fibrofácil HDF 3 mm (2750×1830)",
+          "name": "Fondo fibrofácil blanco 3 mm (1,83 × 2,60) (2600×1830)",
           "quantity": 1.0,
           "unit": "placas",
           "unitPrice": 14000.0,
@@ -13810,14 +13805,14 @@
         {
           "kind": "sheet",
           "id": "melamine_18",
-          "name": "Melamina 18 mm (2750×1830)",
+          "name": "Melamina 18 mm (1,83 × 2,75) (2750×1830)",
           "quantity": 2.0,
           "unit": "placas",
           "unitPrice": 52000.0,
           "cost": 104000.0
         }
       ],
-      "cost": 128414.32
+      "cost": 118000.0
     },
     {
       "supplier": "hardware_supplier",

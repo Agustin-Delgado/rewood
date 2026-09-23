@@ -1,29 +1,29 @@
 {
   "schemaVersion": "1.0",
   "id": "display_cabinet",
-  "name": "Vitrina 800×1800×400 con puertas y estantes de vidrio",
+  "name": "Vitrina colgante 800×600×300 con puertas y estantes de vidrio",
   "version": "1.0",
   "parameters": {
     "width": 800,
-    "height": 1800,
-    "depth": 400,
-    "shelves": 3
+    "height": 600,
+    "depth": 300,
+    "shelves": 1
   },
   "options": [
-    { "param": "width", "label": "Ancho", "group": "Medidas", "min": 500, "max": 1000, "step": 10, "unit": "mm", "help": "Dos puertas de vidrio; más ancho, cada una pasa de 500 mm." },
-    { "param": "height", "label": "Alto", "group": "Medidas", "min": 1200, "max": 2100, "step": 10, "unit": "mm" },
-    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 300, "max": 500, "step": 10, "unit": "mm" },
-    { "param": "shelves", "label": "Estantes de vidrio", "group": "Interior", "min": 0, "max": 5, "step": 1 }
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": 500, "max": 900, "step": 10, "unit": "mm", "help": "Las bisagras a presión para vidrio toman puertas de hasta 450 × 600: dos puertas, hasta 900." },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": 350, "max": 600, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 250, "max": 400, "step": 10, "unit": "mm" },
+    { "param": "shelves", "label": "Estantes de vidrio", "group": "Interior", "min": 0, "max": "min(3, floor((height - 186) / 150))", "step": 1 }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",
       "id": "carcass",
       "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
       "back": { "material": "hdf_3" },
-      "legs": { "plinth": { "setback": 40 } }
+      "hanging": {}
     },
     {
       "type": "shelves",
@@ -37,7 +37,7 @@
       "type": "doors",
       "id": "doors",
       "count": 2,
-      "material": "glass_6",
+      "material": "glass_5",
       "hinge": { "hardware": ["hinge_glass_overlay"] }
     }
   ]

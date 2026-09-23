@@ -240,10 +240,12 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
                 Severity::Info,
                 "el mueble no tiene material de canto: todos los bordes de placa quedan a la vista",
             )
-            .suggestion("Declará edgeMaterial (por ejemplo abs_1mm).")
+            .suggestion(
+                "Declará edgeMaterial (por ejemplo pvc_0_45mm, el tapacanto PVC 22 × 0,45).",
+            )
             .fix_opt(
                 libs.materials
-                    .edge("abs_1mm")
+                    .edge("pvc_0_45mm")
                     .or_else(|| libs.materials.edges().next())
                     .map(|e| {
                         (

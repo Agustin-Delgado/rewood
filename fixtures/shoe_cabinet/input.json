@@ -20,7 +20,7 @@
     { "param": "shelves", "label": "Estantes por hueco", "group": "Interior", "min": 0, "max": "min(6, floor((height - 36) / 150) - 1)", "step": 1, "help": "Cada par de zapatos pide unos 150 mm de alto." }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

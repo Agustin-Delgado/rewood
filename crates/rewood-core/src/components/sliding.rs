@@ -41,18 +41,60 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     };
     let id = id.as_str();
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
-    let track_def = track
+    // The opening the doors close: between the sides.
+    let opening_width = carcass.width - 2.0 * carcass.thickness;
+    // A kit sold by width: the shortest that spans the opening; a track by
+    // the metre: the first.
+    let mut listed: Vec<(String, crate::library::hardware::SlidingSpec)> = track
         .iter()
-        .find_map(|h| ctx.libs.hardware.get(h).and_then(|d| d.sliding.clone()))
-        .ok_or_else(|| {
-            Diagnostic::new(
+        .filter_map(|h| Some((h.clone(), ctx.libs.hardware.get(h)?.sliding.clone()?)))
+        .collect();
+    listed.sort_by(|a, b| {
+        a.1.max_width
+            .unwrap_or(f64::INFINITY)
+            .total_cmp(&b.1.max_width.unwrap_or(f64::INFINITY))
+    });
+    let chosen = listed
+        .iter()
+        .find(|(_, s)| {
+            s.max_width
+                .is_none_or(|w| opening_width <= w + crate::units::EPS)
+        })
+        .cloned();
+    if chosen.is_none() && !listed.is_empty() {
+        return Err(Diagnostic::new(
+            "SPEC-335",
+            Severity::Fatal,
+            format!(
+                "'{id}': ningún kit corredizo de la biblioteca cubre {} mm de abertura",
+                mm(opening_width)
+            ),
+        )
+        .entity(id)
+        .suggestion("Una carcasa más angosta, o partila en dos."));
+    }
+    let (track_id, track_def) = chosen.ok_or_else(|| {
+        Diagnostic::new(
+            "SPEC-335",
+            Severity::Fatal,
+            format!(
+                "'{id}.track' tiene que nombrar un riel de corredizas (con su bloque 'sliding')"
+            ),
+        )
+        .entity(id)
+    })?;
+    let count = ctx.eval(id, "count", count)?;
+    if let Some(n) = track_def.doors {
+        if (count - f64::from(n)).abs() > crate::units::EPS {
+            return Err(Diagnostic::new(
                 "SPEC-335",
                 Severity::Fatal,
-                format!("'{id}.track' tiene que nombrar un riel de corredizas (con su bloque 'sliding')"),
+                format!("'{id}': el kit corredizo lleva {n} puertas, no {count}"),
             )
             .entity(id)
-        })?;
-    let count = ctx.eval(id, "count", count)?;
+            .fix(format!("{n} puertas"), id, "count", serde_json::json!(n)));
+        }
+    }
     let lanes = f64::from(track_def.lanes);
     if count < 2.0 || count.fract() != 0.0 || count > 2.0 * lanes {
         return Err(Diagnostic::new(
@@ -118,7 +160,25 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let ct = carcass.thickness;
     let (x0, x1) = (ct, carcass.width - ct);
     let opening = x1 - x0 - 2.0 * gap;
-    let width = (opening + (count as f64 - 1.0) * overlap) / count as f64;
+    // A kit says its own door width; otherwise the doors share the opening
+    // and overlap where they meet.
+    let (x0, gap, overlap, width) = match track_def.width_deduction {
+        Some(k) => {
+            let w = (x1 - x0) / count as f64 - k;
+            (
+                x0,
+                0.0,
+                (x1 - x0 - count as f64 * w) / (1.0 - count as f64),
+                w,
+            )
+        }
+        None => (
+            x0,
+            gap,
+            overlap,
+            (opening + (count as f64 - 1.0) * overlap) / count as f64,
+        ),
+    };
     let z0 = ct + track_def.bottom_clearance;
     let height = carcass.height - 2.0 * ct - track_def.bottom_clearance - track_def.top_clearance;
     if width <= overlap || height <= 0.0 {
@@ -290,13 +350,16 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             &fitting(screws),
         );
     }
-    if let Some(h) = track.first() {
-        ctx.extra_bom.push(ExtraBom {
-            component: id.to_string(),
-            hardware: h.clone(),
-            quantity: 1,
-            metres: (x1 - x0) / 1000.0,
-        });
-    }
+    // A kit is one kit; a track goes by the metre.
+    ctx.extra_bom.push(ExtraBom {
+        component: id.to_string(),
+        hardware: track_id,
+        quantity: 1,
+        metres: if track_def.max_width.is_some() {
+            0.0
+        } else {
+            (x1 - x0) / 1000.0
+        },
+    });
     Ok(())
 }

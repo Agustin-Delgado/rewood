@@ -20,7 +20,7 @@
     { "param": "shelves", "label": "Estantes", "group": "Interior", "min": 0, "max": 6, "step": 1 }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

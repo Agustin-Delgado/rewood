@@ -17,7 +17,7 @@
     { "param": "drawers", "label": "Cajones por lado", "group": "Base", "min": 3, "max": 4, "step": 1, "help": "Con menos, las cajas pasan de 900 mm y la tapa y la base de cada costado se pandean." }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

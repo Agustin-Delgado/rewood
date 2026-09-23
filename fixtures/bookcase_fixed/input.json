@@ -18,7 +18,7 @@
     { "param": "doors", "label": "Puertas abajo", "group": "Interior", "help": "Cierra con puertas el tramo bajo el estante fijo." }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

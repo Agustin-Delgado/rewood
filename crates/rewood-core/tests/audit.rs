@@ -340,6 +340,11 @@ fn audit_frame(a: &mut Audit, plan: &ManufacturingPlan, libs: &Libraries) {
                             j.id, door.id, inner
                         ));
                     }
+                    // A clamp hinge (glass) holds the door without a cup:
+                    // nothing drilled in the door to check.
+                    if !hw.iter().any(|h| h.holes.iter().any(|x| x.label == "cup")) {
+                        continue;
+                    }
                     let cups: Vec<_> = on_edge
                         .iter()
                         .filter(|(op, _)| matches!(&op.geometry, OpGeometry::Drill { diameter, .. } if *diameter > 20.0))

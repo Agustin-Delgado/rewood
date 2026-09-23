@@ -243,7 +243,7 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   "name": "Módulo básico",
   "parameters": { "width": 900, "height": 800, "depth": 400, "door_count": "if(width > 600, 2, 1)" },
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     { "type": "carcass", "id": "carcass", "bays": 2, "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
       "back": { "material": "hdf_3", "groove": { "inset": 10, "depth": 8 } } },
@@ -333,21 +333,25 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
 - Carpetas colgantes: `drawers.files: {}` atornilla un par de rieles
   (`file_rails_legal`, uno por caja en la BOM) arriba de los laterales de
   cada caja; la caja tiene que medir por dentro lo que abarcan las carpetas
-  (375–400 para oficio, con el ancho de la carcasa como arreglo) y 250 de
+  (370–385 para oficio: varilla de 40 cm, rieles a 38 entre ejes; con el
+  ancho de la carcasa como arreglo) y 250 de
   alto (con `boxHeight` como arreglo): `SPEC-339`. `fixtures/filing_cabinet`.
 - Vidrio y espejo: un material `outsourced` (`glass_6`, `mirror_4`) lo
   corta, pule y perfora la vidriería: sus piezas no entran al nesting, no
   llevan canto ni programa de CNC, el despiece las marca "a medida
   (vidriería)" y la compra va por m² (`pricePerM2`) al proveedor
-  `glass_supplier`. Una puerta de vidrio (`material: "glass_6"`) cuelga de
-  `hinge_glass_overlay` (cazoleta Ø26 pasante a 20 del canto, la hace la
-  vidriería con el plano; la base es la de siempre); una bisagra de placa en
-  una puerta de vidrio, o al revés, es `SPEC-337` con la otra como arreglo.
+  `glass_supplier`. Una puerta de vidrio (`material: "glass_5"`, float de
+  5 mm) cuelga de `hinge_glass_overlay`, la bisagra a presión Häfele
+  361.93.641: toma el vidrio sin perforarlo (hasta 5 mm), se atornilla al
+  lateral, viene de a pares con retén y sirve para puertas de hasta 450 × 600
+  (`hinge.maxDoor`; más grandes es `SPEC-337`, error). Una bisagra de placa
+  en una puerta de vidrio, o al revés, es `SPEC-337` con la otra como
+  arreglo.
   `facing: {}` pega un espejo sobre el frente de cada puerta (3 mm adentro
   del borde, un cartucho de `mirror_adhesive` por puerta; con tirador es
   `SPEC-337`: abre con push-open). `fixtures/medicine_cabinet` (botiquín) y
-  `fixtures/display_cabinet` (vitrina con estantes de vidrio sobre
-  soportes; `maxSpan` 800 para el templado de 6).
+  `fixtures/display_cabinet` (vitrina colgante de dos puertas de vidrio y
+  estantes de templado de 6 sobre soportes, `maxSpan` 800).
 - Bacha (`sink`): una bacha de la biblioteca (`kind: sink`) sobre la tapa
   de una carcasa, centrada en su bahía (`bay`) y a media profundidad
   (`fromFront`, `offset`). La bacha dice qué recortes le hace a la tapa
@@ -463,11 +467,11 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   pone el motor lo dice con `SPEC-214` y ofrece el valor—. Detrás de una
   puerta, la hoja abierta queda parada delante del hueco del lado de la
   bisagra y el cajón saldría contra ella: el motor lo mide en una primera
-  pasada y monta la pila sobre **distanciadores** de ese lado (el más fino de
-  la biblioteca que deja 3 mm libres; `slide_spacer_16/22/28`), que corren
-  caja y frente hacia adentro. El distanciador va en la unión de la
-  corredera (una por corredera en la BOM, dibujado en el visor) y el manual
-  de armado lo nombra.
+  pasada y monta la pila sobre **suplementos** de ese lado: tiras de
+  melamina de 18 mm, una o dos (`slide_spacer_18/36`), las que hagan falta
+  para dejar 3 mm libres; corren caja y frente hacia adentro. El suplemento
+  va en la unión de la corredera (uno por corredera en la BOM, dibujado en el
+  visor) y el manual de armado lo nombra.
 - Alacena colgada: `hanging: {}` en la carcasa (herraje `cabinet_hanger`
   por defecto) pone un colgador regulable en la cara interior de cada
   lateral, contra la tapa y a 40 del fondo (unión `fixture`, tres tornillos),
@@ -613,21 +617,28 @@ ni más profundo que el panel. Una violación imprime todas las que haya.
 
 ### Qué hay en la biblioteca
 
-Todo de catálogo corriente (Häfele/Hettich/Blum genérico), en
-`crates/rewood-core/data/hardware.json`:
+Todo de medida estándar y a la venta en Argentina (Faplac/Arauco, Egger,
+Eurohard/Grupo Euro, Häfele, Ducasse, Ferrum), en
+`crates/rewood-core/data/hardware.json` y `materials.json`. Un herraje o una
+placa nueva tiene que serlo también:
+
+- placas: melamina y MDF de 18 en 1830 × 2750, fondo de fibrofácil blanco
+  de 3 en 1830 × 2600, fenólico de 18 en 1220 × 2440; canto `pvc_0_45mm`
+  (tapacanto PVC 22 × 0,45, el de los fixtures) y `pvc_2mm` (22 × 2);
 
 - unión: `minifix_15` (excéntrica Ø15 + perno B34), `dowel_8x30`,
   `confirmat_7x50`, `screw_4x30_face`;
-- bisagras cazoleta Ø35: `hinge_35_overlay` / `hinge_35_half` /
-  `hinge_35_inset` (110°), cada una con variante `_soft`, y
+- bisagras cazoleta Ø35: `hinge_35_overlay` (codo 0) / `hinge_35_half`
+  (codo 9) / `hinge_35_inset` (codo 18), a 110°, cada una con variante
+  `_soft`, y
   `hinge_35_overlay_165` (gran ángulo);
 - correderas: telescópicas a bolillas `slide_ball_250` … `slide_ball_600`
   cada 50 mm (extracción total, 30 kg) con variantes `slide_ball_soft_*`, y
   de rodillo `slide_roller_300` … `slide_roller_500` (extracción parcial,
   25 kg, sin cierre suave);
-- tiradores barra `handle_bar_96/128/160/192/224/320` y botón `knob_single`;
-- patas regulables `leg_adjustable_80/100/120/150` (base Ø50) y
-  `plinth_clip`;
+- manijas barral `handle_bar_96/128/160/192/320` y botón `knob_single`;
+- la pata plástica regulable 100–150 con clip de zócalo, puesta a 100, 120
+  o 150 (`leg_adjustable_100/120/150`), y `plinth_clip`;
 - cierres `magnetic_catch` (+ `magnetic_strike`) y `push_latch`
   (+ `push_latch_plate`);
 - Un ítem de la BOM de un herraje puede llevar `through: [desde, hasta)`:
@@ -639,20 +650,26 @@ Todo de catálogo corriente (Häfele/Hettich/Blum genérico), en
   soporte en la puerta.
 - `caster_50` (rueda con freno, `leg.caster`) y `file_rails_legal`
   (rieles para carpetas colgantes oficio).
-- `sink_inset_500x400` (bacha de embutir, recorte 470×370 r30, cuelga 180),
-  `sink_vessel_400` (de apoyo, sólo el desagüe Ø45) y `pipe_passage`
-  (200×160 en el fondo): herrajes que recortan en vez de perforar.
-- `sliding_track_2` (riel doble por metro, `kind: sliding_track`),
-  `track_screw`, `sliding_roller` (`maxLoadKg` por rueda) y
-  `sliding_guide`: puertas corredizas.
-- `slide_spacer_16/22/28` (`kind: spacer`, `spacer.thickness`):
-  distanciadores entre el panel y la corredera de un cajón interior.
+- `sink_ferrum_imola` (bacha de embutir Ferrum Imola 47 × 39, recorte
+  425 × 345 r40 —el definitivo es el de la plantilla de Ferrum—, cuelga
+  195), `sink_vessel_400` (de apoyo, sólo el desagüe de 1 1/4", Ø45) y
+  `pipe_passage` (200 × 160 en el fondo): herrajes que recortan en vez de
+  perforar.
+- `sliding_kit_2m/3m/4m`: el kit corredizo de aluminio para dos puertas de
+  18 mm (rieles, ruedas, patines, perfiles y burletes; 45 kg por puerta).
+  El motor toma el más corto que cubre la abertura; cada puerta mide la
+  mitad de la abertura menos 7 y 46 menos de alto, como pide el kit (el
+  perfil del riel —carriles, profundidad— es indicativo: mirá la ficha). Más
+  `track_screw`, `sliding_roller` y `sliding_guide` para atornillarlo.
+- `slide_spacer_18/36` (`kind: spacer`): suplementos de melamina de 18 (una
+  o dos tiras) entre el panel y la corredera de un cajón interior.
 - `shelf_pin_row_5` + `shelf_pin_5` (Sistema 32), `rail_oval_30` +
   `rail_support_oval`, `cabinet_hanger`.
 
-**Los valores de `data/hardware.json` (diámetros, profundidades, offsets) son
-defaults indicativos para paneles de 18 mm.** Hay que validarlos contra el
-catálogo del proveedor antes de fabricar; el motor los trata como datos.
+**Los diámetros, profundidades y offsets de `data/hardware.json` son los
+usuales para paneles de 18 mm** (el patrón de cada marca puede variar un
+poco): conviene validarlos contra la ficha del proveedor antes de fabricar;
+el motor los trata como datos.
 
 ## CAM
 

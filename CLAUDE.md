@@ -27,6 +27,11 @@ referencia es el PDF *CAD paramétrico y motor de fabricación para mobiliario*
 - **Los datos de herrajes son datos.** `data/hardware.json` trae defaults
   indicativos; ajustarlos es un cambio de datos, no de motor, y va con nota.
   Lo mismo `maxSpan` en `materials.json`.
+- **Todo de medida estándar y a la venta en Argentina.** Placas, cantos,
+  herrajes, bachas, vidrios: un ítem nuevo de la biblioteca es un producto
+  que existe acá con esas medidas (Faplac/Egger, Häfele, Ducasse, Eurohard,
+  Ferrum…), buscado antes de cargarlo, con la fuente en la `_note`. Nada
+  inventado cuando existe un estándar.
 - **El motor obliga; los avisos de diseño no bloquean.** Un `FATAL` deja el
   paquete sin DXF ni programas. Lo que "probablemente está mal" (luz de
   estantes, puertas anchas, bahías abiertas) es `DESIGN-*`/`SPEC-21x` con

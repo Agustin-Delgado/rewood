@@ -18,7 +18,7 @@
     { "param": "shelf_count", "label": "Estantes", "group": "Interior", "min": 0, "max": "max(0, min(6, floor((height - 186) / 168)))", "step": 1, "help": "Con más, entre estante y estante quedan menos de 150 mm." }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

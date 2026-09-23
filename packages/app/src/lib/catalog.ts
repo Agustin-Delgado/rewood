@@ -92,15 +92,8 @@ export const CATALOG: Category[] = [
 			{
 				id: 'wardrobe_sliding',
 				name: 'Con puertas corredizas',
-				description: 'Dos puertas sobre riel doble, barral a un lado, cajones interiores y estantes al otro.',
+				description: 'Kit corredizo de aluminio para dos puertas de 18 mm, barral a un lado, cajones interiores y estantes al otro.',
 				spec: t(wardrobeSliding)
-			},
-			{
-				id: 'wardrobe_sliding_three',
-				name: 'Corredizas de tres puertas',
-				description: 'Tres puertas que se cruzan en dos carriles.',
-				spec: t(wardrobeSliding),
-				preset: { doors: 3 }
 			},
 			{
 				id: 'wardrobe_1800',
@@ -288,8 +281,8 @@ export const CATALOG: Category[] = [
 			},
 			{
 				id: 'display_cabinet',
-				name: 'Vitrina',
-				description: 'Puertas y estantes de vidrio templado; el vidrio lo corta y perfora la vidriería.',
+				name: 'Vitrina colgante',
+				description: 'Puertas de vidrio de 5 mm con bisagras a presión Häfele y estantes de vidrio templado; el vidrio lo corta la vidriería.',
 				spec: t(displayCabinet)
 			},
 			{ id: 'sideboard', name: 'Aparador', description: 'Push-open, cajones con cierre suave y patas.', spec: t(sideboard) }

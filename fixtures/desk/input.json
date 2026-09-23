@@ -51,7 +51,7 @@
     { "param": "modesty", "label": "Faldón", "group": "Apoyos", "help": "Panel entre los apoyos, bajo la tapa: sin él un escritorio sobre laterales se mueve de costado." }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

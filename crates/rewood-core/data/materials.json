@@ -1,10 +1,10 @@
 {
   "version": "1.0",
-  "_note": "Indicative sheets; maxSpan is the unsupported span (mm) past which a loaded horizontal panel sags visibly, from common workshop practice (about 50 x thickness for particle board and MDF). A workshop replaces them through libraries.materials. Glass and mirror (`outsourced`) are cut, polished and drilled by the glazier: no nesting, no banding, no CNC; the order is by area (`pricePerM2`). Tempered 6 mm glass shelves take about 800 mm between pins under light loads (display, not books).",
+  "_note": "Argentine market standards: melamine and MDF 18 mm in 1830 × 2750 sheets (Faplac, Egger), the white 3 mm fibreboard back (fibrofácil / Fibroplus) in 1830 × 2600, phenolic plywood 1220 × 2440; edge band PVC 22 × 0,45 (carcass) and 22 × 2 (fronts). maxSpan is the unsupported span (mm) past which a loaded horizontal panel sags visibly (about 50 × thickness for particle board and MDF). Glass and mirror (`outsourced`) are cut, polished and drilled by the glazier: no nesting, no banding, no CNC; the order is by area (`pricePerM2`). Float 5 mm for doors on clamp hinges (they take up to 5 mm), tempered 6 mm for shelves (about 800 mm between pins under light loads). A workshop replaces them through libraries.materials.",
   "materials": [
     {
       "id": "melamine_18",
-      "name": "Melamina 18 mm",
+      "name": "Melamina 18 mm (1,83 × 2,75)",
       "nominalThickness": 18,
       "actualThickness": 17.8,
       "sheetLength": 2750,
@@ -17,7 +17,7 @@
     },
     {
       "id": "mdf_18",
-      "name": "MDF 18 mm",
+      "name": "MDF 18 mm (1,83 × 2,75)",
       "nominalThickness": 18,
       "actualThickness": 18,
       "sheetLength": 2750,
@@ -30,7 +30,7 @@
     },
     {
       "id": "plywood_18",
-      "name": "Multilaminado 18 mm",
+      "name": "Multilaminado fenólico 18 mm (1,22 × 2,44)",
       "nominalThickness": 18,
       "actualThickness": 18,
       "sheetLength": 2440,
@@ -43,10 +43,10 @@
     },
     {
       "id": "hdf_3",
-      "name": "Fibrofácil HDF 3 mm",
+      "name": "Fondo fibrofácil blanco 3 mm (1,83 × 2,60)",
       "nominalThickness": 3,
       "actualThickness": 3,
-      "sheetLength": 2750,
+      "sheetLength": 2600,
       "sheetWidth": 1830,
       "grain": "none",
       "density": 850,
@@ -67,8 +67,21 @@
       "outsourced": true
     },
     {
+      "id": "glass_5",
+      "name": "Vidrio float 5 mm (puertas con bisagra a presión)",
+      "nominalThickness": 5,
+      "actualThickness": 5,
+      "sheetLength": 3600,
+      "sheetWidth": 2500,
+      "grain": "none",
+      "density": 2500,
+      "supplier": "glass_supplier",
+      "outsourced": true,
+      "maxSpan": 600
+    },
+    {
       "id": "glass_6",
-      "name": "Vidrio templado 6 mm",
+      "name": "Vidrio templado 6 mm (estantes)",
       "nominalThickness": 6,
       "actualThickness": 6,
       "sheetLength": 3210,
@@ -82,20 +95,26 @@
   ],
   "edgeMaterials": [
     {
+      "id": "pvc_0_45mm",
+      "name": "Tapacanto PVC 22 × 0,45 mm",
+      "thickness": 0.45,
+      "supplier": "boards_supplier"
+    },
+    {
       "id": "abs_1mm",
-      "name": "Canto ABS 1 mm",
+      "name": "Canto ABS 1 mm (no es de línea en Argentina)",
       "thickness": 1.0,
       "supplier": "boards_supplier"
     },
     {
       "id": "abs_0_45mm",
-      "name": "Canto ABS 0,45 mm",
+      "name": "Canto ABS 22 × 0,45 mm",
       "thickness": 0.45,
       "supplier": "boards_supplier"
     },
     {
       "id": "pvc_2mm",
-      "name": "Canto PVC 2 mm",
+      "name": "Tapacanto PVC 22 × 2 mm",
       "thickness": 2.0,
       "supplier": "boards_supplier"
     }

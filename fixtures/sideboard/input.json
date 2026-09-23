@@ -17,7 +17,7 @@
     { "param": "drawers", "label": "Cajones", "group": "Interior", "min": 1, "max": 5, "step": 1 }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

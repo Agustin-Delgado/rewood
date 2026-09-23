@@ -247,9 +247,9 @@ fn edge_banding_is_configurable_per_component() {
     assert!(!plan.manufacturing_blocked, "{:#?}", plan.diagnostics);
     let shelf = plan.parts.iter().find(|p| p.role == "shelf_1").unwrap();
     assert_eq!(shelf.edges.len(), 4);
-    // 1 mm band on every edge shrinks the raw cut by 2 mm each way.
-    assert_eq!(shelf.cut.length, shelf.dims.length - 2.0);
-    assert_eq!(shelf.cut.width, shelf.dims.width - 2.0);
+    // A 0,45 mm band on every edge shrinks the raw cut by 0,9 mm each way.
+    assert!((shelf.cut.length - (shelf.dims.length - 0.9)).abs() < 1e-9);
+    assert!((shelf.cut.width - (shelf.dims.width - 0.9)).abs() < 1e-9);
     let door = plan.parts.iter().find(|p| p.role == "door_1").unwrap();
     assert!(door.edges.is_empty());
     assert_eq!(door.cut.length, door.dims.length);

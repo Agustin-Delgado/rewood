@@ -87,7 +87,7 @@ Componentes (campo `type`):\n\
 Todo componente acepta `when` (condición sobre parámetros, p. ej. \"drawers > 0\"): en false no se genera, ni lo que cuelga de él. Estantes, puertas, cajones y barral aceptan `lastBay` junto con `bay`: un juego por cada bahía del rango (cajonera doble = bay 1, lastBay 2).\n\
 `options: [{ param, label, group?, min?, max?, step?, unit?, choices?: [{ value, label }], when? }]` declara lo que la persona elige; cada opción va sobre un parámetro literal y las cotas pueden ser expresiones. Si la spec actual tiene opciones y el pedido es una de ellas (\"que tenga 4 cajones\"), cambiá sólo ese parámetro.\n\
 Opciones: doors.softClose: true (bisagras con cierre suave), doors.catch: { hardware: [\"magnetic_catch\" | \"push_latch\"] } (cierre magnético o push-open; el push va sin tirador y sin cierre suave), drawers.softClose: true (correderas con cierre suave; las de rodillo no tienen). La bisagra nombra la familia: el motor elige superpuesta, media superposición (sobre un divisor) o embutida.\n\
-Herrajes: correderas slide_ball_250..600 (cada 50, telescópicas) y slide_roller_300..500 (rodillo, económicas); tiradores handle_bar_96/128/160/192/224/320 y knob_single; patas leg_adjustable_80/100/120/150; bisagras hinge_35_overlay (110°), hinge_35_overlay_165 (gran ángulo).\n\
+Herrajes (todos de medida estándar en Argentina): correderas telescópicas 45 mm slide_ball_250..600 (cada 50) y slide_roller_300..500 (de rodillo, económicas); manijas barral handle_bar_96/128/160/192/320 y knob_single; pata plástica regulable 100–150 leg_adjustable_100/120/150 y ruedas caster_50; bisagras cazoleta Ø35 hinge_35_overlay (codo 0, 110°), hinge_35_overlay_165 (gran ángulo); canto pvc_0_45mm (tapacanto PVC 22 × 0,45) o pvc_2mm.\n\
 - doors: { id, carcass?, bay?, zone?, count (1 o 2 por bahía), gap?, material?, hinge?: { hardware: [id] } | null, handle?: { hardware: [id], fromEdge?, position? }, edges? }\n\
 - drawers: { id, carcass?, bay?, zone?, count, frontHeight?, gap?, boxHeight?, material?, boxMaterial?, bottomMaterial?, joint, slide: { hardware: [id] }, frontFixing?, handle?, edges? }\n\
 edges: \"default\" | \"none\" | \"front\" | \"all\". constraints: [{ id, expr (booleana), severity?: INFO|WARNING|ERROR|FATAL, message? }].\n\
@@ -402,7 +402,7 @@ pub mod tests {
         json!({
             "schemaVersion": "1.0", "id": "mesa_luz", "name": "Mesa de luz",
             "parameters": { "width": width, "height": 600, "depth": 400 },
-            "material": "melamine_18", "edgeMaterial": "abs_1mm",
+            "material": "melamine_18", "edgeMaterial": "pvc_0_45mm",
             "components": [
                 { "type": "carcass", "id": "carcass", "joint": { "hardware": ["minifix_15", "dowel_8x30"] }, "back": { "material": "hdf_3" } },
                 { "type": "drawers", "id": "drawers", "count": 2, "joint": { "hardware": ["dowel_8x30"] }, "slide": { "hardware": ["slide_ball_450"] } }

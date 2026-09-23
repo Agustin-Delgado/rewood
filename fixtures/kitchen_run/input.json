@@ -18,7 +18,7 @@
     { "param": "drawers", "label": "Cajones del módulo 2", "group": "Módulos", "min": 1, "max": 4, "step": 1 }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

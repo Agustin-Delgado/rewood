@@ -242,10 +242,13 @@ pub struct HingeSpec {
     /// Opening angle, degrees; variants are swapped within one angle.
     #[serde(default = "hinge_opening")]
     pub opening: f64,
-    /// For a glass door (its cup goes through the glass, drilled by the
-    /// glazier); variants are swapped within glass or board hinges.
+    /// For a glass door; variants are swapped within glass or board
+    /// hinges.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub glass: bool,
+    /// Largest door it takes, [width, height] mm.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_door: Option<[f64; 2]>,
 }
 
 fn hinge_opening() -> f64 {
@@ -306,6 +309,17 @@ pub struct SlidingSpec {
     /// top panel (guides).
     pub bottom_clearance: f64,
     pub top_clearance: f64,
+    /// A kit for openings up to this wide; the doors generator takes the
+    /// shortest kit that spans the opening.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub max_width: Option<f64>,
+    /// The kit's own door size: each door is the opening divided by the
+    /// doors, less this (its profiles make the overlap).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub width_deduction: Option<f64>,
+    /// Doors the kit carries.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub doors: Option<u32>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

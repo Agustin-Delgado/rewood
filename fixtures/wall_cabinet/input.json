@@ -19,7 +19,7 @@
     { "param": "door_count", "label": "Puertas", "group": "Interior", "choices": [{ "value": 1, "label": "una" }, { "value": 2, "label": "dos" }], "when": "not lift" }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

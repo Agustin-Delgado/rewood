@@ -15,7 +15,7 @@
     { "param": "drawer_count", "label": "Cajones", "group": "Cajones", "min": 1, "max": "min(6, floor((height - 36) / 110))", "step": 1, "help": "Cada frente necesita unos 110 mm para que la caja tenga altura útil." }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

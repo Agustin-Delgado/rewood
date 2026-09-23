@@ -17,7 +17,7 @@
     { "param": "drawer_zone", "label": "Alto del cajón", "group": "Interior", "min": 120, "max": 250, "step": 5, "unit": "mm", "when": "drawers == 1" }
   ],
   "material": "melamine_18",
-  "edgeMaterial": "abs_1mm",
+  "edgeMaterial": "pvc_0_45mm",
   "components": [
     {
       "type": "carcass",

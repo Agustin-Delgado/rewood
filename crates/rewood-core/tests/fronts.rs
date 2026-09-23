@@ -113,20 +113,21 @@ fn inset_doors_sit_inside_the_opening_with_an_inset_hinge() {
     let front = part(&plan, "drawer_1_front");
     assert_eq!(front.aabb.max.1, 540.0);
     // The door hangs on the left side: swung open, its 18 mm stand in
-    // front of the opening from x = 20 to 38. The drawers sit on 22 mm
-    // spacers on that side (the thinnest clearing 38 + 3), box and front.
-    assert_eq!(front.aabb.min.0, 20.0 + 22.0);
+    // front of the opening from x = 20 to 38. The drawers sit on two
+    // strips of 18 mm board on that side (one alone does not clear 38 + 3),
+    // box and front.
+    assert_eq!(front.aabb.min.0, 20.0 + 36.0);
     assert_eq!(front.aabb.max.0, 600.0 - 9.0 - 2.0);
     let side = part(&plan, "drawer_1_side_left");
-    assert_eq!(side.aabb.min.0, 18.0 + 22.0 + 12.7);
+    assert_eq!(side.aabb.min.0, 18.0 + 36.0 + 12.7);
     let spacers = plan
         .bom
         .hardware
         .iter()
-        .find(|h| h.hardware == "slide_spacer_22")
+        .find(|h| h.hardware == "slide_spacer_36")
         .unwrap();
     assert_eq!(spacers.quantity, 2);
-    assert_eq!(plan.derived["dr.spacer_left"], 22.0);
+    assert_eq!(plan.derived["dr.spacer_left"], 36.0);
     assert!(!plan.derived.contains_key("dr.spacer_right"));
     assert!(!plan.diagnostics.items.iter().any(|d| d.code == "FAB-101"));
 }
@@ -472,9 +473,12 @@ fn sliding_doors_share_the_opening_on_two_lanes_and_keep_the_interior_behind() {
     assert_eq!(plan.status, PlanStatus::Ok, "{:#?}", plan.diagnostics);
     let a = part(&plan, "sliding_door_1");
     let b = part(&plan, "sliding_door_2");
-    // (1764 − 4 + 30) / 2 each, overlapping 30 in the middle.
-    assert_eq!(a.dims.width, 895.0);
-    assert_eq!(a.aabb.max.0 - b.aabb.min.0, 30.0);
+    // The 2 m kit: each door half the 1764 opening less 7; the kit's
+    // profiles cover the 14 between them.
+    assert_eq!(a.dims.width, 875.0);
+    assert_eq!(b.aabb.min.0 - a.aabb.max.0, 14.0);
+    // 46 mm shorter than the opening, as the kit asks.
+    assert_eq!(a.dims.length, 2100.0 - 36.0 - 46.0);
     // The first in the back lane, the second one lane (25) in front.
     assert_eq!(b.aabb.max.1 - a.aabb.max.1, 25.0);
     assert!(b.aabb.max.1 < 600.0);
@@ -489,9 +493,9 @@ fn sliding_doors_share_the_opening_on_two_lanes_and_keep_the_interior_behind() {
         .bom
         .hardware
         .iter()
-        .find(|h| h.hardware == "sliding_track_2")
+        .find(|h| h.hardware == "sliding_kit_2m")
         .unwrap();
-    assert_eq!(track.items[0].quantity, 1.764);
+    assert_eq!(track.items[0].quantity, 1.0);
 
     // Dividers up to the front: the track does not fit, and the fix says
     // how far to take them back.

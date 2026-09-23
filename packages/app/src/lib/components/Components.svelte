@@ -172,7 +172,7 @@
 				c = { type: 'sliding_doors', id, count: 2 };
 				break;
 			case 'sink':
-				c = { type: 'sink', id, hardware: ['sink_inset_500x400'], passage: {} };
+				c = { type: 'sink', id, hardware: ['sink_ferrum_imola'], passage: {} };
 				break;
 		}
 		app.spec.components.push(c);
