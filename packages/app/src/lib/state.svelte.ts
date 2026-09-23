@@ -12,6 +12,7 @@ import {
 	type FurnitureSpec,
 	type Joint,
 	type LibrariesSnapshot,
+	type LibraryOverrides,
 	type ManufacturingPlan,
 	type Part,
 	type Severity
@@ -27,6 +28,7 @@ import {
 } from './server';
 
 import { VARIANTS, findVariant, variantSpec } from './catalog';
+import { applyOverrides, combine, loadWorkshop, saveWorkshop } from './workshop';
 
 export type ViewName = 'iso' | 'front' | 'back' | 'left' | 'right' | 'top';
 export const VIEWS: { id: ViewName; name: string; title: string }[] = [
@@ -40,7 +42,12 @@ export const VIEWS: { id: ViewName; name: string; title: string }[] = [
 
 class AppState {
 	engine: Engine | null = $state(null);
+	/** The engine's own libraries: standard sizes sold in Argentina. */
+	defaults: LibrariesSnapshot | null = $state.raw(null);
+	/** What the engine compiles with: the defaults, the workshop's changes, the spec's own. */
 	libraries: LibrariesSnapshot | null = $state.raw(null);
+	/** The workshop's changes to the defaults, for every piece; remembered by the browser. */
+	workshop: LibraryOverrides = $state.raw(loadWorkshop());
 	spec: FurnitureSpec = $state(variantSpec(VARIANTS[0]));
 	/** The catalogue variant on screen; null once a spec comes from elsewhere. */
 	variant: string | null = $state(VARIANTS[0].id);
@@ -107,7 +114,8 @@ class AppState {
 
 	async init() {
 		this.engine = await loadEngine();
-		this.libraries = this.engine.libraries();
+		this.defaults = this.engine.libraries();
+		this.libraries = applyOverrides(this.defaults, combine(this.workshop, this.spec.libraries));
 		this.specText = JSON.stringify(this.spec, null, 2);
 		this.recompile();
 		this.server = new ServerClient(defaultServerUrl());
@@ -158,8 +166,8 @@ class AppState {
 	async save(projectId?: string) {
 		if (!this.current && !projectId) throw new Error('elegí un proyecto');
 		const f = this.current
-			? await this.server.updateFurniture(this.current.id, this.spec)
-			: await this.server.createFurniture(projectId as string, this.spec);
+			? await this.server.updateFurniture(this.current.id, this.effectiveSpec())
+			: await this.server.createFurniture(projectId as string, this.effectiveSpec());
 		this.current = { id: f.id, projectId: f.projectId, version: f.version };
 		this.dirty = false;
 		await this.refreshServer();
@@ -187,6 +195,24 @@ class AppState {
 		return o;
 	}
 
+	/**
+	 * The spec as the engine gets it: with the workshop's library changes
+	 * inside (the spec's own on top), so what is compiled, packaged or saved
+	 * carries them and gives the same plan anywhere.
+	 */
+	effectiveSpec(): FurnitureSpec {
+		const libraries = combine(this.workshop, this.spec.libraries);
+		if (!libraries) return this.spec;
+		return { ...$state.snapshot(this.spec), libraries } as FurnitureSpec;
+	}
+
+	/** New workshop changes: remembered and applied to the piece on screen. */
+	setWorkshop(next: LibraryOverrides) {
+		this.workshop = next;
+		saveWorkshop(next);
+		this.recompile();
+	}
+
 	recompile() {
 		if (!this.engine) return;
 		// Part and joint ids renumber when parts come and go: the selection
@@ -201,7 +227,8 @@ class AppState {
 		};
 		const jointKey = joint && `${joint.component}:${joint.kind}:${whatIs(before, joint.edgePart)}:${whatIs(before, joint.facePart)}`;
 
-		this.plan = this.engine.compile(this.spec);
+		if (this.defaults) this.libraries = applyOverrides(this.defaults, combine(this.workshop, this.spec.libraries));
+		this.plan = this.engine.compile(this.effectiveSpec());
 		const plan = this.plan;
 		this.selectedPart = part ? (plan.parts.find((p) => p.component === part.component && p.role === part.role)?.id ?? null) : null;
 		if (sel && jointKey) {

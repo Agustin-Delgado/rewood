@@ -617,6 +617,20 @@ ni más profundo que el panel. Una violación imprime todas las que haya.
 
 ### Qué hay en la biblioteca
 
+**Biblioteca del taller.** Los estándares son el punto de partida, no un
+límite: la pestaña **Biblioteca** de la UI muestra placas, cantos y herrajes
+(agrupados por tipo, con los datos que importan de cada uno: largo y luz de
+una corredera, puerta máxima de una bisagra de vidrio, descuento de un kit
+corredizo, recorte de una bacha, entre centros de una manija, precios de
+compra) y deja cambiarlos, volver cada uno al estándar, duplicar uno para
+cargar otra medida que el taller compra, y exportar o importar la
+biblioteca entera. Los cambios son sobreescrituras `libraries` (por id: un
+id existente se parchea clave por clave, uno nuevo va completo), valen para
+todos los muebles, los recuerda el navegador y viajan dentro de la spec que
+se compila, se descarga o se guarda en el servidor: el plan sale igual en
+cualquier lado. Los de un mueble solo siguen en Componentes y ganan sobre
+los del taller (`lib/workshop.ts`; `packages/engine/test/workshop.test.ts`).
+
 Todo de medida estándar y a la venta en Argentina (Faplac/Arauco, Egger,
 Eurohard/Grupo Euro, Häfele, Ducasse, Ferrum), en
 `crates/rewood-core/data/hardware.json` y `materials.json`. Un herraje o una

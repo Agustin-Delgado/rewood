@@ -7,11 +7,12 @@
 	import Tree from '$lib/components/Tree.svelte';
 	import Properties from '$lib/components/Properties.svelte';
 	import Components from '$lib/components/Components.svelte';
+	import Library from '$lib/components/Library.svelte';
 	import Catalog from '$lib/components/Catalog.svelte';
 	import Design from '$lib/components/Design.svelte';
 	import Bottom from '$lib/components/Bottom.svelte';
 
-	let rightTab: 'design' | 'props' | 'comps' = $state('design');
+	let rightTab: 'design' | 'props' | 'comps' | 'library' = $state('design');
 	const current = $derived(app.variant ? findVariant(app.variant) : null);
 	// A part clicked in the viewer is described in Parámetros.
 	$effect(() => {
@@ -27,7 +28,7 @@
 
 	async function downloadPackage() {
 		if (!app.engine) return;
-		const files = app.engine.packageFiles(app.spec);
+		const files = app.engine.packageFiles(app.effectiveSpec());
 		const zip = new JSZip();
 		for (const f of files) zip.file(f.path, f.contents);
 		const blob = await zip.generateAsync({ type: 'blob' });
@@ -40,7 +41,7 @@
 
 	function openReport() {
 		if (!app.engine) return;
-		const report = app.engine.packageFiles(app.spec).find((f) => f.path === 'documentation/report.html');
+		const report = app.engine.packageFiles(app.effectiveSpec()).find((f) => f.path === 'documentation/report.html');
 		if (!report) return;
 		const url = URL.createObjectURL(new Blob([report.contents], { type: 'text/html' }));
 		window.open(url, '_blank');
@@ -100,9 +101,10 @@
 				<button class:active={rightTab === 'design'} onclick={() => (rightTab = 'design')}>Diseño</button>
 				<button class:active={rightTab === 'props'} onclick={() => (rightTab = 'props')}>Parámetros</button>
 				<button class:active={rightTab === 'comps'} onclick={() => (rightTab = 'comps')}>Componentes</button>
+				<button class:active={rightTab === 'library'} onclick={() => (rightTab = 'library')}>Biblioteca</button>
 			</div>
 			<div class="rbody">
-				{#if rightTab === 'design'}<Design />{:else if rightTab === 'props'}<Properties />{:else}<Components />{/if}
+				{#if rightTab === 'design'}<Design />{:else if rightTab === 'props'}<Properties />{:else if rightTab === 'comps'}<Components />{:else}<Library />{/if}
 			</div>
 		</aside>
 		<footer><Bottom /></footer>

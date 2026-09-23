@@ -527,11 +527,11 @@
 
 	<h3>
 		<button class="fold" onclick={() => (libOpen = !libOpen)}>{libOpen ? '▾' : '▸'}</button>
-		Biblioteca ({overrideCount} sobreescritura{overrideCount === 1 ? '' : 's'})
+		Sólo para este mueble ({overrideCount} cambio{overrideCount === 1 ? '' : 's'} de biblioteca)
 	</h3>
 	{#if libOpen}
 		<p class="hint">
-			`materials`, `edgeMaterials`, `hardware` (listas, por id) y `profile`: reemplazan o agregan sin tocar el motor. JSON; vacío = sin sobreescrituras.
+			Los cambios que valen para todos los muebles van en la pestaña Biblioteca. Acá, en JSON, los de este mueble solo, por encima de esos: `materials`, `edgeMaterials`, `hardware` (listas, por id) y `profile`. Vacío = ninguno.
 		</p>
 		<textarea class="lib" spellcheck="false" value={libText} onchange={(e) => applyLibraries(e.currentTarget.value)}
 			placeholder={'{ "hardware": [ { "id": "minifix_15", ... } ] }'}></textarea>

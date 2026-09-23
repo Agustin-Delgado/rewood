@@ -371,6 +371,9 @@ export interface Material {
   maxSpan?: number;
   /** Purchase price of one sheet, in the profile's currency; 0 = unknown. */
   pricePerSheet?: number;
+  /** Cut to size by its supplier (glass, mirror): no nesting, banding or CNC; priced by m². */
+  outsourced?: boolean;
+  pricePerM2?: number;
   id: string;
   name: string;
   nominalThickness: number;
@@ -415,7 +418,7 @@ export interface HardwareDef {
   /** What one unit carries, kg (hinge: its share of the door; slide pair: the loaded drawer). */
   maxLoadKg?: number;
   /** Hinges: which door mount the arm is made for, damper, opening angle (default 110). */
-  hinge?: { mount: FrontMount | 'half_overlay'; softClose?: boolean; opening?: number };
+  hinge?: { mount: FrontMount | 'half_overlay'; softClose?: boolean; opening?: number; glass?: boolean; maxDoor?: [number, number] };
   /** Catches: the plate on the door (`kind: strike`); `push` = a push latch. */
   catch?: { strike?: string; push?: boolean };
   id: string;
@@ -430,7 +433,7 @@ export interface HardwareDef {
   /** Hanging-file rails only: the inner box width they span and the height a folder needs. */
   files?: { minInner: number; maxInner: number; minHeight: number };
   /** Sliding door tracks only: lanes, their pitch and the room the track takes. */
-  sliding?: { lanes: number; lanePitch: number; frontInset: number; depth: number; bottomClearance: number; topClearance: number };
+  sliding?: { lanes: number; lanePitch: number; frontInset: number; depth: number; bottomClearance: number; topClearance: number; maxWidth?: number; widthDeduction?: number; doors?: number };
   /** Sinks only: how far the bowl hangs under the top. */
   sink?: { below: number };
   /** Openings cut through the part the fixture sits on (a sink, a drain, a pipe passage). */

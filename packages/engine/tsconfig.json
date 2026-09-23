@@ -10,7 +10,8 @@
     "noEmit": true
   },
   "include": ["src", "test"],
-  // The catalogue lives in the app (bundler resolution, JSON imports); its
-  // test runs under vitest, which resolves it the app's way.
-  "exclude": ["test/catalog.test.ts"]
+  // The catalogue and the workshop library live in the app (bundler
+  // resolution, JSON imports); their tests run under vitest, which resolves
+  // them the app's way.
+  "exclude": ["test/catalog.test.ts", "test/workshop.test.ts"]
 }
