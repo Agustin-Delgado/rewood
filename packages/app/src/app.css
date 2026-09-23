@@ -1,0 +1,170 @@
+/*
+ * rewood design system: tokens and base layer.
+ *
+ * Components are @human-kit/ui primitives (headless) styled by the recipes in
+ * `src/lib/ui`. Everything visual reads from the tokens below; a component never
+ * writes a raw colour. The scale is dense on purpose: this is a CAD tool, where
+ * a screen holds a 3D view, a tree, a form and a table at once.
+ */
+@import '@fontsource-variable/geist';
+@import '@fontsource-variable/geist-mono';
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@theme inline {
+	--font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+	--font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+	/* Dense type scale: body text is 13px, secondary 12px, captions 11px. */
+	--text-2xs: 0.6875rem;
+	--text-2xs--line-height: 1rem;
+	--text-xs: 0.75rem;
+	--text-xs--line-height: 1.1rem;
+	--text-sm: 0.8125rem;
+	--text-sm--line-height: 1.25rem;
+	--text-base: 0.875rem;
+	--text-base--line-height: 1.35rem;
+	--text-lg: 1rem;
+	--text-lg--line-height: 1.5rem;
+	--text-xl: 1.25rem;
+	--text-xl--line-height: 1.75rem;
+
+	--radius-sm: calc(var(--radius) - 2px);
+	--radius-md: var(--radius);
+	--radius-lg: calc(var(--radius) + 2px);
+	--radius-xl: calc(var(--radius) + 6px);
+
+	--color-background: var(--depth-1);
+	--color-foreground: var(--foreground);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-subtle-foreground: var(--subtle-foreground);
+	--color-border: var(--border);
+	--color-border-strong: var(--border-strong);
+	--color-ring: var(--ring);
+
+	--color-depth-0: var(--depth-0);
+	--color-depth-1: var(--depth-1);
+	--color-depth-2: var(--depth-2);
+	--color-depth-3: var(--depth-3);
+	--color-depth-4: var(--depth-4);
+
+	--color-primary: var(--primary);
+	--color-primary-hover: var(--primary-hover);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-primary-soft: var(--primary-soft);
+	--color-primary-soft-foreground: var(--primary-soft-foreground);
+
+	--color-success: var(--success);
+	--color-success-soft: var(--success-soft);
+	--color-warning: var(--warning);
+	--color-warning-soft: var(--warning-soft);
+	--color-danger: var(--danger);
+	--color-danger-soft: var(--danger-soft);
+	--color-info: var(--info);
+	--color-info-soft: var(--info-soft);
+
+	--color-viewport: var(--viewport);
+
+	--shadow-2xs: 0 1px var(--shadow);
+	--shadow-xs: 0 1px 2px 0 var(--shadow);
+	--shadow-sm: 0 1px 3px 0 var(--shadow), 0 1px 2px -1px var(--shadow);
+	--shadow-md: 0 4px 6px -1px var(--shadow), 0 2px 4px -2px var(--shadow);
+	--shadow-lg: 0 10px 15px -3px var(--shadow-strong), 0 4px 6px -4px var(--shadow);
+	--shadow-xl: 0 20px 25px -5px var(--shadow-strong), 0 8px 10px -6px var(--shadow);
+	--inset-shadow-2xs: inset 0 1px var(--shadow);
+}
+
+:root {
+	--radius: 0.375rem;
+
+	/* Warm neutrals: a workshop, not an office. Depth 0 is the raised surface
+	   (cards, inputs at rest, popovers), 1 the app background, 2-4 sunken wells. */
+	--depth-0: oklch(0.997 0.001 75);
+	--depth-1: oklch(0.982 0.003 75);
+	--depth-2: oklch(0.964 0.004 75);
+	--depth-3: oklch(0.944 0.005 75);
+	--depth-4: oklch(0.915 0.006 75);
+
+	--foreground: oklch(0.23 0.012 60);
+	--muted-foreground: oklch(0.5 0.013 60);
+	--subtle-foreground: oklch(0.64 0.011 60);
+	--border: oklch(0.905 0.006 75);
+	--border-strong: oklch(0.84 0.009 75);
+
+	/* The accent is wood: the orange rewood always had, a touch deeper so white
+	   text on it stays readable. */
+	--primary: oklch(0.65 0.175 47);
+	--primary-hover: oklch(0.6 0.175 45);
+	--primary-foreground: oklch(0.995 0 0);
+	--primary-soft: oklch(0.955 0.035 60);
+	--primary-soft-foreground: oklch(0.47 0.13 45);
+	--ring: oklch(0.68 0.16 50);
+
+	--success: oklch(0.56 0.13 155);
+	--success-soft: oklch(0.955 0.04 155);
+	--warning: oklch(0.55 0.12 65);
+	--warning-soft: oklch(0.96 0.06 90);
+	--danger: oklch(0.55 0.2 27);
+	--danger-soft: oklch(0.955 0.03 25);
+	--info: oklch(0.55 0.12 250);
+	--info-soft: oklch(0.955 0.025 250);
+
+	--viewport: oklch(0.955 0.004 250);
+
+	--shadow: oklch(0.2 0.02 60 / 0.05);
+	--shadow-strong: oklch(0.2 0.02 60 / 0.1);
+}
+
+html,
+body {
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	@apply bg-background font-sans text-sm text-foreground antialiased;
+	font-feature-settings: 'cv11', 'ss01';
+}
+
+@layer base {
+	*,
+	::before,
+	::after,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--border);
+	}
+
+	* {
+		scrollbar-width: thin;
+		scrollbar-color: var(--depth-4) transparent;
+	}
+
+	button:not(:disabled),
+	[role='button']:not([aria-disabled='true']) {
+		cursor: pointer;
+	}
+
+	::selection {
+		background: var(--primary-soft);
+	}
+}
+
+/* A surface that stands out of the one below it. */
+@utility raised {
+	box-shadow:
+		inset 0 1px 0 0 oklch(1 0 0 / 0.65),
+		0 1px 2px 0 var(--shadow);
+}
+
+/* A well: inputs, segmented tracks, anything that holds a value. */
+@utility sunken {
+	box-shadow:
+		inset 0 1px 1px 0 var(--shadow),
+		0 1px 0 0 oklch(1 0 0 / 0.7);
+}
+
+/* Numbers in columns line up. */
+@utility num {
+	font-variant-numeric: tabular-nums;
+}

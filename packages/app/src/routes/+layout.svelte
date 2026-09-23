@@ -1,4 +1,6 @@
 <script lang="ts">
+	import '../app.css';
+	import { LocaleProvider } from '@human-kit/ui/locale-provider';
 	import favicon from '$lib/assets/favicon.svg';
 
 	let { children } = $props();
@@ -8,4 +10,6 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-{@render children()}
+<LocaleProvider locale="es-AR">
+	{@render children()}
+</LocaleProvider>
