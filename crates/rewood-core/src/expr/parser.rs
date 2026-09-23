@@ -6,11 +6,19 @@ use super::{BinOp, Expr, ExprError, UnOp};
 pub struct Parser {
     tokens: Vec<Token>,
     pos: usize,
+    depth: usize,
 }
+
+/// Deepest nesting of parentheses and signs accepted.
+const MAX_DEPTH: usize = 64;
 
 impl Parser {
     pub fn new(tokens: Vec<Token>) -> Self {
-        Self { tokens, pos: 0 }
+        Self {
+            tokens,
+            pos: 0,
+            depth: 0,
+        }
     }
 
     pub fn parse(mut self) -> Result<Expr, ExprError> {
@@ -79,6 +87,18 @@ impl Parser {
     }
 
     fn unary(&mut self) -> Result<Expr, ExprError> {
+        self.depth += 1;
+        if self.depth > MAX_DEPTH {
+            return Err(ExprError::Parse(format!(
+                "anidamiento de más de {MAX_DEPTH} niveles"
+            )));
+        }
+        let e = self.unary_inner();
+        self.depth -= 1;
+        e
+    }
+
+    fn unary_inner(&mut self) -> Result<Expr, ExprError> {
         match self.peek() {
             Some(Token::Minus) => {
                 self.next();

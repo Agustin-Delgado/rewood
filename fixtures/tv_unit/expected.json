@@ -3883,6 +3883,38 @@
         },
         {
           "id": "P011-OP16",
+          "face": "back",
+          "type": "DRILL",
+          "u": 260.8,
+          "v": 203.0,
+          "diameter": 4.5,
+          "depth": null,
+          "through": true,
+          "source": {
+            "joint": "J024",
+            "hardware": "handle_bar_128",
+            "fastener": 0,
+            "label": "screw_a"
+          }
+        },
+        {
+          "id": "P011-OP17",
+          "face": "back",
+          "type": "DRILL",
+          "u": 132.8,
+          "v": 203.0,
+          "diameter": 4.5,
+          "depth": null,
+          "through": true,
+          "source": {
+            "joint": "J024",
+            "hardware": "handle_bar_128",
+            "fastener": 0,
+            "label": "screw_b"
+          }
+        },
+        {
+          "id": "P011-OP18",
           "face": "top",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
@@ -5166,6 +5198,38 @@
         },
         {
           "id": "P018-OP16",
+          "face": "back",
+          "type": "DRILL",
+          "u": 269.8,
+          "v": 203.0,
+          "diameter": 4.5,
+          "depth": null,
+          "through": true,
+          "source": {
+            "joint": "J036",
+            "hardware": "handle_bar_128",
+            "fastener": 0,
+            "label": "screw_a"
+          }
+        },
+        {
+          "id": "P018-OP17",
+          "face": "back",
+          "type": "DRILL",
+          "u": 141.8,
+          "v": 203.0,
+          "diameter": 4.5,
+          "depth": null,
+          "through": true,
+          "source": {
+            "joint": "J036",
+            "hardware": "handle_bar_128",
+            "fastener": 0,
+            "label": "screw_b"
+          }
+        },
+        {
+          "id": "P018-OP18",
           "face": "top",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
@@ -7425,7 +7489,7 @@
         "P009",
         "P016"
       ],
-      "name": "Lateral cajón 1 izq. (drawers_left)",
+      "name": "Lateral cajón 1 izq.",
       "quantity": 2,
       "material": "melamine_18",
       "cutLength": 350.0,
@@ -7443,7 +7507,7 @@
         "P010",
         "P017"
       ],
-      "name": "Lateral cajón 1 der. (drawers_left)",
+      "name": "Lateral cajón 1 der.",
       "quantity": 2,
       "material": "melamine_18",
       "cutLength": 350.0,
@@ -7458,11 +7522,10 @@
     },
     {
       "partIds": [
-        "P011",
-        "P018"
+        "P011"
       ],
       "name": "Frente interior cajón 1 (drawers_left)",
-      "quantity": 2,
+      "quantity": 1,
       "material": "melamine_18",
       "cutLength": 402.6,
       "cutWidth": 405.0,
@@ -7471,7 +7534,7 @@
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/-/abs_1mm",
-      "operations": 16,
+      "operations": 18,
       "weightKg": 1.912
     },
     {
@@ -7479,7 +7542,7 @@
         "P012",
         "P019"
       ],
-      "name": "Trasera cajón 1 (drawers_left)",
+      "name": "Trasera cajón 1",
       "quantity": 2,
       "material": "melamine_18",
       "cutLength": 402.6,
@@ -7497,7 +7560,7 @@
         "P013",
         "P020"
       ],
-      "name": "Fondo cajón 1 (drawers_left)",
+      "name": "Fondo cajón 1",
       "quantity": 2,
       "material": "hdf_3",
       "cutLength": 417.6,
@@ -7543,6 +7606,23 @@
       "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
       "operations": 12,
       "weightKg": 2.541
+    },
+    {
+      "partIds": [
+        "P018"
+      ],
+      "name": "Frente interior cajón 1 (drawers_right)",
+      "quantity": 1,
+      "material": "melamine_18",
+      "cutLength": 402.6,
+      "cutWidth": 405.0,
+      "finishedLength": 402.6,
+      "finishedWidth": 406.0,
+      "thickness": 18.0,
+      "grain": "length",
+      "edges": "-/-/-/abs_1mm",
+      "operations": 18,
+      "weightKg": 1.912
     }
   ],
   "bom": {
@@ -7595,7 +7675,7 @@
             "cost": 0.0
           },
           {
-            "name": "Tornillo M4×25",
+            "name": "Tornillo M4×45",
             "quantity": 4.0,
             "cost": 0.0
           }
@@ -7662,13 +7742,6 @@
             "cost": 0.0
           }
         ],
-        "cost": 0.0
-      },
-      {
-        "hardware": "shelf_pin_row_5",
-        "name": "Hilera Sistema 32 para soportes Ø5",
-        "quantity": 4,
-        "items": [],
         "cost": 0.0
       },
       {
@@ -7900,43 +7973,43 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 2910.17,
+    "totalSeconds": 2354.95,
     "programs": [
       {
         "part": "P001",
         "setup": "A",
-        "operations": 13,
-        "toolChanges": 4,
-        "cutMm": 4662.5,
-        "rapidMm": 4948.055,
-        "seconds": 156.399
+        "operations": 12,
+        "toolChanges": 3,
+        "cutMm": 2853.0,
+        "rapidMm": 4256.319,
+        "seconds": 132.269
       },
       {
         "part": "P002",
         "setup": "A",
-        "operations": 13,
-        "toolChanges": 4,
-        "cutMm": 4662.5,
-        "rapidMm": 4656.531,
-        "seconds": 155.525
+        "operations": 12,
+        "toolChanges": 3,
+        "cutMm": 2853.0,
+        "rapidMm": 4124.687,
+        "seconds": 131.874
       },
       {
         "part": "P003",
         "setup": "A",
-        "operations": 22,
-        "toolChanges": 5,
-        "cutMm": 15399.5,
-        "rapidMm": 13529.388,
-        "seconds": 484.095
+        "operations": 21,
+        "toolChanges": 4,
+        "cutMm": 10962.0,
+        "rapidMm": 11636.002,
+        "seconds": 436.65
       },
       {
         "part": "P004",
         "setup": "A",
-        "operations": 22,
-        "toolChanges": 5,
-        "cutMm": 15399.5,
-        "rapidMm": 13366.352,
-        "seconds": 483.606
+        "operations": 21,
+        "toolChanges": 4,
+        "cutMm": 10962.0,
+        "rapidMm": 11520.763,
+        "seconds": 436.304
       },
       {
         "part": "P004",
@@ -7950,20 +8023,20 @@
       {
         "part": "P005",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 4470.5,
-        "rapidMm": 188.985,
-        "seconds": 42.242
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P006",
         "setup": "A",
-        "operations": 15,
-        "toolChanges": 4,
-        "cutMm": 1993.1,
-        "rapidMm": 2164.868,
-        "seconds": 94.934
+        "operations": 14,
+        "toolChanges": 2,
+        "cutMm": 282.0,
+        "rapidMm": 2020.55,
+        "seconds": 65.184
       },
       {
         "part": "P006",
@@ -7977,11 +8050,11 @@
       {
         "part": "P007",
         "setup": "A",
-        "operations": 16,
-        "toolChanges": 4,
-        "cutMm": 2002.1,
-        "rapidMm": 2061.753,
-        "seconds": 95.524
+        "operations": 15,
+        "toolChanges": 2,
+        "cutMm": 291.0,
+        "rapidMm": 1917.434,
+        "seconds": 65.774
       },
       {
         "part": "P007",
@@ -7995,20 +8068,20 @@
       {
         "part": "P008",
         "setup": "A",
-        "operations": 9,
-        "toolChanges": 3,
-        "cutMm": 2044.5,
-        "rapidMm": 2134.455,
-        "seconds": 55.378
+        "operations": 8,
+        "toolChanges": 2,
+        "cutMm": 109.0,
+        "rapidMm": 1764.25,
+        "seconds": 31.268
       },
       {
         "part": "P009",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1611.5,
-        "rapidMm": 721.526,
-        "seconds": 33.435
+        "operations": 3,
+        "toolChanges": 1,
+        "cutMm": 30.0,
+        "rapidMm": 409.304,
+        "seconds": 12.153
       },
       {
         "part": "P009",
@@ -8022,11 +8095,11 @@
       {
         "part": "P010",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1611.5,
-        "rapidMm": 885.466,
-        "seconds": 33.926
+        "operations": 3,
+        "toolChanges": 1,
+        "cutMm": 30.0,
+        "rapidMm": 679.808,
+        "seconds": 12.964
       },
       {
         "part": "P010",
@@ -8040,65 +8113,65 @@
       {
         "part": "P011",
         "setup": "A",
-        "operations": 10,
-        "toolChanges": 3,
-        "cutMm": 4268.3,
-        "rapidMm": 1094.583,
-        "seconds": 136.686
+        "operations": 9,
+        "toolChanges": 1,
+        "cutMm": 2581.6,
+        "rapidMm": 610.1,
+        "seconds": 106.098
       },
       {
         "part": "P011",
         "setup": "B",
-        "operations": 6,
+        "operations": 8,
         "toolChanges": 1,
-        "cutMm": 111.0,
-        "rapidMm": 1652.815,
-        "seconds": 22.633
+        "cutMm": 148.0,
+        "rapidMm": 1972.993,
+        "seconds": 26.819
       },
       {
         "part": "P012",
         "setup": "A",
-        "operations": 10,
-        "toolChanges": 3,
-        "cutMm": 4268.3,
-        "rapidMm": 1095.37,
-        "seconds": 136.688
+        "operations": 9,
+        "toolChanges": 1,
+        "cutMm": 2581.6,
+        "rapidMm": 1001.37,
+        "seconds": 107.272
       },
       {
         "part": "P013",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 1547.7,
-        "rapidMm": 188.985,
-        "seconds": 20.321
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P014",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 2439.1,
-        "rapidMm": 203.985,
-        "seconds": 27.389
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P015",
         "setup": "A",
-        "operations": 9,
-        "toolChanges": 3,
-        "cutMm": 2044.5,
-        "rapidMm": 2122.576,
-        "seconds": 55.343
+        "operations": 8,
+        "toolChanges": 2,
+        "cutMm": 109.0,
+        "rapidMm": 1752.371,
+        "seconds": 31.232
       },
       {
         "part": "P016",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1611.5,
-        "rapidMm": 721.526,
-        "seconds": 33.435
+        "operations": 3,
+        "toolChanges": 1,
+        "cutMm": 30.0,
+        "rapidMm": 409.304,
+        "seconds": 12.153
       },
       {
         "part": "P016",
@@ -8112,11 +8185,11 @@
       {
         "part": "P017",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1611.5,
-        "rapidMm": 885.466,
-        "seconds": 33.926
+        "operations": 3,
+        "toolChanges": 1,
+        "cutMm": 30.0,
+        "rapidMm": 679.808,
+        "seconds": 12.964
       },
       {
         "part": "P017",
@@ -8130,38 +8203,38 @@
       {
         "part": "P018",
         "setup": "A",
-        "operations": 10,
-        "toolChanges": 3,
-        "cutMm": 4268.3,
-        "rapidMm": 1094.583,
-        "seconds": 136.686
+        "operations": 9,
+        "toolChanges": 1,
+        "cutMm": 2581.6,
+        "rapidMm": 610.1,
+        "seconds": 106.098
       },
       {
         "part": "P018",
         "setup": "B",
-        "operations": 6,
+        "operations": 8,
         "toolChanges": 1,
-        "cutMm": 111.0,
-        "rapidMm": 1652.815,
-        "seconds": 22.633
+        "cutMm": 148.0,
+        "rapidMm": 1968.381,
+        "seconds": 26.805
       },
       {
         "part": "P019",
         "setup": "A",
-        "operations": 10,
-        "toolChanges": 3,
-        "cutMm": 4268.3,
-        "rapidMm": 1095.37,
-        "seconds": 136.688
+        "operations": 9,
+        "toolChanges": 1,
+        "cutMm": 2581.6,
+        "rapidMm": 1001.37,
+        "seconds": 107.272
       },
       {
         "part": "P020",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 1547.7,
-        "rapidMm": 188.985,
-        "seconds": 20.321
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       }
     ]
   },
@@ -8299,7 +8372,7 @@
         {
           "kind": "hardware",
           "id": "handle_bar_128",
-          "name": "Tornillo M4×25",
+          "name": "Tornillo M4×45",
           "quantity": 4.0,
           "unit": "u",
           "unitPrice": 0.0,

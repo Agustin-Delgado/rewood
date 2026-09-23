@@ -121,7 +121,11 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         return Err(Diagnostic::new(
             "SPEC-319",
             Severity::Fatal,
-            format!("la tapa '{id}' queda sin medida ({length}×{width})"),
+            format!(
+                "la tapa '{id}' queda sin medida ({length}×{width})",
+                length = mm(length),
+                width = mm(width)
+            ),
         )
         .entity(id));
     }

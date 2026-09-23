@@ -47,7 +47,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         return Err(Diagnostic::new(
             "SPEC-301",
             Severity::Fatal,
-            format!("la carcasa '{id}' no tiene espacio interior: {width}×{height}×{depth} con paneles de {t} mm"),
+            format!("la carcasa '{id}' no tiene espacio interior: {width}×{height}×{depth} con paneles de {t} mm", width = mm(width), height = mm(height), depth = mm(depth), t = mm(t)),
         )
         .entity(id));
     }
@@ -112,7 +112,22 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             return Err(Diagnostic::new(
                 "SPEC-303",
                 Severity::Fatal,
-                format!("'{id}.bays' tiene que ser un entero ≥ 1, es {bay_count}"),
+                format!(
+                    "'{id}.bays' tiene que ser un entero ≥ 1, es {bay_count}",
+                    bay_count = mm(bay_count)
+                ),
+            )
+            .entity(id));
+        }
+        // Checked before allocating: a runaway count must not take the
+        // process down with it.
+        if (bay_count - 1.0) * t >= inner_width {
+            return Err(Diagnostic::new(
+                "SPEC-303",
+                Severity::Fatal,
+                format!(
+                    "'{id}.bays' = {bay_count}: {} divisores de {t} mm no entran en {inner_width} mm",
+                    bay_count - 1.0, bay_count = mm(bay_count), t = mm(t), inner_width = mm(inner_width)),
             )
             .entity(id));
         }
@@ -150,8 +165,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                         "'{id}.bayWidths' suma {} mm más {} de divisores = {}, y el interior mide {inner_width} mm",
                         crate::units::round3(fixed.iter().sum::<f64>()),
                         crate::units::round3(dividers),
-                        crate::units::round3(used)
-                    ),
+                        crate::units::round3(used), inner_width = mm(inner_width)),
                 )
                 .entity(id)
                 .suggestion("Poné \"auto\" en una bahía para que absorba la diferencia."));
@@ -165,7 +179,10 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         return Err(Diagnostic::new(
             "SPEC-301",
             Severity::Fatal,
-            format!("{bay_count} bahías no entran en {inner_width} mm interiores"),
+            format!(
+                "{bay_count} bahías no entran en {inner_width} mm interiores",
+                inner_width = mm(inner_width)
+            ),
         )
         .entity(id));
     }
@@ -285,7 +302,24 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 "SPEC-302",
                 Severity::Fatal,
                 format!(
-                    "la ranura del fondo de '{id}' ({groove_depth} mm) atraviesa paneles de {t} mm"
+                    "la ranura del fondo de '{id}' ({groove_depth} mm) atraviesa paneles de {t} mm",
+                    groove_depth = mm(groove_depth),
+                    t = mm(t)
+                ),
+            )
+            .entity(id));
+        }
+        // The groove has to fall inside the panels, measured from the back.
+        if inset < 0.0 || groove_depth <= 0.0 || inset + groove_width + 50.0 > depth {
+            return Err(Diagnostic::new(
+                "SPEC-302",
+                Severity::Fatal,
+                format!(
+                    "la ranura del fondo de '{id}' (a {} del fondo, {} de ancho, {} de profundidad) no cae dentro de paneles de {} mm de profundidad",
+                    mm(inset),
+                    mm(groove_width),
+                    mm(groove_depth),
+                    mm(depth)
                 ),
             )
             .entity(id));
@@ -549,13 +583,23 @@ fn build_legs(
         .entity(id));
     };
     let base_r = leg_data.base_diameter / 2.0;
+    if max_spacing <= 0.0 {
+        return Err(Diagnostic::new(
+            "SPEC-312",
+            Severity::Fatal,
+            format!(
+                "'{id}.legs.maxSpacing' = {max_spacing} mm: tiene que ser mayor que 0",
+                max_spacing = mm(max_spacing)
+            ),
+        )
+        .entity(id));
+    }
     if inset < base_r || inset > depth / 2.0 || inset > width / 2.0 {
         return Err(Diagnostic::new(
             "SPEC-312",
             Severity::Fatal,
             format!(
-                "'{id}.legs.inset' = {inset} mm: tiene que ser al menos el radio de la base ({base_r}) y menos de media carcasa"
-            ),
+                "'{id}.legs.inset' = {inset} mm: tiene que ser al menos el radio de la base ({base_r}) y menos de media carcasa", inset = mm(inset), base_r = mm(base_r)),
         )
         .entity(id));
     }
@@ -566,8 +610,7 @@ fn build_legs(
             Severity::Fatal,
             format!(
                 "'{id}.legs.inset' = {inset} mm deja la base de la pata (Ø{}) fuera de la base de la carcasa, que empieza en {t}",
-                leg_data.base_diameter
-            ),
+                leg_data.base_diameter, inset = mm(inset), t = mm(t)),
         )
         .entity(id));
     }
@@ -607,8 +650,7 @@ fn build_legs(
             "SPEC-313",
             Severity::Fatal,
             format!(
-                "'{id}': con el zócalo, las patas delanteras van a {front_inset} mm del frente y las traseras a {inset} del fondo; en {depth} mm de profundidad no entran las dos filas"
-            ),
+                "'{id}': con el zócalo, las patas delanteras van a {front_inset} mm del frente y las traseras a {inset} del fondo; en {depth} mm de profundidad no entran las dos filas", front_inset = mm(front_inset), inset = mm(inset), depth = mm(depth)),
         )
         .entity(id));
     }
@@ -640,7 +682,7 @@ fn build_legs(
             return Err(Diagnostic::new(
                 "SPEC-313",
                 Severity::Fatal,
-                format!("'{id}.legs.plinth.setback' = {setback} mm: el zócalo no puede sobresalir del frente"),
+                format!("'{id}.legs.plinth.setback' = {setback} mm: el zócalo no puede sobresalir del frente", setback = mm(setback)),
             )
             .entity(id));
         }

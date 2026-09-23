@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::model::OperationKind;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 pub struct Tolerances {
     pub length: f64,
     pub hole_position: f64,
@@ -23,7 +23,7 @@ pub enum ToolKind {
 
 /// A cutting tool the machine has loaded, with the feeds it runs at.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 pub struct ToolDef {
     pub id: String,
     /// Tool changer position (`T<number>`).
@@ -39,7 +39,7 @@ pub struct ToolDef {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 pub struct ManufacturingProfile {
     pub id: String,
     pub name: String,
@@ -72,6 +72,31 @@ pub struct ManufacturingProfile {
     /// Currency of every price in the libraries (a label, e.g. "ARS").
     #[serde(default, skip_serializing_if = "String::is_empty")]
     pub currency: String,
+    /// How the shop takes a panel from sheet to part, which decides what
+    /// the CNC programs start from.
+    #[serde(default, skip_serializing_if = "Workflow::is_default")]
+    pub workflow: Workflow,
+}
+
+/// The route a part takes through the shop.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Workflow {
+    /// Panel saw → edge bander → CNC drilling: the CNC gets the part cut
+    /// and banded, at its finished size, and only drills and grooves it.
+    #[default]
+    BandedPanels,
+    /// A nesting router cuts and drills the raw panel before banding: the
+    /// program works on the cut size (holes shifted by the band on the
+    /// left and bottom edges) and cuts the outline; edge drilling waits
+    /// for the band, in a setup of its own (`E`).
+    NestedRouter,
+}
+
+impl Workflow {
+    pub fn is_default(&self) -> bool {
+        *self == Workflow::BandedPanels
+    }
 }
 
 impl ManufacturingProfile {

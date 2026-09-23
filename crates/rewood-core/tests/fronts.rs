@@ -29,7 +29,7 @@ fn part<'a>(
 #[test]
 fn a_rail_is_two_supports_and_a_bar_by_the_metre() {
     let plan = rewood_core::compile_json(WARDROBE);
-    assert_eq!(plan.status, PlanStatus::Ok, "{:#?}", plan.diagnostics);
+    assert!(plan.diagnostics.items.is_empty(), "{:#?}", plan.diagnostics);
     let supports: Vec<_> = plan
         .joints
         .iter()
@@ -112,7 +112,22 @@ fn inset_doors_sit_inside_the_opening_with_an_inset_hinge() {
     // Inner drawers set back 20: their fronts end where the door begins.
     let front = part(&plan, "drawer_1_front");
     assert_eq!(front.aabb.max.1, 540.0);
-    assert_eq!(front.aabb.min.0, 20.0);
+    // The door hangs on the left side: swung open, its 18 mm stand in
+    // front of the opening from x = 20 to 38. The drawers sit on 22 mm
+    // spacers on that side (the thinnest clearing 38 + 3), box and front.
+    assert_eq!(front.aabb.min.0, 20.0 + 22.0);
+    assert_eq!(front.aabb.max.0, 600.0 - 9.0 - 2.0);
+    let side = part(&plan, "drawer_1_side_left");
+    assert_eq!(side.aabb.min.0, 18.0 + 22.0 + 12.7);
+    let spacers = plan
+        .bom
+        .hardware
+        .iter()
+        .find(|h| h.hardware == "slide_spacer_22")
+        .unwrap();
+    assert_eq!(spacers.quantity, 2);
+    assert_eq!(plan.derived["dr.spacer_left"], 22.0);
+    assert!(!plan.derived.contains_key("dr.spacer_right"));
     assert!(!plan.diagnostics.items.iter().any(|d| d.code == "FAB-101"));
 }
 
@@ -132,7 +147,11 @@ fn inner_drawers_in_the_plane_of_an_inset_door_get_a_setback_fix() {
     let mut v: serde_json::Value = serde_json::from_str(&flush).unwrap();
     rewood_core::spec::apply_fix(&mut v, fix).unwrap();
     let after = rewood_core::compile_json(&v.to_string());
-    assert_eq!(after.status, PlanStatus::Ok, "{:#?}", after.diagnostics);
+    assert!(
+        after.diagnostics.items.is_empty(),
+        "{:#?}",
+        after.diagnostics
+    );
 }
 
 #[test]
@@ -197,12 +216,10 @@ fn the_hinge_names_a_family_and_the_door_picks_the_arm() {
 
 #[test]
 fn a_door_set_can_span_two_bays_when_overlaid() {
-    let wide = WARDROBE
-        .replace(
-            r#""bay": 1, "count": 1, "mount": "inset" }"#,
-            r#""bay": 1, "span": 2, "count": 2 }"#,
-        )
-        .replace(r#", "setback": 20"#, "");
+    let wide = WARDROBE.replace(
+        r#""bay": 1, "count": 1, "mount": "inset" }"#,
+        r#""bay": 1, "span": 2, "count": 2 }"#,
+    );
     let plan = rewood_core::compile_json(&wide);
     assert_eq!(plan.status, PlanStatus::Ok, "{:#?}", plan.diagnostics);
     let d1 = part(&plan, "door_1");
@@ -239,4 +256,97 @@ fn a_door_set_can_span_two_bays_when_overlaid() {
     );
     let plan = rewood_core::compile_json(&too_far);
     assert!(plan.diagnostics.items.iter().any(|d| d.code == "SPEC-204"));
+}
+
+/// Two single-door cabinets side by side, and a drawer stack between.
+fn run(middle: &str, right_door: &str) -> String {
+    format!(
+        r#"{{
+  "schemaVersion": "1.0", "id": "r", "name": "r",
+  "parameters": {{ "height": 720, "depth": 560 }},
+  "material": "melamine_18", "edgeMaterial": "abs_1mm",
+  "components": [
+    {{ "type": "carcass", "id": "a", "width": 500, "joint": {{ "hardware": ["dowel_8x30"] }}, "back": {{ "material": "hdf_3" }} }},
+    {{ "type": "carcass", "id": "b", "width": 500, "origin": {{ "x": 500 }}, "joint": {{ "hardware": ["dowel_8x30"] }}, "back": {{ "material": "hdf_3" }} }},
+    {{ "type": "carcass", "id": "c", "width": 500, "origin": {{ "x": 1000 }}, "joint": {{ "hardware": ["dowel_8x30"] }}, "back": {{ "material": "hdf_3" }} }},
+    {{ "type": "doors", "id": "da", "carcass": "a", "count": 1 }},
+    {middle},
+    {{ "type": "doors", "id": "dc", "carcass": "c", "count": 1{right_door} }}
+  ]
+}}"#
+    )
+}
+
+const DRAWERS_B: &str = r#"{ "type": "drawers", "id": "drb", "carcass": "b", "count": 3, "slide": { "hardware": ["slide_ball_450"] }, "joint": { "hardware": ["dowel_8x30"] } }"#;
+
+fn hinge_side(plan: &rewood_core::plan::ManufacturingPlan, component: &str) -> &'static str {
+    let j = plan
+        .joints
+        .iter()
+        .find(|j| j.kind == "hinge" && j.component == component)
+        .unwrap();
+    let door = plan.parts.iter().find(|p| p.id == j.edge_part).unwrap();
+    let panel = plan.parts.iter().find(|p| p.id == j.face_part).unwrap();
+    if panel.aabb.min.0 > door.aabb.min.0 + 1.0 {
+        "right"
+    } else {
+        "left"
+    }
+}
+
+#[test]
+fn single_doors_hinge_away_from_the_middle_and_a_crossing_is_reported() {
+    // Auto: the left door on its left side, the right one on its right,
+    // both opening away from the drawers in the middle.
+    let plan = rewood_core::compile_json(&run(DRAWERS_B, ""));
+    assert_eq!(plan.status, PlanStatus::Ok, "{:#?}", plan.diagnostics);
+    assert_eq!(hinge_side(&plan, "da"), "left");
+    assert_eq!(hinge_side(&plan, "dc"), "right");
+    // Forced towards the drawers: it hits them open, and the fix is the
+    // other side.
+    let plan = rewood_core::compile_json(&run(DRAWERS_B, r#", "hingeSide": "left""#));
+    assert_eq!(hinge_side(&plan, "dc"), "left");
+    let hit: Vec<_> = plan
+        .diagnostics
+        .items
+        .iter()
+        .filter(|d| d.code == "DESIGN-118")
+        .collect();
+    assert_eq!(hit.len(), 1, "{hit:#?}");
+    let fix = hit[0].fix.as_ref().unwrap();
+    assert_eq!(
+        (fix.field.as_str(), &fix.value),
+        ("hingeSide", &serde_json::json!("right"))
+    );
+}
+
+#[test]
+fn fronts_meeting_inside_a_carcass_keep_one_gap_and_front_height_occupies_what_it_covers() {
+    let json = r#"{
+  "schemaVersion": "1.0", "id": "g", "name": "g",
+  "parameters": { "width": 600, "height": 900, "depth": 560 },
+  "material": "melamine_18", "edgeMaterial": "abs_1mm",
+  "components": [
+    { "type": "carcass", "id": "c", "joint": { "hardware": ["dowel_8x30"] }, "back": { "material": "hdf_3" } },
+    { "type": "drawers", "id": "d", "count": 2, "zone": { "from": 0, "to": 400 }, "slide": { "hardware": ["slide_ball_450"] }, "joint": { "hardware": ["dowel_8x30"] } },
+    { "type": "doors", "id": "o", "count": 1, "zone": { "from": 400, "to": 900 } }
+  ]
+}"#;
+    let plan = rewood_core::compile_json(json);
+    assert_eq!(plan.status, PlanStatus::Ok, "{:#?}", plan.diagnostics);
+    let top_drawer = part(&plan, "drawer_2_front");
+    let door = part(&plan, "door_1");
+    assert!((door.aabb.min.2 - top_drawer.aabb.max.2 - 2.0).abs() < 1e-9);
+    // With `frontHeight` the drawers cover less than their zone: the rest
+    // is open, and said.
+    let short = json.replace(
+        r#""count": 2, "zone""#,
+        r#""count": 2, "frontHeight": 150, "zone""#,
+    );
+    let plan = rewood_core::compile_json(&short);
+    assert!(
+        plan.diagnostics.items.iter().any(|d| d.code == "SPEC-212"),
+        "{:#?}",
+        plan.diagnostics
+    );
 }

@@ -12,7 +12,7 @@
 	type Sub = { key: string; label: string; parts: Part[] };
 	type Group = { component: string; label: string; count: number; subs: Sub[]; loose: Part[] };
 
-	const labels = $derived(componentLabels(app.spec));
+	const labels = $derived(componentLabels(app.spec, app.plan));
 	const groups = $derived.by(() => {
 		const map = new Map<string, Group>();
 		for (const p of app.plan?.parts ?? []) {

@@ -34,6 +34,10 @@
 	});
 	/** Lowest Z: the floor sits under the legs, not under the carcass. */
 	const floor = $derived((app.plan?.parts ?? []).reduce((m, p) => Math.min(m, p.aabb.min[2]), 0));
+	/** Under the lowest part as drawn: exploded legs go below the assembled floor. */
+	const gridFloor = $derived(
+		(app.plan?.parts ?? []).reduce((m, p) => Math.min(m, p.aabb.min[2] + (offsets.get(p.id)?.[2] ?? 0)), floor)
+	);
 	const target = $derived<[number, number, number]>([bounds[0] / 2, (bounds[2] + floor) / 2, bounds[1] / 2]);
 	const distance = $derived(Math.max(bounds[0], bounds[2]) * 1.6 + bounds[1]);
 
@@ -102,24 +106,31 @@
 	 * each rail component (one pair per bay).
 	 */
 	const rails = $derived.by(() => {
-		const out: { id: string; pos: [number, number, number]; len: number }[] = [];
+		const out: { id: string; a: Vec3; pa: string; b: Vec3; pb: string }[] = [];
 		const joints = (app.plan?.joints ?? []).filter((j) => j.kind === 'fixture' && j.hardware.some((h) => h.startsWith('rail_support')));
 		const byComponent = new Map<string, typeof joints>();
 		for (const j of joints) byComponent.set(j.component, [...(byComponent.get(j.component) ?? []), j]);
 		for (const [component, list] of byComponent) {
+			if (app.hiddenComponents.has(component)) continue;
 			for (let i = 0; i + 1 < list.length; i += 2) {
 				const a = list[i].fasteners[0]?.position;
 				const b = list[i + 1].fasteners[0]?.position;
 				if (!a || !b) continue;
-				out.push({
-					id: `${component}:${i}`,
-					pos: toThree([(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2]),
-					len: Math.abs(b[0] - a[0])
-				});
+				// Hangs from the two panels its supports are screwed to.
+				const [pa, pb] = [list[i].facePart, list[i + 1].facePart];
+				if (!parts.some((p) => p.id === pa) || !parts.some((p) => p.id === pb)) continue;
+				out.push({ id: `${component}:${i}`, a, pa, b, pb });
 			}
 		}
 		return out;
 	});
+	/** A rail bar between its two supports, wherever their panels are drawn. */
+	function railPose(r: { a: Vec3; pa: string; b: Vec3; pb: string }) {
+		const a = new THREE.Vector3(...toThree(r.a)).applyMatrix4(matrixOf(r.pa));
+		const b = new THREE.Vector3(...toThree(r.b)).applyMatrix4(matrixOf(r.pb));
+		const q = new THREE.Quaternion().setFromUnitVectors(UP, b.clone().sub(a).normalize());
+		return { pos: a.clone().add(b).multiplyScalar(0.5).toArray() as [number, number, number], quat: [q.x, q.y, q.z, q.w] as [number, number, number, number], len: a.distanceTo(b) };
+	}
 
 	// --- where every part is drawn ----------------------------------------------
 	// Exploded offset, then the opening (a door turning on its hinge line,
@@ -232,6 +243,7 @@
 	const unitSphere = new THREE.SphereGeometry(1, 16, 12);
 	const unitEdges = new THREE.EdgesGeometry(unitBox);
 	const holeCyl = new THREE.CylinderGeometry(1, 1, 1, 16);
+	const railCyl = new THREE.CylinderGeometry(1, 1, 1, 12);
 	const metal = new THREE.MeshStandardMaterial({ metalness: 0.5, roughness: 0.4 });
 	const holeMaterial = new THREE.MeshStandardMaterial({ color: '#2b2b2b' });
 	const grooveMaterial = new THREE.MeshStandardMaterial({ color: '#3a3a3a' });
@@ -253,6 +265,21 @@
 		const g = new THREE.BufferGeometry();
 		g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
 		return g;
+	});
+	// Every slider step makes a new one: the last one's GPU buffer goes.
+	$effect(() => {
+		const g = leaders;
+		return () => g.dispose();
+	});
+	/** The floor grid, remade only when the furniture's footprint changes. */
+	const gridSize = $derived(Math.round(Math.max(bounds[0], bounds[1]) * 2));
+	const grid = $derived(new THREE.GridHelper(gridSize, 20, '#bbb', '#ddd'));
+	$effect(() => {
+		const g = grid;
+		return () => {
+			g.geometry.dispose();
+			(g.material as THREE.Material).dispose();
+		};
 	});
 
 	// --- parts ------------------------------------------------------------------
@@ -371,13 +398,13 @@
 <T.DirectionalLight position={[-2000, 1000, -1500]} intensity={0.5} />
 
 {#each rails as r (r.id)}
-	<T.Mesh position={r.pos} rotation={[0, 0, Math.PI / 2]}>
-		<T.CylinderGeometry args={[12, 12, r.len, 12]} />
+	{@const at = railPose(r)}
+	<T.Mesh position={at.pos} quaternion={at.quat} scale={[12, at.len, 12]} geometry={railCyl}>
 		<T.MeshStandardMaterial color="#9aa0a6" metalness={0.6} roughness={0.35} />
 	</T.Mesh>
 {/each}
 
-<T.GridHelper args={[Math.max(bounds[0], bounds[1]) * 2, 20, '#bbb', '#ddd']} position={[bounds[0] / 2, floor - 1, bounds[1] / 2]} />
+<T is={grid} position={[bounds[0] / 2, gridFloor - 1, bounds[1] / 2]} />
 
 {#each parts as part (part.id)}
 	{@const at = pose(part.id)}

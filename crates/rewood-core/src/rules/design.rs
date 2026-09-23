@@ -160,10 +160,14 @@ impl Rule for HardwareLoad {
                         continue;
                     };
                     let prefix = side.role.trim_end_matches("_side_left");
+                    // `drawer_1_` and not `drawer_1`, which is also drawer 10.
+                    let own_prefix = format!("{prefix}_");
                     let own: f64 = input
                         .parts
                         .iter()
-                        .filter(|p| p.component == side.component && p.role.starts_with(prefix))
+                        .filter(|p| {
+                            p.component == side.component && p.role.starts_with(&own_prefix)
+                        })
                         .map(|p| weight_kg(p, input.libs))
                         .sum();
                     let total = own + DRAWER_CONTENTS_KG;
@@ -174,7 +178,7 @@ impl Rule for HardwareLoad {
                                 Severity::Warning,
                                 format!(
                                     "cajón {} de '{}': la caja pesa {} kg y con {} kg de contenido supera los {} kg de '{}'",
-                                    prefix.trim_start_matches("drawer_"),
+                                    drawer_label(prefix),
                                     side.component,
                                     kg(own),
                                     kg(DRAWER_CONTENTS_KG),
@@ -195,6 +199,247 @@ impl Rule for HardwareLoad {
     }
 }
 
+/// `bay2_drawer_3` → "3 (bahía 2)", `drawer_3` → "3".
+fn drawer_label(prefix: &str) -> String {
+    let (bay, drawer) = match prefix.split_once("_drawer_") {
+        Some((bay, n)) => (Some(bay.trim_start_matches("bay")), n),
+        None => (None, prefix.trim_start_matches("drawer_")),
+    };
+    match bay {
+        Some(b) => format!("{drawer} (bahía {b})"),
+        None => drawer.to_string(),
+    }
+}
+
 fn kg(v: f64) -> String {
     mm((v * 10.0).round() / 10.0)
+}
+
+/// DESIGN-118: a door, swung open, runs into a drawer pulled out or into
+/// another open door. The door is taken at 95° on its hinge line, the
+/// drawer out by its slide's length; a warning, with the other hinge side
+/// as the fix when the door hangs alone in its bay.
+pub struct FrontsCollideOpen;
+
+/// Beyond square, how far a door is taken open.
+const OPEN_ANGLE_PAST_SQUARE: f64 = 5.0;
+
+struct Opened<'a> {
+    part: &'a crate::model::Part,
+    swept: crate::geometry::Aabb,
+    /// For a door: the side it hangs on (true = right) and whether it is
+    /// alone in its bay (then the other side is a one-click fix).
+    door: Option<(bool, bool)>,
+}
+
+/// Where a door hung on `panel` stands open at 95°: a slab its thickness
+/// wide on the hinge side, leaning out past square, as deep as the door is
+/// wide in front of it. And whether it hangs on its right.
+fn door_swept(
+    door: &crate::model::Part,
+    panel: &crate::model::Part,
+) -> (bool, crate::geometry::Aabb) {
+    use crate::geometry::{Aabb, Vec3};
+    let a = door.aabb;
+    let (w, t) = (a.max.0 - a.min.0, a.max.1 - a.min.1);
+    let right = (panel.aabb.min.0 + panel.aabb.max.0) > (a.min.0 + a.max.0);
+    let lean = w * OPEN_ANGLE_PAST_SQUARE.to_radians().sin();
+    let (x0, x1) = if right {
+        (a.max.0 - t, a.max.0 + lean)
+    } else {
+        (a.min.0 - lean, a.min.0 + t)
+    };
+    (
+        right,
+        Aabb {
+            min: Vec3(x0, a.max.1, a.min.2),
+            max: Vec3(x1, a.max.1 + w, a.max.2),
+        },
+    )
+}
+
+/// Room left between an open door and the inner drawer front beside it.
+const SPACER_CLEARANCE: f64 = 3.0;
+
+/// Inner drawers behind a door, on a slide screwed to the panel the door
+/// hangs on, whose fronts come out where the door stands open: how far
+/// each stack has to move off that panel (`components::spacer_key`).
+pub(crate) fn spacer_needs(
+    parts: &[crate::model::Part],
+    joints: &[crate::model::Joint],
+) -> std::collections::BTreeMap<String, f64> {
+    let part = |id: &str| parts.iter().find(|p| p.id == id);
+    let mut out = std::collections::BTreeMap::new();
+    for h in joints
+        .iter()
+        .filter(|j| j.kind == "hinge" && j.axis.index() == 2)
+    {
+        let (Some(door), Some(panel)) = (part(&h.edge_part), part(&h.face_part)) else {
+            continue;
+        };
+        let (right, swept) = door_swept(door, panel);
+        let d = door.aabb;
+        for s in joints
+            .iter()
+            .filter(|j| j.kind == "slide" && j.face_part == panel.id)
+        {
+            let Some(side) = part(&s.edge_part) else {
+                continue;
+            };
+            let suffix = if right { "_side_right" } else { "_side_left" };
+            let Some(prefix) = side.role.strip_suffix(suffix) else {
+                continue;
+            };
+            let front_role = format!("{prefix}_front");
+            let Some(front) = parts
+                .iter()
+                .find(|p| p.component == side.component && p.role == front_role)
+            else {
+                continue;
+            };
+            let f = front.aabb;
+            // Behind the door, at its height, inside its width.
+            let behind = f.max.1 <= d.min.1 + 1.0;
+            let level = f.min.2 < d.max.2 - 1.0 && f.max.2 > d.min.2 + 1.0;
+            let within = f.min.0 < d.max.0 - 1.0 && f.max.0 > d.min.0 + 1.0;
+            if !(behind && level && within) {
+                continue;
+            }
+            let need = if right {
+                f.max.0 - (swept.min.0 - SPACER_CLEARANCE)
+            } else {
+                swept.max.0 + SPACER_CLEARANCE - f.min.0
+            };
+            if need > 0.0 {
+                let key = crate::components::spacer_key(&side.component, panel);
+                let e = out.entry(key).or_insert(0.0_f64);
+                *e = e.max(need);
+            }
+        }
+    }
+    out
+}
+
+impl Rule for FrontsCollideOpen {
+    fn id(&self) -> &'static str {
+        "DESIGN-118"
+    }
+
+    fn check(&self, input: &RuleInput<'_>) -> Vec<Diagnostic> {
+        use crate::geometry::{Aabb, Vec3};
+        let part = |id: &str| input.parts.iter().find(|p| p.id == id);
+        let mut opened: Vec<Opened> = Vec::new();
+        let mut seen = std::collections::BTreeSet::new();
+        for j in input.joints {
+            match j.kind.as_str() {
+                // Doors on a vertical hinge line.
+                "hinge" if j.axis.index() == 2 => {
+                    let (Some(door), Some(panel)) = (part(&j.edge_part), part(&j.face_part)) else {
+                        continue;
+                    };
+                    if !seen.insert(door.id.clone()) {
+                        continue;
+                    }
+                    let a = door.aabb;
+                    let (right, swept) = door_swept(door, panel);
+                    // Alone in its bay: no other door of the component
+                    // shares its height and meets it side by side.
+                    let alone = !input.parts.iter().any(|q| {
+                        q.id != door.id
+                            && q.component == door.component
+                            && q.role.contains("door")
+                            && (q.aabb.min.2 - a.min.2).abs() < 1.0
+                            && ((q.aabb.min.0 - a.max.0).abs() < 10.0
+                                || (a.min.0 - q.aabb.max.0).abs() < 10.0)
+                    });
+                    opened.push(Opened {
+                        part: door,
+                        swept,
+                        door: Some((right, alone)),
+                    });
+                }
+                // A drawer: its front, out by the slide's length.
+                "slide" => {
+                    let Some(side) = part(&j.edge_part) else {
+                        continue;
+                    };
+                    let Some(prefix) = side.role.strip_suffix("_side_left") else {
+                        continue;
+                    };
+                    let front_role = format!("{prefix}_front");
+                    let Some(front) = input
+                        .parts
+                        .iter()
+                        .find(|p| p.component == side.component && p.role == front_role)
+                    else {
+                        continue;
+                    };
+                    let travel = j
+                        .hardware
+                        .iter()
+                        .find_map(|h| input.libs.hardware.get(h)?.slide.as_ref())
+                        .map_or(0.0, |s| s.length);
+                    let a = front.aabb;
+                    opened.push(Opened {
+                        part: front,
+                        swept: Aabb {
+                            min: Vec3(a.min.0, a.max.1, a.min.2),
+                            max: Vec3(a.max.0, a.max.1 + travel, a.max.2),
+                        },
+                        door: None,
+                    });
+                }
+                _ => {}
+            }
+        }
+        let mut out = Vec::new();
+        for (i, a) in opened.iter().enumerate() {
+            let Some((right, alone)) = a.door else {
+                continue;
+            };
+            // One finding per door, naming everything it runs into.
+            let hits: Vec<&Opened> = opened
+                .iter()
+                .enumerate()
+                .filter(|(k, b)| *k != i && a.swept.intersection(&b.swept).is_some())
+                .map(|(_, b)| b)
+                .collect();
+            if hits.is_empty() {
+                continue;
+            }
+            let names: Vec<String> = hits
+                .iter()
+                .map(|b| format!("{} ({})", b.part.id, b.part.name))
+                .collect();
+            let mut d = Diagnostic::new(
+                self.id(),
+                Severity::Warning,
+                format!(
+                    "al abrirse, {} ({}), con la bisagra a la {}, choca con {} abierto{}",
+                    a.part.id,
+                    a.part.name,
+                    if right { "derecha" } else { "izquierda" },
+                    names.join(", "),
+                    if hits.len() > 1 { "s" } else { "" }
+                ),
+            )
+            .entity(a.part.id.clone())
+            .location(hits[0].part.id.clone())
+            .suggestion("Colgá la puerta del otro lado (hingeSide) o separá los frentes.");
+            if alone {
+                let other = if right { "left" } else { "right" };
+                d = d.fix(
+                    format!(
+                        "Bisagra a la {}",
+                        if right { "izquierda" } else { "derecha" }
+                    ),
+                    a.part.component.clone(),
+                    "hingeSide",
+                    serde_json::json!(other),
+                );
+            }
+            out.push(d);
+        }
+        out
+    }
 }

@@ -4,9 +4,15 @@
 //! Setup convention: the part lies on the machine with one large face up,
 //! its (u, v) axes as machine X and Y and Z = 0 on the top surface. Setup
 //! `A` is `front` up and carries every front-face operation, the grooves
-//! on the front, the horizontal (edge) drilling and the contour cut.
-//! Setup `B`, only when needed, is the part flipped about its X axis so
-//! `back` faces up: a back-face (u, v) lands at machine (u, width − v).
+//! on the front and the horizontal (edge) drilling. Setup `B`, only when
+//! needed, is the part flipped about its X axis so `back` faces up: a
+//! back-face (u, v) lands at machine (u, width − v).
+//!
+//! `profile.workflow` says what the machine gets. `banded_panels`: the part
+//! cut and banded, at its finished size; nothing to contour. `nested_router`:
+//! the raw panel at its cut size, every face point shifted by the band on
+//! the left and bottom edges, the outline cut last in setup A, and the edge
+//! drilling in a setup `E` of its own, once the band is on.
 //!
 //! Tool choice is data (`profile.tools`): drills by exact diameter, an end
 //! mill no wider than the groove, the widest compression bit for the
@@ -20,7 +26,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::diagnostics::{Diagnostic, Diagnostics, Severity};
 use crate::geometry::Face;
-use crate::library::profile::{ManufacturingProfile, ToolDef, ToolKind};
+use crate::library::profile::{ManufacturingProfile, ToolDef, ToolKind, Workflow};
 use crate::model::{OpGeometry, Part};
 use crate::units::{round3, EPS};
 
@@ -53,7 +59,8 @@ pub enum ToolOp {
         width: f64,
         depth: f64,
     },
-    /// Outline of the finished rectangle, tool outside, climb, in passes.
+    /// Outline of the blank (the cut size on a router), tool outside,
+    /// climb, in passes.
     Contour { length: f64, width: f64, depth: f64 },
     /// Horizontal drilling into an edge, from outside the part.
     HorizontalDrill {
@@ -202,34 +209,59 @@ fn pick_contour_tool(profile: &ManufacturingProfile) -> Option<ToolDef> {
 }
 
 /// Programs for one part: setup A always, setup B when the back carries
-/// operations. Missing tools and capabilities become diagnostics on the
-/// part; the operation is then left out of the program.
+/// operations, setup E (nesting router only) for the edge drilling that
+/// waits for the band. Missing tools and capabilities become diagnostics
+/// on the part; the operation is then left out of the program.
+///
+/// What a program starts from follows `profile.workflow`: the finished,
+/// banded part (panel saw, then bander, then CNC: no outline to cut), or
+/// the raw cut panel on a nesting router (holes shifted by the band on the
+/// left and bottom edges, the outline cut at the cut size).
 pub fn programs(
     part: &Part,
     profile: &ManufacturingProfile,
     diags: &mut Diagnostics,
 ) -> Vec<Program> {
     let (len, wid, t) = (part.dims.length, part.dims.width, part.dims.thickness);
-    let mut a = Program {
+    let nested = profile.workflow == Workflow::NestedRouter;
+    // Band thickness on each edge: what the raw panel lacks there.
+    let band = |face: Face| {
+        part.operations
+            .iter()
+            .filter(|o| o.face == face)
+            .filter_map(|o| match o.geometry {
+                OpGeometry::EdgeBand { thickness, .. } => Some(thickness),
+                _ => None,
+            })
+            .fold(0.0, f64::max)
+    };
+    let (bl, bb) = if nested {
+        (band(Face::Left), band(Face::Bottom))
+    } else {
+        (0.0, 0.0)
+    };
+    let (blank_len, blank_wid) = if nested {
+        (len - bl - band(Face::Right), wid - bb - band(Face::Top))
+    } else {
+        (len, wid)
+    };
+    let program = |setup: char, face_up: Face, length: f64, width: f64| Program {
         part: part.id.clone(),
-        setup: 'A',
-        face_up: Face::Front,
-        length: len,
-        width: wid,
+        setup,
+        face_up,
+        length,
+        width,
         thickness: t,
         rotated: false,
         operations: Vec::new(),
     };
-    let mut b = Program {
-        part: part.id.clone(),
-        setup: 'B',
-        face_up: Face::Back,
-        length: len,
-        width: wid,
-        thickness: t,
-        rotated: false,
-        operations: Vec::new(),
-    };
+    let mut a = program('A', Face::Front, blank_len, blank_wid);
+    let mut b = program('B', Face::Back, blank_len, blank_wid);
+    // After banding, on the finished part.
+    let mut e = program('E', Face::Front, len, wid);
+    // A face point, finished (u, v), on the blank's machine (x, y).
+    let front_xy = |u: f64, v: f64| [u - bl, v - bb];
+    let back_xy = |u: f64, v: f64| [u - bl, blank_wid - (v - bb)];
     let missing = |diags: &mut Diagnostics, op_id: &str, what: String| {
         diags.push(
             Diagnostic::new(
@@ -265,16 +297,16 @@ pub fn programs(
                         } else {
                             depth.unwrap_or(0.0)
                         };
-                        let (prog, y) = if op.face == Face::Front {
-                            (&mut a, *v)
+                        let (prog, [x, y]) = if op.face == Face::Front {
+                            (&mut a, front_xy(*u, *v))
                         } else {
-                            (&mut b, wid - *v)
+                            (&mut b, back_xy(*u, *v))
                         };
                         prog.operations.push(ToolOperation {
                             tool,
                             source,
                             op: ToolOp::Drill {
-                                x: *u,
+                                x,
                                 y,
                                 depth,
                                 through: *through,
@@ -304,9 +336,11 @@ pub fn programs(
                             Face::Bottom => EdgeSide::Bottom,
                             _ => EdgeSide::Top,
                         };
-                        // In setup A the face's v (across the thickness) is
-                        // measured from the back, i.e. from the table.
-                        a.operations.push(ToolOperation {
+                        // The face's v (across the thickness) is measured
+                        // from the back, i.e. from the table. On a router
+                        // the edge is drilled once banded (setup E).
+                        let prog = if nested { &mut e } else { &mut a };
+                        prog.operations.push(ToolOperation {
                             tool,
                             source,
                             op: ToolOp::HorizontalDrill {
@@ -338,7 +372,13 @@ pub fn programs(
                 } else {
                     (&mut b, true)
                 };
-                let map = |p: [f64; 2]| if flip { [p[0], wid - p[1]] } else { p };
+                let map = |p: [f64; 2]| {
+                    if flip {
+                        back_xy(p[0], p[1])
+                    } else {
+                        front_xy(p[0], p[1])
+                    }
+                };
                 prog.operations.push(ToolOperation {
                     tool,
                     source,
@@ -354,19 +394,22 @@ pub fn programs(
         }
     }
 
-    // The contour comes last in setup A, after every hole is drilled while
-    // the blank is still whole.
-    match pick_contour_tool(profile) {
-        Some(tool) => a.operations.push(ToolOperation {
+    // On a router the contour comes last in setup A, after every hole is
+    // drilled while the blank is still whole, at the cut size (the band
+    // makes the rest). A part that comes cut and banded has no outline to
+    // cut.
+    match (nested, pick_contour_tool(profile)) {
+        (false, _) => {}
+        (true, Some(tool)) => a.operations.push(ToolOperation {
             tool,
             source: "contour".into(),
             op: ToolOp::Contour {
-                length: len,
-                width: wid,
+                length: blank_len,
+                width: blank_wid,
                 depth: t + 0.5,
             },
         }),
-        None => diags.push(
+        (true, None) => diags.push(
             Diagnostic::new(
                 "CAM-201",
                 Severity::Error,
@@ -378,7 +421,7 @@ pub fn programs(
 
     // Group by tool so the changer works once per tool; the contour keeps
     // its place at the end. Stable sort: same tool, source order.
-    for prog in [&mut a, &mut b] {
+    for prog in [&mut a, &mut b, &mut e] {
         let contour = prog
             .operations
             .iter()
@@ -396,11 +439,15 @@ pub fn programs(
     if (len > max_x + EPS || wid > max_y + EPS) && wid <= max_x + EPS && len <= max_y + EPS {
         a.rotate();
         b.rotate();
+        e.rotate();
     }
 
     let mut out = vec![a];
     if !b.operations.is_empty() {
         out.push(b);
+    }
+    if !e.operations.is_empty() {
+        out.push(e);
     }
     out
 }
@@ -438,6 +485,15 @@ fn fmt(v: f64) -> String {
     }
 }
 
+/// Text inside an NC comment: one line, no parentheses or semicolons. A
+/// tool id comes from the spec, and a line break in it would otherwise
+/// start a move of its own.
+fn comment(s: &str) -> String {
+    s.chars()
+        .filter(|c| !matches!(c, '(' | ')' | ';' | '%') && !c.is_control())
+        .collect()
+}
+
 impl GenericIso {
     fn tool_change(&self, out: &mut String, tool: &ToolDef, current: &mut Option<String>) {
         if current.as_deref() == Some(tool.id.as_str()) {
@@ -446,7 +502,7 @@ impl GenericIso {
         out.push_str(&format!("G00 Z{}\n", fmt(self.safe_z)));
         out.push_str(&format!(
             "(TOOL {} {:?} D{})\n",
-            tool.id,
+            comment(&tool.id),
             tool.kind,
             fmt(tool.diameter)
         ));
@@ -593,7 +649,7 @@ impl PostProcessor for GenericIso {
         out.push_str("%\n");
         out.push_str(&format!(
             "(REWOOD {} SETUP {} FACE_UP {:?} BLANK {}x{}x{} ORIGIN LOWER-LEFT Z0 TOP{})\n",
-            program.part,
+            comment(&program.part),
             program.setup,
             program.face_up,
             fmt(program.length),
@@ -604,8 +660,13 @@ impl PostProcessor for GenericIso {
         out.push_str("G21 G90 G17 G40 G49\nG54\n");
         let mut current: Option<String> = None;
         for o in &program.operations {
-            out.push_str(&format!("({})\n", o.source));
-            self.tool_change(&mut out, &o.tool, &mut current);
+            out.push_str(&format!("({})\n", comment(&o.source)));
+            // The horizontal aggregate carries its own drills: loading one
+            // in the spindle (and starting it) for an HDRILL block is a
+            // tool change for nothing.
+            if !matches!(o.op, ToolOp::HorizontalDrill { .. }) {
+                self.tool_change(&mut out, &o.tool, &mut current);
+            }
             match o.op {
                 ToolOp::Drill { x, y, depth, .. } => self.drill(&mut out, &o.tool, x, y, depth),
                 ToolOp::Slot {
@@ -666,10 +727,11 @@ mod tests {
             .filter(|o| matches!(o.op, ToolOp::Slot { .. }))
             .count();
         assert_eq!((drills, hdrills, slots), (4, 8, 1));
-        assert!(matches!(
-            a.operations.last().unwrap().op,
-            ToolOp::Contour { .. }
-        ));
+        // Cut and banded before it gets here: no outline to cut.
+        assert!(!a
+            .operations
+            .iter()
+            .any(|o| matches!(o.op, ToolOp::Contour { .. })));
 
         let nc = GenericIso::default().render(a);
         assert!(nc.starts_with("%\n(REWOOD P003 SETUP A"));
@@ -677,6 +739,55 @@ mod tests {
         assert!(nc.contains("(HDRILL Left D8"));
         assert!(nc.ends_with("M30\n%\n"));
         assert_eq!(nc, GenericIso::default().render(a));
+    }
+
+    #[test]
+    fn a_nesting_router_works_the_raw_panel_and_drills_edges_after_banding() {
+        let spec = include_str!("../../../fixtures/basic_cabinet/input.json");
+        let plan = crate::compile_json(spec);
+        let mut profile = Libraries::default().profile;
+        profile.workflow = Workflow::NestedRouter;
+        // The top: banded on its front edge (its local bottom).
+        let top = plan.parts.iter().find(|p| p.role == "top").unwrap();
+        let band = 1.0;
+        let mut diags = Diagnostics::default();
+        let progs = programs(top, &profile, &mut diags);
+        assert!(diags.items.is_empty(), "{:#?}", diags);
+        let a = &progs[0];
+        // The blank is the cut size, not the finished one.
+        assert_eq!((a.length, a.width), (top.cut.length, top.cut.width));
+        // The outline is cut last, at the cut size.
+        assert!(matches!(
+            a.operations.last().unwrap().op,
+            ToolOp::Contour { length, width, .. }
+                if length == top.cut.length && width == top.cut.width
+        ));
+        // A hole keeps its distance to the unbanded edges and moves by
+        // the band towards the banded one.
+        let hole = top
+            .operations
+            .iter()
+            .find_map(|o| match (o.face, &o.geometry) {
+                (Face::Front, OpGeometry::Drill { u, v, .. }) => Some((o.id.clone(), *u, *v)),
+                _ => None,
+            })
+            .unwrap();
+        let drilled = a.operations.iter().find(|o| o.source == hole.0).unwrap();
+        let ToolOp::Drill { x, y, .. } = drilled.op else {
+            panic!()
+        };
+        assert_eq!((x, y), (hole.1, hole.2 - band));
+        // Edge drilling waits for the band: its own setup, on the finished part.
+        let e = progs.iter().find(|p| p.setup == 'E').unwrap();
+        assert_eq!((e.length, e.width), (top.dims.length, top.dims.width));
+        assert!(e
+            .operations
+            .iter()
+            .all(|o| matches!(o.op, ToolOp::HorizontalDrill { .. })));
+        assert!(!a
+            .operations
+            .iter()
+            .any(|o| matches!(o.op, ToolOp::HorizontalDrill { .. })));
     }
 
     #[test]

@@ -545,7 +545,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 342.333,
-          "v": 166.8,
+          "v": 169.4,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -561,7 +561,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 342.333,
-          "v": 140.0,
+          "v": 137.4,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -577,7 +577,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 675.667,
-          "v": 166.8,
+          "v": 169.4,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -593,7 +593,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 675.667,
-          "v": 140.0,
+          "v": 137.4,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -609,7 +609,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 1336.333,
-          "v": 166.8,
+          "v": 169.4,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -625,7 +625,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 1336.333,
-          "v": 140.0,
+          "v": 137.4,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -641,7 +641,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 1663.667,
-          "v": 166.8,
+          "v": 169.4,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -657,7 +657,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 1663.667,
-          "v": 140.0,
+          "v": 137.4,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -934,7 +934,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 342.333,
-          "v": 133.2,
+          "v": 130.6,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -950,7 +950,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 342.333,
-          "v": 160.0,
+          "v": 162.6,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -966,7 +966,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 675.667,
-          "v": 133.2,
+          "v": 130.6,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -982,7 +982,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 675.667,
-          "v": 160.0,
+          "v": 162.6,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -998,7 +998,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 1336.333,
-          "v": 133.2,
+          "v": 130.6,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -1014,7 +1014,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 1336.333,
-          "v": 160.0,
+          "v": 162.6,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -1030,7 +1030,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 1663.667,
-          "v": 133.2,
+          "v": 130.6,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -1046,7 +1046,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 1663.667,
-          "v": 160.0,
+          "v": 162.6,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -1926,7 +1926,7 @@
           "id": "P007-OP01",
           "face": "left",
           "type": "DRILL",
-          "u": 120.0,
+          "u": 117.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1942,7 +1942,7 @@
           "id": "P007-OP02",
           "face": "left",
           "type": "DRILL",
-          "u": 146.8,
+          "u": 149.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1958,7 +1958,7 @@
           "id": "P007-OP03",
           "face": "right",
           "type": "DRILL",
-          "u": 120.0,
+          "u": 117.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1974,7 +1974,7 @@
           "id": "P007-OP04",
           "face": "right",
           "type": "DRILL",
-          "u": 146.8,
+          "u": 149.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2041,7 +2041,7 @@
           "id": "P008-OP01",
           "face": "left",
           "type": "DRILL",
-          "u": 120.0,
+          "u": 117.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2057,7 +2057,7 @@
           "id": "P008-OP02",
           "face": "left",
           "type": "DRILL",
-          "u": 146.8,
+          "u": 149.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2073,7 +2073,7 @@
           "id": "P008-OP03",
           "face": "right",
           "type": "DRILL",
-          "u": 120.0,
+          "u": 117.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2089,7 +2089,7 @@
           "id": "P008-OP04",
           "face": "right",
           "type": "DRILL",
-          "u": 146.8,
+          "u": 149.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2156,7 +2156,7 @@
           "id": "P009-OP01",
           "face": "left",
           "type": "DRILL",
-          "u": 120.0,
+          "u": 117.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2172,7 +2172,7 @@
           "id": "P009-OP02",
           "face": "left",
           "type": "DRILL",
-          "u": 146.8,
+          "u": 149.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2188,7 +2188,7 @@
           "id": "P009-OP03",
           "face": "right",
           "type": "DRILL",
-          "u": 120.0,
+          "u": 117.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2204,7 +2204,7 @@
           "id": "P009-OP04",
           "face": "right",
           "type": "DRILL",
-          "u": 146.8,
+          "u": 149.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2271,7 +2271,7 @@
           "id": "P010-OP01",
           "face": "left",
           "type": "DRILL",
-          "u": 120.0,
+          "u": 117.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2287,7 +2287,7 @@
           "id": "P010-OP02",
           "face": "left",
           "type": "DRILL",
-          "u": 146.8,
+          "u": 149.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2303,7 +2303,7 @@
           "id": "P010-OP03",
           "face": "right",
           "type": "DRILL",
-          "u": 120.0,
+          "u": 117.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2319,7 +2319,7 @@
           "id": "P010-OP04",
           "face": "right",
           "type": "DRILL",
-          "u": 146.8,
+          "u": 149.4,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2750,7 +2750,7 @@
           "index": 0,
           "position": [
             18.0,
-            133.2,
+            130.6,
             342.333
           ]
         },
@@ -2759,7 +2759,7 @@
           "index": 1,
           "position": [
             18.0,
-            160.0,
+            162.6,
             342.333
           ]
         }
@@ -2794,7 +2794,7 @@
           "index": 0,
           "position": [
             782.0,
-            133.2,
+            130.6,
             342.333
           ]
         },
@@ -2803,7 +2803,7 @@
           "index": 1,
           "position": [
             782.0,
-            160.0,
+            162.6,
             342.333
           ]
         }
@@ -2838,7 +2838,7 @@
           "index": 0,
           "position": [
             18.0,
-            133.2,
+            130.6,
             675.667
           ]
         },
@@ -2847,7 +2847,7 @@
           "index": 1,
           "position": [
             18.0,
-            160.0,
+            162.6,
             675.667
           ]
         }
@@ -2882,7 +2882,7 @@
           "index": 0,
           "position": [
             782.0,
-            133.2,
+            130.6,
             675.667
           ]
         },
@@ -2891,7 +2891,7 @@
           "index": 1,
           "position": [
             782.0,
-            160.0,
+            162.6,
             675.667
           ]
         }
@@ -2926,7 +2926,7 @@
           "index": 0,
           "position": [
             18.0,
-            133.2,
+            130.6,
             1336.333
           ]
         },
@@ -2935,7 +2935,7 @@
           "index": 1,
           "position": [
             18.0,
-            160.0,
+            162.6,
             1336.333
           ]
         }
@@ -2970,7 +2970,7 @@
           "index": 0,
           "position": [
             782.0,
-            133.2,
+            130.6,
             1336.333
           ]
         },
@@ -2979,7 +2979,7 @@
           "index": 1,
           "position": [
             782.0,
-            160.0,
+            162.6,
             1336.333
           ]
         }
@@ -3014,7 +3014,7 @@
           "index": 0,
           "position": [
             18.0,
-            133.2,
+            130.6,
             1663.667
           ]
         },
@@ -3023,7 +3023,7 @@
           "index": 1,
           "position": [
             18.0,
-            160.0,
+            162.6,
             1663.667
           ]
         }
@@ -3058,7 +3058,7 @@
           "index": 0,
           "position": [
             782.0,
-            133.2,
+            130.6,
             1663.667
           ]
         },
@@ -3067,7 +3067,7 @@
           "index": 1,
           "position": [
             782.0,
-            160.0,
+            162.6,
             1663.667
           ]
         }
@@ -3184,7 +3184,7 @@
         "P009",
         "P010"
       ],
-      "name": "Estante 1 (shelves_low)",
+      "name": "Estante",
       "quantity": 4,
       "material": "melamine_18",
       "cutLength": 764.0,
@@ -3381,97 +3381,97 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 1810.388,
+    "totalSeconds": 1423.464,
     "programs": [
       {
         "part": "P001",
         "setup": "A",
-        "operations": 22,
-        "toolChanges": 4,
-        "cutMm": 16942.5,
-        "rapidMm": 17920.989,
-        "seconds": 506.793
+        "operations": 21,
+        "toolChanges": 3,
+        "cutMm": 12273.0,
+        "rapidMm": 15840.36,
+        "seconds": 457.046
       },
       {
         "part": "P002",
         "setup": "A",
-        "operations": 22,
-        "toolChanges": 4,
-        "cutMm": 16942.5,
-        "rapidMm": 17884.576,
-        "seconds": 506.684
+        "operations": 21,
+        "toolChanges": 3,
+        "cutMm": 12273.0,
+        "rapidMm": 15825.371,
+        "seconds": 457.001
       },
       {
         "part": "P003",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 7061.5,
-        "rapidMm": 4058.275,
-        "seconds": 241.732
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 4864.0,
+        "rapidMm": 3158.378,
+        "seconds": 206.067
       },
       {
         "part": "P004",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 7061.5,
-        "rapidMm": 3812.307,
-        "seconds": 240.994
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 4864.0,
+        "rapidMm": 2966.603,
+        "seconds": 205.492
       },
       {
         "part": "P005",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 5570.5,
-        "rapidMm": 188.985,
-        "seconds": 50.492
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P006",
         "setup": "A",
-        "operations": 13,
-        "toolChanges": 3,
-        "cutMm": 2429.1,
-        "rapidMm": 2179.211,
-        "seconds": 88.177
+        "operations": 12,
+        "toolChanges": 1,
+        "cutMm": 258.0,
+        "rapidMm": 1328.697,
+        "seconds": 52.858
       },
       {
         "part": "P007",
         "setup": "A",
-        "operations": 5,
-        "toolChanges": 2,
-        "cutMm": 2203.1,
-        "rapidMm": 203.985,
-        "seconds": 43.879
+        "operations": 4,
+        "toolChanges": 0,
+        "cutMm": 72.0,
+        "rapidMm": 120.0,
+        "seconds": 11.16
       },
       {
         "part": "P008",
         "setup": "A",
-        "operations": 5,
-        "toolChanges": 2,
-        "cutMm": 2203.1,
-        "rapidMm": 203.985,
-        "seconds": 43.879
+        "operations": 4,
+        "toolChanges": 0,
+        "cutMm": 72.0,
+        "rapidMm": 120.0,
+        "seconds": 11.16
       },
       {
         "part": "P009",
         "setup": "A",
-        "operations": 5,
-        "toolChanges": 2,
-        "cutMm": 2203.1,
-        "rapidMm": 203.985,
-        "seconds": 43.879
+        "operations": 4,
+        "toolChanges": 0,
+        "cutMm": 72.0,
+        "rapidMm": 120.0,
+        "seconds": 11.16
       },
       {
         "part": "P010",
         "setup": "A",
-        "operations": 5,
-        "toolChanges": 2,
-        "cutMm": 2203.1,
-        "rapidMm": 203.985,
-        "seconds": 43.879
+        "operations": 4,
+        "toolChanges": 0,
+        "cutMm": 72.0,
+        "rapidMm": 120.0,
+        "seconds": 11.16
       }
     ]
   },

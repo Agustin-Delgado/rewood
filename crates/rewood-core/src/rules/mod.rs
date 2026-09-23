@@ -3,7 +3,7 @@
 //! a pure function; rules run in a fixed order and the result is sorted, so
 //! the findings for a given model never change between runs.
 
-mod design;
+pub(crate) mod design;
 mod geometry;
 pub(crate) mod machining;
 mod material;
@@ -27,6 +27,7 @@ pub fn all_rules() -> Vec<Box<dyn Rule>> {
     vec![
         Box::new(geometry::PartCollision),
         Box::new(geometry::LegCollision),
+        Box::new(geometry::HingePlateBlocked),
         Box::new(machining::HoleInsideFace),
         Box::new(machining::MinEdgeDistance),
         Box::new(machining::HoleDepth),
@@ -40,6 +41,7 @@ pub fn all_rules() -> Vec<Box<dyn Rule>> {
         Box::new(material::HardwareThickness),
         Box::new(design::PanelSpan),
         Box::new(design::HardwareLoad),
+        Box::new(design::FrontsCollideOpen),
     ]
 }
 

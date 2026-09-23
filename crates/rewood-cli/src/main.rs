@@ -152,6 +152,18 @@ fn print_cutlist(plan: &ManufacturingPlan) {
 /// `manifest.json` — so the operator can see why.
 fn write_package(plan: &ManufacturingPlan, out_dir: &std::path::Path) -> std::io::Result<()> {
     let files = rewood_core::export::package(plan);
+    // A package written over an older one must not keep its files: a
+    // program for a part that no longer exists, or cuttable NC next to a
+    // BLOQUEADO.txt. Only a directory that already holds a package (its
+    // manifest) is emptied, never an arbitrary one.
+    if out_dir.join("manifest.json").is_file() {
+        std::fs::remove_dir_all(out_dir)?;
+    } else if out_dir.is_dir() && std::fs::read_dir(out_dir)?.next().is_some() {
+        return Err(std::io::Error::other(format!(
+            "{} no está vacío y no es un paquete de rewood: elegí otro directorio",
+            out_dir.display()
+        )));
+    }
     for f in &files {
         let path = out_dir.join(&f.path);
         if let Some(parent) = path.parent() {

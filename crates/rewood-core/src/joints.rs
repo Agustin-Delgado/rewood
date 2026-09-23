@@ -355,7 +355,8 @@ pub fn resolve(
                             Severity::Fatal,
                             format!("{} ↔ {}: {msg}", req.part_a, req.part_b),
                         )
-                        .entity(joint_id.clone()),
+                        .entity(req.part_a.clone())
+                        .location(req.part_b.clone()),
                     );
                     continue;
                 }
@@ -380,7 +381,8 @@ pub fn resolve(
                                 req.part_a, req.part_b
                             ),
                         )
-                        .entity(joint_id.clone()),
+                        .entity(req.part_a.clone())
+                        .location(req.part_b.clone()),
                     );
                     continue;
                 }
@@ -397,7 +399,8 @@ pub fn resolve(
                                 req.part_a, req.part_b
                             ),
                         )
-                        .entity(joint_id.clone()),
+                        .entity(req.part_a.clone())
+                        .location(req.part_b.clone()),
                     );
                     continue;
                 }
@@ -446,6 +449,24 @@ pub fn resolve(
                 continue;
             }
             let placement = req.placement.as_ref().unwrap_or(&hw.placement);
+            // A spacing of zero would spread infinitely many fasteners.
+            if placement.max_spacing <= 0.0
+                || placement.end_offset < 0.0
+                || placement.pitch.is_some_and(|p| p <= 0.0)
+            {
+                diags.push(
+                    Diagnostic::new(
+                        "SPEC-330",
+                        Severity::Fatal,
+                        format!(
+                            "el reparto de '{hw_id}' no tiene sentido: maxSpacing {} (tiene que ser > 0), endOffset {} (≥ 0)",
+                            placement.max_spacing, placement.end_offset
+                        ),
+                    )
+                    .entity(joint_id.clone()),
+                );
+                continue;
+            }
             // Rows across the joint: one through the centre, or two inset
             // from the edges of a face-to-face contact when they fit.
             let rows: Vec<f64> = match contact.across {
@@ -470,13 +491,18 @@ pub fn resolve(
                     *pos = back.clamp(0.0, length);
                 }
                 // On a short joint two fasteners can round to one grid
-                // line: the later one takes the next line, or goes if
+                // line, or to lines too close for their holes (two Ø35
+                // hinge cups one pitch apart overlap): the later one takes
+                // the first line that clears the widest hole, or goes if
                 // there is none left.
+                let widest = hw.holes.iter().map(|h| h.diameter).fold(0.0, f64::max);
+                let clear = widest + libs.profile.min_hole_spacing;
+                let step = pitch * (clear / pitch).ceil().max(1.0);
                 along_positions.sort_by(f64::total_cmp);
                 let mut spread: Vec<f64> = Vec::with_capacity(along_positions.len());
                 for pos in along_positions {
                     let pos = match spread.last() {
-                        Some(&prev) if pos < prev + pitch - crate::units::EPS => prev + pitch,
+                        Some(&prev) if pos < prev + step - crate::units::EPS => prev + step,
                         _ => pos,
                     };
                     if pos <= length + crate::units::EPS {
@@ -544,6 +570,42 @@ pub fn resolve(
                         }
                         continue;
                     }
+                    // Shelf pins on both faces of a divider, same spot: two
+                    // blind holes would meet inside the panel, so it is one
+                    // hole through, a pin in each end.
+                    if is_row(hw_id) {
+                        let placement = part.placement;
+                        let dims = part.dims;
+                        let opposite = face.opposite();
+                        let n = placement.world_axis(face.normal_local()).index();
+                        let mirror = part.operations.iter_mut().find(|o| {
+                            o.face == opposite
+                                && o.source.as_ref().is_some_and(|s| is_row(&s.hardware))
+                                && match &o.geometry {
+                                    OpGeometry::Drill {
+                                        u: ou,
+                                        v: ov,
+                                        diameter,
+                                        ..
+                                    } => {
+                                        let w = placement
+                                            .to_world(dims.uv_to_local(opposite, *ou, *ov));
+                                        let (a, b) = ([w.0, w.1, w.2], [at.0, at.1, at.2]);
+                                        (diameter - hole.diameter).abs() < 0.05
+                                            && (0..3).all(|i| i == n || (a[i] - b[i]).abs() < 0.05)
+                                    }
+                                    _ => false,
+                                }
+                        });
+                        if let Some(existing) = mirror {
+                            if let OpGeometry::Drill { depth, through, .. } = &mut existing.geometry
+                            {
+                                *depth = None;
+                                *through = true;
+                            }
+                            continue;
+                        }
+                    }
                     let op = Operation {
                         id: part.next_op_id(),
                         face,
@@ -566,6 +628,50 @@ pub fn resolve(
                         }),
                     };
                     part.operations.push(op);
+
+                    // A handle screwed from inside a drawer front has the
+                    // box front behind it: the screw goes through both, so
+                    // the box front is drilled on the same axis.
+                    if matches!(req.kind, JointKind::Handle { .. }) && hole.depth.is_none() {
+                        let n = part.placement.world_axis(face.normal_local()).vec();
+                        let probe = at + n * 0.5;
+                        let component = part.component.clone();
+                        let own = part.id.clone();
+                        let backing = parts.iter().position(|q| {
+                            q.id != own
+                                && q.component == component
+                                && q.aabb.min.0 < probe.0
+                                && probe.0 < q.aabb.max.0
+                                && q.aabb.min.1 < probe.1
+                                && probe.1 < q.aabb.max.1
+                                && q.aabb.min.2 < probe.2
+                                && probe.2 < q.aabb.max.2
+                        });
+                        if let Some(qi) = backing {
+                            let q = &mut parts[qi];
+                            let q_face = q.face_facing(Axis::from_vec(n * -1.0));
+                            let (u, v) = q.world_point_to_face_uv(q_face, at);
+                            let op = Operation {
+                                id: q.next_op_id(),
+                                face: q_face,
+                                geometry: OpGeometry::Drill {
+                                    u,
+                                    v,
+                                    diameter: hole.diameter,
+                                    depth: None,
+                                    through: true,
+                                    countersink: None,
+                                },
+                                source: Some(OpSource {
+                                    joint: joint_id.clone(),
+                                    hardware: hw_id.clone(),
+                                    fastener: index,
+                                    label: hole.label.clone(),
+                                }),
+                            };
+                            q.operations.push(op);
+                        }
+                    }
                 }
             }
         }

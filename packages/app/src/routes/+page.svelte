@@ -50,7 +50,7 @@
 		const input = e.currentTarget as HTMLInputElement;
 		const file = input.files?.[0];
 		if (!file) return;
-		file.text().then((t) => app.applySpecText(t));
+		file.text().then((t) => app.openSpecFile(t));
 		input.value = '';
 	}
 </script>

@@ -239,9 +239,9 @@ pub fn purchasing(bom: &Bom, libs: &Libraries) -> Vec<PurchaseOrder> {
         let def = libs.hardware.get(&h.hardware);
         let sup = def.map(|d| d.supplier.clone()).unwrap_or_default();
         let lines = by_supplier.entry(sup).or_default();
-        for (k, item) in h.items.iter().enumerate() {
+        for item in &h.items {
             let unit_price = def
-                .and_then(|d| d.bom_items.get(k))
+                .and_then(|d| d.bom_items.iter().find(|b| b.name == item.name))
                 .map(|b| b.unit_price)
                 .unwrap_or(0.0);
             match lines
@@ -260,7 +260,13 @@ pub fn purchasing(bom: &Bom, libs: &Libraries) -> Vec<PurchaseOrder> {
                     id: h.hardware.clone(),
                     name: item.name.clone(),
                     quantity: item.quantity,
-                    unit: "u".into(),
+                    // A rail bar is bought by the metre.
+                    unit: if def.is_some_and(|d| d.kind == "rail") {
+                        "m"
+                    } else {
+                        "u"
+                    }
+                    .into(),
                     unit_price,
                     cost: item.cost,
                 }),
@@ -273,7 +279,13 @@ pub fn purchasing(bom: &Bom, libs: &Libraries) -> Vec<PurchaseOrder> {
             lines.sort_by(|a, b| a.kind.cmp(&b.kind).then(a.name.cmp(&b.name)));
             for l in &mut lines {
                 l.quantity = crate::units::round3(l.quantity);
-                l.cost = crate::units::round3(l.cost);
+                // What the order says has to multiply out: the cost of the
+                // quantity as written, not of the unrounded one.
+                l.cost = if l.unit_price > 0.0 {
+                    crate::units::round3(l.quantity * l.unit_price)
+                } else {
+                    crate::units::round3(l.cost)
+                };
             }
             let sup = libs.suppliers.get(&id);
             PurchaseOrder {
@@ -431,6 +443,40 @@ fn part_key(part: &Part) -> String {
     )
 }
 
+/// The name a group of equal parts shares: without the trailing
+/// "(component)" when that is what differs ("Lateral izquierdo (m1)" and
+/// "(m3)"), and without the words that differ between them ("Frente cajón
+/// 1", "… 2" → "Frente cajón"; "Lateral cajón 1 izq." → "Lateral cajón
+/// izq.").
+fn common_name(names: &[String]) -> String {
+    let bare = |s: &str| match s.rfind(" (") {
+        Some(i) if s.ends_with(')') => s[..i].to_string(),
+        _ => s.to_string(),
+    };
+    let bares: Vec<String> = names.iter().map(|n| bare(n)).collect();
+    if bares.iter().all(|b| *b == bares[0]) {
+        return bares[0].clone();
+    }
+    let words: Vec<Vec<&str>> = bares.iter().map(|b| b.split(' ').collect()).collect();
+    let first = &words[0];
+    let kept: Vec<&str> = if words.iter().all(|w| w.len() == first.len()) {
+        (0..first.len())
+            .filter(|&i| words.iter().all(|w| w[i] == first[i]))
+            .map(|i| first[i])
+            .collect()
+    } else {
+        (0..first.len())
+            .take_while(|&i| words.iter().all(|w| w.get(i) == Some(&first[i])))
+            .map(|i| first[i])
+            .collect()
+    };
+    if kept.is_empty() {
+        names[0].clone()
+    } else {
+        kept.join(" ")
+    }
+}
+
 pub fn part_list(parts: &[Part], libs: &Libraries) -> Vec<PartListRow> {
     let mut rows: Vec<(String, PartListRow)> = Vec::new();
     for part in parts {
@@ -465,7 +511,22 @@ pub fn part_list(parts: &[Part], libs: &Libraries) -> Vec<PartListRow> {
             },
         ));
     }
-    rows.into_iter().map(|(_, r)| r).collect()
+    rows.into_iter()
+        .map(|(_, mut r)| {
+            // Equal parts of different modules or drawers: the row is
+            // named by what they share, not after the first one.
+            let names: Vec<String> = r
+                .part_ids
+                .iter()
+                .filter_map(|id| parts.iter().find(|p| &p.id == id))
+                .map(|p| p.name.clone())
+                .collect();
+            if names.len() > 1 {
+                r.name = common_name(&names);
+            }
+            r
+        })
+        .collect()
 }
 
 pub fn bom(
@@ -523,24 +584,65 @@ pub fn bom(
         }
     }
 
+    // Every fastener, with how much panel its through holes cross (for
+    // items that depend on it, like a screw's length).
+    let mut crossed: BTreeMap<(&str, &str, usize), f64> = BTreeMap::new();
+    for part in parts {
+        // Once per part: a handle's two screws both cross the same door.
+        let mut seen = std::collections::BTreeSet::new();
+        for op in &part.operations {
+            let (Some(s), OpGeometry::Drill { through: true, .. }) = (&op.source, &op.geometry)
+            else {
+                continue;
+            };
+            let key = (s.joint.as_str(), s.hardware.as_str(), s.fastener);
+            if seen.insert(key) {
+                *crossed.entry(key).or_default() += part.dims.thickness;
+            }
+        }
+    }
     let mut hardware: BTreeMap<String, usize> = BTreeMap::new();
+    let mut through_of: BTreeMap<String, Vec<f64>> = BTreeMap::new();
     for joint in joints {
         for f in &joint.fasteners {
             *hardware.entry(f.hardware.clone()).or_default() += 1;
+            through_of.entry(f.hardware.clone()).or_default().push(
+                crossed
+                    .get(&(joint.id.as_str(), f.hardware.as_str(), f.index))
+                    .copied()
+                    .unwrap_or(0.0),
+            );
         }
     }
     let mut hardware: Vec<HardwareLine> = hardware
         .into_iter()
+        // A System 32 row is a drilling pattern, not something to buy:
+        // its "fasteners" are holes (the pins go by count, below).
+        .filter(|(id, _)| libs.hardware.get(id).is_none_or(|d| d.kind != "pin_row"))
         .map(|(id, quantity)| {
             let def = libs.hardware.get(&id);
+            let throughs = through_of.get(&id).map(Vec::as_slice).unwrap_or(&[]);
             let items: Vec<BomItemLine> = def
                 .map(|d| {
                     d.bom_items
                         .iter()
-                        .map(|i| BomItemLine {
-                            name: i.name.clone(),
-                            quantity: i.quantity * quantity as f64,
-                            cost: i.quantity * quantity as f64 * i.unit_price,
+                        .filter_map(|i| {
+                            // How many of these fasteners the item is for.
+                            let n = match i.through {
+                                None => quantity,
+                                Some([lo, hi]) => throughs
+                                    .iter()
+                                    .filter(|t| {
+                                        **t >= lo - crate::units::EPS
+                                            && **t < hi - crate::units::EPS
+                                    })
+                                    .count(),
+                            };
+                            (n > 0).then(|| BomItemLine {
+                                name: i.name.clone(),
+                                quantity: i.quantity * n as f64,
+                                cost: i.quantity * n as f64 * i.unit_price,
+                            })
                         })
                         .collect()
                 })

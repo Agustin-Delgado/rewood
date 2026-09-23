@@ -1818,52 +1818,52 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 468.075,
+    "totalSeconds": 199.887,
     "programs": [
       {
         "part": "P001",
         "setup": "A",
-        "operations": 9,
-        "toolChanges": 3,
-        "cutMm": 2567.5,
-        "rapidMm": 4874.213,
-        "seconds": 66.778
+        "operations": 8,
+        "toolChanges": 2,
+        "cutMm": 98.0,
+        "rapidMm": 4725.167,
+        "seconds": 39.326
       },
       {
         "part": "P002",
         "setup": "A",
-        "operations": 9,
-        "toolChanges": 3,
-        "cutMm": 2567.5,
-        "rapidMm": 5068.602,
-        "seconds": 67.361
+        "operations": 8,
+        "toolChanges": 2,
+        "cutMm": 98.0,
+        "rapidMm": 4652.771,
+        "seconds": 39.108
       },
       {
         "part": "P003",
         "setup": "A",
-        "operations": 13,
-        "toolChanges": 3,
-        "cutMm": 7055.5,
-        "rapidMm": 7049.179,
-        "seconds": 137.485
+        "operations": 12,
+        "toolChanges": 1,
+        "cutMm": 258.0,
+        "rapidMm": 4037.145,
+        "seconds": 60.983
       },
       {
         "part": "P004",
         "setup": "A",
-        "operations": 13,
-        "toolChanges": 3,
-        "cutMm": 7055.5,
-        "rapidMm": 6778.966,
-        "seconds": 136.674
+        "operations": 12,
+        "toolChanges": 1,
+        "cutMm": 258.0,
+        "rapidMm": 3745.962,
+        "seconds": 60.11
       },
       {
         "part": "P005",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 6757.5,
-        "rapidMm": 203.985,
-        "seconds": 59.777
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       }
     ]
   },
@@ -1931,6 +1931,20 @@
   "diagnostics": {
     "items": [
       {
+        "code": "CAM-304",
+        "severity": "FATAL",
+        "entity": "P003",
+        "location": "P003_A",
+        "message": "P003_A: línea 37: (2930, 50) fuera de la mesa de 2800×2070"
+      },
+      {
+        "code": "CAM-304",
+        "severity": "FATAL",
+        "entity": "P004",
+        "location": "P004_A",
+        "message": "P004_A: línea 37: (2930, 350) fuera de la mesa de 2800×2070"
+      },
+      {
         "code": "LIB-101",
         "severity": "FATAL",
         "entity": "doors",
@@ -1942,27 +1956,6 @@
         "severity": "FATAL",
         "entity": "broken",
         "message": "la restricción 'broken' no es una comparación: width + 1"
-      },
-      {
-        "code": "CAM-304",
-        "severity": "ERROR",
-        "entity": "P003",
-        "location": "P003_A",
-        "message": "P003_A: línea 42: (2930, 50) fuera de la mesa de 2800×2070 (y 3 más)"
-      },
-      {
-        "code": "CAM-304",
-        "severity": "ERROR",
-        "entity": "P004",
-        "location": "P004_A",
-        "message": "P004_A: línea 42: (2930, 350) fuera de la mesa de 2800×2070 (y 3 más)"
-      },
-      {
-        "code": "CAM-304",
-        "severity": "ERROR",
-        "entity": "P005",
-        "location": "P005_A",
-        "message": "P005_A: línea 13: (2970, -6) fuera de la mesa de 2800×2070 (y 1 más)"
       },
       {
         "code": "CON-001",
@@ -2103,21 +2096,21 @@
         "code": "FAB-301",
         "severity": "ERROR",
         "entity": "P003",
-        "message": "P003 (Tapa): 2964×399 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm",
+        "message": "P003 (Tapa): 2964×399 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm (útil 2730×1810 con 10 de margen)",
         "suggestion": "Dividí el componente o cambiá la orientación de la veta."
       },
       {
         "code": "FAB-301",
         "severity": "ERROR",
         "entity": "P004",
-        "message": "P004 (Base): 2964×399 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm",
+        "message": "P004 (Base): 2964×399 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm (útil 2730×1810 con 10 de margen)",
         "suggestion": "Dividí el componente o cambiá la orientación de la veta."
       },
       {
         "code": "FAB-301",
         "severity": "ERROR",
         "entity": "P005",
-        "message": "P005 (Estante 1): 2964×379 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm",
+        "message": "P005 (Estante 1): 2964×379 mm no sale de una placa de 2750×1830 mm de Melamina 18 mm (útil 2730×1810 con 10 de margen)",
         "suggestion": "Dividí el componente o cambiá la orientación de la veta."
       },
       {

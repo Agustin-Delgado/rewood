@@ -40,8 +40,7 @@
       "mount": "inset",
       "setback": "carcass.thickness + door_gap",
       "joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 40, "maxSpacing": 150 } },
-      "slide": { "hardware": ["slide_ball_450"] },
-      "handle": { "hardware": ["handle_bar_128"] }
+      "slide": { "hardware": ["slide_ball_450"] }
     },
     {
       "type": "shelves",

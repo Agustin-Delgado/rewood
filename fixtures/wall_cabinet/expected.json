@@ -2906,13 +2906,6 @@
           }
         ],
         "cost": 0.0
-      },
-      {
-        "hardware": "shelf_pin_row_5",
-        "name": "Hilera Sistema 32 para soportes Ø5",
-        "quantity": 4,
-        "items": [],
-        "cost": 0.0
       }
     ],
     "consumables": [
@@ -3028,79 +3021,79 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 1191.734,
+    "totalSeconds": 943.359,
     "programs": [
       {
         "part": "P001",
         "setup": "A",
-        "operations": 19,
-        "toolChanges": 5,
-        "cutMm": 6753.5,
-        "rapidMm": 6994.122,
-        "seconds": 228.812
+        "operations": 18,
+        "toolChanges": 4,
+        "cutMm": 4544.0,
+        "rapidMm": 6115.033,
+        "seconds": 201.12
       },
       {
         "part": "P002",
         "setup": "A",
-        "operations": 19,
-        "toolChanges": 5,
-        "cutMm": 6753.5,
-        "rapidMm": 6857.87,
-        "seconds": 228.404
+        "operations": 18,
+        "toolChanges": 4,
+        "cutMm": 4544.0,
+        "rapidMm": 6056.154,
+        "seconds": 200.943
       },
       {
         "part": "P003",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 7961.5,
-        "rapidMm": 4640.126,
-        "seconds": 263.727
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 5464.0,
+        "rapidMm": 3628.901,
+        "seconds": 225.479
       },
       {
         "part": "P004",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 7961.5,
-        "rapidMm": 4333.191,
-        "seconds": 262.807
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 5464.0,
+        "rapidMm": 3387.511,
+        "seconds": 224.755
       },
       {
         "part": "P005",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 3210.5,
-        "rapidMm": 188.985,
-        "seconds": 32.792
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P006",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 2427.1,
-        "rapidMm": 203.985,
-        "seconds": 27.299
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P007",
         "setup": "A",
-        "operations": 9,
-        "toolChanges": 4,
-        "cutMm": 2501.5,
-        "rapidMm": 3729.849,
-        "seconds": 73.901
+        "operations": 8,
+        "toolChanges": 3,
+        "cutMm": 106.0,
+        "rapidMm": 2888.83,
+        "seconds": 44.927
       },
       {
         "part": "P008",
         "setup": "A",
-        "operations": 9,
-        "toolChanges": 4,
-        "cutMm": 2501.5,
-        "rapidMm": 3760.367,
-        "seconds": 73.992
+        "operations": 8,
+        "toolChanges": 3,
+        "cutMm": 106.0,
+        "rapidMm": 3051.226,
+        "seconds": 45.415
       }
     ]
   },

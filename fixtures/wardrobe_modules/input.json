@@ -16,11 +16,11 @@
     "drawer_last": "drawer_first + drawer_modules - 1"
   },
   "options": [
-    { "param": "width", "label": "Ancho", "group": "Medidas", "min": "max(600, modules * 318 + 18)", "max": 1850, "step": 10, "unit": "mm", "help": "Más ancho, el fondo de HDF no sale de una placa." },
-    { "param": "height", "label": "Alto", "group": "Medidas", "min": 1600, "max": 2600, "step": 10, "unit": "mm" },
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": "max(600, modules * 318 + 18)", "max": 1830, "step": 10, "unit": "mm", "help": "Más ancho, el fondo de HDF no sale de una placa." },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": "max(1600, ceil((if(drawer_modules > 0, drawer_zone_top, 0) + 186 + 168 * shelves) / 10) * 10)", "max": 2600, "step": 10, "unit": "mm" },
     { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 480, "max": 650, "step": 10, "unit": "mm" },
-    { "param": "modules", "label": "Módulos", "group": "Módulos", "min": "ceil((width - 18) / 918)", "max": "min(5, floor((width - 18) / 318))", "step": 1, "help": "Cada módulo lleva su puerta." },
-    { "param": "shelves", "label": "Estantes por módulo", "group": "Módulos", "min": 0, "max": 6, "step": 1 },
+    { "param": "modules", "label": "Módulos", "group": "Módulos", "min": "max(ceil((width - 18) / 918), drawer_modules)", "max": "min(5, floor((width - 18) / 318))", "step": 1, "help": "Cada módulo lleva su puerta." },
+    { "param": "shelves", "label": "Estantes por módulo", "group": "Módulos", "min": 0, "max": "max(0, min(6, floor((height - if(drawer_modules > 0, drawer_zone_top, 0) - 186) / 168)))", "step": 1, "help": "Con más, entre estante y estante quedan menos de 150 mm." },
     { "param": "drawer_modules", "label": "Módulos con cajones", "group": "Cajonera", "min": 0, "max": "modules", "step": 1, "help": "1 = una cajonera; 2 o 3 = cajoneras lado a lado, una por módulo." },
     {
       "param": "drawer_position",
@@ -33,8 +33,8 @@
         { "value": 2, "label": "derecha" }
       ]
     },
-    { "param": "drawers", "label": "Cajones", "group": "Cajonera", "min": 1, "max": 6, "step": 1, "when": "drawer_modules > 0" },
-    { "param": "drawer_zone_top", "label": "Alto de la cajonera", "group": "Cajonera", "min": 300, "max": 1200, "step": 10, "unit": "mm", "when": "drawer_modules > 0" }
+    { "param": "drawers", "label": "Cajones", "group": "Cajonera", "min": 1, "max": "min(6, floor((drawer_zone_top - 18) / 110))", "step": 1, "when": "drawer_modules > 0" },
+    { "param": "drawer_zone_top", "label": "Alto de la cajonera", "group": "Cajonera", "min": "max(300, ceil((18 + 110 * drawers) / 10) * 10)", "max": "min(1200, height - 186 - 168 * shelves)", "step": 10, "unit": "mm", "when": "drawer_modules > 0" }
   ],
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",

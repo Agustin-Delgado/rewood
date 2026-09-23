@@ -43,6 +43,70 @@ use spec::FurnitureSpec;
 
 pub const ENGINE_VERSION: &str = env!("CARGO_PKG_VERSION");
 
+/// What the components and their joints produce, before any rule looks.
+struct Built {
+    parts: Vec<model::Part>,
+    joints: Vec<model::Joint>,
+    derived: std::collections::BTreeMap<String, f64>,
+    diags: Diagnostics,
+    extra_bom: Vec<components::ExtraBom>,
+    inactive: Vec<String>,
+}
+
+fn build(spec: &FurnitureSpec, params: &ParamGraph, libs: &Libraries, hints: Hints) -> Built {
+    let mut ctx = components::BuildCtx::new(spec, params, libs);
+    ctx.pin_avoid = hints.pin_avoid;
+    ctx.spacers = hints.spacers;
+    components::expand(&mut ctx);
+    let components::BuildCtx {
+        mut parts,
+        mut joint_requests,
+        derived,
+        diagnostics: mut diags,
+        extra_bom,
+        disabled: inactive,
+        ..
+    } = ctx;
+    // A spec that asks for thousands of parts (a runaway count) is a
+    // mistake, not furniture: stop before joints, nesting and CAM spend
+    // minutes on it.
+    if parts.len() > MAX_PARTS {
+        diags.push(Diagnostic::new(
+            "SPEC-002",
+            Severity::Fatal,
+            format!(
+                "la spec genera {} piezas; el máximo es {MAX_PARTS}: revisá las cantidades",
+                parts.len()
+            ),
+        ));
+        parts.clear();
+        joint_requests.clear();
+    }
+    let mut joints = joints::resolve(&mut parts, &joint_requests, libs, &mut diags);
+    // Fasteners of butt joints that run into another hole move along
+    // their joint line before anything checks them.
+    stagger::stagger(&mut parts, &mut joints, libs);
+    Built {
+        parts,
+        joints,
+        derived,
+        diags,
+        extra_bom,
+        inactive,
+    }
+}
+
+/// What a first build tells the second: shelves to move off a hole,
+/// inner drawers to move off an open door.
+#[derive(Default)]
+struct Hints {
+    pin_avoid: std::collections::BTreeMap<String, Vec<f64>>,
+    spacers: std::collections::BTreeMap<String, f64>,
+}
+
+/// More parts than any piece of furniture has.
+const MAX_PARTS: usize = 2000;
+
 /// Compile a spec with the default libraries plus whatever the spec overrides.
 pub fn compile(spec: &FurnitureSpec) -> ManufacturingPlan {
     match Libraries::default().with_overrides(&spec.libraries) {
@@ -175,19 +239,28 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
         }
     };
 
-    // 2. Components -> parts + joint requests.
-    let mut ctx = components::BuildCtx::new(spec, &params, libs);
-    components::expand(&mut ctx);
-    let components::BuildCtx {
+    // 2. Components -> parts + joint requests, and 4. joints -> fasteners
+    // -> holes. A shelf pin that meets a hole on the panel's other face
+    // (a slide screw), or an inner drawer that comes out where its door
+    // stands open, sends the build round once more: that shelf told to
+    // take another grid line, those drawers to sit on spacers.
+    let mut built = build(spec, &params, libs, Hints::default());
+    let hints = Hints {
+        pin_avoid: stagger::pin_conflicts(&built.parts, &built.joints, libs),
+        spacers: rules::design::spacer_needs(&built.parts, &built.joints),
+    };
+    if !hints.pin_avoid.is_empty() || !hints.spacers.is_empty() {
+        built = build(spec, &params, libs, hints);
+    }
+    let Built {
         mut parts,
-        joint_requests,
+        joints,
         derived,
-        diagnostics: component_diags,
+        diags: built_diags,
         extra_bom,
-        disabled: inactive,
-        ..
-    } = ctx;
-    diags.extend(component_diags);
+        inactive,
+    } = built;
+    diags.extend(built_diags);
 
     // 3. Constraints over parameters and derived values.
     let scope = Chain(&derived, &params);
@@ -260,12 +333,6 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
     for d in option_diags {
         diags.push(d);
     }
-
-    // 4. Joints -> fasteners -> holes.
-    let mut joints = joints::resolve(&mut parts, &joint_requests, libs, &mut diags);
-    // Fasteners of butt joints that run into another hole move along
-    // their joint line before anything checks them.
-    stagger::stagger(&mut parts, &mut joints, libs);
 
     // 5. Edge banding as operations, after the holes so ids stay stable.
     for part in &mut parts {

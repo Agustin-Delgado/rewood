@@ -18,6 +18,9 @@ use crate::model::Grain;
 use crate::rules::mm;
 use crate::spec::{ComponentSpec, JointSpec, PinsSpec, ShelfSupport};
 
+/// How far under a shelf its front pin has to be to carry it.
+const PIN_REACH: f64 = 10.0;
+
 /// Side play of a pin-supported shelf, per side.
 const PIN_PLAY: f64 = 1.0;
 
@@ -100,6 +103,14 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         None if fixed => 0.0,
         None => 20.0,
     };
+    if setback < 0.0 {
+        return Err(Diagnostic::new(
+            "SPEC-304",
+            Severity::Fatal,
+            format!("'{id}.setback' = {} mm: no puede ser negativo", mm(setback)),
+        )
+        .entity(id));
+    }
     let material = ctx.material_or_default(id, material.as_ref())?.to_string();
     let t = ctx.thickness_of(&material);
     let ct = carcass.thickness;
@@ -113,7 +124,10 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         return Err(Diagnostic::new(
             "SPEC-304",
             Severity::Fatal,
-            format!("el retranqueo {setback} deja a los estantes de '{id}' sin profundidad"),
+            format!(
+                "el retranqueo {setback} deja a los estantes de '{id}' sin profundidad",
+                setback = mm(setback)
+            ),
         )
         .entity(id));
     }
@@ -128,8 +142,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                     "SPEC-311",
                     Severity::Fatal,
                     format!(
-                        "el estante fijo de '{id}' a {z} mm ({t} de espesor) no cabe entre {z_lo} y {z_hi}"
-                    ),
+                        "el estante fijo de '{id}' a {z} mm ({t} de espesor) no cabe entre {z_lo} y {z_hi}", z = mm(z), t = mm(t), z_lo = mm(z_lo), z_hi = mm(z_hi)),
                 )
                 .entity(id));
             }
@@ -138,7 +151,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                     return Err(Diagnostic::new(
                         "SPEC-311",
                         Severity::Fatal,
-                        format!("las 'positions' de '{id}' tienen que ir en orden y separadas al menos {t} mm"),
+                        format!("las 'positions' de '{id}' tienen que ir en orden y separadas al menos {t} mm", t = mm(t)),
                     )
                     .entity(id));
                 }
@@ -167,8 +180,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 "SPEC-304",
                 Severity::Fatal,
                 format!(
-                    "no entran {count} estantes de {t} mm en una altura interior de {inner_height} mm"
-                ),
+                    "no entran {count} estantes de {t} mm en una altura interior de {inner_height} mm", t = mm(t), inner_height = mm(inner_height)),
             )
             .entity(id));
         }
@@ -192,6 +204,43 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 if h < prev + grid.pitch - crate::units::EPS {
                     h = prev + grid.pitch;
                 }
+            }
+            // A line whose hole would meet one on the panel's other face
+            // (a slide screw, a dowel): the nearest free line instead.
+            let avoid = ctx.pin_avoid.get(id).cloned().unwrap_or_default();
+            let blocked = |z: f64| {
+                avoid
+                    .iter()
+                    .any(|a| (a - (z + carcass.origin.2)).abs() < 1.0)
+            };
+            if blocked(h) {
+                let floor = holes.last().map_or(f64::NEG_INFINITY, |p| p + grid.pitch);
+                let free = [1.0, -1.0, 2.0, -2.0, 3.0, -3.0]
+                    .iter()
+                    .map(|k| h + k * grid.pitch)
+                    .find(|z| {
+                        *z >= grid.first - crate::units::EPS
+                            && *z <= grid.last + crate::units::EPS
+                            && *z >= floor - crate::units::EPS
+                            && !blocked(*z)
+                    });
+                if let Some(z) = free {
+                    h = z;
+                }
+            }
+            if h > grid.last + crate::units::EPS {
+                return Err(Diagnostic::new(
+                    "SPEC-318",
+                    Severity::Fatal,
+                    format!(
+                        "'{id}': {} estantes no entran en la grilla de soportes (cada 32 mm entre {} y {})",
+                        heights.len(),
+                        mm(grid.first),
+                        mm(grid.last)
+                    ),
+                )
+                .entity(id)
+                .suggestion("Menos estantes."));
             }
             holes.push(h);
         }
@@ -250,7 +299,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let play = if on_pins { PIN_PLAY } else { 0.0 };
     for bay in &bays {
         if let Some((grid, holes)) = &grid {
-            pin_rows(ctx, id, &carcass, bay, grid, holes)?;
+            pin_rows(ctx, id, &carcass, bay, grid, holes, setback)?;
             ctx.extra_bom.push(ExtraBom {
                 component: id.to_string(),
                 hardware: pins.hardware.first().cloned().unwrap_or_default(),
@@ -349,7 +398,10 @@ fn pin_grid(
         return Err(Diagnostic::new(
             "SPEC-318",
             Severity::Fatal,
-            format!("'{id}.pins.adjust' = {adjust} mm: tiene que ser ≥ 0"),
+            format!(
+                "'{id}.pins.adjust' = {adjust} mm: tiene que ser ≥ 0",
+                adjust = mm(adjust)
+            ),
         )
         .entity(id));
     }
@@ -395,7 +447,15 @@ fn pin_rows(
     bay: &super::Bay,
     grid: &PinGrid,
     holes: &[f64],
+    setback: f64,
 ) -> Result<(), Diagnostic> {
+    // The front row sits under the shelf: with a deep setback it moves
+    // back with the shelf's front edge (a hinge plate no longer shares it).
+    let front = if setback + PIN_REACH > ROW_INSET {
+        carcass.depth - setback - ROW_INSET
+    } else {
+        carcass.depth - ROW_INSET
+    };
     let steps = (grid.adjust / grid.pitch + crate::units::EPS).floor();
     let runs = |last: f64| -> Vec<(f64, f64)> {
         let mut out: Vec<(f64, f64)> = Vec::new();
@@ -413,7 +473,7 @@ fn pin_rows(
         out
     };
     let ys = [
-        (carcass.depth - ROW_INSET, runs(grid.last)),
+        (front, runs(grid.last)),
         (carcass.inner_y0 + ROW_INSET, runs(grid.last_back)),
     ];
     let spec = JointSpec {

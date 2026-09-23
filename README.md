@@ -73,7 +73,7 @@ cargo run -p rewood-cli -- compile  fixtures/basic_cabinet/input.json > plan.jso
 cargo run -p rewood-cli -- package  fixtures/drawer_unit/input.json  out/drawer_unit
 ```
 
-`package` escribe `parts/P001.dxf…` (para importar en un CAM), `cnc/P001_A.nc…`
+`package` escribe (en un directorio vacío, o encima de un paquete anterior, que se borra entero: un programa viejo no queda al lado del nuevo) `parts/P001.dxf…` (para importar en un CAM), `cnc/P001_A.nc…`
 (G-code ISO por pieza y puesta, `cnc/toolpaths.json` con la versión
 independiente de máquina, `cnc/README.txt` con la convención de puestas),
 `documentation/report.html`
@@ -90,7 +90,7 @@ verificado decodificando con OpenCV), `bom/*.csv`, `documentation/cutlist.txt`,
 `documentation/operations.csv`, `plan.json` y `manifest.json` (ver
 `parts/README.txt` para las convenciones de capas). Los DXF se verificaron
 abriéndolos con ezdxf y renderizándolos; las capas nombran cara, diámetro y
-profundidad (`DRILL_FRONT_D35_L12.5`, `DRILL_EDGE_LEFT_D8_L34`, `GROOVE_FRONT_W3.2_L8`).
+profundidad (`DRILL_FRONT_D35_L12_5`, `DRILL_EDGE_LEFT_D8_L34`, `GROOVE_FRONT_W3_2_L8`; R12 no admite punto en el nombre de capa, así que el decimal va con guion bajo).
 
 Servicio (§39–41):
 
@@ -105,8 +105,8 @@ cargo run -p rewood-server -- --data ./data --static packages/app/build   # sirv
 | `POST /furniture` `{ projectId, spec }`, `GET /furniture`, `GET /furniture/:id`, `PUT /furniture/:id` (spec) | muebles; cada PUT guarda una versión nueva y conserva las anteriores |
 | `POST /furniture/:id/recalculate` (alias `manufacturing-plan`), `GET …/parts`, `GET …/bom`, `GET …/operations`, `POST …/validate` | el plan del mueble, recompilado siempre desde la spec: el servicio no guarda planes salvo dentro de una orden |
 | `POST /manufacturing-orders` `{ furnitureId }` | **snapshot inmutable** (§32): spec, plan completo (con perfil y versiones de bibliotecas), todos los archivos del paquete congelados en disco y su SHA-256. Un plan bloqueado da 422 |
-| `GET /manufacturing-orders`, `GET /manufacturing-orders/:id`, `GET …/:id/package[?role=cnc\|cutting\|assembly\|purchasing]` (zip), `GET …/:id/package/<ruta>` | consultar y bajar lo congelado; con `role`, sólo los archivos de ese proveedor (§52 multi-proveedor: el CNC recibe programas y DXF, la seccionadora despiece y nesting, el armador la documentación, compras las órdenes) |
-| `GET …/:id/production`, `POST …/:id/production/steps` `{ part?, step, done }`, `POST …/:id/production/status` `{ status }` | seguimiento de producción (§52): pasos `cut`/`machined`/`edged` por pieza y `assembled`/`delivered` por orden, estado `planned`→`in_progress`→`done` (o `cancelled`), eventos; es el lado mutable de la orden, el snapshot no se toca |
+| `GET /manufacturing-orders`, `GET /manufacturing-orders/:id`, `GET …/:id/package[?role=cnc\|cutting\|assembly\|purchasing]` (zip), `GET …/:id/package/<ruta>` | consultar y bajar lo congelado; con `role`, sólo los archivos de ese proveedor (§52 multi-proveedor: el CNC recibe programas y DXF, la seccionadora despiece y nesting, el armador la documentación, compras las órdenes; el taller recibe `documentation/report_taller.html`, el informe sin costos ni órdenes de compra) |
+| `GET …/:id/production`, `POST …/:id/production/steps` `{ part?, step, done }`, `POST …/:id/production/status` `{ status }` | seguimiento de producción (§52): pasos `cut`/`machined`/`edged` por pieza y `assembled`/`delivered` por orden, cada pieza sólo con los pasos que le tocan (un fondo sin agujeros ni canto se corta y nada más); el estado sale de los pasos (`planned`→`in_progress`→`done`) salvo `cancelled`, que es una decisión: una orden cancelada no avanza y al descancelarla sigue donde estaba, y `done` a mano pide todos los pasos hechos; eventos. Leer, cambiar y guardar va bajo un mismo lock (dos pedidos a la vez no se pisan). Es el lado mutable de la orden, el snapshot no se toca |
 | `GET …/:id/qc`, `POST …/:id/qc` `{ part, length, width, thickness, notes? }` | control de calidad (§52): cada medición se juzga contra las dimensiones terminadas del plan con `profile.tolerances.length` (largo y ancho; el espesor es de la placa) y queda registrada, pase o no |
 | `GET /libraries`, `GET /health` | bibliotecas por defecto, versiones, si el asistente está activo |
 | `POST /assistant` `{ message, spec?, history? }` | lenguaje natural → spec (§43/§53), ver abajo; 503 sin `ANTHROPIC_API_KEY` |
@@ -121,6 +121,16 @@ seguimiento de producción, control de calidad y paquetes por rol de
 proveedor (tabla de arriba); la UI los opera desde la pestaña Servidor
 ("producción" en cada orden). No hay compra automática contra un proveedor
 real ni API de proveedores: eso es integración con cada uno.
+
+El servidor guarda la spec de cada mueble y de cada orden como JSON y la lee
+recién al compilar: una orden escrita por un motor anterior abre aunque
+algún campo haya cambiado de nombre (la spec sigue siendo estricta al
+entrar, y un perfil congelado acepta campos que no conoce). Los ids de la URL
+sólo llegan al disco con su forma (`prj-000001`), leer-cambiar-guardar va bajo
+un lock, compilar corre fuera de los hilos de la API, y los errores de cuerpo
+salen como `{ "error": … }`. CORS abre sólo a `localhost`, `127.0.0.1` y la
+demo publicada; `--cors <origen>` suma otros (sin login, abrirlo a cualquier
+página dejaba a cualquier sitio leer y cambiar los proyectos).
 
 **Asistente (etapa 5, §43/§53).** `POST /assistant` manda el pedido al modelo
 (`claude-sonnet-5` por defecto, `REWOOD_MODEL` para cambiarlo) con una sola
@@ -276,7 +286,10 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   y cajones eligen bahía con `bay` (1-based; omitido = todas) y una franja de
   altura con `zone: { from, to }` (mm desde la base de la carcasa). Un frente
   sobre un lateral lo cubre entero; sobre un divisor cubre la mitad, así dos
-  frentes vecinos se encuentran en el centro del divisor con una luz.
+  frentes vecinos se encuentran en el centro del divisor con una luz. En
+  altura, igual: donde una zona termina dentro de la carcasa cada frente
+  superpuesto deja media luz, así cajones y puerta quedan a una luz y no a
+  dos. Con `frontHeight` los cajones ocupan sólo lo que cubren sus frentes.
 - Varias carcasas: cada una acepta `origin: { x, y, z }` (expresiones; por
   defecto 0) y todo lo que la refiere (`carcass: "m2"`) se mueve con ella.
   Una línea de cocina son tres carcasas con `origin.x` = 0, `module`,
@@ -326,7 +339,9 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   posición no cabe o van desordenadas.
 - Puertas: hasta 2 por bahía, colgadas del panel que la limita (`hinge`, por
   defecto `hinge_35_overlay`; `null` para no colgarlas). Con 1 puerta, cuelga
-  a la izquierda. **La bisagra nombra la familia (cazoleta Ø35, ángulo de
+  de donde diga `hingeSide`: `auto` (por defecto) la aleja de una cajonera
+  vecina a su altura y, si no hay, del medio del mueble, así dos puertas
+  vecinas abren hacia afuera; `left`/`right` la fuerzan. **La bisagra nombra la familia (cazoleta Ø35, ángulo de
   apertura); el brazo lo decide el motor por la geometría**: superpuesta
   sobre un lateral, **media superposición** (`hinge_35_half`, codo 9) sobre
   un divisor que comparte con la puerta vecina, embutida con `mount: inset`.
@@ -362,7 +377,14 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   hueco (entre los paneles, con la luz) y una puerta puede cerrar sobre la
   pila; `setback` los retranquea del frente de la carcasa —hace falta el
   espesor de la puerta más la luz cuando la puerta es embutida, y si no se
-  pone el motor lo dice con `SPEC-214` y ofrece el valor—.
+  pone el motor lo dice con `SPEC-214` y ofrece el valor—. Detrás de una
+  puerta, la hoja abierta queda parada delante del hueco del lado de la
+  bisagra y el cajón saldría contra ella: el motor lo mide en una primera
+  pasada y monta la pila sobre **distanciadores** de ese lado (el más fino de
+  la biblioteca que deja 3 mm libres; `slide_spacer_16/22/28`), que corren
+  caja y frente hacia adentro. El distanciador va en la unión de la
+  corredera (una por corredera en la BOM, dibujado en el visor) y el manual
+  de armado lo nombra.
 - Alacena colgada: `hanging: {}` en la carcasa (herraje `cabinet_hanger`
   por defecto) pone un colgador regulable en la cara interior de cada
   lateral, contra la tapa y a 40 del fondo (unión `fixture`, tres tornillos),
@@ -525,6 +547,12 @@ Todo de catálogo corriente (Häfele/Hettich/Blum genérico), en
   `plinth_clip`;
 - cierres `magnetic_catch` (+ `magnetic_strike`) y `push_latch`
   (+ `push_latch_plate`);
+- Un ítem de la BOM de un herraje puede llevar `through: [desde, hasta)`:
+  vale sólo para el herraje cuyos agujeros pasantes cruzan esa cantidad de
+  placa. Así el tirador pide M4×25 en una puerta (18 mm) y M4×45 en un
+  frente de cajón con su frente interior detrás (36 mm).
+- `slide_spacer_16/22/28` (`kind: spacer`, `spacer.thickness`):
+  distanciadores entre el panel y la corredera de un cajón interior.
 - `shelf_pin_row_5` + `shelf_pin_5` (Sistema 32), `rail_oval_30` +
   `rail_support_oval`, `cabinet_hanger`.
 
@@ -534,12 +562,21 @@ catálogo del proveedor antes de fabricar; el motor los trata como datos.
 
 ## CAM
 
-`cam::programs(part, profile)` produce hasta dos programas por pieza: puesta
+`profile.workflow` dice qué recibe la máquina. `banded_panels` (por defecto):
+seccionadora → canteadora → CNC; el programa trabaja la pieza ya cortada y
+canteada, a medida terminada, y no corta contorno. `nested_router`: el router
+trabaja la placa en bruto, a medida de corte; todo punto de una cara se corre
+el espesor del canto izquierdo e inferior, el contorno se corta al final a
+medida de corte (fresa por fuera, 0,5 mm más profundo que el espesor) y las
+perforaciones de canto van a una puesta **E** aparte, después de cantear,
+sobre la pieza terminada. El `cnc/README.txt` del paquete dice cuál es.
+
+`cam::programs(part, profile)` produce hasta tres programas por pieza: puesta
 **A** (cara `front` arriba: perforaciones y ranuras del frente, perforaciones
-de canto y el contorno al final, con la fresa por fuera del rectángulo
-terminado y 0,5 mm más profundo que el espesor) y **B** sólo si el dorso tiene
-mecanizados (pieza girada sobre su eje X: `(u, v)` del dorso → `(u, ancho − v)`).
-Origen en la esquina inferior izquierda, Z0 en la cara superior. La
+de canto salvo en el router, y el contorno en el router), **B** sólo si el
+dorso tiene mecanizados (pieza girada sobre su eje X: `(u, v)` del dorso →
+`(u, ancho − v)`) y **E** en el router. Origen en la esquina inferior
+izquierda, Z0 en la cara superior. La
 herramienta sale de `profile.tools` (mecha por diámetro exacto, fresa ≤ ancho
 de ranura, la compresión más ancha para el contorno); lo que falta es
 `CAM-201`, y una perforación de canto sin taladro horizontal en el perfil es
@@ -565,7 +602,9 @@ niveles:
 - **Máquina (nivel 3)**: rápidos dentro del material o cambio de herramienta
   con el husillo bajo (`CAM-301`), avance sin herramienta, sin husillo o sin F
   (`CAM-302`), códigos fuera del subconjunto, herramienta inexistente, sin M30
-  (`CAM-303`), fuera de la mesa o de la carrera Z (`CAM-304`), Z por debajo
+  (`CAM-303`), una pasada o un ciclo que baja más de lo que admite la
+  herramienta de una vez (`CAM-309`), fuera de la mesa o de la carrera Z (`CAM-304`; este y
+  `CAM-301` son `FATAL`: un programa que choca la máquina no sale), Z por debajo
   del piso permitido (`profile.machine.maxCutBelowBlank`) (`CAM-305`);
   herramienta dentro de una fijación declarada en `profile.machine.fixtures`
   (prensas, topes, ventosas: rectángulo en XY y altura de su cara superior
@@ -573,8 +612,10 @@ niveles:
   una prensa en el camino del contorno) (`CAM-308`).
 - **Material removido (nivel 2)**: lo que el NC corta se cruza con lo que el
   `Program` pide. Una perforación, ranura, contorno o taladro horizontal que
-  no aparece en el NC a su posición y profundidad es `CAM-306`; un corte que
-  ninguna operación pidió, `CAM-307`. Es la verificación del **post**: uno
+  no aparece en el NC a su posición y profundidad es `CAM-306`, igual que una
+  ranura cuyas pasadas a fondo no cubren su ancho (o se pasan); un corte que
+  ninguna operación pidió, `CAM-307`: un agujero de más o un fresado bajo la
+  superficie fuera del corredor de toda ranura y del contorno. Es la verificación del **post**: uno
   que pierda un agujero o doble una profundidad falla en todos los planes
   antes de cargar una placa (los tests lo prueban mutilando el G-code).
 
@@ -598,7 +639,12 @@ de a 16 mm; el par de tornillos de una corredera a los agujeros siguientes
 del riel (32 mm); una bisagra, cazoleta y base juntas, un paso de la grilla
 Sistema 32. Nunca más cerca de la punta que el herraje más cercano de esa
 unión, y el tarugo se mueve antes que la excéntrica. Las hileras de
-soportes no se mueven. Lo que no se puede despejar sigue siendo `FAB-205`
+soportes no se mueven (dos estantes a la misma altura a cada lado de un
+divisor comparten un agujero pasante). Una bisagra también se corre si su
+base cae donde un estante toca el panel. Si dos herrajes del reparto de una
+unión corta caen a menos de 32 mm, se juntan al centro a 32 (o queda uno), y
+dos bisagras de una puerta baja se separan lo que pide su cazoleta, no una
+sola línea de grilla. Lo que no se puede despejar sigue siendo `FAB-205`
 (dos herrajes de un mismo tipo en una misma unión son el reparto del autor:
 `fixtures/invalid_cabinet` usa un tarugo con el reparto de la excéntrica y
 ahí el tarugo se corre).
@@ -612,15 +658,15 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 
 | familia | qué cubre |
 |---|---|
-| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes; `103` un `when` que no es condición; `322/323` lateral o faldón sin medida o sin tapa; `501–503` opciones sobre un parámetro inexistente, sobre una fórmula, o con el valor fuera de cota); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo (`212`), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`), cajones interiores en el plano de una puerta embutida (`214`, con el retranqueo como arreglo) |
-| `PARAM-*` | ciclos o expresiones inválidas en parámetros |
+| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes; `002` más de 2000 piezas, que es una cantidad desbocada y no un mueble; `103` un `when` que no es condición; `302` ranura del fondo fuera de la pieza; `304` retiros o luces negativos; `318` más estantes sobre soportes que líneas libres en la grilla; `322/323` lateral o faldón sin medida o sin tapa, faldón con retiro negativo; `324` tirador en un cajón interior que no entra en su retiro; `330` reparto de herrajes con `maxSpacing` ≤ 0; `501–503` opciones sobre un parámetro inexistente, sobre una fórmula, o con el valor fuera de cota); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo (`212`), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`), cajones interiores en el plano de una puerta embutida (`214`, con el retranqueo como arreglo) |
+| `PARAM-*` | ciclos o expresiones inválidas en parámetros (un resultado que no es un número finito, como la raíz de un negativo, es error; `and`/`or` cortan en el lado que decide; más de 64 niveles de anidamiento o 2000 símbolos no se aceptan) |
 | `LIB-*` | material, canto o herraje desconocido |
 | `CON-001` | una restricción declarada no se cumple |
 | `JOINT-*` | las piezas no se tocan, el tipo de contacto no está soportado, o el herraje no es del tipo de la unión (`JOINT-104`) |
-| `FAB-1xx` | geometría: piezas superpuestas |
-| `FAB-2xx` | mecanizado: perforación fuera de cara, distancia al borde, profundidad, cruces de perforaciones, ranura, mecha inexistente, operación no admitida, perforación que cae dentro de una ranura (`208`: el tarugo iría donde corre el fondo) |
-| `FAB-3xx` | material/máquina: no sale de la placa, excede el área de trabajo, espesor incompatible con el herraje |
-| `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra; `111` carga: puerta más pesada que lo que aguantan sus bisagras, o cajón cuya caja más 10 kg de contenido supera la corredera (`maxLoadKg` del herraje; el peso sale de la densidad del material); `113` (info) medida escrita como número donde va un parámetro; `114` barral con menos de 900 mm libres debajo; `115` tapa de trabajo de más de 2400 o con más de 1200 de luz entre apoyos; `117` tapa sobre laterales sueltos sin faldón, o lateral que no sostiene nada; `116` cierres: push-open con cierre suave (lo anula) o con tirador (info), o dos puertas por bahía sin tapa ni base al borde de la zona donde apoyar el cierre |
+| `FAB-1xx` | geometría: piezas superpuestas (`101`); una pata que atraviesa una pieza u otra pata (`102`); una bisagra cuya base cae donde otra pieza toca el panel, o cuya cazoleta choca con algo detrás de la puerta, y que no encontró otra línea libre (`103`) |
+| `FAB-2xx` | mecanizado: perforación fuera de cara, distancia al borde, profundidad, cruces de perforaciones, ranura, mecha inexistente, operación no admitida, ranura que deja poco material (`208`), perforación que cae dentro de una ranura (`209`: el tarugo iría donde corre el fondo) |
+| `FAB-3xx` | material/máquina: no sale de la placa (con el mismo margen que usa el nesting: una pieza que sólo entra en la placa pelada quedaría afuera de todo acomodo), excede el área de trabajo, espesor incompatible con el herraje |
+| `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra; `111` carga: puerta más pesada que lo que aguantan sus bisagras, o cajón cuya caja más 10 kg de contenido supera la corredera (`maxLoadKg` del herraje; el peso sale de la densidad del material); `113` (info) medida escrita como número donde va un parámetro; `114` barral con menos de 900 mm libres debajo; `115` tapa de trabajo de más de 2400 o con más de 1200 de luz entre apoyos; `117` tapa sobre laterales sueltos sin faldón, o lateral que no sostiene nada; `116` cierres: push-open con cierre suave (lo anula) o con tirador (info), o dos puertas por bahía sin tapa ni base al borde de la zona donde apoyar el cierre; `118` una puerta abierta a 95° choca con un cajón abierto (sacado lo que da su corredera) o con otra puerta abierta, con el otro lado de bisagra como arreglo cuando la puerta está sola en su bahía (los cajones interiores detrás de una puerta no: van sobre distanciadores; queda sólo si la biblioteca no tiene uno bastante grueso) |
 | `CAM-2xx` | sin herramienta para una ranura o el contorno; perforación de canto sin taladro horizontal |
 | `STAGE-*` | aviso de algo que la etapa actual no cubre (ninguno activo hoy) |
 

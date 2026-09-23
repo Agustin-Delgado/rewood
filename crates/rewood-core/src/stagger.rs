@@ -10,6 +10,10 @@
 //!   other) to the next holes of the rails, 32 mm on;
 //! - a hinge, cup and plate together, one System 32 pitch.
 //!
+//! The same goes for hardware that lands under another part: a hinge
+//! plate where a fixed shelf meets the side cannot be screwed on, so the
+//! hinge moves until its plate is clear.
+//!
 //! Shelf-pin rows do not move. Hole ids stay; only positions change, and
 //! the rules still see whatever could not be cleared.
 
@@ -33,7 +37,7 @@ const PITCH_STEPS: [f64; 4] = [32.0, -32.0, 64.0, -64.0];
 const MAX_MOVES: usize = 500;
 
 /// A fastener: joint id, hardware, index within that hardware.
-type Group = (String, String, usize);
+pub(crate) type Group = (String, String, usize);
 /// Operation index and its (u, v) before a tentative move.
 type Saved = Vec<(usize, f64, f64)>;
 
@@ -111,6 +115,106 @@ fn next_movable(
             }
         }
     }
+    // Hardware sitting under a part it does not join.
+    for part in parts {
+        for op in &part.operations {
+            let Some(s) = &op.source else { continue };
+            let g: Group = (s.joint.clone(), s.hardware.clone(), s.fastener);
+            if stuck.contains(&g) || freedom(joints, &g.0).is_none() {
+                continue;
+            }
+            if blocked(parts, joints, &g) {
+                return Some(g);
+            }
+        }
+    }
+    None
+}
+
+/// Extra reach of a hinge's mounting plate past its screw holes, along
+/// the hinge line and across it: the plate is 44 × 30 around two holes.
+const PLATE_REACH: f64 = 8.0;
+
+/// The fastener's footprint on each face it drills, just outside the face,
+/// runs into a part other than the two it joins. For a hinge the footprint
+/// on the panel is the whole mounting plate, not only its screw holes.
+pub(crate) fn blocked(parts: &[Part], joints: &[Joint], group: &Group) -> bool {
+    blocker(parts, joints, group).is_some()
+}
+
+/// What is in the way, if anything: the part, and whether it meets the
+/// mounting plate (on the panel) or the cup (behind the door).
+pub(crate) fn blocker(parts: &[Part], joints: &[Joint], group: &Group) -> Option<(String, bool)> {
+    let joint = joints.iter().find(|j| j.id == group.0)?;
+    // Only a hinge has a body on the panel wider than its holes; a dowel
+    // under the back panel is FAB-209's to report, not this to hide.
+    if joint.kind != "hinge" {
+        return None;
+    }
+    for part in parts {
+        let mut lo = [f64::INFINITY; 3];
+        let mut hi = [f64::NEG_INFINITY; 3];
+        let mut normal = None;
+        let mut plate = false;
+        for op in &part.operations {
+            let ours = op.source.as_ref().is_some_and(|s| {
+                s.joint == group.0 && s.hardware == group.1 && s.fastener == group.2
+            });
+            let OpGeometry::Drill { u, v, diameter, .. } = op.geometry else {
+                continue;
+            };
+            if !ours {
+                continue;
+            }
+            // The hinge cup is bored into the door, the plate screwed to
+            // the panel: only the plate reaches past its holes.
+            let label = op.source.as_ref().map(|s| s.label.as_str()).unwrap_or("");
+            let reach = if label.starts_with("plate") {
+                plate = true;
+                PLATE_REACH
+            } else {
+                0.0
+            };
+            let m = part
+                .placement
+                .to_world(part.dims.uv_to_local(op.face, u, v));
+            let n = part.placement.world_axis(op.face.normal_local());
+            normal = Some(n);
+            let m = [m.0, m.1, m.2];
+            for i in 0..3 {
+                let r = if i == n.index() {
+                    0.0
+                } else {
+                    diameter / 2.0 + reach
+                };
+                lo[i] = lo[i].min(m[i] - r);
+                hi[i] = hi[i].max(m[i] + r);
+            }
+        }
+        let Some(n) = normal else { continue };
+        // A thin slab just off the face.
+        let i = n.index();
+        let (a, b) = if n.sign() > 0.0 {
+            (hi[i] + 0.01, hi[i] + 1.0)
+        } else {
+            (lo[i] - 1.0, lo[i] - 0.01)
+        };
+        lo[i] = a;
+        hi[i] = b;
+        let slab = crate::geometry::Aabb {
+            min: Vec3(lo[0], lo[1], lo[2]),
+            max: Vec3(hi[0], hi[1], hi[2]),
+        };
+        let covering = parts.iter().find(|q| {
+            q.id != part.id
+                && q.id != joint.edge_part
+                && q.id != joint.face_part
+                && q.aabb.intersection(&slab).is_some()
+        });
+        if let Some(q) = covering {
+            return Some((q.id.clone(), plate));
+        }
+    }
     None
 }
 
@@ -174,7 +278,7 @@ fn try_move(parts: &mut [Part], joints: &mut [Joint], libs: &Libraries, group: &
                     .filter(|c| c.group != m.group)
                     .all(|o| !clash(m, o, spacing))
             }) && inside(part, group)
-        });
+        }) && !blocked(parts, joints, group);
         if clear {
             let f = &mut joints[ji].fasteners[fi];
             f.position = f.position + d;
@@ -235,4 +339,42 @@ fn inside(part: &Part, group: &Group) -> bool {
             _ => true,
         }
     })
+}
+
+/// Shelf-pin holes that meet another hole through the panel (a slide's
+/// screw on the other face of a divider): the shelves component and the
+/// world Z of the pin hole, for the shelf to take another grid line. Rows
+/// do not move here; the shelves are rebuilt instead.
+pub(crate) fn pin_conflicts(
+    parts: &[Part],
+    joints: &[Joint],
+    libs: &Libraries,
+) -> std::collections::BTreeMap<String, Vec<f64>> {
+    let spacing = libs.profile.min_hole_spacing;
+    let is_row = |g: &Group| libs.hardware.get(&g.1).is_some_and(|h| h.kind == "pin_row");
+    let mut out: std::collections::BTreeMap<String, Vec<f64>> = std::collections::BTreeMap::new();
+    for part in parts {
+        let cyls = cylinders(part, thickness(part, libs));
+        for a in &cyls {
+            let Some(ga) = &a.group else { continue };
+            if !is_row(ga) {
+                continue;
+            }
+            let hit = cyls
+                .iter()
+                .any(|b| b.group.as_ref().is_some_and(|gb| !is_row(gb)) && clash(a, b, spacing));
+            if !hit {
+                continue;
+            }
+            let Some(joint) = joints.iter().find(|j| j.id == ga.0) else {
+                continue;
+            };
+            let z = part.placement.to_world(a.start).2;
+            let list = out.entry(joint.component.clone()).or_default();
+            if !list.iter().any(|v| (v - z).abs() < 1e-6) {
+                list.push(z);
+            }
+        }
+    }
+    out
 }

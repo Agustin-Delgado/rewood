@@ -203,7 +203,36 @@ pub fn steps(plan: &ManufacturingPlan) -> Vec<Step> {
                         ],
                     );
                 }
-                if let Some(plinth_id) = named("plinth") {
+                // Hangers: the carcass's other fixtures (on its sides), for a
+                // wall-hung cabinet, once it stands closed.
+                let plinth = named("plinth");
+                let hanger_joints: Vec<&str> = joints
+                    .iter()
+                    .filter(|j| {
+                        j.kind == "fixture"
+                            && bottom.as_ref() != Some(&j.face_part)
+                            && plinth.as_ref() != Some(&j.face_part)
+                    })
+                    .map(|j| j.id.as_str())
+                    .collect();
+                if !hanger_joints.is_empty() {
+                    let mut sides: Vec<String> = hanger_joints
+                        .iter()
+                        .filter_map(|id| joints.iter().find(|j| j.id == *id))
+                        .map(|j| part_label(plan, &j.face_part))
+                        .collect();
+                    sides.dedup();
+                    push(
+                        format!("Atornillar los colgadores de '{component}'"),
+                        sides,
+                        count_hw(&hanger_joints),
+                        vec![
+                            "Cada colgador va en la esquina superior trasera de su lateral, sobre sus perforaciones piloto, con el gancho hacia atrás.".into(),
+                            "En la pared, el riel a la altura que dé el mueble; colgalo y regulá altura y profundidad con los tornillos del colgador.".into(),
+                        ],
+                    );
+                }
+                if let Some(plinth_id) = plinth {
                     let clip_joints: Vec<&str> = joints
                         .iter()
                         .filter(|j| j.kind == "fixture" && j.face_part == plinth_id)
@@ -232,15 +261,28 @@ pub fn steps(plan: &ManufacturingPlan) -> Vec<Step> {
                         .get(&format!("{component}.pin_holes_per_row"))
                         .copied()
                         .unwrap_or(0.0);
-                    push(
-                        format!("Colocar los estantes regulables de '{component}'"),
-                        parts.iter().map(|p| part_label(plan, &p.id)).collect(),
-                        hardware,
-                        vec![
+                    // One hole per shelf and row: the shelf only goes there.
+                    let movable = per_row > parts.len() as f64;
+                    let (title, where_) = if movable {
+                        (
+                            "Colocar los estantes regulables",
                             format!(
                                 "Con el mueble cerrado: cuatro soportes por estante en las hileras de Ø5 ({} agujeros por hilera, cada 32 mm), a la misma altura los cuatro.",
                                 per_row
                             ),
+                        )
+                    } else {
+                        (
+                            "Colocar los estantes sobre soportes",
+                            "Con el mueble cerrado: un soporte en cada uno de los cuatro agujeros de Ø5 que lleva cada estante.".to_string(),
+                        )
+                    };
+                    push(
+                        format!("{title} de '{component}'"),
+                        parts.iter().map(|p| part_label(plan, &p.id)).collect(),
+                        hardware,
+                        vec![
+                            where_,
                             "El estante entra con 1 mm de juego por lado; el frente con tapacanto mira adelante.".into(),
                         ],
                     );
@@ -291,15 +333,26 @@ pub fn steps(plan: &ManufacturingPlan) -> Vec<Step> {
                         .replace("bay", "bahía ")
                         .replace("_drawer_", " cajón ")
                         .replace("drawer_", "cajón ");
+                    // A slide joint names a second hardware only for the
+                    // spacer under it.
+                    let spaced = joints.iter().any(|j| {
+                        own_joints.contains(&j.id.as_str())
+                            && j.kind == "slide"
+                            && j.hardware.len() > 1
+                    });
+                    let mut notes: Vec<String> = vec![
+                        "Armá la caja: frente interior y trasera entre los laterales, con el fondo deslizado en la ranura antes de cerrar.".into(),
+                    ];
+                    if spaced {
+                        notes.push("Del lado de la bisagra de la puerta, atornillá primero el distanciador en el panel (sobre los pilotos de la corredera) y la corredera sobre él: así el cajón sale sin tocar la puerta abierta.".into());
+                    }
+                    notes.push("Atornillá la mitad fija de la corredera en el panel de la carcasa (sobre sus pilotos, desde el frente) y la móvil en el lateral de la caja; encastrá.".into());
+                    notes.push("Con la caja colocada, atornillá el frente desde adentro y montá el tirador.".into());
                     push(
                         format!("Armar y montar {label} ('{component}')"),
                         ids.iter().map(|id| part_label(plan, id)).collect(),
                         count_hw(&own_joints),
-                        vec![
-                            "Armá la caja: frente interior y trasera entre los laterales, con el fondo deslizado en la ranura antes de cerrar.".into(),
-                            "Atornillá la mitad fija de la corredera en el panel de la carcasa (sobre sus pilotos, desde el frente) y la móvil en el lateral de la caja; encastrá.".into(),
-                            "Con la caja colocada, atornillá el frente desde adentro y montá el tirador.".into(),
-                        ],
+                        notes,
                     );
                 }
             }

@@ -154,3 +154,53 @@ fn leg_envelope(
         max: Vec3(max[0], max[1], max[2]),
     }
 }
+
+/// FAB-103: a hinge's mounting plate lands where another part meets the
+/// panel (a fixed shelf, a rail support) and the engine found no free spot
+/// to move the hinge to: the plate cannot be screwed on.
+pub struct HingePlateBlocked;
+
+impl Rule for HingePlateBlocked {
+    fn id(&self) -> &'static str {
+        "FAB-103"
+    }
+
+    fn check(&self, input: &RuleInput<'_>) -> Vec<Diagnostic> {
+        let mut out = Vec::new();
+        for joint in input.joints.iter().filter(|j| j.kind == "hinge") {
+            for f in &joint.fasteners {
+                let group = (joint.id.clone(), f.hardware.clone(), f.index);
+                if let Some((other, plate)) =
+                    crate::stagger::blocker(input.parts, input.joints, &group)
+                {
+                    let name = input
+                        .parts
+                        .iter()
+                        .find(|p| p.id == other)
+                        .map_or(String::new(), |p| format!(" ({})", p.name));
+                    let what = if plate {
+                        "la base no se puede atornillar"
+                    } else {
+                        "la cazoleta y el brazo chocan al cerrar"
+                    };
+                    out.push(
+                        Diagnostic::new(
+                            self.id(),
+                            Severity::Error,
+                            format!(
+                                "la bisagra {} de {} a {} mm de altura cae sobre {other}{name}: {what}",
+                                f.index + 1,
+                                joint.edge_part,
+                                mm(f.position.2)
+                            ),
+                        )
+                        .entity(joint.edge_part.clone())
+                        .location(joint.id.clone())
+                        .suggestion("Mové esa pieza (un cajón interior detrás de una puerta lleva retiro) o cambiá la cantidad de bisagras."),
+                    );
+                }
+            }
+        }
+        out
+    }
+}

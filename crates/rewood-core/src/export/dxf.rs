@@ -1,6 +1,7 @@
 //! One DXF (R12 ASCII) per part: the finished outline seen from the
 //! part's `front` face, every hole as a circle on a layer that names its
-//! face, diameter and depth, edge holes as short lines from the edge
+//! face, diameter and depth (R12 layer names allow no decimal point, so
+//! Ø4.5 reads `D4_5`), edge holes as short lines from the edge
 //! inward, grooves as their footprint. Enough for a CAM operator to import
 //! without interpreting anything.
 //!
@@ -15,6 +16,41 @@ use crate::geometry::Face;
 use crate::model::{OpGeometry, Part};
 use crate::units::round3;
 
+/// R12 layer names take `A-Z 0-9 $ - _` only: a decimal point becomes an
+/// underscore (`D4_5` is a Ø4.5 hole).
+fn layer_num(v: f64) -> String {
+    num(v).trim_end_matches(".0").replace('.', "_")
+}
+
+fn valid_layer(name: &str) -> bool {
+    name.chars()
+        .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || matches!(c, '$' | '-' | '_'))
+}
+
+/// Text for an R12 TEXT entity: one line, plain ASCII (no code page is
+/// declared, so accents are spelled without them).
+fn plain_text(s: &str) -> String {
+    s.chars()
+        .map(|c| match c {
+            'á' | 'à' | 'ä' | 'â' => 'a',
+            'é' | 'è' | 'ë' | 'ê' => 'e',
+            'í' | 'ì' | 'ï' | 'î' => 'i',
+            'ó' | 'ò' | 'ö' | 'ô' => 'o',
+            'ú' | 'ù' | 'ü' | 'û' => 'u',
+            'Á' | 'À' | 'Ä' | 'Â' => 'A',
+            'É' | 'È' | 'Ë' | 'Ê' => 'E',
+            'Í' | 'Ì' | 'Ï' | 'Î' => 'I',
+            'Ó' | 'Ò' | 'Ö' | 'Ô' => 'O',
+            'Ú' | 'Ù' | 'Ü' | 'Û' => 'U',
+            'ñ' => 'n',
+            'Ñ' => 'N',
+            '×' => 'x',
+            c if c.is_ascii() && !c.is_ascii_control() => c,
+            _ => '?',
+        })
+        .collect()
+}
+
 fn num(v: f64) -> String {
     let r = round3(v);
     if r.fract() == 0.0 {
@@ -26,7 +62,7 @@ fn num(v: f64) -> String {
 
 fn depth_tag(depth: Option<f64>) -> String {
     match depth {
-        Some(d) => format!("L{}", num(d).trim_end_matches(".0")),
+        Some(d) => format!("L{}", layer_num(d)),
         None => "THRU".to_string(),
     }
 }
@@ -56,6 +92,7 @@ impl Dxf {
     }
 
     fn layer(&mut self, name: &str) {
+        debug_assert!(valid_layer(name), "{name}");
         if !self.layers.iter().any(|l| l == name) {
             self.layers.push(name.to_string());
         }
@@ -143,7 +180,7 @@ pub fn part_dxf(part: &Part) -> String {
                 let layer = format!(
                     "DRILL_{}_D{}_{}",
                     face_tag(op.face),
-                    num(*diameter).trim_end_matches(".0"),
+                    layer_num(*diameter),
                     depth_tag(*depth)
                 );
                 match op.face {
@@ -173,8 +210,8 @@ pub fn part_dxf(part: &Part) -> String {
                 let layer = format!(
                     "GROOVE_{}_W{}_L{}",
                     face_tag(op.face),
-                    num(*width).trim_end_matches(".0"),
-                    num(*depth).trim_end_matches(".0")
+                    layer_num(*width),
+                    layer_num(*depth)
                 );
                 let (x0, y0) = (from[0].min(to[0]), from[1].min(to[1]));
                 let (x1, y1) = (from[0].max(to[0]), from[1].max(to[1]));
@@ -186,7 +223,7 @@ pub fn part_dxf(part: &Part) -> String {
                 }
             }
             OpGeometry::EdgeBand { thickness, .. } => {
-                let layer = format!("EDGE_BAND_{}", num(*thickness).trim_end_matches(".0"));
+                let layer = format!("EDGE_BAND_{}", layer_num(*thickness));
                 let (x1, y1, x2, y2) = match op.face {
                     Face::Left => (0.0, 0.0, 0.0, wid),
                     Face::Right => (len, 0.0, len, wid),
@@ -198,18 +235,18 @@ pub fn part_dxf(part: &Part) -> String {
         }
     }
 
-    let label = format!(
+    let label = plain_text(&format!(
         "{} {} {}x{}x{}",
         part.id,
         part.name,
         num(len).trim_end_matches(".0"),
         num(wid).trim_end_matches(".0"),
         num(part.dims.thickness).trim_end_matches(".0")
-    );
+    ));
     let height = (wid / 12.0).clamp(5.0, 30.0);
     dxf.text(
         "LABEL",
-        len / 2.0 - label.len() as f64 * height * 0.3,
+        (len / 2.0 - label.chars().count() as f64 * height * 0.3).max(0.0),
         wid / 2.0,
         height,
         &label,
@@ -231,8 +268,8 @@ mod tests {
         assert!(dxf.ends_with("0\nEOF\n"));
         assert!(dxf.contains("\nOUTLINE\n"));
         assert!(dxf.contains("DRILL_FRONT_D8_L13"));
-        assert!(dxf.contains("DRILL_FRONT_D5_L11.5"));
-        assert!(dxf.contains("GROOVE_FRONT_W3.2_L8"));
+        assert!(dxf.contains("DRILL_FRONT_D5_L11_5"));
+        assert!(dxf.contains("GROOVE_FRONT_W3_2_L8"));
         assert!(dxf.contains("EDGE_BAND_1"));
         assert_eq!(dxf.matches("\nCIRCLE\n").count(), 16);
         // Deterministic: same part, same bytes.

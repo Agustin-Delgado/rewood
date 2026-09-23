@@ -34,6 +34,11 @@ export function loadEngine(): Promise<Engine> {
       schemaVersion: () => wasm.schema_version(),
       libraries: () => JSON.parse(wasm.libraries()) as LibrariesSnapshot,
     }));
+    // A failed load (network, a blocked fetch) is not kept: the next call
+    // tries again instead of failing until the page reloads.
+    ready.catch(() => {
+      ready = null;
+    });
   }
   return ready;
 }

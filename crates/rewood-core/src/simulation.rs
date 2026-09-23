@@ -26,7 +26,7 @@ use crate::units::{round3, EPS};
 /// Machine envelope and kinematics used by the simulation. Part of the
 /// profile; every field has a default so an older profile still loads.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 pub struct MachineLimits {
     /// Highest Z the head can go to, above the blank's top surface.
     pub travel_z: f64,
@@ -63,7 +63,7 @@ impl Default for MachineLimits {
 /// under the blank −18). The tool collides when its tip is at or below
 /// `top` while its footprint overlaps the rectangle.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 pub struct Fixture {
     pub name: String,
     pub x: f64,
@@ -421,6 +421,24 @@ pub fn simulate(
                         ),
                     ));
                 }
+                // One bite per pass: G81 goes the whole depth at once, G83
+                // by Q; either may not take more than the tool allows.
+                let bite = if st.motion == Some(83) && st.cycle_q > EPS {
+                    st.cycle_q
+                } else {
+                    depth
+                };
+                if bite > tool.max_depth_per_pass + 0.01 {
+                    findings.push((
+                        "CAM-309",
+                        format!(
+                            "línea {line_no}: {} baja {} mm de una vez y admite {}",
+                            tool.id,
+                            round3(bite),
+                            round3(tool.max_depth_per_pass)
+                        ),
+                    ));
+                }
                 let plunge = st.cycle_r - st.cycle_z;
                 let feed = if st.feed > 0.0 { st.feed } else { tool.feed_z };
                 let pecks = if st.motion == Some(83) && st.cycle_q > EPS {
@@ -523,6 +541,20 @@ pub fn simulate(
                             ),
                         ));
                     }
+                    // A descent into the material is a new pass: no deeper
+                    // than the tool takes in one.
+                    let descent = st.z.min(0.0) - z;
+                    if descent > tool.max_depth_per_pass + 0.01 {
+                        findings.push((
+                            "CAM-309",
+                            format!(
+                                "línea {line_no}: {} baja {} mm en una pasada y admite {}",
+                                tool.id,
+                                round3(descent),
+                                round3(tool.max_depth_per_pass)
+                            ),
+                        ));
+                    }
                     let feed = if st.feed > 0.0 {
                         st.feed
                     } else {
@@ -596,8 +628,15 @@ pub fn simulate(
         collapsed.push((code, msg));
     }
     for (code, msg) in collapsed {
+        // A rapid into the material or a move off the table crashes the
+        // machine: that program must not reach the workshop.
+        let severity = if matches!(code, "CAM-301" | "CAM-304") {
+            Severity::Fatal
+        } else {
+            Severity::Error
+        };
         diags.push(
-            Diagnostic::new(code, Severity::Error, format!("{name}: {msg}"))
+            Diagnostic::new(code, severity, format!("{name}: {msg}"))
                 .entity(program.part.clone())
                 .location(name.clone()),
         );
@@ -690,6 +729,46 @@ fn verify_operations(
                                 && covers(from, to, [a[0], a[1]], [b[0], b[1]], half))
                 });
                 let idx: Vec<usize> = full.map(|(i, _)| i).collect();
+                // The full-depth passes, side by side, have to take the
+                // whole width, and none may cut past it.
+                let r = o.tool.diameter / 2.0;
+                let (dx, dy) = (to[0] - from[0], to[1] - from[1]);
+                let len = dx.hypot(dy).max(EPS);
+                let (nx, ny) = (-dy / len, dx / len);
+                let mut bands: Vec<(f64, f64)> = idx
+                    .iter()
+                    .filter_map(|i| match &cuts[*i] {
+                        Cut::Segment { from: a, .. } => {
+                            let off = (a[0] - from[0]) * nx + (a[1] - from[1]) * ny;
+                            Some((off - r, off + r))
+                        }
+                        _ => None,
+                    })
+                    .collect();
+                bands.sort_by(|a, b| a.0.total_cmp(&b.0));
+                let mut reach = -width / 2.0;
+                let mut gap_left = false;
+                for (lo, hi) in &bands {
+                    if *lo > reach + 0.01 {
+                        gap_left = true;
+                    }
+                    reach = reach.max(*hi);
+                }
+                let narrow = !idx.is_empty() && (gap_left || reach < width / 2.0 - 0.01);
+                let wide = bands
+                    .iter()
+                    .any(|(lo, hi)| *lo < -width / 2.0 - 0.01 || *hi > width / 2.0 + 0.01);
+                if narrow || wide {
+                    findings.push((
+                        "CAM-306",
+                        format!(
+                            "{}: la ranura de {} mm queda {} en el NC",
+                            o.source,
+                            round3(*width),
+                            if wide { "más ancha" } else { "más angosta" }
+                        ),
+                    ));
+                }
                 if idx.is_empty() {
                     findings.push((
                         "CAM-306",
@@ -791,13 +870,38 @@ fn verify_operations(
             verified += 1;
         }
     }
-    // Cuts nobody asked for: holes (a slot's shallower passes and the
-    // contour's upper passes are legitimate leftovers, so segments are
-    // only reported when the program has no milling at all).
-    let mills = program
-        .operations
-        .iter()
-        .any(|o| matches!(o.op, ToolOp::Slot { .. } | ToolOp::Contour { .. }));
+    // Cuts nobody asked for: holes, edge drilling, and milling below the
+    // surface outside every slot's and contour's corridor (a slot's
+    // shallower passes and plunges stay inside its own).
+    let in_corridor = |tool: &str, a: &[f64; 3], b: &[f64; 3]| {
+        program.operations.iter().any(|o| {
+            if o.tool.id != tool {
+                return false;
+            }
+            let r = o.tool.diameter / 2.0;
+            match &o.op {
+                ToolOp::Slot {
+                    from, to, width, ..
+                } => {
+                    let lateral = (width / 2.0 - r).max(0.0) + 0.01;
+                    covers_part(from, to, [a[0], a[1]], [b[0], b[1]], lateral)
+                }
+                ToolOp::Contour { length, width, .. } => {
+                    let (l, w) = (*length, *width);
+                    let sides = [
+                        ([-r, -r], [l + r, -r]),
+                        ([l + r, -r], [l + r, w + r]),
+                        ([l + r, w + r], [-r, w + r]),
+                        ([-r, w + r], [-r, -r]),
+                    ];
+                    sides
+                        .iter()
+                        .any(|(p, q)| covers_part(p, q, [a[0], a[1]], [b[0], b[1]], 0.01))
+                }
+                _ => false,
+            }
+        })
+    };
     for (i, c) in cuts.iter().enumerate() {
         if used[i] {
             continue;
@@ -826,7 +930,7 @@ fn verify_operations(
                     round3(*height)
                 ),
             )),
-            Cut::Segment { from, to, .. } if !mills => findings.push((
+            Cut::Segment { tool, from, to } if !in_corridor(tool, from, to) => findings.push((
                 "CAM-307",
                 format!(
                     "el NC fresa de {:?} a {:?} y ninguna operación lo pide",
@@ -838,6 +942,25 @@ fn verify_operations(
         }
     }
     verified
+}
+
+/// Does the segment a→b lie on p→q's line (within `lateral`) and between
+/// its ends? It need not cover it: a plunge or a partial pass is fine.
+fn covers_part(p: &[f64; 2], q: &[f64; 2], a: [f64; 2], b: [f64; 2], lateral: f64) -> bool {
+    let dx = q[0] - p[0];
+    let dy = q[1] - p[1];
+    let len = (dx * dx + dy * dy).sqrt();
+    if len <= EPS {
+        return (a[0] - p[0]).hypot(a[1] - p[1]) <= lateral
+            && (b[0] - p[0]).hypot(b[1] - p[1]) <= lateral;
+    }
+    let (ux, uy) = (dx / len, dy / len);
+    let inside = |r: [f64; 2]| {
+        let along = (r[0] - p[0]) * ux + (r[1] - p[1]) * uy;
+        let across = (r[0] - p[0]) * -uy + (r[1] - p[1]) * ux;
+        along >= -lateral - 0.01 && along <= len + lateral + 0.01 && across.abs() <= lateral
+    };
+    inside(a) && inside(b)
 }
 
 /// Does the segment a→b run along p→q (either direction) and cover it,
@@ -898,6 +1021,88 @@ mod tests {
             .map(|p| simulate(p, &post.render(p), &profile, &mut Diagnostics::default()).seconds)
             .sum();
         assert_eq!(total, again);
+    }
+
+    #[test]
+    fn a_nesting_router_program_survives_its_own_simulation_too() {
+        // Every fixture, on the raw panel: shifted holes, the outline at the
+        // cut size, edge drilling in its own setup after banding.
+        let dir = format!("{}/../../fixtures", env!("CARGO_MANIFEST_DIR"));
+        let mut profile = Libraries::default().profile;
+        profile.workflow = crate::library::profile::Workflow::NestedRouter;
+        let post = GenericIso::default();
+        for entry in std::fs::read_dir(&dir).unwrap() {
+            let path = entry.unwrap().path();
+            if path.ends_with("invalid_cabinet") {
+                continue;
+            }
+            let plan =
+                crate::compile_json(&std::fs::read_to_string(path.join("input.json")).unwrap());
+            for part in &plan.parts {
+                let mut diags = Diagnostics::default();
+                for p in crate::cam::programs(part, &profile, &mut diags) {
+                    let sim = simulate(&p, &post.render(&p), &profile, &mut diags);
+                    assert_eq!(
+                        sim.operations_verified,
+                        p.operations.len(),
+                        "{path:?} {}",
+                        p.name()
+                    );
+                }
+                assert!(diags.items.is_empty(), "{path:?}: {:#?}", diags.items);
+            }
+        }
+    }
+
+    #[test]
+    fn a_post_that_bites_too_deep_skimps_a_slot_or_mills_elsewhere_is_caught() {
+        let (progs, profile) =
+            programs_of(include_str!("../../../fixtures/basic_cabinet/input.json"));
+        let post = GenericIso::default();
+        // A side: its back groove is 3.2 wide, cut with a Ø3 end mill in
+        // passes of at most its pass depth.
+        let p = progs
+            .iter()
+            .find(|p| {
+                p.operations
+                    .iter()
+                    .any(|o| matches!(o.op, ToolOp::Slot { .. }))
+            })
+            .unwrap();
+        let codes = |nc: &str| {
+            let mut diags = Diagnostics::default();
+            simulate(p, nc, &profile, &mut diags);
+            diags
+                .items
+                .iter()
+                .map(|d| d.code.clone())
+                .collect::<Vec<_>>()
+        };
+        assert!(codes(&post.render(p)).is_empty());
+
+        // The whole groove depth in one pass.
+        let mut greedy = p.clone();
+        for o in &mut greedy.operations {
+            o.tool.max_depth_per_pass = 100.0;
+        }
+        assert!(codes(&post.render(&greedy)).contains(&"CAM-309".to_string()));
+
+        // One pass down the middle: the groove comes out 3 mm, not 3.2.
+        let mut narrow = p.clone();
+        for o in &mut narrow.operations {
+            if let ToolOp::Slot { width, .. } = &mut o.op {
+                *width = o.tool.diameter;
+            }
+        }
+        let got = codes(&post.render(&narrow));
+        assert!(got.contains(&"CAM-306".to_string()), "{got:?}");
+
+        // A feed move across the panel with the tool still down.
+        let nc = post.render(p);
+        let at = nc.find("G01 Z-").unwrap();
+        let end = at + nc[at..].find('\n').unwrap() + 1;
+        let stray = format!("{}G01 X200 Y200 F1000\n{}", &nc[..end], &nc[end..]);
+        assert!(codes(&stray).contains(&"CAM-307".to_string()));
     }
 
     #[test]
@@ -973,8 +1178,16 @@ mod tests {
 
     #[test]
     fn a_clamp_in_the_contour_path_is_a_collision_and_a_pod_under_a_hole_too() {
-        let (progs, mut profile) =
-            programs_of(include_str!("../../../fixtures/basic_cabinet/input.json"));
+        // A router cutting the outline: the case where a clamp is in its way.
+        let plan = crate::compile_json(include_str!("../../../fixtures/basic_cabinet/input.json"));
+        let mut profile = Libraries::default().profile;
+        profile.workflow = crate::library::profile::Workflow::NestedRouter;
+        let mut diags = Diagnostics::default();
+        let progs: Vec<Program> = plan
+            .parts
+            .iter()
+            .flat_map(|p| crate::cam::programs(p, &profile, &mut diags))
+            .collect();
         let post = GenericIso::default();
         let p = &progs[0];
         let nc = post.render(p);

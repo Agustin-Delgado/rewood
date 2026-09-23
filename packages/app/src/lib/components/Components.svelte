@@ -13,7 +13,7 @@
 	const edgeMaterials = $derived(Object.values(libs?.materials.edgeMaterials ?? {}));
 	const byKind = (kinds: string[]) => hardware.filter((h) => kinds.includes(h.kind));
 	const fasteners = $derived(
-		hardware.filter((h) => !['hinge', 'slide', 'handle', 'leg', 'clip', 'rail_support', 'rail', 'hanger', 'pin_row', 'pin', 'catch', 'strike'].includes(h.kind))
+		hardware.filter((h) => !['hinge', 'slide', 'handle', 'leg', 'clip', 'rail_support', 'rail', 'hanger', 'pin_row', 'pin', 'catch', 'strike', 'spacer'].includes(h.kind))
 	);
 	// Base variants: the engine swaps the arm and the damper in itself.
 	const hingeFamilies = $derived(byKind(['hinge']).filter((h) => !h.hinge?.softClose && h.hinge?.mount !== 'half_overlay' && h.hinge?.mount !== 'inset'));
@@ -112,9 +112,30 @@
 	}
 
 	let newType: ComponentSpec['type'] = $state('shelves');
+	/** The first free id for a type: `shelves`, then `shelves_2`, `shelves_3`… */
+	function freeId(type: string): string {
+		const taken = new Set(app.spec.components.map((c) => c.id));
+		if (!taken.has(type)) return type;
+		let n = 2;
+		while (taken.has(`${type}_${n}`)) n += 1;
+		return `${type}_${n}`;
+	}
+	/** Ids key the list and every reference to a component: two alike break both. */
+	let idError: { component: string; message: string } | null = $state(null);
+	function rename(c: ComponentSpec, input: HTMLInputElement) {
+		const id = input.value.trim();
+		if (id === c.id) return;
+		const clash = id === '' ? 'no puede quedar vacío' : app.spec.components.some((o) => o !== c && o.id === id) ? `ya hay un componente '${id}'` : null;
+		if (clash) {
+			idError = { component: c.id, message: clash };
+			input.value = c.id;
+			return;
+		}
+		idError = null;
+		setText(c, 'id', id);
+	}
 	function addComponent() {
-		const n = app.spec.components.filter((c) => c.type === newType).length + 1;
-		const id = n === 1 ? newType : `${newType}_${n}`;
+		const id = freeId(newType);
 		let c: ComponentSpec;
 		switch (newType) {
 			case 'carcass':
@@ -213,7 +234,7 @@
 			<div class="head">
 				<button class="fold" onclick={() => (open[c.id] = !open[c.id])}>{open[c.id] ? '▾' : '▸'}</button>
 				<span class="type">{TYPE_ES[c.type]}</span>
-				<input class="id" value={c.id} onchange={(e) => setText(c, 'id', e.currentTarget.value)} />
+				<input class="id" value={c.id} onchange={(e) => rename(c, e.currentTarget)} />
 				{#if level}<button class="badge {level}" title="ver hallazgos" onclick={() => (open[c.id] = true)}>{findings.length}</button>{/if}
 				{#if inactive.has(c.id)}<span class="offtag" title={c.when !== undefined ? `condición: ${String(c.when)}` : 'depende de un componente apagado'}>apagado</span>{/if}
 				<span class="spacer"></span>
@@ -221,6 +242,9 @@
 				<button title="bajar" onclick={() => move(i, 1)}>↓</button>
 				<button title="quitar" onclick={() => remove(i)}>✕</button>
 			</div>
+			{#if idError?.component === c.id}
+				<div class="id-error">{idError.message}</div>
+			{/if}
 			{#if open[c.id]}
 				<div class="fields">
 					<label class="row"><span>condición</span>
@@ -316,6 +340,15 @@
 									<option value="inset">{c.type === 'doors' ? 'embutido (dentro del hueco)' : 'interior (detrás de una puerta)'}</option>
 								</select>
 							</label>
+							{#if c.type === 'doors'}
+								<label class="row" title="Con una puerta por bahía; con dos, cada una cuelga de su lado"><span>bisagra</span>
+									<select value={c.hingeSide ?? 'auto'} onchange={(e) => { const v = e.currentTarget.value as 'auto' | 'left' | 'right'; if (v === 'auto') delete c.hingeSide; else c.hingeSide = v; app.touch(); }}>
+										<option value="auto">automática (hacia afuera del mueble)</option>
+										<option value="left">a la izquierda</option>
+										<option value="right">a la derecha</option>
+									</select>
+								</label>
+							{/if}
 							{#if c.type === 'drawers' && c.mount === 'inset'}
 								<label class="row"><span>retranqueo</span><input placeholder="0" value={show(c.setback)} onchange={(e) => setField(c, 'setback', e.currentTarget.value, true)} /></label>
 							{/if}
@@ -658,5 +691,10 @@
 		border-radius: 4px;
 		background: #fff;
 		cursor: pointer;
+	}
+	.id-error {
+		color: #b42318;
+		font-size: 11px;
+		margin: 2px 0 0 24px;
 	}
 </style>

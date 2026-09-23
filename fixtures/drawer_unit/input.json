@@ -10,9 +10,9 @@
   },
   "options": [
     { "param": "width", "label": "Ancho", "group": "Medidas", "min": 300, "max": 1000, "step": 10, "unit": "mm" },
-    { "param": "height", "label": "Alto", "group": "Medidas", "min": 400, "max": 1000, "step": 10, "unit": "mm" },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": "max(400, ceil((36 + 110 * drawer_count) / 10) * 10)", "max": 1000, "step": 10, "unit": "mm" },
     { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 500, "max": 600, "step": 10, "unit": "mm" },
-    { "param": "drawer_count", "label": "Cajones", "group": "Cajones", "min": 1, "max": 6, "step": 1 }
+    { "param": "drawer_count", "label": "Cajones", "group": "Cajones", "min": 1, "max": "min(6, floor((height - 36) / 110))", "step": 1, "help": "Cada frente necesita unos 110 mm para que la caja tenga altura útil." }
   ],
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",

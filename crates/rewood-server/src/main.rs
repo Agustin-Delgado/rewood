@@ -1,4 +1,4 @@
-//! `rewood-server [--data <dir>] [--listen <addr>] [--static <dir>]`
+//! `rewood-server [--data <dir>] [--listen <addr>] [--static <dir>] [--cors <origin>]…`
 //!
 //! A modular monolith, as the specification suggests for a first version:
 //! one process, the engine in-process, a file store that a Postgres store
@@ -17,14 +17,16 @@ async fn main() {
     let mut data = std::path::PathBuf::from("data");
     let mut listen = "127.0.0.1:8080".to_string();
     let mut static_dir: Option<std::path::PathBuf> = None;
+    let mut origins: Vec<String> = Vec::new();
     while let Some(a) = args.next() {
         match a.as_str() {
             "--data" => data = args.next().map(Into::into).unwrap_or(data),
             "--listen" => listen = args.next().unwrap_or(listen),
             "--static" => static_dir = args.next().map(Into::into),
+            "--cors" => origins.extend(args.next()),
             other => {
                 eprintln!("argumento desconocido: {other}");
-                eprintln!("uso: rewood-server [--data <dir>] [--listen <addr>] [--static <dir>]");
+                eprintln!("uso: rewood-server [--data <dir>] [--listen <addr>] [--static <dir>] [--cors <origin>]");
                 std::process::exit(2);
             }
         }
@@ -45,7 +47,7 @@ async fn main() {
         Some(m) => eprintln!("asistente: modelo {}", m.name()),
         None => eprintln!("asistente apagado (sin ANTHROPIC_API_KEY)"),
     }
-    let app = api::router(store, static_dir.as_deref(), model);
+    let app = api::router(store, static_dir.as_deref(), model, origins);
     let listener = tokio::net::TcpListener::bind(&listen).await.expect("bind");
     eprintln!(
         "rewood-server {} escuchando en http://{listen} (datos en {})",
@@ -97,6 +99,7 @@ mod tests {
             Arc::new(store::FsStore::open(dir.path()).unwrap()),
             None,
             None,
+            Vec::new(),
         );
 
         let (s, v, _) = call(&app, "GET", "/health", None).await;
@@ -317,6 +320,7 @@ mod tests {
             Arc::new(store::FsStore::open(dir.path().join("data")).unwrap()),
             Some(&ui),
             None,
+            Vec::new(),
         );
         let req = Request::builder()
             .method("OPTIONS")
@@ -327,7 +331,38 @@ mod tests {
             .unwrap();
         let res = app.clone().oneshot(req).await.unwrap();
         assert_eq!(res.status(), StatusCode::OK);
-        assert_eq!(res.headers()["access-control-allow-origin"], "*");
+        assert_eq!(
+            res.headers()["access-control-allow-origin"],
+            "http://localhost:5173"
+        );
+        // Any other site the user visits gets no CORS grant.
+        let req = Request::builder()
+            .method("OPTIONS")
+            .uri("/projects")
+            .header("origin", "https://evil.example")
+            .header("access-control-request-method", "POST")
+            .body(Body::empty())
+            .unwrap();
+        let res = app.clone().oneshot(req).await.unwrap();
+        assert!(res.headers().get("access-control-allow-origin").is_none());
+        // Ids come from the URL: nothing outside the store is reachable.
+        std::fs::write(
+            dir.path().join("secret.json"),
+            r#"{"id":"x","name":"x","createdAt":"0"}"#,
+        )
+        .unwrap();
+        let (s, _, _) = call(&app, "GET", "/projects/..%2F..%2Fsecret", None).await;
+        assert_eq!(s, StatusCode::NOT_FOUND);
+        // A bad body answers in JSON like every other error.
+        let (s, v, _) = call(
+            &app,
+            "POST",
+            "/projects",
+            Some(serde_json::json!({ "nombre": 1 })),
+        )
+        .await;
+        assert_eq!(s, StatusCode::UNPROCESSABLE_ENTITY);
+        assert!(v["error"].is_string(), "{v}");
         // The SPA: an unknown path falls back to index.html, the API does not.
         let (s, _, bytes) = call(&app, "GET", "/", None).await;
         assert_eq!(s, StatusCode::OK);
@@ -359,6 +394,7 @@ mod tests {
             Arc::new(store::FsStore::open(dir.path()).unwrap()),
             None,
             Some(model as Arc<dyn assistant::Model>),
+            Vec::new(),
         );
         let (s, v, _) = call(&app, "GET", "/health", None).await;
         assert_eq!(s, StatusCode::OK);
@@ -381,6 +417,7 @@ mod tests {
             Arc::new(store::FsStore::open(dir.path()).unwrap()),
             None,
             None,
+            Vec::new(),
         );
         let (s, v, _) = call(
             &app,
@@ -400,6 +437,7 @@ mod tests {
             Arc::new(store::FsStore::open(dir.path()).unwrap()),
             None,
             None,
+            Vec::new(),
         );
         let (_, p, _) = call(
             &app,

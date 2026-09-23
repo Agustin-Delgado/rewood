@@ -7173,7 +7173,7 @@
         "P011",
         "P012"
       ],
-      "name": "Estante 1 (low)",
+      "name": "Estante",
       "quantity": 5,
       "material": "melamine_18",
       "cutLength": 862.0,
@@ -7291,13 +7291,6 @@
             "cost": 0.0
           }
         ],
-        "cost": 0.0
-      },
-      {
-        "hardware": "shelf_pin_row_5",
-        "name": "Hilera Sistema 32 para soportes Ø5",
-        "quantity": 140,
-        "items": [],
         "cost": 0.0
       }
     ],
@@ -7445,43 +7438,43 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 2051.929,
+    "totalSeconds": 1628.641,
     "programs": [
       {
         "part": "P001",
         "setup": "A",
-        "operations": 84,
-        "toolChanges": 4,
-        "cutMm": 17718.5,
-        "rapidMm": 19441.766,
-        "seconds": 580.805
+        "operations": 83,
+        "toolChanges": 3,
+        "cutMm": 13009.0,
+        "rapidMm": 17335.762,
+        "seconds": 530.682
       },
       {
         "part": "P002",
         "setup": "A",
-        "operations": 84,
-        "toolChanges": 4,
-        "cutMm": 17718.5,
-        "rapidMm": 19399.781,
-        "seconds": 580.679
+        "operations": 83,
+        "toolChanges": 3,
+        "cutMm": 13009.0,
+        "rapidMm": 17318.203,
+        "seconds": 530.63
       },
       {
         "part": "P003",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 7901.5,
-        "rapidMm": 4521.838,
-        "seconds": 262.923
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 5464.0,
+        "rapidMm": 3521.238,
+        "seconds": 225.156
       },
       {
         "part": "P004",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 7901.5,
-        "rapidMm": 4214.57,
-        "seconds": 262.001
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 5464.0,
+        "rapidMm": 3268.89,
+        "seconds": 224.399
       },
       {
         "part": "P004",
@@ -7495,74 +7488,74 @@
       {
         "part": "P005",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 5770.5,
-        "rapidMm": 188.985,
-        "seconds": 51.992
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P006",
         "setup": "A",
-        "operations": 7,
-        "toolChanges": 2,
-        "cutMm": 2057.5,
-        "rapidMm": 1979.194,
-        "seconds": 43.253
+        "operations": 6,
+        "toolChanges": 1,
+        "cutMm": 60.0,
+        "rapidMm": 1051.852,
+        "seconds": 17.006
       },
       {
         "part": "P007",
         "setup": "A",
-        "operations": 13,
-        "toolChanges": 3,
-        "cutMm": 2669.1,
-        "rapidMm": 2422.323,
-        "seconds": 90.706
+        "operations": 12,
+        "toolChanges": 1,
+        "cutMm": 258.0,
+        "rapidMm": 1470.489,
+        "seconds": 53.283
       },
       {
         "part": "P008",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 2367.1,
-        "rapidMm": 203.985,
-        "seconds": 26.849
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P009",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 2367.1,
-        "rapidMm": 203.985,
-        "seconds": 26.849
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P010",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 2367.1,
-        "rapidMm": 203.985,
-        "seconds": 26.849
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P011",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 2367.1,
-        "rapidMm": 203.985,
-        "seconds": 26.849
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P012",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 2367.1,
-        "rapidMm": 203.985,
-        "seconds": 26.849
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       }
     ]
   },

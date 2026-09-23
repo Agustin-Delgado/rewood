@@ -95,6 +95,22 @@ fn num(v: f64) -> NumOrExpr {
     ParamInput::Number(v)
 }
 
+/// The panel a door hangs on.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum HingeSide {
+    #[default]
+    Auto,
+    Left,
+    Right,
+}
+
+impl HingeSide {
+    pub fn is_auto(&self) -> bool {
+        *self == HingeSide::Auto
+    }
+}
+
 /// Where a front (door, drawer front) sits relative to the carcass.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -361,6 +377,13 @@ pub enum ComponentSpec {
         /// the library's inset one.
         #[serde(default = "door_hinge")]
         hinge: Option<JointSpec>,
+        /// Which panel a single door per bay hangs on: `auto` (default)
+        /// hinges it on the side away from the middle of the furniture, so
+        /// neighbouring doors open away from each other and none swings
+        /// into a drawer stack; `left` / `right` force it. Two doors per
+        /// bay always hang on their outer panels.
+        #[serde(default, skip_serializing_if = "HingeSide::is_auto")]
+        hinge_side: HingeSide,
         /// `true` swaps the hinge for the library's soft-close variant of
         /// the same mount and angle, `false` for the plain one; omitted
         /// keeps whatever `hinge` names.

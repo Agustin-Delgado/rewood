@@ -11,8 +11,8 @@
     "drawers": 3
   },
   "options": [
-    { "param": "count", "label": "Módulos", "group": "Módulos", "min": 2, "max": 4, "step": 1 },
-    { "param": "module", "label": "Ancho de cada módulo", "group": "Módulos", "min": 300, "max": 900, "step": 50, "unit": "mm" },
+    { "param": "count", "label": "Módulos", "group": "Módulos", "min": 2, "max": "min(4, floor(3000 / module))", "step": 1 },
+    { "param": "module", "label": "Ancho de cada módulo", "group": "Módulos", "min": 300, "max": "min(900, floor(3000 / count / 50) * 50)", "step": 50, "unit": "mm", "help": "Entre todos los módulos, la mesada no pasa de 3000 mm." },
     { "param": "height", "label": "Alto", "group": "Medidas", "min": 600, "max": 900, "step": 10, "unit": "mm" },
     { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 500, "max": 650, "step": 10, "unit": "mm" },
     { "param": "drawers", "label": "Cajones del módulo 2", "group": "Módulos", "min": 1, "max": 4, "step": 1 }
@@ -299,7 +299,14 @@
           {
             "name": "Tornillo M4×25",
             "quantity": 2,
-            "unitPrice": 20
+            "unitPrice": 20,
+            "through": [0, 26]
+          },
+          {
+            "name": "Tornillo M4×45",
+            "quantity": 2,
+            "unitPrice": 30,
+            "through": [26, 46]
           }
         ]
       },

@@ -8,5 +8,6 @@ description = "Deterministic furniture manufacturing compiler: parametric spec -
 [dependencies]
 qrcode = { version = "0.14", default-features = false }
 serde.workspace = true
+serde_ignored = "0.1.14"
 serde_json.workspace = true
 thiserror.workspace = true

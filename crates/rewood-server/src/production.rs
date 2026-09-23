@@ -7,6 +7,7 @@
 
 use std::collections::BTreeMap;
 
+use rewood_core::model::OperationKind;
 use rewood_core::plan::ManufacturingPlan;
 use serde::{Deserialize, Serialize};
 
@@ -81,14 +82,31 @@ impl Production {
         Production {
             order_id: order_id.to_string(),
             status: ProductionStatus::Planned,
+            // Only the steps a part goes through: a back with no holes or
+            // grooves is never machined, a part with no edge band never
+            // edged, and the order still reaches 100 %.
             parts: plan
                 .parts
                 .iter()
                 .map(|p| {
-                    (
-                        p.id.clone(),
-                        PART_STEPS.iter().map(|s| (s.to_string(), false)).collect(),
-                    )
+                    let machined = p
+                        .operations
+                        .iter()
+                        .any(|o| matches!(o.kind(), OperationKind::Drill | OperationKind::Groove));
+                    let edged = p
+                        .operations
+                        .iter()
+                        .any(|o| o.kind() == OperationKind::EdgeBand);
+                    let steps = PART_STEPS
+                        .iter()
+                        .filter(|s| match **s {
+                            "machined" => machined,
+                            "edged" => edged,
+                            _ => true,
+                        })
+                        .map(|s| (s.to_string(), false))
+                        .collect();
+                    (p.id.clone(), steps)
                 })
                 .collect(),
             order_steps: ORDER_STEPS.iter().map(|s| (s.to_string(), false)).collect(),
@@ -104,7 +122,7 @@ impl Production {
                 .filter(|steps| steps.get(step).copied().unwrap_or(false))
                 .count()
         };
-        let total_steps = self.parts.len() * PART_STEPS.len() + ORDER_STEPS.len();
+        let total_steps = self.parts.values().map(|s| s.len()).sum::<usize>() + ORDER_STEPS.len();
         let done_steps = self
             .parts
             .values()
@@ -138,6 +156,9 @@ impl Production {
         done: bool,
         at: &str,
     ) -> Result<(), String> {
+        if self.status == ProductionStatus::Cancelled {
+            return Err("la orden está cancelada: no avanza".into());
+        }
         match part {
             Some(part) => {
                 if !PART_STEPS.contains(&step) {
@@ -149,7 +170,10 @@ impl Production {
                     .parts
                     .get_mut(part)
                     .ok_or_else(|| format!("la orden no tiene la pieza '{part}'"))?;
-                steps.insert(step.to_string(), done);
+                let Some(slot) = steps.get_mut(step) else {
+                    return Err(format!("la pieza '{part}' no pasa por '{step}'"));
+                };
+                *slot = done;
                 self.events.push(Event {
                     at: at.to_string(),
                     what: format!("{part} {step} = {done}"),
@@ -168,16 +192,41 @@ impl Production {
                 });
             }
         }
-        if self.status != ProductionStatus::Cancelled {
-            let s = self.summary();
-            self.status = if s.progress >= 1.0 {
-                ProductionStatus::Done
-            } else if s.progress > 0.0 {
-                ProductionStatus::InProgress
-            } else {
-                ProductionStatus::Planned
-            };
+        self.status = self.status_by_steps();
+        Ok(())
+    }
+
+    /// What the steps say: nothing done, some, or all.
+    fn status_by_steps(&self) -> ProductionStatus {
+        let s = self.summary();
+        if s.progress >= 1.0 {
+            ProductionStatus::Done
+        } else if s.progress > 0.0 {
+            ProductionStatus::InProgress
+        } else {
+            ProductionStatus::Planned
         }
+    }
+
+    /// Set the status by hand. Only cancelling (and undoing it) is a
+    /// decision; the rest follows the steps, so `done` needs every step
+    /// done and an order taken back from cancelled resumes where it was.
+    pub fn set_status(&mut self, status: ProductionStatus, at: &str) -> Result<(), String> {
+        let next = match status {
+            ProductionStatus::Cancelled => ProductionStatus::Cancelled,
+            ProductionStatus::Done if self.summary().progress < 1.0 => {
+                return Err(format!(
+                    "no se puede dar por terminada: va {} % de los pasos",
+                    (self.summary().progress * 100.0).round()
+                ))
+            }
+            _ => self.status_by_steps(),
+        };
+        self.status = next;
+        self.events.push(Event {
+            at: at.to_string(),
+            what: format!("estado = {next:?}"),
+        });
         Ok(())
     }
 
@@ -195,6 +244,17 @@ impl Production {
             .iter()
             .find(|p| p.id == part)
             .ok_or_else(|| format!("la orden no tiene la pieza '{part}'"))?;
+        // A measurement is a few metres at most; anything else (a typo, an
+        // overflow) would turn into a non-finite deviation that the store
+        // cannot read back.
+        if measured
+            .iter()
+            .any(|v| !v.is_finite() || *v <= 0.0 || *v > 10_000.0)
+        {
+            return Err(format!(
+                "medidas inválidas para {part}: {measured:?} (en mm, entre 0 y 10000)"
+            ));
+        }
         let nominal = [p.dims.length, p.dims.width, p.dims.thickness];
         let tolerance = plan.profile.tolerances.length;
         let deviation = [
@@ -248,11 +308,16 @@ pub fn files_for_role(role: &str, path: &str) -> Option<bool> {
         "cutting" => {
             path == "documentation/nesting.svg"
                 || path == "documentation/cutlist.txt"
+                || path == "documentation/report_taller.html"
                 || path == "bom/parts.csv"
                 || path.starts_with("labels/")
         }
+        // The shop gets the report without costs; the one with them is for
+        // whoever buys.
         "assembly" => {
-            path.starts_with("documentation/") && !path.starts_with("documentation/parts/")
+            path.starts_with("documentation/")
+                && !path.starts_with("documentation/parts/")
+                && path != "documentation/report.html"
                 || path == "bom/hardware.csv"
                 || path.starts_with("labels/")
         }
@@ -278,9 +343,19 @@ mod tests {
         assert_eq!(prod.status, ProductionStatus::InProgress);
         assert!(prod.set_step(Some("P999"), "cut", true, "1").is_err());
         assert!(prod.set_step(Some("P001"), "painted", true, "1").is_err());
-        for p in &plan.parts {
-            for s in PART_STEPS {
-                prod.set_step(Some(&p.id), s, true, "2").unwrap();
+        // Only the steps each part goes through: the back has no holes,
+        // grooves or edge band, so it is cut and nothing else.
+        let back = plan.parts.iter().find(|p| p.role == "back").unwrap();
+        assert_eq!(prod.parts[&back.id].len(), 1);
+        assert!(prod.set_step(Some(&back.id), "edged", true, "2").is_err());
+        let steps: Vec<(String, Vec<String>)> = prod
+            .parts
+            .iter()
+            .map(|(id, s)| (id.clone(), s.keys().cloned().collect()))
+            .collect();
+        for (id, list) in steps {
+            for s in list {
+                prod.set_step(Some(&id), &s, true, "2").unwrap();
             }
         }
         prod.set_step(None, "assembled", true, "3").unwrap();
@@ -312,6 +387,29 @@ mod tests {
         assert!(!bad.pass);
         assert_eq!(bad.deviation[0], 1.0);
         assert_eq!(prod.summary().qc_failed, 1);
+        // A measurement that is not one stays out of the record.
+        assert!(prod
+            .record_qc(&plan, &p.id, [1e306, p.dims.width, 18.0], "", "7")
+            .is_err());
+        assert!(prod
+            .record_qc(&plan, &p.id, [f64::NAN, p.dims.width, 18.0], "", "7")
+            .is_err());
+        assert_eq!(prod.qc.len(), 2);
+    }
+
+    #[test]
+    fn status_follows_the_steps_and_a_cancelled_order_stops() {
+        let plan =
+            rewood_core::compile_json(include_str!("../../../fixtures/basic_cabinet/input.json"));
+        let mut prod = Production::new("ord-000001", &plan);
+        // Done needs every step.
+        assert!(prod.set_status(ProductionStatus::Done, "1").is_err());
+        prod.set_step(Some("P001"), "cut", true, "2").unwrap();
+        prod.set_status(ProductionStatus::Cancelled, "3").unwrap();
+        assert!(prod.set_step(Some("P002"), "cut", true, "4").is_err());
+        // Taken back, it resumes where it was, not at "planned".
+        prod.set_status(ProductionStatus::Planned, "5").unwrap();
+        assert_eq!(prod.status, ProductionStatus::InProgress);
     }
 
     #[test]

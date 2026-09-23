@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "_note": "Hole diameters, depths and offsets are indicative defaults for 18 mm panels (Minifix B34 / 35 mm cup hinge with 45/9.5 pilot pattern and 37 mm plate line). Verify against the supplier's catalog before manufacturing; the engine treats these as data. maxLoadKg is the load one unit carries (a hinge its share of the door, a slide pair the loaded drawer, a leg its share of the furniture); the design rules compare part weights against it. hinge_35_inset keeps the plate line 37 mm from the carcass front edge; its offsetFromEdge is measured from an 18 mm door's back plane. A rail's bomItems are per metre of bar. Slides: ball-bearing telescopic (full extension) and roller (three-quarter) in 50 mm steps; `softClose` variants share the drilling and are swapped in by the drawers' `softClose`. Hinges: overlay / half_overlay (a door on a divider) / inset, plain and soft-close, chosen by the doors generator from the geometry within one opening angle. Catches (magnetic, push) sit on the panel opposite the hinge; their `catch.strike` is the plate on the door; their screws keep clear of the 37 mm line where hinge plates, slides and pin rows sit.",
+  "_note": "Hole diameters, depths and offsets are indicative defaults for 18 mm panels (Minifix B34 / 35 mm cup hinge with 45/9.5 pilot pattern and 37 mm plate line). Verify against the supplier's catalog before manufacturing; the engine treats these as data. maxLoadKg is the load one unit carries (a hinge its share of the door, a slide pair the loaded drawer, a leg its share of the furniture); the design rules compare part weights against it. hinge_35_inset keeps the plate line 37 mm from the carcass front edge; its offsetFromEdge is measured from an 18 mm door's back plane. A rail's bomItems are per metre of bar. Slides: ball-bearing telescopic (full extension) and roller (three-quarter) in 50 mm steps; `softClose` variants share the drilling and are swapped in by the drawers' `softClose`. Hinges: overlay / half_overlay (a door on a divider) / inset, plain and soft-close, chosen by the doors generator from the geometry within one opening angle. Catches (magnetic, push) sit on the panel opposite the hinge; their `catch.strike` is the plate on the door; their screws keep clear of the 37 mm line where hinge plates, slides and pin rows sit. A handle's screws depend on what they cross: M4×25 through a door (18 mm), M4×45 through a drawer front and the box front behind it (36 mm); `through` on a BOM item picks by the panel a fastener crosses. Spacers (`kind: spacer`) go between the carcass panel and a slide when an inner drawer sits behind a door: the drawers generator takes the thinnest one that moves the drawer clear of the door swung open (door thickness plus a few mm for an inset door); thicknesses are indicative.",
   "hardware": [
     {
       "id": "minifix_15",
@@ -2790,7 +2790,19 @@
         },
         {
           "name": "Tornillo M4×25",
-          "quantity": 2
+          "quantity": 2,
+          "through": [
+            0,
+            26
+          ]
+        },
+        {
+          "name": "Tornillo M4×45",
+          "quantity": 2,
+          "through": [
+            26,
+            46
+          ]
         }
       ],
       "supplier": "hardware_supplier"
@@ -2837,7 +2849,19 @@
         },
         {
           "name": "Tornillo M4×25",
-          "quantity": 2
+          "quantity": 2,
+          "through": [
+            0,
+            26
+          ]
+        },
+        {
+          "name": "Tornillo M4×45",
+          "quantity": 2,
+          "through": [
+            26,
+            46
+          ]
         }
       ],
       "supplier": "hardware_supplier"
@@ -2884,7 +2908,19 @@
         },
         {
           "name": "Tornillo M4×25",
-          "quantity": 2
+          "quantity": 2,
+          "through": [
+            0,
+            26
+          ]
+        },
+        {
+          "name": "Tornillo M4×45",
+          "quantity": 2,
+          "through": [
+            26,
+            46
+          ]
         }
       ],
       "supplier": "hardware_supplier"
@@ -2931,7 +2967,19 @@
         },
         {
           "name": "Tornillo M4×25",
-          "quantity": 2
+          "quantity": 2,
+          "through": [
+            0,
+            26
+          ]
+        },
+        {
+          "name": "Tornillo M4×45",
+          "quantity": 2,
+          "through": [
+            26,
+            46
+          ]
         }
       ],
       "supplier": "hardware_supplier"
@@ -2978,7 +3026,19 @@
         },
         {
           "name": "Tornillo M4×25",
-          "quantity": 2
+          "quantity": 2,
+          "through": [
+            0,
+            26
+          ]
+        },
+        {
+          "name": "Tornillo M4×45",
+          "quantity": 2,
+          "through": [
+            26,
+            46
+          ]
         }
       ],
       "supplier": "hardware_supplier"
@@ -3025,7 +3085,19 @@
         },
         {
           "name": "Tornillo M4×25",
-          "quantity": 2
+          "quantity": 2,
+          "through": [
+            0,
+            26
+          ]
+        },
+        {
+          "name": "Tornillo M4×45",
+          "quantity": 2,
+          "through": [
+            26,
+            46
+          ]
         }
       ],
       "supplier": "hardware_supplier"
@@ -3063,7 +3135,19 @@
         },
         {
           "name": "Tornillo M4×25",
-          "quantity": 1
+          "quantity": 1,
+          "through": [
+            0,
+            26
+          ]
+        },
+        {
+          "name": "Tornillo M4×45",
+          "quantity": 1,
+          "through": [
+            26,
+            46
+          ]
         }
       ],
       "supplier": "hardware_supplier"
@@ -3495,6 +3579,87 @@
       "bomItems": [
         {
           "name": "Soporte de estante Ø5 con clavija",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "id": "slide_spacer_16",
+      "name": "Distanciador de corredera 16 mm",
+      "kind": "spacer",
+      "supplier": "hardware_supplier",
+      "compatibleThickness": [
+        0,
+        100
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "spacer": {
+        "thickness": 16
+      },
+      "holes": [],
+      "bomItems": [
+        {
+          "name": "Distanciador de corredera 16 mm (con tornillos)",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "id": "slide_spacer_22",
+      "name": "Distanciador de corredera 22 mm",
+      "kind": "spacer",
+      "supplier": "hardware_supplier",
+      "compatibleThickness": [
+        0,
+        100
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "spacer": {
+        "thickness": 22
+      },
+      "holes": [],
+      "bomItems": [
+        {
+          "name": "Distanciador de corredera 22 mm (con tornillos)",
+          "quantity": 1
+        }
+      ]
+    },
+    {
+      "id": "slide_spacer_28",
+      "name": "Distanciador de corredera 28 mm",
+      "kind": "spacer",
+      "supplier": "hardware_supplier",
+      "compatibleThickness": [
+        0,
+        100
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "spacer": {
+        "thickness": 28
+      },
+      "holes": [],
+      "bomItems": [
+        {
+          "name": "Distanciador de corredera 28 mm (con tornillos)",
           "quantity": 1
         }
       ]

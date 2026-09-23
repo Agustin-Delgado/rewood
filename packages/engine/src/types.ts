@@ -127,7 +127,12 @@ export interface ShelvesSpec {
   /** Required for `support: joint`. */
   joint?: JointSpec;
   /** For `support: pins`: the row pattern and the loose pins; library defaults. */
-  pins?: { row?: string[]; hardware?: string[] };
+  pins?: {
+    row?: string[];
+    hardware?: string[];
+    /** Travel each shelf keeps, mm up and down; 0 (default) drills only the holes it rests on. */
+    adjust?: NumOrExpr;
+  };
   edges?: EdgeBanding;
 }
 
@@ -164,6 +169,8 @@ export interface DoorsSpec {
   material?: string;
   /** Hinges per door; `null` = none. Defaults to `hinge_35_overlay`. Names the family: the engine picks the arm (overlay / half overlay on a divider / inset). */
   hinge?: JointSpec | null;
+  /** One door per bay: the panel it hangs on. `auto` (default) = away from the furniture's middle. */
+  hingeSide?: 'auto' | 'left' | 'right';
   /** `true` swaps the damped hinge variant in, `false` the plain one; omitted keeps `hinge`. */
   softClose?: boolean;
   /** A catch on the panel opposite the hinge (or under the top for a pair of doors) with its plate on the door. */
@@ -368,8 +375,11 @@ export interface HardwareDef {
   slide?: { length: number; sideClearance: number; axisFromBoxBottom: number; softClose?: boolean; style?: string };
   /** Legs only. */
   leg?: { height: number; baseDiameter: number };
+  /** Spacers only: how far it moves a slide (and an inner drawer) off the panel, mm. */
+  spacer?: { thickness: number };
   holes: HoleSpec[];
-  bomItems?: { name: string; quantity: number; unitPrice?: number }[];
+  /** `through`: only for a fastener crossing that much panel, [from, to) mm (a screw long enough for it). */
+  bomItems?: { name: string; quantity: number; unitPrice?: number; through?: [number, number] }[];
 }
 
 export type OperationKind =
@@ -417,6 +427,8 @@ export interface ManufacturingProfile {
   nesting?: { kerf: number; margin: number; mode?: 'max_rects' | 'guillotine' };
   /** Currency label of every price in the libraries. */
   currency?: string;
+  /** `banded_panels` (default): saw, bander, then CNC drilling on the finished part. `nested_router`: the router works the raw panel (cut size, outline, edge drilling in setup E after banding). */
+  workflow?: 'banded_panels' | 'nested_router';
   /** Travel, table clearance and kinematics for the NC simulation. */
   machine?: {
     travelZ: number;

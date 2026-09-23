@@ -46,7 +46,7 @@ use axum::{Json, Router};
 use rewood_core::spec::FurnitureSpec;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use tower_http::cors::{Any, CorsLayer};
+use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 use tower_http::services::{ServeDir, ServeFile};
 
 use crate::assistant::{self, Model};
@@ -76,6 +76,25 @@ impl IntoResponse for ApiError {
 }
 
 type ApiResult<T> = Result<T, ApiError>;
+
+/// A JSON body whose rejection (bad JSON, a missing field, a wrong type)
+/// answers like every other error, `{ "error": … }`, not axum's plain text.
+pub struct Body<T>(pub T);
+
+impl<S, T> axum::extract::FromRequest<S> for Body<T>
+where
+    Json<T>: axum::extract::FromRequest<S, Rejection = axum::extract::rejection::JsonRejection>,
+    S: Send + Sync,
+{
+    type Rejection = ApiError;
+
+    async fn from_request(req: axum::extract::Request, state: &S) -> Result<Self, ApiError> {
+        match Json::<T>::from_request(req, state).await {
+            Ok(Json(v)) => Ok(Body(v)),
+            Err(e) => Err(ApiError(e.status(), e.body_text())),
+        }
+    }
+}
 
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -118,9 +137,35 @@ pub struct OrderSummary {
     pub package_sha256: String,
 }
 
-pub fn router(store: AppState, static_dir: Option<&std::path::Path>, model: ModelHandle) -> Router {
+/// The published demo, which can talk to a server on this machine.
+const DEMO_ORIGIN: &str = "https://rewood-mu.vercel.app";
+
+/// Which pages may call the API from a browser: this machine (the dev
+/// server, the UI it serves), the published demo and whatever `--cors`
+/// adds. Not any page: with no login, an open CORS let every site the
+/// user visits read and change their projects.
+fn allowed_origin(origin: &str, extra: &[String]) -> bool {
+    let local = ["http://localhost", "http://127.0.0.1", "http://[::1]"]
+        .iter()
+        .any(|h| {
+            origin == *h
+                || origin
+                    .strip_prefix(h)
+                    .is_some_and(|rest| rest.starts_with(':'))
+        });
+    local || origin == DEMO_ORIGIN || extra.iter().any(|o| o == origin)
+}
+
+pub fn router(
+    store: AppState,
+    static_dir: Option<&std::path::Path>,
+    model: ModelHandle,
+    origins: Vec<String>,
+) -> Router {
     let cors = CorsLayer::new()
-        .allow_origin(Any)
+        .allow_origin(AllowOrigin::predicate(move |origin, _| {
+            origin.to_str().is_ok_and(|o| allowed_origin(o, &origins))
+        }))
         .allow_methods(Any)
         .allow_headers(Any);
     let api = Router::new()
@@ -175,7 +220,7 @@ async fn health(Extension(model): Extension<ModelHandle>) -> Json<serde_json::Va
 
 async fn assistant_turn(
     Extension(model): Extension<ModelHandle>,
-    Json(body): Json<assistant::AssistantRequest>,
+    Body(body): Body<assistant::AssistantRequest>,
 ) -> ApiResult<Json<assistant::AssistantReply>> {
     let Some(model) = model else {
         return Err(ApiError(
@@ -195,7 +240,7 @@ async fn libraries() -> Json<rewood_core::library::Libraries> {
 
 async fn create_project(
     State(store): State<AppState>,
-    Json(body): Json<NewProject>,
+    Body(body): Body<NewProject>,
 ) -> ApiResult<(StatusCode, Json<crate::store::Project>)> {
     Ok((StatusCode::CREATED, Json(store.create_project(&body.name)?)))
 }
@@ -215,7 +260,7 @@ async fn get_project(
 
 async fn create_furniture(
     State(store): State<AppState>,
-    Json(body): Json<NewFurniture>,
+    Body(body): Body<NewFurniture>,
 ) -> ApiResult<(StatusCode, Json<crate::store::Furniture>)> {
     Ok((
         StatusCode::CREATED,
@@ -231,7 +276,7 @@ async fn list_furniture(State(store): State<AppState>) -> ApiResult<Json<Vec<Fur
             id: f.id,
             project_id: f.project_id,
             version: f.version,
-            name: f.spec.name,
+            name: f.spec["name"].as_str().unwrap_or_default().to_string(),
             updated_at: f.updated_at,
         })
         .collect();
@@ -248,28 +293,40 @@ async fn get_furniture(
 async fn update_furniture(
     State(store): State<AppState>,
     Path(id): Path<String>,
-    Json(spec): Json<FurnitureSpec>,
+    Body(spec): Body<FurnitureSpec>,
 ) -> ApiResult<Json<crate::store::Furniture>> {
     Ok(Json(store.update_furniture(&id, spec)?))
 }
 
-fn plan_of(store: &FsStore, id: &str) -> ApiResult<rewood_core::plan::ManufacturingPlan> {
+/// Compiling is CPU work: it runs off the async workers, so a heavy spec
+/// cannot starve every other request (health included). A saved spec that
+/// no longer parses (a field renamed since) comes back as a blocked plan
+/// that says why, not as a 500.
+async fn compile(
+    spec: crate::store::StoredSpec,
+) -> ApiResult<rewood_core::plan::ManufacturingPlan> {
+    tokio::task::spawn_blocking(move || rewood_core::compile_json(&spec.to_string()))
+        .await
+        .map_err(|e| ApiError(StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))
+}
+
+async fn plan_of(store: &FsStore, id: &str) -> ApiResult<rewood_core::plan::ManufacturingPlan> {
     let f = store.furniture(id)?;
-    Ok(rewood_core::compile(&f.spec))
+    compile(f.spec).await
 }
 
 async fn recalculate(
     State(store): State<AppState>,
     Path(id): Path<String>,
 ) -> ApiResult<Json<serde_json::Value>> {
-    Ok(Json(plan_of(&store, &id)?.to_json_value()))
+    Ok(Json(plan_of(&store, &id).await?.to_json_value()))
 }
 
 async fn parts(
     State(store): State<AppState>,
     Path(id): Path<String>,
 ) -> ApiResult<Json<serde_json::Value>> {
-    let plan = plan_of(&store, &id)?.to_json_value();
+    let plan = plan_of(&store, &id).await?.to_json_value();
     Ok(Json(
         json!({ "parts": plan["parts"], "partList": plan["partList"] }),
     ))
@@ -279,7 +336,7 @@ async fn bom(
     State(store): State<AppState>,
     Path(id): Path<String>,
 ) -> ApiResult<Json<serde_json::Value>> {
-    let plan = plan_of(&store, &id)?.to_json_value();
+    let plan = plan_of(&store, &id).await?.to_json_value();
     Ok(Json(plan["bom"].clone()))
 }
 
@@ -287,7 +344,7 @@ async fn operations(
     State(store): State<AppState>,
     Path(id): Path<String>,
 ) -> ApiResult<Json<serde_json::Value>> {
-    let plan = plan_of(&store, &id)?.to_json_value();
+    let plan = plan_of(&store, &id).await?.to_json_value();
     let ops: Vec<serde_json::Value> = plan["parts"]
         .as_array()
         .map(|parts| {
@@ -304,7 +361,7 @@ async fn validate(
     State(store): State<AppState>,
     Path(id): Path<String>,
 ) -> ApiResult<Json<serde_json::Value>> {
-    let plan = plan_of(&store, &id)?;
+    let plan = plan_of(&store, &id).await?;
     Ok(Json(json!({
         "status": plan.status,
         "manufacturingBlocked": plan.manufacturing_blocked,
@@ -314,10 +371,10 @@ async fn validate(
 
 async fn create_order(
     State(store): State<AppState>,
-    Json(body): Json<NewOrder>,
+    Body(body): Body<NewOrder>,
 ) -> ApiResult<(StatusCode, Json<crate::store::ManufacturingOrder>)> {
     let f = store.furniture(&body.furniture_id)?;
-    let plan = rewood_core::compile(&f.spec);
+    let plan = compile(f.spec.clone()).await?;
     if plan.manufacturing_blocked {
         return Err(ApiError(
             StatusCode::UNPROCESSABLE_ENTITY,
@@ -425,32 +482,29 @@ async fn get_production(
 async fn set_step(
     State(store): State<AppState>,
     Path(id): Path<String>,
-    Json(body): Json<StepBody>,
+    Body(body): Body<StepBody>,
 ) -> ApiResult<Json<serde_json::Value>> {
-    let mut p = store.production(&id)?;
-    p.set_step(
-        body.part.as_deref(),
-        &body.step,
-        body.done,
-        &FsStore::now_string(),
-    )
-    .map_err(|e| ApiError(StatusCode::UNPROCESSABLE_ENTITY, e))?;
-    store.save_production(&p)?;
+    let (p, ()) = store
+        .update_production(&id, |p| {
+            p.set_step(
+                body.part.as_deref(),
+                &body.step,
+                body.done,
+                &FsStore::now_string(),
+            )
+        })?
+        .map_err(|e| ApiError(StatusCode::UNPROCESSABLE_ENTITY, e))?;
     Ok(Json(production_json(&p)))
 }
 
 async fn set_status(
     State(store): State<AppState>,
     Path(id): Path<String>,
-    Json(body): Json<StatusBody>,
+    Body(body): Body<StatusBody>,
 ) -> ApiResult<Json<serde_json::Value>> {
-    let mut p = store.production(&id)?;
-    p.status = body.status;
-    p.events.push(crate::production::Event {
-        at: FsStore::now_string(),
-        what: format!("estado = {:?}", body.status),
-    });
-    store.save_production(&p)?;
+    let (p, ()) = store
+        .update_production(&id, |p| p.set_status(body.status, &FsStore::now_string()))?
+        .map_err(|e| ApiError(StatusCode::UNPROCESSABLE_ENTITY, e))?;
     Ok(Json(production_json(&p)))
 }
 
@@ -464,21 +518,21 @@ async fn get_qc(
 async fn record_qc(
     State(store): State<AppState>,
     Path(id): Path<String>,
-    Json(body): Json<QcBody>,
+    Body(body): Body<QcBody>,
 ) -> ApiResult<(StatusCode, Json<crate::production::QcRecord>)> {
     let order = store.order(&id)?;
-    let mut p = store.production(&id)?;
-    let rec = p
-        .record_qc(
-            &order.snapshot.plan,
-            &body.part,
-            [body.length, body.width, body.thickness],
-            &body.notes,
-            &FsStore::now_string(),
-        )
-        .map_err(|e| ApiError(StatusCode::UNPROCESSABLE_ENTITY, e))?
-        .clone();
-    store.save_production(&p)?;
+    let (_, rec) = store
+        .update_production(&id, |p| {
+            p.record_qc(
+                &order.snapshot.plan,
+                &body.part,
+                [body.length, body.width, body.thickness],
+                &body.notes,
+                &FsStore::now_string(),
+            )
+            .cloned()
+        })?
+        .map_err(|e| ApiError(StatusCode::UNPROCESSABLE_ENTITY, e))?;
     Ok((StatusCode::CREATED, Json(rec)))
 }
 

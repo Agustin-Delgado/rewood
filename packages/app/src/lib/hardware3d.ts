@@ -113,6 +113,7 @@ function guessKind(id: string): string {
 	if (id.startsWith('knob')) return 'handle';
 	if (id.startsWith('shelf_pin_row')) return 'pin_row';
 	if (id.startsWith('shelf_pin')) return 'pin';
+	if (id.startsWith('slide_spacer')) return 'spacer';
 	if (id.startsWith('rail_support')) return 'rail_support';
 	if (id.startsWith('cabinet_hanger')) return 'hanger';
 	if (id.startsWith('plinth_clip')) return 'clip';
@@ -288,9 +289,24 @@ export function hardwareSymbols(
 						box(pos, sized(axis, n, span + 75, 6, height), colour, group[0].part);
 						return pos;
 					};
-					const a = rail(hs.filter((h) => h.part === face), ZINC);
+					// On a spacer, the cabinet rail sits on the spacer's face.
+					const spacer = joint.hardware.map((id) => def(id)?.spacer?.thickness ?? (guessKind(id) === 'spacer' ? Number(id.split('_').pop()) : 0)).reduce((a, b) => a + b, 0);
+					const onFace = hs.filter((h) => h.part === face).map((h) => ({ ...h, p: add(h.p, scale(h.n, spacer)) }));
+					const a = rail(onFace, ZINC);
 					const b = rail(hs.filter((h) => h.part === edge), STEEL);
 					if (a && b) leader(a, face, b, edge);
+					break;
+				}
+				case 'spacer': {
+					// A block on the cabinet panel, under the slide it carries.
+					const thick = hw?.spacer?.thickness ?? Number(f.hardware.split('_').pop());
+					const slide = joint.hardware.map((id) => def(id)?.slide).find((s) => s);
+					const length = slide?.length ?? 450;
+					const n = facing(face, edge);
+					const i = n.findIndex((c) => Math.abs(c) > 0.5);
+					const pos: Vec3 = [f.position[0], face.aabb.max[1] - 5 - length / 2, f.position[2]];
+					pos[i] = (n[i] > 0 ? face.aabb.max[i] : face.aabb.min[i]) + n[i] * (thick / 2);
+					box(pos, sized([0, 1, 0], n, length, thick, 50), BLACK, face);
 					break;
 				}
 				case 'leg': {

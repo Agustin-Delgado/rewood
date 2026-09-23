@@ -25,15 +25,15 @@ impl Rule for PartFitsSheet {
                 continue;
             };
             let (l, w) = (part.cut.length, part.cut.width);
+            // The same room the nesting has: the sheet less its margin all
+            // round. A part that only fits the bare sheet is left out of
+            // every layout, and the BOM would buy one sheet short.
+            let margin = input.libs.profile.nesting.margin;
+            let (sl, sw) = (m.sheet_length - 2.0 * margin, m.sheet_width - 2.0 * margin);
             let ok = match (m.grain, part.grain) {
-                (GrainKind::Directional, Grain::Length) => {
-                    fits(l, w, m.sheet_length, m.sheet_width)
-                }
-                (GrainKind::Directional, Grain::Width) => fits(w, l, m.sheet_length, m.sheet_width),
-                _ => {
-                    fits(l, w, m.sheet_length, m.sheet_width)
-                        || fits(w, l, m.sheet_length, m.sheet_width)
-                }
+                (GrainKind::Directional, Grain::Length) => fits(l, w, sl, sw),
+                (GrainKind::Directional, Grain::Width) => fits(w, l, sl, sw),
+                _ => fits(l, w, sl, sw) || fits(w, l, sl, sw),
             };
             if !ok {
                 out.push(
@@ -41,14 +41,17 @@ impl Rule for PartFitsSheet {
                         self.id(),
                         Severity::Error,
                         format!(
-                            "{} ({}): {}×{} mm no sale de una placa de {}×{} mm de {}",
+                            "{} ({}): {}×{} mm no sale de una placa de {}×{} mm de {} (útil {}×{} con {} de margen)",
                             part.id,
                             part.name,
                             mm(l),
                             mm(w),
                             mm(m.sheet_length),
                             mm(m.sheet_width),
-                            m.name
+                            m.name,
+                            mm(sl),
+                            mm(sw),
+                            mm(margin)
                         ),
                     )
                     .entity(part.id.clone())

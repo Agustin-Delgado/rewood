@@ -10,6 +10,7 @@
 //! ├── bom/hardware.csv        fasteners and their sub-items
 //! ├── bom/consumables.csv     edge band metres, sheet estimate
 //! ├── documentation/report.html      printable: cut list, BOM, views, drawings, labels
+//! ├── documentation/report_taller.html  the same without costs or purchases (shop roles)
 //! ├── documentation/assembly.svg     front / side / top views
 //! ├── documentation/nesting.svg      sheet layouts
 //! ├── documentation/parts/P001.svg … dimensioned drawing per part
@@ -323,7 +324,11 @@ pub fn cutlist_txt(plan: &ManufacturingPlan) -> String {
     }
     writeln!(s).unwrap();
     writeln!(s, "Las medidas de corte ya descuentan el canto; las perforaciones se miden sobre la pieza terminada.").unwrap();
-    writeln!(s, "Placas estimadas por área y desperdicio, sin nesting:").unwrap();
+    writeln!(
+        s,
+        "Placas según el nesting (las piezas acomodadas en cada placa):"
+    )
+    .unwrap();
     for sh in &plan.bom.sheets {
         writeln!(
             s,
@@ -399,6 +404,16 @@ fn minutes(seconds: f64) -> String {
 }
 
 pub fn report_html(plan: &ManufacturingPlan) -> String {
+    report(plan, true)
+}
+
+/// The same report for the shop floor: without the estimated cost and the
+/// purchase orders, which are the buyer's business, not the assembler's.
+pub fn shop_report_html(plan: &ManufacturingPlan) -> String {
+    report(plan, false)
+}
+
+fn report(plan: &ManufacturingPlan, with_costs: bool) -> String {
     let mut h = String::new();
     writeln!(
         h,
@@ -518,7 +533,7 @@ pub fn report_html(plan: &ManufacturingPlan) -> String {
         plan.bom.total_weight_kg
     )
     .unwrap();
-    if plan.bom.total_cost > 0.0 {
+    if with_costs && plan.bom.total_cost > 0.0 {
         let b = &plan.bom;
         writeln!(
             h,
@@ -574,7 +589,7 @@ pub fn report_html(plan: &ManufacturingPlan) -> String {
         }
     }
 
-    if !plan.purchasing.is_empty() {
+    if with_costs && !plan.purchasing.is_empty() {
         h.push_str("<h2>Compras por proveedor</h2>");
         for po in &plan.purchasing {
             writeln!(
@@ -665,19 +680,41 @@ pub fn report_html(plan: &ManufacturingPlan) -> String {
     h
 }
 
-const CNC_README: &str = "\
+/// The `cnc/README.txt` of the package: what the programs start from
+/// depends on the shop's workflow.
+fn cnc_readme(workflow: crate::library::profile::Workflow) -> String {
+    use crate::library::profile::Workflow;
+    let (flow, edge_a, edge_e, origin) = match workflow {
+        Workflow::BandedPanels => (
+            "Flujo: seccionadora -> canteadora -> CNC. Cada programa trabaja la\n\
+             pieza ya cortada y canteada, a su medida terminada: perfora y ranura,\n\
+             no corta el contorno.",
+            ", perforaciones de canto",
+            "",
+            "de la pieza terminada (canteada)",
+        ),
+        Workflow::NestedRouter => (
+            "Flujo: router de nesting -> canteadora. La puesta A trabaja la placa en\n\
+             bruto, a medida de corte (sin canto): las perforaciones están corridas\n\
+             el espesor del canto izquierdo e inferior, y el contorno se corta al\n\
+             final, a medida de corte, 0,5 mm más profundo que el espesor.",
+            " y el contorno a medida de corte",
+            "\n- P001_E.nc: las perforaciones de canto, después de cantear, sobre la\n  pieza terminada.",
+            "de la placa en bruto (medida de corte); en la puesta E, de la pieza\n  terminada",
+        ),
+    };
+    let text = "\
 Programas NC
 ============
 
+{FLOW}
+
 - Un programa por pieza y por puesta: P001_A.nc con la cara FRONT hacia
-  arriba (perforaciones y ranuras del frente, perforaciones de canto y el
-  contorno), P001_B.nc sólo si el dorso tiene mecanizados, con la pieza
-  girada sobre su eje X (largo): un punto (u, v) del dorso queda en
-  (u, ancho − v).
-- Origen: esquina inferior izquierda de la pieza terminada; Z0 en la cara
-  superior; mm; G54.
-- El contorno se corta al final de la puesta A, con la fresa por fuera del
-  rectángulo terminado, en pasadas, 0,5 mm más profundo que el espesor.
+  arriba (perforaciones y ranuras del frente{EDGE_A}),
+  P001_B.nc sólo si el dorso tiene mecanizados, con la pieza girada sobre
+  su eje X (largo): un punto (u, v) del dorso queda en (u, ancho − v).{EDGE_E}
+- Origen: esquina inferior izquierda {ORIGIN}; Z0 en la cara superior; mm;
+  G54.
 - Postprocesador ISO genérico: G81/G83 para taladrar, G01 para ranuras y
   contorno. Las perforaciones horizontales salen como comentarios (HDRILL
   ...) porque el ISO genérico no tiene agregado horizontal: un post por
@@ -691,6 +728,11 @@ Programas NC
 - BLANK ... ROTATED 90 en la cabecera: la pieza se carga girada porque sólo
   entra en la mesa de costado; las coordenadas ya están giradas.
 ";
+    text.replace("{FLOW}", flow)
+        .replace("{EDGE_A}", edge_a)
+        .replace("{EDGE_E}", edge_e)
+        .replace("{ORIGIN}", origin)
+}
 
 /// All files of the package, sorted by path. Deterministic.
 pub fn package(plan: &ManufacturingPlan) -> Vec<PackageFile> {
@@ -773,7 +815,7 @@ pub fn package(plan: &ManufacturingPlan) -> Vec<PackageFile> {
     });
     files.push(PackageFile {
         path: "cnc/README.txt".into(),
-        contents: CNC_README.into(),
+        contents: cnc_readme(plan.profile.workflow),
     });
     files.push(PackageFile {
         path: "documentation/assembly.svg".into(),
@@ -790,6 +832,10 @@ pub fn package(plan: &ManufacturingPlan) -> Vec<PackageFile> {
     files.push(PackageFile {
         path: "documentation/report.html".into(),
         contents: report_html(plan),
+    });
+    files.push(PackageFile {
+        path: "documentation/report_taller.html".into(),
+        contents: shop_report_html(plan),
     });
     files.push(PackageFile {
         path: "labels/labels.svg".into(),

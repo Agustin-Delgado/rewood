@@ -115,10 +115,28 @@ impl Libraries {
         if let Some(p) = &o.profile {
             let mut v = serde_json::to_value(&self.profile).map_err(|e| e.to_string())?;
             merge(&mut v, p);
-            self.profile = serde_json::from_value(v).map_err(|e| e.to_string())?;
+            self.profile = strict(v)?;
         }
         Ok(self)
     }
+}
+
+/// Read a profile patched from the spec, refusing keys it does not know.
+/// The profile types themselves accept unknown keys, because the profile
+/// travels inside every frozen order (§32) and an order written before a
+/// field was renamed must still open; a typo in a spec is still caught
+/// here, with its path.
+fn strict<T: serde::de::DeserializeOwned>(v: serde_json::Value) -> Result<T, String> {
+    let mut unknown = Vec::new();
+    let t: T = serde_ignored::deserialize(v, |path| unknown.push(path.to_string()))
+        .map_err(|e| e.to_string())?;
+    if !unknown.is_empty() {
+        return Err(format!(
+            "campo desconocido en el perfil: {}",
+            unknown.join(", ")
+        ));
+    }
+    Ok(t)
 }
 
 #[cfg(test)]
@@ -180,5 +198,19 @@ mod tests {
             serde_json::from_str(r#"{ "materials": [ { "id": "oak_20", "pricePerSheet": 1 } ] }"#)
                 .unwrap();
         assert!(Libraries::default().with_overrides(&incomplete).is_err());
+    }
+
+    #[test]
+    fn a_typo_in_a_profile_override_is_refused_but_a_frozen_profile_is_not() {
+        let typo: LibraryOverrides =
+            serde_json::from_str(r#"{ "profile": { "nesting": { "kerff": 3 } } }"#).unwrap();
+        let err = Libraries::default().with_overrides(&typo).unwrap_err();
+        assert!(err.contains("nesting.kerff"), "{err}");
+        // An order written by an engine that had one more profile field.
+        let mut v = serde_json::to_value(&Libraries::default().profile).unwrap();
+        v["someFutureField"] = serde_json::json!(1);
+        v["nesting"]["other"] = serde_json::json!(true);
+        let read: Result<profile::ManufacturingProfile, _> = serde_json::from_value(v);
+        assert!(read.is_ok());
     }
 }

@@ -7,6 +7,7 @@ use super::{BuildCtx, PanelInfo, PartInit};
 use crate::diagnostics::{Diagnostic, Severity};
 use crate::geometry::{Axis, Placement, Vec3};
 use crate::model::Grain;
+use crate::rules::mm;
 use crate::spec::{ComponentSpec, PanelFacing};
 
 pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnostic> {
@@ -38,7 +39,11 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         return Err(Diagnostic::new(
             "SPEC-322",
             Severity::Fatal,
-            format!("el lateral '{id}' queda sin medida ({depth}×{height})"),
+            format!(
+                "el lateral '{id}' queda sin medida ({depth}×{height})",
+                depth = mm(depth),
+                height = mm(height)
+            ),
         )
         .entity(id));
     }

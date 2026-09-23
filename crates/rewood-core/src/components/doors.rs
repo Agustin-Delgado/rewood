@@ -22,7 +22,7 @@ use crate::diagnostics::{Diagnostic, Severity};
 use crate::geometry::{Axis, Face, Placement, Vec3};
 use crate::model::Grain;
 use crate::rules::mm;
-use crate::spec::{ComponentSpec, EdgeBanding, FrontMount};
+use crate::spec::{ComponentSpec, EdgeBanding, FrontMount, HingeSide};
 
 /// Catch body centre behind the door's back plane: its striking face is
 /// flush with the panel's front edge (or the door's back), the screws
@@ -49,6 +49,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         mount,
         material,
         hinge,
+        hinge_side,
         soft_close,
         catch,
         handle,
@@ -63,6 +64,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let carcass = ctx.carcass_for(id, carcass.as_ref())?;
     let bays = ctx.bays_for(id, &carcass, bay.as_ref(), last_bay.as_ref())?;
     let bays = ctx.span_bays(id, &carcass, bays, span.as_ref())?;
+    let run_middle = run_middle(ctx);
     let spec_zone = zone.as_ref();
     let zone = ctx.zone_for(id, &carcass, zone.as_ref())?;
     // An inset door lives inside the opening: between the top and bottom
@@ -135,6 +137,14 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         .entity(id));
     }
     let count = count as usize;
+    if count > 1 && !hinge_side.is_auto() {
+        return Err(Diagnostic::new(
+            "SPEC-306",
+            Severity::Fatal,
+            format!("'{id}': con {count} puertas por bahía cada una cuelga de su panel exterior; 'hingeSide' es para una sola"),
+        )
+        .entity(id));
+    }
     if count > 2 && hinge.is_some() {
         return Err(Diagnostic::new(
             "SPEC-306",
@@ -147,10 +157,23 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         .suggestion("Subí 'bays' en la carcasa, o declará hinge: null."));
     }
     let gap = ctx.eval(id, "gap", gap)?;
+    if gap < 0.0 {
+        return Err(Diagnostic::new(
+            "SPEC-304",
+            Severity::Fatal,
+            format!("'{id}.gap' = {} mm: no puede ser negativo", mm(gap)),
+        )
+        .entity(id));
+    }
     let material = ctx.material_or_default(id, material.as_ref())?.to_string();
     let t = ctx.thickness_of(&material);
 
-    let door_height = (zone.z1 - zone.z0) - 2.0 * gap;
+    // Where the zone ends inside the carcass another front (or the next
+    // zone) takes over: each side leaves half the gap, so fronts that meet
+    // there keep one gap between them, not two.
+    let (gap_lo, gap_hi) =
+        super::zone_gaps(*mount == FrontMount::Overlay, zone, carcass.height, gap);
+    let door_height = (zone.z1 - zone.z0) - gap_lo - gap_hi;
     let cover = |b: &super::Bay| match mount {
         FrontMount::Overlay => (b.cover_x0, b.cover_x1),
         FrontMount::Inset => (b.x0, b.x1),
@@ -167,7 +190,11 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         return Err(Diagnostic::new(
             "SPEC-305",
             Severity::Fatal,
-            format!("{count} puertas con {gap} mm de luz no entran en {min_span} mm"),
+            format!(
+                "{count} puertas con {gap} mm de luz no entran en {min_span} mm",
+                gap = mm(gap),
+                min_span = mm(min_span)
+            ),
         )
         .entity(id));
     }
@@ -254,7 +281,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             );
         }
     }
-    if *edges == EdgeBanding::None {
+    // On a front, `front` names its face, not an edge: nothing gets banded.
+    if matches!(*edges, EdgeBanding::None | EdgeBanding::Front) {
         ctx.warn(
             Diagnostic::new(
                 "DESIGN-109",
@@ -262,7 +290,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 format!("'{id}': puertas sin canto; los bordes de placa quedan a la vista"),
             )
             .entity(id)
-            .suggestion("Sacá 'edges: none' o dejá 'all'.")
+            .suggestion("Dejá 'all' (o sacá 'edges'); 'front' en un frente no cantea nada, su cara es la que mira adelante.")
             .fix("Cantear las puertas", id, "edges", serde_json::Value::Null),
         );
     }
@@ -338,16 +366,53 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 grain: Grain::Length,
                 // Local X up, local Y towards -X, so local +Z = -Y (faces the carcass).
                 placement: Placement::new(
-                    Vec3(x_left + width, y_origin, zone.z0 + gap),
+                    Vec3(x_left + width, y_origin, zone.z0 + gap_lo),
                     Axis::PosZ,
                     Axis::NegX,
                 ),
                 banded_edges: &all_edges,
             });
-            let (hinge_edge, panel, opposite) = if i == 0 {
-                (Axis::NegX, &bay.left_part, &bay.right_part)
+            // Two doors hang on their outer panels; one hangs where
+            // `hingeSide` says, `auto` away from the furniture's middle.
+            let on_right = if count == 1 {
+                match hinge_side {
+                    HingeSide::Left => false,
+                    HingeSide::Right => true,
+                    HingeSide::Auto => {
+                        // Away from drawers next door at the door's height
+                        // (they come out where the door swings); failing
+                        // that, away from the furniture's middle, so
+                        // neighbouring doors open away from each other.
+                        let drawers_at = |index: usize| {
+                            ctx.occupancy.iter().any(|o| {
+                                o.carcass == carcass.id
+                                    && o.bay == index
+                                    && o.kind == OccupancyKind::Drawers
+                                    && o.zone.z0 < zone.z1 - 1.0
+                                    && o.zone.z1 > zone.z0 + 1.0
+                            })
+                        };
+                        let first = bay.index;
+                        let last = bay.index + bay.spans - 1;
+                        let left = first > 1 && drawers_at(first - 1);
+                        let right = drawers_at(last + 1);
+                        match (left, right) {
+                            (true, false) => true,
+                            (false, true) => false,
+                            _ => {
+                                let door_mid = carcass.origin.0 + x_left + width / 2.0;
+                                run_middle.is_some_and(|m| door_mid > m + 1.0)
+                            }
+                        }
+                    }
+                }
             } else {
+                i > 0
+            };
+            let (hinge_edge, panel, opposite) = if on_right {
                 (Axis::PosX, &bay.right_part, &bay.left_part)
+            } else {
+                (Axis::NegX, &bay.left_part, &bay.right_part)
             };
             if let Some(hinge) = hinge {
                 // The arm follows how the door sits on its panel: a side
@@ -378,7 +443,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                     // On the panel opposite the hinge, on the face that
                     // looks into the bay, at the door's mid height; the
                     // plate just inside that panel's face.
-                    let z = zone.z0 + gap + door_height / 2.0;
+                    let z = zone.z0 + gap_lo + door_height / 2.0;
                     let door_cx = x_left + width / 2.0;
                     let p = ctx.part_mut(opposite);
                     let into_bay = if door_cx < p.aabb.center().0 {
@@ -506,8 +571,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 // Vertical, on the opening edge (opposite the hinge).
                 let from_edge = ctx.eval(id, "handle.fromEdge", &handle.from_edge)?;
                 let z = match &handle.position {
-                    Some(p) => zone.z0 + gap + ctx.eval(id, "handle.position", p)?,
-                    None => zone.z0 + gap + door_height / 2.0,
+                    Some(p) => zone.z0 + gap_lo + ctx.eval(id, "handle.position", p)?,
+                    None => zone.z0 + gap_lo + door_height / 2.0,
                 };
                 let x = if hinge_edge == Axis::NegX {
                     x_left + width - from_edge
@@ -533,4 +598,36 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         }
     }
     Ok(())
+}
+
+/// The middle of the furniture along X: halfway across every carcass the
+/// spec switches on, the ones not built yet included (a run's last module
+/// may come after this door in the spec).
+fn run_middle(ctx: &BuildCtx<'_>) -> Option<f64> {
+    let mut lo = f64::INFINITY;
+    let mut hi = f64::NEG_INFINITY;
+    for c in &ctx.spec.components {
+        let ComponentSpec::Carcass {
+            id, width, origin, ..
+        } = c
+        else {
+            continue;
+        };
+        if !ctx.included(c).unwrap_or(false) {
+            continue;
+        }
+        let Ok(w) = ctx.eval(id, "width", width) else {
+            continue;
+        };
+        let x = match origin {
+            Some(o) => match ctx.eval(id, "origin.x", &o.x) {
+                Ok(x) => x,
+                Err(_) => continue,
+            },
+            None => 0.0,
+        };
+        lo = lo.min(x);
+        hi = hi.max(x + w);
+    }
+    (lo < hi).then_some((lo + hi) / 2.0)
 }

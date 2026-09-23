@@ -284,13 +284,13 @@
     "carcass.thickness": 18.0,
     "carcass.width": 450.0,
     "door.count": 1.0,
-    "door.door_height": 366.0,
+    "door.door_height": 367.0,
     "door.door_width": 446.0,
     "drawer.box_depth": 350.0,
-    "drawer.box_height": 136.0,
+    "drawer.box_height": 137.0,
     "drawer.box_width": 388.6,
     "drawer.count": 1.0,
-    "drawer.front_height": 176.0,
+    "drawer.front_height": 177.0,
     "drawer.front_width": 446.0,
     "shelf.bay_height": 167.0,
     "shelf.count": 1.0,
@@ -488,7 +488,7 @@
           "id": "P001-OP10",
           "face": "front",
           "type": "DRILL",
-          "u": 414.5,
+          "u": 413.5,
           "v": 37.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -504,7 +504,7 @@
           "id": "P001-OP11",
           "face": "front",
           "type": "DRILL",
-          "u": 414.5,
+          "u": 413.5,
           "v": 133.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -520,7 +520,7 @@
           "id": "P001-OP12",
           "face": "front",
           "type": "DRILL",
-          "u": 414.5,
+          "u": 413.5,
           "v": 229.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -829,7 +829,7 @@
           "id": "P002-OP10",
           "face": "front",
           "type": "DRILL",
-          "u": 414.5,
+          "u": 413.5,
           "v": 363.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -845,7 +845,7 @@
           "id": "P002-OP11",
           "face": "front",
           "type": "DRILL",
-          "u": 414.5,
+          "u": 413.5,
           "v": 267.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -861,7 +861,7 @@
           "id": "P002-OP12",
           "face": "front",
           "type": "DRILL",
-          "u": 414.5,
+          "u": 413.5,
           "v": 171.0,
           "diameter": 5.0,
           "depth": 11.0,
@@ -1855,12 +1855,12 @@
       "material": "melamine_18",
       "dims": {
         "length": 446.0,
-        "width": 176.0,
+        "width": 177.0,
         "thickness": 18.0
       },
       "cut": {
         "length": 444.0,
-        "width": 174.0
+        "width": 175.0
       },
       "grain": "length",
       "edges": {
@@ -1873,7 +1873,7 @@
         "origin": [
           2.0,
           418.0,
-          372.0
+          371.0
         ],
         "x": "pos_x",
         "y": "pos_z"
@@ -1882,7 +1882,7 @@
         "min": [
           2.0,
           400.0,
-          372.0
+          371.0
         ],
         "max": [
           448.0,
@@ -1944,7 +1944,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 86.7,
-          "v": 116.0,
+          "v": 117.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -1960,7 +1960,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 223.0,
-          "v": 116.0,
+          "v": 117.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -1976,7 +1976,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 359.3,
-          "v": 116.0,
+          "v": 117.0,
           "diameter": 3.0,
           "depth": 12.0,
           "through": false,
@@ -1992,7 +1992,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 287.0,
-          "v": 88.0,
+          "v": 88.5,
           "diameter": 4.5,
           "depth": null,
           "through": true,
@@ -2008,7 +2008,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 159.0,
-          "v": 88.0,
+          "v": 88.5,
           "diameter": 4.5,
           "depth": null,
           "through": true,
@@ -2025,7 +2025,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 176.0
+          "length": 177.0
         },
         {
           "id": "P007-OP10",
@@ -2033,7 +2033,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 176.0
+          "length": 177.0
         },
         {
           "id": "P007-OP11",
@@ -2061,12 +2061,12 @@
       "material": "melamine_18",
       "dims": {
         "length": 350.0,
-        "width": 136.0,
+        "width": 137.0,
         "thickness": 18.0
       },
       "cut": {
         "length": 350.0,
-        "width": 135.0
+        "width": 136.0
       },
       "grain": "length",
       "edges": {
@@ -2076,7 +2076,7 @@
         "origin": [
           48.7,
           400.0,
-          392.0
+          391.0
         ],
         "x": "neg_y",
         "y": "pos_z"
@@ -2085,7 +2085,7 @@
         "min": [
           30.7,
           50.0,
-          392.0
+          391.0
         ],
         "max": [
           48.7,
@@ -2130,7 +2130,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 9.0,
-          "v": 96.0,
+          "v": 97.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -2162,7 +2162,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 341.0,
-          "v": 96.0,
+          "v": 97.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -2242,12 +2242,12 @@
       "material": "melamine_18",
       "dims": {
         "length": 350.0,
-        "width": 136.0,
+        "width": 137.0,
         "thickness": 18.0
       },
       "cut": {
         "length": 350.0,
-        "width": 135.0
+        "width": 136.0
       },
       "grain": "length",
       "edges": {
@@ -2257,7 +2257,7 @@
         "origin": [
           401.3,
           50.0,
-          392.0
+          391.0
         ],
         "x": "pos_y",
         "y": "pos_z"
@@ -2266,7 +2266,7 @@
         "min": [
           401.3,
           50.0,
-          392.0
+          391.0
         ],
         "max": [
           419.3,
@@ -2311,7 +2311,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 341.0,
-          "v": 96.0,
+          "v": 97.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -2343,7 +2343,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 9.0,
-          "v": 96.0,
+          "v": 97.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -2423,12 +2423,12 @@
       "material": "melamine_18",
       "dims": {
         "length": 352.6,
-        "width": 136.0,
+        "width": 137.0,
         "thickness": 18.0
       },
       "cut": {
         "length": 352.6,
-        "width": 135.0
+        "width": 136.0
       },
       "grain": "length",
       "edges": {
@@ -2438,7 +2438,7 @@
         "origin": [
           48.7,
           400.0,
-          392.0
+          391.0
         ],
         "x": "pos_x",
         "y": "pos_z"
@@ -2447,7 +2447,7 @@
         "min": [
           48.7,
           382.0,
-          392.0
+          391.0
         ],
         "max": [
           401.3,
@@ -2491,7 +2491,7 @@
           "id": "P010-OP03",
           "face": "left",
           "type": "DRILL",
-          "u": 96.0,
+          "u": 97.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2523,7 +2523,7 @@
           "id": "P010-OP05",
           "face": "right",
           "type": "DRILL",
-          "u": 96.0,
+          "u": 97.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2588,7 +2588,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 40.0,
-          "v": 96.0,
+          "v": 97.0,
           "diameter": 4.5,
           "depth": null,
           "through": true,
@@ -2604,7 +2604,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 176.3,
-          "v": 96.0,
+          "v": 97.0,
           "diameter": 4.5,
           "depth": null,
           "through": true,
@@ -2620,7 +2620,7 @@
           "face": "back",
           "type": "DRILL",
           "u": 312.6,
-          "v": 96.0,
+          "v": 97.0,
           "diameter": 4.5,
           "depth": null,
           "through": true,
@@ -2633,6 +2633,38 @@
         },
         {
           "id": "P010-OP12",
+          "face": "back",
+          "type": "DRILL",
+          "u": 240.3,
+          "v": 68.5,
+          "diameter": 4.5,
+          "depth": null,
+          "through": true,
+          "source": {
+            "joint": "J016",
+            "hardware": "handle_bar_128",
+            "fastener": 0,
+            "label": "screw_a"
+          }
+        },
+        {
+          "id": "P010-OP13",
+          "face": "back",
+          "type": "DRILL",
+          "u": 112.3,
+          "v": 68.5,
+          "diameter": 4.5,
+          "depth": null,
+          "through": true,
+          "source": {
+            "joint": "J016",
+            "hardware": "handle_bar_128",
+            "fastener": 0,
+            "label": "screw_b"
+          }
+        },
+        {
+          "id": "P010-OP14",
           "face": "top",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
@@ -2652,12 +2684,12 @@
       "material": "melamine_18",
       "dims": {
         "length": 352.6,
-        "width": 136.0,
+        "width": 137.0,
         "thickness": 18.0
       },
       "cut": {
         "length": 352.6,
-        "width": 135.0
+        "width": 136.0
       },
       "grain": "length",
       "edges": {
@@ -2667,7 +2699,7 @@
         "origin": [
           401.3,
           50.0,
-          392.0
+          391.0
         ],
         "x": "neg_x",
         "y": "pos_z"
@@ -2676,7 +2708,7 @@
         "min": [
           48.7,
           50.0,
-          392.0
+          391.0
         ],
         "max": [
           401.3,
@@ -2720,7 +2752,7 @@
           "id": "P011-OP03",
           "face": "right",
           "type": "DRILL",
-          "u": 96.0,
+          "u": 97.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2752,7 +2784,7 @@
           "id": "P011-OP05",
           "face": "left",
           "type": "DRILL",
-          "u": 96.0,
+          "u": 97.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -2798,7 +2830,7 @@
         "origin": [
           41.2,
           60.5,
-          402.1
+          401.1
         ],
         "x": "pos_x",
         "y": "pos_y"
@@ -2807,12 +2839,12 @@
         "min": [
           41.2,
           60.5,
-          402.1
+          401.1
         ],
         "max": [
           408.8,
           389.5,
-          405.1
+          404.1
         ]
       },
       "operations": [],
@@ -2881,12 +2913,12 @@
       "role": "door_1",
       "material": "melamine_18",
       "dims": {
-        "length": 366.0,
+        "length": 367.0,
         "width": 446.0,
         "thickness": 18.0
       },
       "cut": {
-        "length": 364.0,
+        "length": 365.0,
         "width": 444.0
       },
       "grain": "length",
@@ -2914,7 +2946,7 @@
         "max": [
           448.0,
           418.0,
-          368.0
+          369.0
         ]
       },
       "operations": [
@@ -3018,7 +3050,7 @@
           "id": "P014-OP07",
           "face": "front",
           "type": "DRILL",
-          "u": 247.0,
+          "u": 247.5,
           "v": 40.0,
           "diameter": 4.5,
           "depth": null,
@@ -3034,7 +3066,7 @@
           "id": "P014-OP08",
           "face": "front",
           "type": "DRILL",
-          "u": 119.0,
+          "u": 119.5,
           "v": 40.0,
           "diameter": 4.5,
           "depth": null,
@@ -3068,7 +3100,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 366.0
+          "length": 367.0
         },
         {
           "id": "P014-OP12",
@@ -3076,7 +3108,7 @@
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 366.0
+          "length": 367.0
         }
       ]
     }
@@ -3557,7 +3589,7 @@
         "min": [
           48.7,
           382.0,
-          392.0
+          391.0
         ],
         "max": [
           48.7,
@@ -3566,7 +3598,7 @@
         ]
       },
       "axis": "pos_z",
-      "length": 136.0,
+      "length": 137.0,
       "fasteners": [
         {
           "hardware": "dowel_8x30",
@@ -3574,7 +3606,7 @@
           "position": [
             48.7,
             391.0,
-            432.0
+            431.0
           ]
         },
         {
@@ -3601,7 +3633,7 @@
         "min": [
           401.3,
           382.0,
-          392.0
+          391.0
         ],
         "max": [
           401.3,
@@ -3610,7 +3642,7 @@
         ]
       },
       "axis": "pos_z",
-      "length": 136.0,
+      "length": 137.0,
       "fasteners": [
         {
           "hardware": "dowel_8x30",
@@ -3618,7 +3650,7 @@
           "position": [
             401.3,
             391.0,
-            432.0
+            431.0
           ]
         },
         {
@@ -3645,7 +3677,7 @@
         "min": [
           48.7,
           50.0,
-          392.0
+          391.0
         ],
         "max": [
           48.7,
@@ -3654,7 +3686,7 @@
         ]
       },
       "axis": "pos_z",
-      "length": 136.0,
+      "length": 137.0,
       "fasteners": [
         {
           "hardware": "dowel_8x30",
@@ -3662,7 +3694,7 @@
           "position": [
             48.7,
             59.0,
-            432.0
+            431.0
           ]
         },
         {
@@ -3689,7 +3721,7 @@
         "min": [
           401.3,
           50.0,
-          392.0
+          391.0
         ],
         "max": [
           401.3,
@@ -3698,7 +3730,7 @@
         ]
       },
       "axis": "pos_z",
-      "length": 136.0,
+      "length": 137.0,
       "fasteners": [
         {
           "hardware": "dowel_8x30",
@@ -3706,7 +3738,7 @@
           "position": [
             401.3,
             59.0,
-            432.0
+            431.0
           ]
         },
         {
@@ -3733,7 +3765,7 @@
         "min": [
           48.7,
           400.0,
-          392.0
+          391.0
         ],
         "max": [
           401.3,
@@ -3750,7 +3782,7 @@
           "position": [
             88.7,
             400.0,
-            432.0
+            431.0
           ]
         },
         {
@@ -3759,7 +3791,7 @@
           "position": [
             225.0,
             400.0,
-            432.0
+            431.0
           ]
         },
         {
@@ -3768,7 +3800,7 @@
           "position": [
             361.3,
             400.0,
-            432.0
+            431.0
           ]
         },
         {
@@ -3813,12 +3845,12 @@
         "min": [
           225.0,
           400.0,
-          460.0
+          459.5
         ],
         "max": [
           225.0,
           400.0,
-          460.0
+          459.5
         ]
       },
       "axis": "pos_x",
@@ -3830,7 +3862,7 @@
           "position": [
             225.0,
             400.0,
-            460.0
+            459.5
           ]
         }
       ]
@@ -3848,12 +3880,12 @@
         "min": [
           30.7,
           50.0,
-          414.5
+          413.5
         ],
         "max": [
           30.7,
           400.0,
-          414.5
+          413.5
         ]
       },
       "axis": "neg_y",
@@ -3865,7 +3897,7 @@
           "position": [
             30.7,
             400.0,
-            414.5
+            413.5
           ]
         }
       ]
@@ -3883,12 +3915,12 @@
         "min": [
           419.3,
           50.0,
-          414.5
+          413.5
         ],
         "max": [
           419.3,
           400.0,
-          414.5
+          413.5
         ]
       },
       "axis": "neg_y",
@@ -3900,7 +3932,7 @@
           "position": [
             419.3,
             400.0,
-            414.5
+            413.5
           ]
         }
       ]
@@ -4063,11 +4095,11 @@
         "max": [
           2.0,
           400.0,
-          368.0
+          369.0
         ]
       },
       "axis": "pos_z",
-      "length": 366.0,
+      "length": 367.0,
       "fasteners": [
         {
           "hardware": "hinge_35_overlay",
@@ -4102,12 +4134,12 @@
         "min": [
           408.0,
           400.0,
-          185.0
+          185.5
         ],
         "max": [
           408.0,
           400.0,
-          185.0
+          185.5
         ]
       },
       "axis": "pos_z",
@@ -4119,7 +4151,7 @@
           "position": [
             408.0,
             400.0,
-            185.0
+            185.5
           ]
         }
       ]
@@ -4236,14 +4268,14 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 444.0,
-      "cutWidth": 174.0,
+      "cutWidth": 175.0,
       "finishedLength": 446.0,
-      "finishedWidth": 176.0,
+      "finishedWidth": 177.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
       "operations": 12,
-      "weightKg": 0.918
+      "weightKg": 0.924
     },
     {
       "partIds": [
@@ -4253,14 +4285,14 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 350.0,
-      "cutWidth": 135.0,
+      "cutWidth": 136.0,
       "finishedLength": 350.0,
-      "finishedWidth": 136.0,
+      "finishedWidth": 137.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/-/abs_1mm",
       "operations": 9,
-      "weightKg": 0.557
+      "weightKg": 0.561
     },
     {
       "partIds": [
@@ -4270,14 +4302,14 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 350.0,
-      "cutWidth": 135.0,
+      "cutWidth": 136.0,
       "finishedLength": 350.0,
-      "finishedWidth": 136.0,
+      "finishedWidth": 137.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/-/abs_1mm",
       "operations": 9,
-      "weightKg": 0.557
+      "weightKg": 0.561
     },
     {
       "partIds": [
@@ -4287,14 +4319,14 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 352.6,
-      "cutWidth": 135.0,
+      "cutWidth": 136.0,
       "finishedLength": 352.6,
-      "finishedWidth": 136.0,
+      "finishedWidth": 137.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/-/abs_1mm",
-      "operations": 12,
-      "weightKg": 0.561
+      "operations": 14,
+      "weightKg": 0.565
     },
     {
       "partIds": [
@@ -4304,14 +4336,14 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 352.6,
-      "cutWidth": 135.0,
+      "cutWidth": 136.0,
       "finishedLength": 352.6,
-      "finishedWidth": 136.0,
+      "finishedWidth": 137.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/-/abs_1mm",
       "operations": 6,
-      "weightKg": 0.561
+      "weightKg": 0.565
     },
     {
       "partIds": [
@@ -4354,15 +4386,15 @@
       "name": "Puerta 1",
       "quantity": 1,
       "material": "melamine_18",
-      "cutLength": 364.0,
+      "cutLength": 365.0,
       "cutWidth": 444.0,
-      "finishedLength": 366.0,
+      "finishedLength": 367.0,
       "finishedWidth": 446.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
       "operations": 12,
-      "weightKg": 1.91
+      "weightKg": 1.915
     }
   ],
   "bom": {
@@ -4382,11 +4414,11 @@
         "material": "melamine_18",
         "name": "Melamina 18 mm",
         "parts": 12,
-        "netAreaM2": 1.39,
+        "netAreaM2": 1.392,
         "sheetLength": 2750.0,
         "sheetWidth": 1830.0,
         "estimatedSheets": 1,
-        "yieldRatio": 0.276,
+        "yieldRatio": 0.277,
         "cost": 0.0
       }
     ],
@@ -4416,7 +4448,12 @@
           },
           {
             "name": "Tornillo M4×25",
-            "quantity": 4.0,
+            "quantity": 2.0,
+            "cost": 0.0
+          },
+          {
+            "name": "Tornillo M4×45",
+            "quantity": 2.0,
             "cost": 0.0
           }
         ],
@@ -4521,13 +4558,6 @@
         "cost": 0.0
       },
       {
-        "hardware": "shelf_pin_row_5",
-        "name": "Hilera Sistema 32 para soportes Ø5",
-        "quantity": 4,
-        "items": [],
-        "cost": 0.0
-      },
-      {
         "hardware": "slide_ball_350",
         "name": "Corredera telescópica a bolillas 350 mm (unidad)",
         "quantity": 2,
@@ -4550,11 +4580,11 @@
       {
         "material": "abs_1mm",
         "name": "Canto ABS 1 mm",
-        "lengthM": 6.613,
+        "lengthM": 6.617,
         "cost": 0.0
       }
     ],
-    "totalWeightKg": 17.227,
+    "totalWeightKg": 17.254,
     "materialsCost": 0.0,
     "machiningCost": 0.0,
     "totalCost": 0.0,
@@ -4643,7 +4673,7 @@
           "part": "P014",
           "x": 428.0,
           "y": 816.0,
-          "length": 364.0,
+          "length": 365.0,
           "width": 444.0,
           "rotated": false
         },
@@ -4660,7 +4690,7 @@
           "x": 10.0,
           "y": 1633.8,
           "length": 444.0,
-          "width": 174.0,
+          "width": 175.0,
           "rotated": false
         },
         {
@@ -4668,7 +4698,7 @@
           "x": 458.0,
           "y": 1633.8,
           "length": 352.6,
-          "width": 135.0,
+          "width": 136.0,
           "rotated": false
         },
         {
@@ -4676,7 +4706,7 @@
           "x": 814.6,
           "y": 1633.8,
           "length": 352.6,
-          "width": 135.0,
+          "width": 136.0,
           "rotated": false
         },
         {
@@ -4684,69 +4714,69 @@
           "x": 564.0,
           "y": 10.0,
           "length": 350.0,
-          "width": 135.0,
+          "width": 136.0,
           "rotated": false
         },
         {
           "part": "P009",
           "x": 564.0,
-          "y": 149.0,
+          "y": 150.0,
           "length": 350.0,
-          "width": 135.0,
+          "width": 136.0,
           "rotated": false
         },
         {
           "part": "P006",
           "x": 564.0,
-          "y": 288.0,
+          "y": 290.0,
           "length": 414.0,
           "width": 100.0,
           "rotated": false
         }
       ],
-      "usedAreaM2": 1.39,
-      "wasteRatio": 0.724
+      "usedAreaM2": 1.392,
+      "wasteRatio": 0.723
     }
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 1437.404,
+    "totalSeconds": 1120.799,
     "programs": [
       {
         "part": "P001",
         "setup": "A",
-        "operations": 19,
-        "toolChanges": 4,
-        "cutMm": 5490.5,
-        "rapidMm": 6741.808,
-        "seconds": 187.43
+        "operations": 18,
+        "toolChanges": 3,
+        "cutMm": 3521.0,
+        "rapidMm": 5982.824,
+        "seconds": 161.898
       },
       {
         "part": "P002",
         "setup": "A",
-        "operations": 15,
-        "toolChanges": 4,
-        "cutMm": 5446.5,
-        "rapidMm": 5920.501,
-        "seconds": 180.767
+        "operations": 14,
+        "toolChanges": 3,
+        "cutMm": 3477.0,
+        "rapidMm": 5286.973,
+        "seconds": 155.611
       },
       {
         "part": "P003",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 4461.5,
-        "rapidMm": 3234.086,
-        "seconds": 172.509
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 2764.0,
+        "rapidMm": 2582.365,
+        "seconds": 141.339
       },
       {
         "part": "P004",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 4461.5,
-        "rapidMm": 2734.371,
-        "seconds": 171.01
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 2764.0,
+        "rapidMm": 2238.498,
+        "seconds": 140.307
       },
       {
         "part": "P004",
@@ -4760,119 +4790,119 @@
       {
         "part": "P005",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 1970.5,
-        "rapidMm": 188.985,
-        "seconds": 23.492
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P006",
         "setup": "A",
-        "operations": 5,
-        "toolChanges": 2,
-        "cutMm": 1137.5,
-        "rapidMm": 1081.253,
-        "seconds": 31.859
+        "operations": 4,
+        "toolChanges": 1,
+        "cutMm": 40.0,
+        "rapidMm": 601.852,
+        "seconds": 13.706
       },
       {
         "part": "P007",
         "setup": "A",
-        "operations": 9,
-        "toolChanges": 3,
-        "cutMm": 1422.5,
-        "rapidMm": 1627.859,
-        "seconds": 49.194
+        "operations": 8,
+        "toolChanges": 2,
+        "cutMm": 109.0,
+        "rapidMm": 1362.847,
+        "seconds": 30.064
       },
       {
         "part": "P008",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1071.5,
-        "rapidMm": 721.526,
-        "seconds": 29.385
-      },
-      {
-        "part": "P008",
-        "setup": "B",
-        "operations": 5,
-        "toolChanges": 2,
-        "cutMm": 2174.0,
-        "rapidMm": 1230.089,
-        "seconds": 89.69
-      },
-      {
-        "part": "P009",
-        "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1071.5,
-        "rapidMm": 885.466,
-        "seconds": 29.876
-      },
-      {
-        "part": "P009",
-        "setup": "B",
-        "operations": 5,
-        "toolChanges": 2,
-        "cutMm": 2174.0,
-        "rapidMm": 1487.724,
-        "seconds": 90.463
-      },
-      {
-        "part": "P010",
-        "setup": "A",
-        "operations": 6,
-        "toolChanges": 3,
-        "cutMm": 3256.3,
-        "rapidMm": 994.637,
-        "seconds": 111.786
-      },
-      {
-        "part": "P010",
-        "setup": "B",
-        "operations": 6,
+        "operations": 3,
         "toolChanges": 1,
-        "cutMm": 111.0,
-        "rapidMm": 1101.493,
-        "seconds": 20.979
+        "cutMm": 30.0,
+        "rapidMm": 409.304,
+        "seconds": 12.153
+      },
+      {
+        "part": "P008",
+        "setup": "B",
+        "operations": 5,
+        "toolChanges": 2,
+        "cutMm": 2174.0,
+        "rapidMm": 1234.247,
+        "seconds": 89.703
+      },
+      {
+        "part": "P009",
+        "setup": "A",
+        "operations": 3,
+        "toolChanges": 1,
+        "cutMm": 30.0,
+        "rapidMm": 679.808,
+        "seconds": 12.964
+      },
+      {
+        "part": "P009",
+        "setup": "B",
+        "operations": 5,
+        "toolChanges": 2,
+        "cutMm": 2174.0,
+        "rapidMm": 1491.159,
+        "seconds": 90.473
+      },
+      {
+        "part": "P010",
+        "setup": "A",
+        "operations": 5,
+        "toolChanges": 1,
+        "cutMm": 2209.6,
+        "rapidMm": 560.1,
+        "seconds": 86.148
+      },
+      {
+        "part": "P010",
+        "setup": "B",
+        "operations": 8,
+        "toolChanges": 1,
+        "cutMm": 148.0,
+        "rapidMm": 1308.334,
+        "seconds": 24.825
       },
       {
         "part": "P011",
         "setup": "A",
-        "operations": 6,
-        "toolChanges": 3,
-        "cutMm": 3256.3,
-        "rapidMm": 995.394,
-        "seconds": 111.788
+        "operations": 5,
+        "toolChanges": 1,
+        "cutMm": 2209.6,
+        "rapidMm": 901.394,
+        "seconds": 87.172
       },
       {
         "part": "P012",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 1447.7,
-        "rapidMm": 188.985,
-        "seconds": 19.571
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P013",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 1627.1,
-        "rapidMm": 203.985,
-        "seconds": 21.299
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P014",
         "setup": "A",
-        "operations": 9,
-        "toolChanges": 4,
-        "cutMm": 1799.5,
-        "rapidMm": 2216.259,
-        "seconds": 64.095
+        "operations": 8,
+        "toolChanges": 3,
+        "cutMm": 106.0,
+        "rapidMm": 1627.972,
+        "seconds": 41.145
       }
     ]
   },
@@ -4886,7 +4916,7 @@
           "kind": "edge_band",
           "id": "abs_1mm",
           "name": "Canto ABS 1 mm",
-          "quantity": 6.613,
+          "quantity": 6.617,
           "unit": "m",
           "unitPrice": 0.0,
           "cost": 0.0
@@ -5038,7 +5068,16 @@
           "kind": "hardware",
           "id": "handle_bar_128",
           "name": "Tornillo M4×25",
-          "quantity": 4.0,
+          "quantity": 2.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
+          "id": "handle_bar_128",
+          "name": "Tornillo M4×45",
+          "quantity": 2.0,
           "unit": "u",
           "unitPrice": 0.0,
           "cost": 0.0

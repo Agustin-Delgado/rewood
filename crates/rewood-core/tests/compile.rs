@@ -309,7 +309,7 @@ fn drawer_unit_is_manufacturable_and_consistent() {
     let left_sides = plan
         .part_list
         .iter()
-        .find(|r| r.name == "Lateral cajón 1 izq.")
+        .find(|r| r.name == "Lateral cajón izq.")
         .unwrap();
     assert_eq!(left_sides.quantity, 3);
 }
@@ -481,7 +481,19 @@ fn drawer_fronts_are_screwed_to_the_box_and_handles_are_drilled_through() {
         .iter()
         .filter(|op| matches!(op.geometry, OpGeometry::Drill { through: true, .. }))
         .count();
-    assert_eq!(through, 6);
+    // Six fixing screws, and the handle's two screws that reach the front
+    // through the box front.
+    assert_eq!(through, 8);
+    let handle_holes = box_front
+        .operations
+        .iter()
+        .filter(|op| {
+            op.source
+                .as_ref()
+                .is_some_and(|s| s.hardware.starts_with("handle"))
+        })
+        .count();
+    assert_eq!(handle_holes, 2);
     let front = plan
         .parts
         .iter()

@@ -235,7 +235,7 @@
       "group": "Medidas",
       "kind": "number",
       "value": 800.0,
-      "min": 300.0,
+      "min": 530.0,
       "max": 2000.0,
       "step": 10.0,
       "unit": "mm",
@@ -257,10 +257,11 @@
       "param": "shelf_count",
       "label": "Estantes",
       "group": "Interior",
+      "help": "Con más, entre estante y estante quedan menos de 150 mm.",
       "kind": "number",
       "value": 2.0,
       "min": 0.0,
-      "max": 6.0,
+      "max": 3.0,
       "step": 1.0,
       "active": true
     }
@@ -2695,7 +2696,7 @@
         "P006",
         "P007"
       ],
-      "name": "Estante 1",
+      "name": "Estante",
       "quantity": 2,
       "material": "melamine_18",
       "cutLength": 864.0,
@@ -2937,88 +2938,88 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 1259.483,
+    "totalSeconds": 956.675,
     "programs": [
       {
         "part": "P001",
         "setup": "A",
-        "operations": 18,
-        "toolChanges": 4,
-        "cutMm": 7485.5,
-        "rapidMm": 7990.917,
-        "seconds": 239.328
+        "operations": 17,
+        "toolChanges": 3,
+        "cutMm": 5016.0,
+        "rapidMm": 7018.051,
+        "seconds": 209.404
       },
       {
         "part": "P002",
         "setup": "A",
-        "operations": 18,
-        "toolChanges": 4,
-        "cutMm": 7485.5,
-        "rapidMm": 7827.434,
-        "seconds": 238.837
+        "operations": 17,
+        "toolChanges": 3,
+        "cutMm": 5016.0,
+        "rapidMm": 6945.74,
+        "seconds": 209.187
       },
       {
         "part": "P003",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 8061.5,
-        "rapidMm": 4843.364,
-        "seconds": 265.087
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 5464.0,
+        "rapidMm": 3812.6,
+        "seconds": 226.03
       },
       {
         "part": "P004",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 8061.5,
-        "rapidMm": 4467.173,
-        "seconds": 263.959
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 5464.0,
+        "rapidMm": 3521.493,
+        "seconds": 225.156
       },
       {
         "part": "P005",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 3370.5,
-        "rapidMm": 188.985,
-        "seconds": 33.992
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P006",
         "setup": "A",
-        "operations": 5,
-        "toolChanges": 2,
-        "cutMm": 2603.1,
-        "rapidMm": 203.985,
-        "seconds": 46.879
+        "operations": 4,
+        "toolChanges": 0,
+        "cutMm": 72.0,
+        "rapidMm": 120.0,
+        "seconds": 11.16
       },
       {
         "part": "P007",
         "setup": "A",
-        "operations": 5,
-        "toolChanges": 2,
-        "cutMm": 2603.1,
-        "rapidMm": 203.985,
-        "seconds": 46.879
+        "operations": 4,
+        "toolChanges": 0,
+        "cutMm": 72.0,
+        "rapidMm": 120.0,
+        "seconds": 11.16
       },
       {
         "part": "P008",
         "setup": "A",
-        "operations": 7,
-        "toolChanges": 3,
-        "cutMm": 2624.5,
-        "rapidMm": 3400.498,
-        "seconds": 62.887
+        "operations": 6,
+        "toolChanges": 2,
+        "cutMm": 69.0,
+        "rapidMm": 2505.767,
+        "seconds": 32.553
       },
       {
         "part": "P009",
         "setup": "A",
-        "operations": 7,
-        "toolChanges": 3,
-        "cutMm": 2624.5,
-        "rapidMm": 2982.838,
-        "seconds": 61.635
+        "operations": 6,
+        "toolChanges": 2,
+        "cutMm": 69.0,
+        "rapidMm": 2209.756,
+        "seconds": 31.665
       }
     ]
   },

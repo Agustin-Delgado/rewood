@@ -110,6 +110,15 @@ impl PlacementRule {
         if usable < 0.0 {
             return vec![len / 2.0];
         }
+        // A joint barely longer than its two end offsets would put its end
+        // fasteners a few millimetres apart, hole into hole: they close in
+        // on the middle one pitch apart instead, or one does the job.
+        if usable < MIN_PAIR {
+            if len < 2.0 * MIN_PAIR {
+                return vec![len / 2.0];
+            }
+            return vec![(len - MIN_PAIR) / 2.0, (len + MIN_PAIR) / 2.0];
+        }
         let from_table = self
             .count_by_length
             .iter()
@@ -126,11 +135,19 @@ impl PlacementRule {
     }
 }
 
+/// Closest two fasteners spread along a joint may sit: one System 32 pitch.
+const MIN_PAIR: f64 = 32.0;
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct BomItem {
     pub name: String,
     pub quantity: f64,
+    /// Only for a fastener whose through holes add up to this much panel,
+    /// [from, to) in mm: a handle's screw is 25 mm on a door and 45 on a
+    /// drawer front with the box behind it. Absent = always.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub through: Option<[f64; 2]>,
     /// Per unit, in the profile's currency; 0 = unknown.
     #[serde(default, skip_serializing_if = "crate::library::material::is_zero")]
     pub unit_price: f64,
@@ -155,6 +172,10 @@ pub struct HardwareDef {
     /// Hinges only: which door mount the arm is made for.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hinge: Option<HingeSpec>,
+    /// Spacers only: a block screwed between the carcass panel and a
+    /// slide, so an inner drawer clears the door swung open in front of it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub spacer: Option<SpacerSpec>,
     /// Catches only (magnetic catch, push latch): the plate that goes on
     /// the door to meet it.
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -230,6 +251,13 @@ pub struct CatchSpec {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SpacerSpec {
+    /// How far it moves the slide (and the drawer) off the panel, mm.
+    pub thickness: f64,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct LegSpec {
     pub height: f64,
     /// Base plate diameter, for the edge-distance check and the drawing.
@@ -243,7 +271,8 @@ impl HardwareDef {
         use crate::components::JointKind;
         match kind {
             JointKind::Hinge { .. } => self.kind == "hinge",
-            JointKind::Slide => self.kind == "slide",
+            // A spacer rides along with the slide it moves off the panel.
+            JointKind::Slide => matches!(self.kind.as_str(), "slide" | "spacer"),
             JointKind::Handle { .. } => self.kind == "handle",
             JointKind::Fixture { .. } => {
                 matches!(
@@ -266,6 +295,7 @@ impl HardwareDef {
                     | "pin"
                     | "catch"
                     | "strike"
+                    | "spacer"
             ),
         }
     }

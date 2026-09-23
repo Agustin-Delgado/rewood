@@ -280,12 +280,12 @@ fn a_fastener_landing_in_the_back_groove_is_an_error() {
         r#""joint": { "hardware": ["dowel_8x30"] }"#,
         r#""joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 8, "maxSpacing": 300 } }"#,
     );
-    let f = findings(&json, "FAB-208");
+    let f = findings(&json, "FAB-209");
     // Both sides and both horizontals: the dowel 8 mm from the back edge
     // crosses the groove at 10 mm.
     assert_eq!(f.len(), 8, "{f:?}");
     assert!(f[0].1.contains("cae dentro de la ranura"));
-    assert!(findings(&cabinet("", "}"), "FAB-208").is_empty());
+    assert!(findings(&cabinet("", "}"), "FAB-209").is_empty());
 }
 
 #[test]

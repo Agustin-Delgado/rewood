@@ -255,6 +255,7 @@
       "param": "drawer_count",
       "label": "Cajones",
       "group": "Cajones",
+      "help": "Cada frente necesita unos 110 mm para que la caja tenga altura útil.",
       "kind": "number",
       "value": 3.0,
       "min": 1.0,
@@ -6285,7 +6286,7 @@
         "P013",
         "P019"
       ],
-      "name": "Frente cajón 1",
+      "name": "Frente cajón",
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 594.0,
@@ -6304,7 +6305,7 @@
         "P014",
         "P020"
       ],
-      "name": "Lateral cajón 1 izq.",
+      "name": "Lateral cajón izq.",
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 450.0,
@@ -6323,7 +6324,7 @@
         "P015",
         "P021"
       ],
-      "name": "Lateral cajón 1 der.",
+      "name": "Lateral cajón der.",
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 450.0,
@@ -6342,7 +6343,7 @@
         "P016",
         "P022"
       ],
-      "name": "Frente interior cajón 1",
+      "name": "Frente interior cajón",
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 502.6,
@@ -6361,7 +6362,7 @@
         "P017",
         "P023"
       ],
-      "name": "Trasera cajón 1",
+      "name": "Trasera cajón",
       "quantity": 3,
       "material": "melamine_18",
       "cutLength": 502.6,
@@ -6380,7 +6381,7 @@
         "P018",
         "P024"
       ],
-      "name": "Fondo cajón 1",
+      "name": "Fondo cajón",
       "quantity": 3,
       "material": "hdf_3",
       "cutLength": 517.6,
@@ -6675,7 +6676,7 @@
         },
         {
           "part": "P017",
-          "x": 714.0,
+          "x": 1146.0,
           "y": 823.667,
           "length": 502.6,
           "width": 189.667,
@@ -6747,8 +6748,8 @@
         },
         {
           "part": "P006",
-          "x": 1220.6,
-          "y": 823.667,
+          "x": 1766.0,
+          "y": 10.0,
           "length": 564.0,
           "width": 100.0,
           "rotated": false
@@ -6760,43 +6761,43 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 2921.886,
+    "totalSeconds": 2317.427,
     "programs": [
       {
         "part": "P001",
         "setup": "A",
-        "operations": 19,
-        "toolChanges": 4,
-        "cutMm": 6888.5,
-        "rapidMm": 7673.647,
-        "seconds": 220.826
+        "operations": 18,
+        "toolChanges": 3,
+        "cutMm": 4419.0,
+        "rapidMm": 6736.192,
+        "seconds": 191.009
       },
       {
         "part": "P002",
         "setup": "A",
-        "operations": 19,
-        "toolChanges": 4,
-        "cutMm": 6888.5,
-        "rapidMm": 7386.311,
-        "seconds": 219.964
+        "operations": 18,
+        "toolChanges": 3,
+        "cutMm": 4419.0,
+        "rapidMm": 6604.589,
+        "seconds": 190.614
       },
       {
         "part": "P003",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 5861.5,
-        "rapidMm": 4220.337,
-        "seconds": 206.218
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 3664.0,
+        "rapidMm": 3390.231,
+        "seconds": 170.763
       },
       {
         "part": "P004",
         "setup": "A",
-        "operations": 14,
-        "toolChanges": 4,
-        "cutMm": 5861.5,
-        "rapidMm": 3645.316,
-        "seconds": 204.493
+        "operations": 13,
+        "toolChanges": 2,
+        "cutMm": 3664.0,
+        "rapidMm": 2999.541,
+        "seconds": 169.591
       },
       {
         "part": "P004",
@@ -6810,38 +6811,38 @@
       {
         "part": "P005",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 2570.5,
-        "rapidMm": 188.985,
-        "seconds": 27.992
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P006",
         "setup": "A",
-        "operations": 5,
-        "toolChanges": 2,
-        "cutMm": 1437.5,
-        "rapidMm": 1380.195,
-        "seconds": 35.006
+        "operations": 4,
+        "toolChanges": 1,
+        "cutMm": 40.0,
+        "rapidMm": 751.852,
+        "seconds": 14.156
       },
       {
         "part": "P007",
         "setup": "A",
-        "operations": 7,
-        "toolChanges": 2,
-        "cutMm": 1794.834,
-        "rapidMm": 2181.73,
-        "seconds": 42.7
+        "operations": 6,
+        "toolChanges": 1,
+        "cutMm": 72.0,
+        "rapidMm": 1561.487,
+        "seconds": 19.434
       },
       {
         "part": "P008",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1380.834,
-        "rapidMm": 849.159,
-        "seconds": 32.087
+        "operations": 3,
+        "toolChanges": 1,
+        "cutMm": 30.0,
+        "rapidMm": 473.304,
+        "seconds": 12.345
       },
       {
         "part": "P008",
@@ -6855,11 +6856,11 @@
       {
         "part": "P009",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1380.834,
-        "rapidMm": 1084.585,
-        "seconds": 32.794
+        "operations": 3,
+        "toolChanges": 1,
+        "cutMm": 30.0,
+        "rapidMm": 843.612,
+        "seconds": 13.456
       },
       {
         "part": "P009",
@@ -6873,11 +6874,11 @@
       {
         "part": "P010",
         "setup": "A",
-        "operations": 6,
-        "toolChanges": 3,
-        "cutMm": 4565.634,
-        "rapidMm": 1294.508,
-        "seconds": 142.756
+        "operations": 5,
+        "toolChanges": 1,
+        "cutMm": 3109.6,
+        "rapidMm": 710.1,
+        "seconds": 113.598
       },
       {
         "part": "P010",
@@ -6891,38 +6892,38 @@
       {
         "part": "P011",
         "setup": "A",
-        "operations": 6,
-        "toolChanges": 3,
-        "cutMm": 4565.634,
-        "rapidMm": 1295.336,
-        "seconds": 142.758
+        "operations": 5,
+        "toolChanges": 1,
+        "cutMm": 3109.6,
+        "rapidMm": 1201.336,
+        "seconds": 115.072
       },
       {
         "part": "P012",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 1947.7,
-        "rapidMm": 188.985,
-        "seconds": 23.321
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P013",
         "setup": "A",
-        "operations": 7,
-        "toolChanges": 2,
-        "cutMm": 1794.834,
-        "rapidMm": 2181.73,
-        "seconds": 42.7
+        "operations": 6,
+        "toolChanges": 1,
+        "cutMm": 72.0,
+        "rapidMm": 1561.487,
+        "seconds": 19.434
       },
       {
         "part": "P014",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1380.834,
-        "rapidMm": 849.159,
-        "seconds": 32.087
+        "operations": 3,
+        "toolChanges": 1,
+        "cutMm": 30.0,
+        "rapidMm": 473.304,
+        "seconds": 12.345
       },
       {
         "part": "P014",
@@ -6936,11 +6937,11 @@
       {
         "part": "P015",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1380.834,
-        "rapidMm": 1084.585,
-        "seconds": 32.794
+        "operations": 3,
+        "toolChanges": 1,
+        "cutMm": 30.0,
+        "rapidMm": 843.612,
+        "seconds": 13.456
       },
       {
         "part": "P015",
@@ -6954,11 +6955,11 @@
       {
         "part": "P016",
         "setup": "A",
-        "operations": 6,
-        "toolChanges": 3,
-        "cutMm": 4565.634,
-        "rapidMm": 1294.508,
-        "seconds": 142.756
+        "operations": 5,
+        "toolChanges": 1,
+        "cutMm": 3109.6,
+        "rapidMm": 710.1,
+        "seconds": 113.598
       },
       {
         "part": "P016",
@@ -6972,38 +6973,38 @@
       {
         "part": "P017",
         "setup": "A",
-        "operations": 6,
-        "toolChanges": 3,
-        "cutMm": 4565.634,
-        "rapidMm": 1295.336,
-        "seconds": 142.758
+        "operations": 5,
+        "toolChanges": 1,
+        "cutMm": 3109.6,
+        "rapidMm": 1201.336,
+        "seconds": 115.072
       },
       {
         "part": "P018",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 1947.7,
-        "rapidMm": 188.985,
-        "seconds": 23.321
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       },
       {
         "part": "P019",
         "setup": "A",
-        "operations": 7,
-        "toolChanges": 2,
-        "cutMm": 1794.834,
-        "rapidMm": 2181.73,
-        "seconds": 42.7
+        "operations": 6,
+        "toolChanges": 1,
+        "cutMm": 72.0,
+        "rapidMm": 1561.487,
+        "seconds": 19.434
       },
       {
         "part": "P020",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1380.834,
-        "rapidMm": 849.159,
-        "seconds": 32.087
+        "operations": 3,
+        "toolChanges": 1,
+        "cutMm": 30.0,
+        "rapidMm": 473.304,
+        "seconds": 12.345
       },
       {
         "part": "P020",
@@ -7017,11 +7018,11 @@
       {
         "part": "P021",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 2,
-        "cutMm": 1380.834,
-        "rapidMm": 1084.585,
-        "seconds": 32.794
+        "operations": 3,
+        "toolChanges": 1,
+        "cutMm": 30.0,
+        "rapidMm": 843.612,
+        "seconds": 13.456
       },
       {
         "part": "P021",
@@ -7035,11 +7036,11 @@
       {
         "part": "P022",
         "setup": "A",
-        "operations": 6,
-        "toolChanges": 3,
-        "cutMm": 4565.634,
-        "rapidMm": 1294.508,
-        "seconds": 142.756
+        "operations": 5,
+        "toolChanges": 1,
+        "cutMm": 3109.6,
+        "rapidMm": 710.1,
+        "seconds": 113.598
       },
       {
         "part": "P022",
@@ -7053,20 +7054,20 @@
       {
         "part": "P023",
         "setup": "A",
-        "operations": 6,
-        "toolChanges": 3,
-        "cutMm": 4565.634,
-        "rapidMm": 1295.336,
-        "seconds": 142.758
+        "operations": 5,
+        "toolChanges": 1,
+        "cutMm": 3109.6,
+        "rapidMm": 1201.336,
+        "seconds": 115.072
       },
       {
         "part": "P024",
         "setup": "A",
-        "operations": 1,
-        "toolChanges": 1,
-        "cutMm": 1947.7,
-        "rapidMm": 188.985,
-        "seconds": 23.321
+        "operations": 0,
+        "toolChanges": 0,
+        "cutMm": 0.0,
+        "rapidMm": 120.0,
+        "seconds": 0.36
       }
     ]
   },

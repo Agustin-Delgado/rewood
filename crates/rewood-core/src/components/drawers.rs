@@ -16,6 +16,9 @@ use crate::model::Grain;
 use crate::rules::mm;
 use crate::spec::{ComponentSpec, EdgeBanding, FrontMount};
 
+/// How far a handle stands off its front (a bar with its posts, a knob).
+const HANDLE_REACH: f64 = 30.0;
+
 pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnostic> {
     let ComponentSpec::Drawers {
         id,
@@ -66,6 +69,29 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         Some(s) if inner => ctx.eval(id, "setback", s)?,
         _ => 0.0,
     };
+    // An inner drawer sits behind a door: a handle on it has to fit in the
+    // setback, or it runs into the door as it closes.
+    if inner && handle.is_some() && setback < HANDLE_REACH {
+        return Err(Diagnostic::new(
+            "SPEC-324",
+            Severity::Fatal,
+            format!(
+                "los cajones interiores de '{id}' llevan tirador, que sobresale unos {} mm, y el retiro es de {}: choca con la puerta",
+                mm(HANDLE_REACH),
+                mm(setback)
+            ),
+        )
+        .entity(id)
+        .suggestion("Sacale el tirador (se abren tomando el canto del frente) o retiralos más."));
+    }
+    if setback < 0.0 {
+        return Err(Diagnostic::new(
+            "SPEC-304",
+            Severity::Fatal,
+            format!("'{id}.setback' = {} mm: no puede ser negativo", mm(setback)),
+        )
+        .entity(id));
+    }
     // Front plane, from the carcass front: overlay fronts stand in front
     // of it, inner fronts inside, set back or not.
     let front_material_id = ctx.material_or_default(id, material.as_ref())?.to_string();
@@ -75,18 +101,6 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     } else {
         (carcass.depth, carcass.depth + tf_plane)
     };
-    ctx.occupy_front(
-        id,
-        if inner {
-            OccupancyKind::InnerDrawers
-        } else {
-            OccupancyKind::Drawers
-        },
-        &carcass,
-        &bays,
-        zone,
-        Some(front_y),
-    );
     {
         let mut fields: Vec<(&str, &crate::params::ParamInput)> = Vec::new();
         if let Some(z) = spec_zone {
@@ -113,10 +127,17 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     }
     let count = count as usize;
     let gap = ctx.eval(id, "gap", gap)?;
+    if gap < 0.0 {
+        return Err(Diagnostic::new(
+            "SPEC-304",
+            Severity::Fatal,
+            format!("'{id}.gap' = {} mm: no puede ser negativo", mm(gap)),
+        )
+        .entity(id));
+    }
     let front_material = ctx.material_or_default(id, material.as_ref())?.to_string();
     let box_material = ctx
-        .material_or_default(id, box_material.as_ref())
-        .or_else(|_| ctx.material_or_default(id, None))?
+        .material_or_default(id, box_material.as_ref())?
         .to_string();
     let bottom_material = ctx
         .material_or_default(id, Some(bottom_material))?
@@ -139,11 +160,33 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             .entity(id)
         })?;
 
+    // Half a gap where the zone meets another front inside the carcass.
+    let (gap_lo, gap_hi) = super::zone_gaps(!inner, zone, carcass.height, gap);
     let front_height_spec = front_height.as_ref();
     let front_height = match front_height {
         Some(v) => ctx.eval(id, "frontHeight", v)?,
-        None => (zone_height - gap * (count as f64 + 1.0)) / count as f64,
+        None => (zone_height - gap_lo - gap_hi - gap * (count as f64 - 1.0)) / count as f64,
     };
+    // What the fronts cover, not the whole zone: with an explicit
+    // `frontHeight` the rest of the zone stays open (and free for
+    // something else), and the layout check sees it.
+    let occupied = super::Zone {
+        z0: zone.z0,
+        z1: (zone.z0 + gap_lo + count as f64 * front_height + (count as f64 - 1.0) * gap + gap_hi)
+            .min(zone.z1),
+    };
+    ctx.occupy_front(
+        id,
+        if inner {
+            OccupancyKind::InnerDrawers
+        } else {
+            OccupancyKind::Drawers
+        },
+        &carcass,
+        &bays,
+        occupied,
+        Some(front_y),
+    );
     let box_height = match box_height {
         Some(v) => ctx.eval(id, "boxHeight", v)?,
         None => front_height - 40.0,
@@ -168,18 +211,21 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             "SPEC-305",
             Severity::Fatal,
             format!(
-                "{count} cajones con frentes de {front_height} mm no entran en {zone_height} mm"
+                "{count} cajones con frentes de {front_height} mm no entran en {zone_height} mm",
+                front_height = mm(front_height),
+                zone_height = mm(zone_height)
             ),
         )
         .entity(id));
     }
-    if gap + count as f64 * (front_height + gap) > zone_height + crate::units::EPS {
+    if gap_lo + gap_hi + count as f64 * front_height + (count as f64 - 1.0) * gap
+        > zone_height + crate::units::EPS
+    {
         return Err(Diagnostic::new(
             "SPEC-305",
             Severity::Fatal,
             format!(
-                "{count} frentes de {front_height} mm con {gap} mm de luz suman más que la zona ({zone_height} mm)"
-            ),
+                "{count} frentes de {front_height} mm con {gap} mm de luz suman más que la zona ({zone_height} mm)", front_height = mm(front_height), gap = mm(gap), zone_height = mm(zone_height)),
         )
         .entity(id));
     }
@@ -197,8 +243,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             "SPEC-307",
             Severity::Fatal,
             format!(
-                "la corredera de {box_depth} mm no entra en los {available_depth} mm útiles de profundidad (hacen falta 10 mm de holgura atrás)"
-            ),
+                "la corredera de {box_depth} mm no entra en los {available_depth} mm útiles de profundidad (hacen falta 10 mm de holgura atrás)", box_depth = mm(box_depth), available_depth = mm(available_depth)),
         )
         .entity(id)
         .suggestion("Elegí una corredera más corta o una carcasa más profunda.")
@@ -251,12 +296,28 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let groove_depth = ctx.eval(id, "bottomGroove.depth", &bottom_groove.depth)?;
     let clearance = ctx.eval(id, "bottomGroove.clearance", &bottom_groove.clearance)?;
     let groove_width = tbot + clearance;
+    if inset < 0.0 || groove_depth <= 0.0 || inset + groove_width + 10.0 > box_height {
+        return Err(Diagnostic::new(
+            "SPEC-302",
+            Severity::Fatal,
+            format!(
+                "la ranura del fondo del cajón de '{id}' (a {} del canto, {} de ancho, {} de profundidad) no cae dentro de una caja de {} mm de alto",
+                mm(inset),
+                mm(groove_width),
+                mm(groove_depth),
+                mm(box_height)
+            ),
+        )
+        .entity(id));
+    }
     if groove_depth >= tb {
         return Err(Diagnostic::new(
             "SPEC-302",
             Severity::Fatal,
             format!(
-                "la ranura del fondo del cajón ({groove_depth} mm) atraviesa paneles de {tb} mm"
+                "la ranura del fondo del cajón ({groove_depth} mm) atraviesa paneles de {tb} mm",
+                groove_depth = mm(groove_depth),
+                tb = mm(tb)
             ),
         )
         .entity(id));
@@ -343,7 +404,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             .fix("Luz de 2 mm", id, "gap", serde_json::json!(2)),
         );
     }
-    if *edges == EdgeBanding::None {
+    // On a front, `front` names its face, not an edge: nothing gets banded.
+    if matches!(*edges, EdgeBanding::None | EdgeBanding::Front) {
         ctx.warn(
             Diagnostic::new(
                 "DESIGN-109",
@@ -351,7 +413,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 format!("'{id}': frentes sin canto; los bordes de placa quedan a la vista"),
             )
             .entity(id)
-            .suggestion("Sacá 'edges: none' o dejá 'all'.")
+            .suggestion("Dejá 'all' (o sacá 'edges'); 'front' en un frente no cantea nada, su cara es la que mira adelante.")
             .fix("Cantear los frentes", id, "edges", serde_json::Value::Null),
         );
     }
@@ -376,12 +438,70 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let play = 0.5;
     let many = bays.len() > 1;
 
+    // Spacers the library has, thinnest first.
+    let mut spacers: Vec<(f64, String)> = ctx
+        .libs
+        .hardware
+        .iter()
+        .filter(|h| h.kind == "spacer")
+        .filter_map(|h| Some((h.spacer.as_ref()?.thickness, h.id.clone())))
+        .collect();
+    spacers.sort_by(|a, b| a.0.total_cmp(&b.0).then_with(|| a.1.cmp(&b.1)));
     for bay in &bays {
-        let x0 = bay.x0 + slide_def.side_clearance; // box left outer face
-        let box_outer_width = (bay.x1 - bay.x0) - 2.0 * slide_def.side_clearance;
+        // Inner drawers behind a door hung on this bay's side panel sit on
+        // spacers there, so their fronts clear the door swung open: the
+        // thinnest that does, or the thickest there is (and DESIGN-118
+        // still says it is not enough).
+        let spacer_on = |ctx: &BuildCtx<'_>, panel: &str| -> Option<(f64, String)> {
+            if !inner {
+                return None;
+            }
+            let panel = ctx.parts.iter().find(|p| p.id == panel)?;
+            let need = *ctx.spacers.get(&super::spacer_key(id, panel))?;
+            spacers
+                .iter()
+                .find(|(t, _)| *t >= need - crate::units::EPS)
+                .or(spacers.last())
+                .cloned()
+        };
+        let spacer_left = spacer_on(ctx, &bay.left_part);
+        let spacer_right = spacer_on(ctx, &bay.right_part);
+        let (s0, s1) = (
+            spacer_left.as_ref().map_or(0.0, |s| s.0),
+            spacer_right.as_ref().map_or(0.0, |s| s.0),
+        );
+        // The spacer goes into the slide joint: one per slide, in the BOM
+        // and in the plan next to the slide it carries.
+        let mut slide_on = [slide.clone(), slide.clone()];
+        for ((side, spacer), joint) in [("left", &spacer_left), ("right", &spacer_right)]
+            .into_iter()
+            .zip(&mut slide_on)
+        {
+            if let Some((t, hardware)) = spacer {
+                ctx.publish(id, &format!("spacer_{side}"), *t);
+                joint.hardware.push(hardware.clone());
+            }
+        }
+        let x0 = bay.x0 + s0 + slide_def.side_clearance; // box left outer face
+        let box_outer_width = (bay.x1 - bay.x0) - s0 - s1 - 2.0 * slide_def.side_clearance;
         let inner_length = box_outer_width - 2.0 * tb;
-        let (c0, _) = cover(bay);
-        let front_width = min_span - 2.0 * gap;
+        // Each bay's front covers that bay: an end bay reaches over the
+        // carcass side, a middle one only to the dividers' centres.
+        let (c0, c1) = cover(bay);
+        let (c0, c1) = (c0 + s0, c1 - s1);
+        let front_width = c1 - c0 - 2.0 * gap;
+        if inner_length <= 0.0 || front_width <= 0.0 {
+            return Err(Diagnostic::new(
+                "SPEC-305",
+                Severity::Fatal,
+                format!(
+                    "la bahía {} es muy angosta para cajones interiores con distanciadores de {} mm",
+                    bay.index,
+                    mm(s0.max(s1))
+                ),
+            )
+            .entity(id));
+        }
         let tag = if many {
             format!(" bahía {}", bay.index)
         } else {
@@ -394,7 +514,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         };
         for i in 0..count {
             let n = i + 1;
-            let z_front = zone.z0 + gap + i as f64 * (front_height + gap);
+            let z_front = zone.z0 + gap_lo + i as f64 * (front_height + gap);
             let z_box = z_front + (front_height - box_height) / 2.0;
 
             let front = ctx.add_part(PartInit {
@@ -563,8 +683,20 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             }
 
             // Slides: box side ↔ the panel bounding the bay on that side.
-            ctx.request(JointKind::Slide, id, &side_left, &bay.left_part, slide);
-            ctx.request(JointKind::Slide, id, &side_right, &bay.right_part, slide);
+            ctx.request(
+                JointKind::Slide,
+                id,
+                &side_left,
+                &bay.left_part,
+                &slide_on[0],
+            );
+            ctx.request(
+                JointKind::Slide,
+                id,
+                &side_right,
+                &bay.right_part,
+                &slide_on[1],
+            );
         }
     }
 

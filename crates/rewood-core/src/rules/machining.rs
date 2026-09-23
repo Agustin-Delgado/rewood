@@ -510,14 +510,14 @@ fn cylinder_hits_box(c: &Cylinder, s: &Slot) -> bool {
     dist2 < (c.radius - EPS) * (c.radius - EPS)
 }
 
-/// FAB-208: a hole cuts into a groove of the same part — the fastener
+/// FAB-209: a hole cuts into a groove of the same part — the fastener
 /// would sit in the slot the back panel (or drawer bottom) runs in, and
 /// the panel would not go in.
 pub struct HoleThroughGroove;
 
 impl Rule for HoleThroughGroove {
     fn id(&self) -> &'static str {
-        "FAB-208"
+        "FAB-209"
     }
 
     fn check(&self, input: &RuleInput<'_>) -> Vec<Diagnostic> {

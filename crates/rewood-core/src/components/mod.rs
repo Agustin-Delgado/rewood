@@ -246,6 +246,20 @@ pub struct BuildCtx<'a> {
     /// Components left out by their `when` (or by what they refer to),
     /// in declaration order.
     pub disabled: Vec<String>,
+    /// Shelves on pins, by component: heights (world Z of a pin hole) where
+    /// the other face of the panel already has a hole, found by a first
+    /// pass. The shelf takes the next free grid line instead.
+    pub pin_avoid: BTreeMap<String, Vec<f64>>,
+    /// Inner drawers behind a door, found by a first pass: how far each
+    /// stack has to move off a carcass panel (`spacer_key`) for its fronts
+    /// to clear the door swung open. The drawers take a spacer for it.
+    pub spacers: BTreeMap<String, f64>,
+}
+
+/// Key of `BuildCtx::spacers`: the drawers component and the panel its
+/// slide is screwed to, by component and role (stable between passes).
+pub fn spacer_key(drawers: &str, panel: &crate::model::Part) -> String {
+    format!("{drawers}|{}:{}", panel.component, panel.role)
 }
 
 /// World axes whose facing edges get banded, from the component's choice
@@ -256,6 +270,28 @@ fn mount_es(mount: &str) -> &'static str {
         "half_overlay" => "de media superposición",
         _ => "superpuesta",
     }
+}
+
+/// Gaps a front leaves under and over its zone. At the carcass's top or
+/// bottom the full gap; where the zone ends inside the carcass (another
+/// zone starts there) half of it, so two overlay fronts meeting at that
+/// line keep one gap between them. Inset fronts sit inside the opening
+/// and keep the full gap all round.
+pub fn zone_gaps(overlay: bool, zone: Zone, height: f64, gap: f64) -> (f64, f64) {
+    if !overlay {
+        return (gap, gap);
+    }
+    let lo = if zone.z0 > crate::units::EPS {
+        gap / 2.0
+    } else {
+        gap
+    };
+    let hi = if zone.z1 < height - crate::units::EPS {
+        gap / 2.0
+    } else {
+        gap
+    };
+    (lo, hi)
 }
 
 pub fn banded_axes(choice: EdgeBanding, default: &[Axis]) -> Vec<Axis> {
@@ -306,6 +342,8 @@ impl<'a> BuildCtx<'a> {
             worktops: BTreeMap::new(),
             braced: BTreeSet::new(),
             disabled: Vec::new(),
+            pin_avoid: BTreeMap::new(),
+            spacers: BTreeMap::new(),
         }
     }
 

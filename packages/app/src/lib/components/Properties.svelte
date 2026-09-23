@@ -11,7 +11,7 @@
 	const optionOf = $derived(new Map((app.plan?.options ?? []).map((o) => [o.param, o])));
 	const named = $derived(params.filter(([n]) => optionOf.has(n)));
 	const other = $derived(params.filter(([n]) => !optionOf.has(n)));
-	const labels = $derived(componentLabels(app.spec));
+	const labels = $derived(componentLabels(app.spec, app.plan));
 	/** Values the engine worked out, by component, for writing expressions. */
 	const derivedGroups = $derived.by(() => {
 		const map = new Map<string, [string, number][]>();
@@ -43,7 +43,7 @@
 		{@const face = app.partById(joint.facePart)}
 		<h3>Herraje</h3>
 		<div class="row"><span class="name">qué es</span><span>{app.hardwareName(fastener.hardware)}</span></div>
-		<div class="row"><span class="name">unión</span><span>{joint.id} · {JOINT_KIND_ES[joint.kind]} · {fastener.index + 1} de {joint.fasteners.length}</span></div>
+		<div class="row"><span class="name">unión</span><span>{joint.id} · {JOINT_KIND_ES[joint.kind]} · {(app.selectedFastener?.index ?? 0) + 1} de {joint.fasteners.length}</span></div>
 		{#if joint.edgePart === joint.facePart}
 			<div class="row"><span class="name">sobre</span><button class="link" onclick={() => app.selectPart(joint.edgePart)}>{joint.edgePart} {edge?.name ?? ''}</button></div>
 		{:else}

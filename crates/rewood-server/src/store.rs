@@ -36,6 +36,16 @@ pub struct Project {
 
 /// A furniture record: the current spec plus every earlier version, so a
 /// recalculation of an old version is always possible.
+/// A spec as it was saved: its JSON, not `FurnitureSpec`. The spec format
+/// checks every field strictly when one comes in; a record written by an
+/// older engine must still open after a field is renamed, so what is on
+/// disk is read as plain JSON and parsed (strictly) only to compile it.
+pub type StoredSpec = serde_json::Value;
+
+fn stored(spec: &FurnitureSpec) -> StoredSpec {
+    serde_json::to_value(spec).expect("a spec serialises")
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Furniture {
@@ -43,7 +53,7 @@ pub struct Furniture {
     pub project_id: String,
     /// 1-based, bumps on every PUT.
     pub version: u32,
-    pub spec: FurnitureSpec,
+    pub spec: StoredSpec,
     pub versions: Vec<FurnitureVersion>,
     pub created_at: String,
     pub updated_at: String,
@@ -53,7 +63,7 @@ pub struct Furniture {
 #[serde(rename_all = "camelCase")]
 pub struct FurnitureVersion {
     pub version: u32,
-    pub spec: FurnitureSpec,
+    pub spec: StoredSpec,
     pub saved_at: String,
 }
 
@@ -75,7 +85,7 @@ pub struct ManufacturingOrder {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Snapshot {
-    pub spec: FurnitureSpec,
+    pub spec: StoredSpec,
     pub plan: ManufacturingPlan,
     /// SHA-256 of the package files, in path order.
     pub package_sha256: String,
@@ -96,6 +106,15 @@ fn now() -> String {
     format!("{secs}")
 }
 
+/// `prj-000001`, `fur-000012`, `ord-000003`: the only ids the store makes.
+fn valid_id(id: &str) -> bool {
+    let b = id.as_bytes();
+    b.len() == 10
+        && b[..3].iter().all(|c| c.is_ascii_lowercase())
+        && b[3] == b'-'
+        && b[4..].iter().all(|c| c.is_ascii_digit())
+}
+
 impl FsStore {
     pub fn open(root: impl Into<PathBuf>) -> Result<FsStore, StoreError> {
         let root = root.into();
@@ -108,15 +127,27 @@ impl FsStore {
         })
     }
 
+    /// One past the highest id on disk, not the count: a record removed by
+    /// hand must not hand its successor's id out again.
     fn next_id(&self, collection: &str, prefix: &str) -> Result<String, StoreError> {
         let n = std::fs::read_dir(self.root.join(collection))?
             .filter_map(|e| e.ok())
-            .filter(|e| e.path().extension().is_some_and(|x| x == "json"))
-            .count();
+            .filter_map(|e| {
+                let name = e.file_name().to_string_lossy().to_string();
+                name.strip_suffix(".json")?
+                    .strip_prefix(&format!("{prefix}-"))?
+                    .parse::<u64>()
+                    .ok()
+            })
+            .max()
+            .unwrap_or(0);
         Ok(format!("{prefix}-{:06}", n + 1))
     }
 
     fn write<T: Serialize>(&self, collection: &str, id: &str, value: &T) -> Result<(), StoreError> {
+        if !valid_id(id) {
+            return Err(StoreError::NotFound(format!("{collection}/{id}")));
+        }
         let path = self.root.join(collection).join(format!("{id}.json"));
         let tmp = path.with_extension("json.tmp");
         std::fs::write(&tmp, serde_json::to_vec_pretty(value)?)?;
@@ -129,6 +160,11 @@ impl FsStore {
         collection: &str,
         id: &str,
     ) -> Result<T, StoreError> {
+        // Ids come from URLs and bodies: only our own shape reaches the
+        // disk (`../x`, `a/b` or an absolute path never do).
+        if !valid_id(id) {
+            return Err(StoreError::NotFound(format!("{collection}/{id}")));
+        }
         let path = self.root.join(collection).join(format!("{id}.json"));
         if !path.exists() {
             return Err(StoreError::NotFound(format!("{collection}/{id}")));
@@ -175,6 +211,7 @@ impl FsStore {
         let _g = self.lock.lock().unwrap();
         let _: Project = self.read("projects", project_id)?;
         let ts = now();
+        let spec = stored(&spec);
         let f = Furniture {
             id: self.next_id("furniture", "fur")?,
             project_id: project_id.to_string(),
@@ -203,6 +240,7 @@ impl FsStore {
     pub fn update_furniture(&self, id: &str, spec: FurnitureSpec) -> Result<Furniture, StoreError> {
         let _g = self.lock.lock().unwrap();
         let mut f: Furniture = self.read("furniture", id)?;
+        let spec = stored(&spec);
         f.version += 1;
         f.updated_at = now();
         f.versions.push(FurnitureVersion {
@@ -228,8 +266,12 @@ impl FsStore {
         let mut hasher = sha2::Sha256::new();
         use sha2::Digest;
         for f in files {
+            // Each field ends in a NUL: without it `a` + `bc` and `ab` + `c`
+            // hash alike.
             hasher.update(f.path.as_bytes());
+            hasher.update([0u8]);
             hasher.update(f.contents.as_bytes());
+            hasher.update([0u8]);
             let path = dir.join(&f.path);
             if let Some(parent) = path.parent() {
                 std::fs::create_dir_all(parent)?;
@@ -273,9 +315,22 @@ impl FsStore {
         }
     }
 
-    pub fn save_production(&self, p: &crate::production::Production) -> Result<(), StoreError> {
+    /// Read, change and save an order's production record under one lock,
+    /// so two requests at once never lose each other's step or QC record.
+    pub fn update_production<R>(
+        &self,
+        order_id: &str,
+        change: impl FnOnce(&mut crate::production::Production) -> Result<R, String>,
+    ) -> Result<Result<(crate::production::Production, R), String>, StoreError> {
         let _g = self.lock.lock().unwrap();
-        self.write("production", &p.order_id, p)
+        let mut p = self.production(order_id)?;
+        match change(&mut p) {
+            Ok(r) => {
+                self.write("production", &p.order_id, &p)?;
+                Ok(Ok((p, r)))
+            }
+            Err(e) => Ok(Err(e)),
+        }
     }
 
     pub fn now_string() -> String {

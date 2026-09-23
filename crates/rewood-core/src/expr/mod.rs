@@ -26,7 +26,12 @@ pub enum ExprError {
     Type(String),
     #[error("división por cero")]
     DivByZero,
+    #[error("el resultado no es un número finito")]
+    NotFinite,
 }
+
+/// Longest expression accepted, in tokens.
+const MAX_TOKENS: usize = 2000;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BinOp {
@@ -127,6 +132,13 @@ impl Scope for Chain<'_> {
 impl Expr {
     pub fn parse(src: &str) -> Result<Expr, ExprError> {
         let tokens = lexer::tokenize(src)?;
+        // A bound on size keeps parsing and evaluating off the stack's edge.
+        if tokens.len() > MAX_TOKENS {
+            return Err(ExprError::Parse(format!(
+                "expresión demasiado larga ({} símbolos, el máximo es {MAX_TOKENS})",
+                tokens.len()
+            )));
+        }
         parser::Parser::new(tokens).parse()
     }
 
@@ -152,7 +164,20 @@ impl Expr {
         }
     }
 
+    /// Evaluate. A result that is not a finite number (the square root of
+    /// a negative, an overflow) is an error, never a NaN that slips past
+    /// every comparison downstream.
     pub fn eval(&self, scope: &dyn Scope) -> Result<Value, ExprError> {
+        let v = self.eval_raw(scope)?;
+        if let Value::Number(n) = v {
+            if !n.is_finite() {
+                return Err(ExprError::NotFinite);
+            }
+        }
+        Ok(v)
+    }
+
+    fn eval_raw(&self, scope: &dyn Scope) -> Result<Value, ExprError> {
         match self {
             Expr::Number(v) => Ok(Value::Number(*v)),
             Expr::Bool(b) => Ok(Value::Bool(*b)),
@@ -161,6 +186,13 @@ impl Expr {
                 .ok_or_else(|| ExprError::UnknownRef(name.clone())),
             Expr::Unary(UnOp::Neg, e) => Ok(Value::Number(-e.eval(scope)?.as_number()?)),
             Expr::Unary(UnOp::Not, e) => Ok(Value::Bool(!e.eval(scope)?.as_bool()?)),
+            // `and`/`or` stop at the side that decides: `n == 0 or w / n > 1`.
+            Expr::Binary(BinOp::And, a, b) => Ok(Value::Bool(
+                a.eval(scope)?.as_bool()? && b.eval(scope)?.as_bool()?,
+            )),
+            Expr::Binary(BinOp::Or, a, b) => Ok(Value::Bool(
+                a.eval(scope)?.as_bool()? || b.eval(scope)?.as_bool()?,
+            )),
             Expr::Binary(op, a, b) => {
                 let a = a.eval(scope)?;
                 let b = b.eval(scope)?;
@@ -196,8 +228,7 @@ impl Expr {
                         (Value::Bool(x), Value::Bool(y)) => x != y,
                         _ => true,
                     }),
-                    BinOp::And => Value::Bool(a.as_bool()? && b.as_bool()?),
-                    BinOp::Or => Value::Bool(a.as_bool()? || b.as_bool()?),
+                    BinOp::And | BinOp::Or => unreachable!("handled above"),
                 })
             }
             Expr::Call(name, args) => call(name, args, scope),
@@ -217,7 +248,15 @@ fn call(name: &str, args: &[Expr], scope: &dyn Scope) -> Result<Value, ExprError
         "floor" => Value::Number(nums(1)?[0].floor()),
         "ceil" => Value::Number(nums(1)?[0].ceil()),
         "round" => Value::Number(nums(1)?[0].round()),
-        "sqrt" => Value::Number(nums(1)?[0].sqrt()),
+        "sqrt" => {
+            let x = nums(1)?[0];
+            if x < 0.0 {
+                return Err(ExprError::Type(format!(
+                    "raíz cuadrada de un negativo ({x})"
+                )));
+            }
+            Value::Number(x.sqrt())
+        }
         "min" | "max" => {
             if args.is_empty() {
                 return Err(ExprError::Arity(name.to_string(), 1));

@@ -99,6 +99,17 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         );
         return Ok(());
     }
+    if inset < 0.0 {
+        return Err(Diagnostic::new(
+            "SPEC-323",
+            Severity::Fatal,
+            format!(
+                "el faldón '{id}' tiene 'inset' {} mm: va entre los apoyos, no detrás",
+                mm(inset)
+            ),
+        )
+        .entity(id));
+    }
     let many = gaps.len() > 1;
     for (n, (a, b)) in gaps.iter().enumerate() {
         let back = a.y0.max(b.y0) + inset;

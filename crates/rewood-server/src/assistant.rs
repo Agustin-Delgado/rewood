@@ -217,10 +217,7 @@ pub async fn run(model: &dyn Model, req: &AssistantRequest) -> Result<AssistantR
         let spec: FurnitureSpec = match serde_json::from_value(raw.clone()) {
             Ok(s) => s,
             Err(e) => {
-                messages.push(json!({ "role": "assistant", "content": [
-                    { "type": "text", "text": reply.text },
-                    { "type": "tool_use", "id": format!("call_{round}"), "name": TOOL_NAME, "input": { "spec": raw } }
-                ]}));
+                messages.push(json!({ "role": "assistant", "content": assistant_turn(&reply.text, round, &raw) }));
                 messages.push(json!({ "role": "user", "content": [
                     { "type": "tool_result", "tool_use_id": format!("call_{round}"), "content": format!("La spec no respeta el formato: {e}. Corregila y volvé a proponer.") }
                 ]}));
@@ -232,10 +229,9 @@ pub async fn run(model: &dyn Model, req: &AssistantRequest) -> Result<AssistantR
         let summary = findings_for_model(&plan);
         let needs_fix = plan.manufacturing_blocked || plan.diagnostics.count(Severity::Error) > 0;
         result = Some((spec, plan));
-        messages.push(json!({ "role": "assistant", "content": [
-            { "type": "text", "text": reply.text },
-            { "type": "tool_use", "id": format!("call_{round}"), "name": TOOL_NAME, "input": { "spec": raw } }
-        ]}));
+        messages.push(
+            json!({ "role": "assistant", "content": assistant_turn(&reply.text, round, &raw) }),
+        );
         messages.push(json!({ "role": "user", "content": [
             { "type": "tool_result", "tool_use_id": format!("call_{round}"), "content": summary }
         ]}));
@@ -337,15 +333,33 @@ impl Model for AnthropicModel {
                     out.text.push_str(block["text"].as_str().unwrap_or(""));
                 }
                 Some("tool_use") if block["name"] == TOOL_NAME => {
-                    out.spec = block["input"]["spec"]
-                        .as_object()
-                        .map(|o| Value::Object(o.clone()));
+                    // A spec sent as a JSON string instead of an object is
+                    // still a spec.
+                    let spec = &block["input"]["spec"];
+                    out.spec = match spec {
+                        Value::Object(_) => Some(spec.clone()),
+                        Value::String(s) => serde_json::from_str::<Value>(s)
+                            .ok()
+                            .filter(Value::is_object),
+                        _ => None,
+                    };
                 }
                 _ => {}
             }
         }
         Ok(out)
     }
+}
+
+/// The assistant's turn as sent back: its text only when it wrote some
+/// (the API rejects an empty text block), then the tool call.
+fn assistant_turn(text: &str, round: usize, spec: &Value) -> Value {
+    let mut content = Vec::new();
+    if !text.trim().is_empty() {
+        content.push(json!({ "type": "text", "text": text }));
+    }
+    content.push(json!({ "type": "tool_use", "id": format!("call_{round}"), "name": TOOL_NAME, "input": { "spec": spec } }));
+    Value::Array(content)
 }
 
 #[cfg(test)]

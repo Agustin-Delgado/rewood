@@ -23,6 +23,8 @@
 	const size = $derived(app.plan ? overall(app.plan) : null);
 	const items = $derived(app.plan?.diagnostics.items ?? []);
 	const errors = $derived(items.filter((d) => d.severity === 'ERROR' || d.severity === 'FATAL'));
+	/** What stands between the piece and the workshop (an out-of-range value shows on its option). */
+	const blocking = $derived(errors.filter((d) => d.code !== 'SPEC-503'));
 	const warnings = $derived(items.filter((d) => d.severity === 'WARNING'));
 	const hardwareCount = $derived(app.plan?.joints.reduce((n, j) => n + j.fasteners.length, 0) ?? 0);
 
@@ -60,9 +62,15 @@
 		if (o.max !== undefined) v = Math.min(o.max, v);
 		set(o, Math.round(v * 1000) / 1000);
 	}
-	function typed(o: PlanOption, raw: string) {
-		const v = Number(raw.replace(',', '.'));
-		if (Number.isFinite(v)) set(o, v);
+	/** A typed value: empty or not a number puts the current one back (`Number('')` is 0). */
+	function typed(o: PlanOption, input: HTMLInputElement) {
+		const raw = input.value.trim().replace(',', '.');
+		const v = Number(raw);
+		if (raw === '' || !Number.isFinite(v)) {
+			input.value = String(num(o));
+			return;
+		}
+		if (v !== num(o)) set(o, v);
 	}
 	function reset() {
 		if (app.variant) app.loadVariant(app.variant);
@@ -119,8 +127,8 @@
 								type="text"
 								inputmode="decimal"
 								value={num(o)}
-								onchange={(e) => typed(o, e.currentTarget.value)}
-								onkeydown={(e) => e.key === 'Enter' && typed(o, e.currentTarget.value)}
+								onchange={(e) => typed(o, e.currentTarget)}
+								onkeydown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
 							/>
 							{#if o.unit}<span class="unit">{o.unit}</span>{/if}
 							<button class="nudge" onclick={() => nudge(o, 1)} disabled={o.max !== undefined && num(o) >= o.max} aria-label="más">+</button>
@@ -174,9 +182,9 @@
 		{/each}
 	{/each}
 
-	{#if errors.length}
+	{#if blocking.length}
 		<h3>Para poder fabricarlo</h3>
-		{#each errors.filter((d) => d.code !== 'SPEC-503').slice(0, 4) as d (d.code + (d.entity ?? '') + d.message)}
+		{#each blocking.slice(0, 4) as d (d.code + (d.entity ?? '') + d.message)}
 			<p class="finding">
 				{d.message}
 				{#if d.fix}<button class="fix" onclick={() => app.applyFix(d.fix!)}>{d.fix.label}</button>{/if}

@@ -47,7 +47,9 @@ export function motions(plan: ManufacturingPlan): Map<string, Motion> {
 			return new THREE.Vector3(...toThree(centre(door))).applyMatrix4(m).z;
 		};
 		const angle = probe(DOOR_ANGLE) > probe(-DOOR_ANGLE) ? DOOR_ANGLE : -DOOR_ANGLE;
-		out.set(door.id, { key: door.id, kind: 'door', pivot, axis, angle });
+		// Keyed by what it is, not by its id: ids renumber when a recompile
+		// adds or drops parts, and an open door must stay that door.
+		out.set(door.id, { key: `${door.component}:${door.role}`, kind: 'door', pivot, axis, angle });
 	}
 
 	// Drawers: every part of one drawer (front, box, bottom) runs out

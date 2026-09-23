@@ -43,6 +43,18 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     let z_lo = zone.z0.max(ct);
     let z = zone.z1.min(carcass.height - ct) - from_top;
     let hang = z - z_lo;
+    // The bar (≈30 mm) and its support's top screw need room under the top.
+    if from_top < 30.0 {
+        return Err(Diagnostic::new(
+            "SPEC-315",
+            Severity::Fatal,
+            format!(
+                "el barral de '{id}' a {} mm de la tapa choca con ella: hacen falta al menos 30",
+                mm(from_top)
+            ),
+        )
+        .entity(id));
+    }
     if hang < 100.0 {
         return Err(Diagnostic::new(
             "SPEC-315",

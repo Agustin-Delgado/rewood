@@ -33,7 +33,7 @@ pub enum NestingMode {
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[serde(rename_all = "camelCase")]
 pub struct NestingRules {
     /// Width of the cut removed by the tool, kept between neighbouring parts.
     pub kerf: f64,
@@ -128,9 +128,14 @@ struct Sheet {
     width: f64,
     free: Vec<Rect>,
     placed: Vec<NestedPart>,
+    kerf: f64,
 }
 
 impl Sheet {
+    /// Every part is packed as if a kerf longer and wider, so two
+    /// neighbours always have a saw blade between them whichever side
+    /// they meet on; the bin grows by the same kerf so the last part can
+    /// still reach the margin.
     fn new(length: f64, width: f64, rules: &NestingRules) -> Sheet {
         let m = rules.margin;
         Sheet {
@@ -139,10 +144,11 @@ impl Sheet {
             free: vec![Rect {
                 x: m,
                 y: m,
-                w: length - 2.0 * m,
-                h: width - 2.0 * m,
+                w: length - 2.0 * m + rules.kerf,
+                h: width - 2.0 * m + rules.kerf,
             }],
             placed: Vec::new(),
+            kerf: rules.kerf,
         }
     }
 
@@ -156,6 +162,7 @@ impl Sheet {
                     continue;
                 }
                 let (pw, ph) = if rotated { (h, w) } else { (w, h) };
+                let (pw, ph) = (pw + self.kerf, ph + self.kerf);
                 if pw <= r.w + EPS && ph <= r.h + EPS {
                     let short = (r.w - pw).min(r.h - ph);
                     let long = (r.w - pw).max(r.h - ph);
@@ -539,6 +546,18 @@ pub fn nest(parts: &[Part], libs: &Libraries, rules: &NestingRules) -> Vec<Sheet
             });
         }
     }
+    // `rotated` says what the sheet shows: the part laid across its cut
+    // length. A part with grain along its width is placed turned without
+    // choosing to, and has to say so as well.
+    for layout in &mut layouts {
+        for np in &mut layout.parts {
+            if let Some(part) = parts.iter().find(|p| p.id == np.part) {
+                np.rotated = (part.cut.length - part.cut.width).abs() > EPS
+                    && (np.length - part.cut.width).abs() < EPS
+                    && (np.width - part.cut.length).abs() < EPS;
+            }
+        }
+    }
     layouts
 }
 
@@ -598,30 +617,57 @@ mod tests {
 
     #[test]
     fn kerf_separates_neighbours() {
-        let spec = include_str!("../../../fixtures/basic_cabinet/input.json");
-        let plan = crate::compile_json(spec);
+        // Every fixture: a part fitting in a gap left or under an earlier
+        // one used to sit closer than a kerf to it.
+        let dir = format!("{}/../../fixtures", env!("CARGO_MANIFEST_DIR"));
+        let mut names: Vec<_> = std::fs::read_dir(&dir)
+            .unwrap()
+            .map(|e| e.unwrap().path())
+            .collect();
+        names.sort();
         let libs = Libraries::default();
         let rules = NestingRules {
             kerf: 4.0,
             margin: 10.0,
             mode: NestingMode::MaxRects,
         };
-        let layouts = nest(&plan.parts, &libs, &rules);
-        for l in &layouts {
-            for a in &l.parts {
-                for b in &l.parts {
-                    if a.part == b.part {
-                        continue;
-                    }
-                    // Any two parts sharing a row or column are at least a kerf apart.
-                    let x_gap = (b.x - (a.x + a.length)).max(a.x - (b.x + b.length));
-                    let y_gap = (b.y - (a.y + a.width)).max(a.y - (b.y + b.width));
+        for path in names {
+            let spec = std::fs::read_to_string(path.join("input.json")).unwrap();
+            let plan = crate::compile_json(&spec);
+            let layouts = nest(&plan.parts, &libs, &rules);
+            for l in &layouts {
+                for a in &l.parts {
+                    // Inside the margin.
+                    assert!(a.x >= rules.margin - EPS && a.y >= rules.margin - EPS);
                     assert!(
-                        x_gap >= rules.kerf - EPS || y_gap >= rules.kerf - EPS,
-                        "{} vs {}",
-                        a.part,
-                        b.part
+                        a.x + a.length <= l.sheet_length - rules.margin + EPS,
+                        "{:?} {}",
+                        path,
+                        a.part
                     );
+                    assert!(
+                        a.y + a.width <= l.sheet_width - rules.margin + EPS,
+                        "{:?} {}",
+                        path,
+                        a.part
+                    );
+                }
+                for a in &l.parts {
+                    for b in &l.parts {
+                        if a.part == b.part {
+                            continue;
+                        }
+                        // Any two parts sharing a row or column are at least a kerf apart.
+                        let x_gap = (b.x - (a.x + a.length)).max(a.x - (b.x + b.length));
+                        let y_gap = (b.y - (a.y + a.width)).max(a.y - (b.y + b.width));
+                        assert!(
+                            x_gap >= rules.kerf - EPS || y_gap >= rules.kerf - EPS,
+                            "{:?}: {} vs {}",
+                            path,
+                            a.part,
+                            b.part
+                        );
+                    }
                 }
             }
         }

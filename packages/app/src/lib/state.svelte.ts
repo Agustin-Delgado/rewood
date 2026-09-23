@@ -171,9 +171,7 @@ class AppState {
 		this.spec = f.spec;
 		this.specText = JSON.stringify(this.spec, null, 2);
 		this.specError = null;
-		this.selectedPart = null;
-		this.selectedFastener = null;
-		this.hiddenComponents = new Set();
+		this.resetView();
 		this.current = { id: f.id, projectId: f.projectId, version: f.version };
 		this.dirty = false;
 		this.variant = null;
@@ -191,11 +189,37 @@ class AppState {
 
 	recompile() {
 		if (!this.engine) return;
+		// Part and joint ids renumber when parts come and go: the selection
+		// follows what was picked (component and role), or clears.
+		const before = this.plan;
+		const part = before?.parts.find((p) => p.id === this.selectedPart);
+		const sel = this.selectedFastener;
+		const joint = sel ? before?.joints.find((j) => j.id === sel.joint) : undefined;
+		const whatIs = (plan: ManufacturingPlan | null | undefined, id: string) => {
+			const p = plan?.parts.find((x) => x.id === id);
+			return p ? `${p.component}:${p.role}` : '';
+		};
+		const jointKey = joint && `${joint.component}:${joint.kind}:${whatIs(before, joint.edgePart)}:${whatIs(before, joint.facePart)}`;
+
 		this.plan = this.engine.compile(this.spec);
-		if (this.selectedPart && !this.plan.parts.some((p) => p.id === this.selectedPart)) {
-			this.selectedPart = null;
-		}
-		if (this.selectedFastener && !this.fastener) this.selectedFastener = null;
+		const plan = this.plan;
+		this.selectedPart = part ? (plan.parts.find((p) => p.component === part.component && p.role === part.role)?.id ?? null) : null;
+		if (sel && jointKey) {
+			const again = plan.joints.find(
+				(j) => `${j.component}:${j.kind}:${whatIs(plan, j.edgePart)}:${whatIs(plan, j.facePart)}` === jointKey
+			);
+			this.selectedFastener = again && again.fasteners[sel.index] ? { joint: again.id, index: sel.index } : null;
+		} else this.selectedFastener = null;
+	}
+
+	/** A spec from elsewhere (a file, pasted JSON of another piece): nothing of the last one carries over. */
+	private resetView() {
+		this.selectedPart = null;
+		this.selectedFastener = null;
+		this.hiddenComponents = new Set();
+		this.opened = new Set();
+		this.openAll = false;
+		this.explode = 0;
 	}
 
 	/** Start from a catalogue variant: its template with its option values. */
@@ -207,10 +231,7 @@ class AppState {
 		this.catalogOpen = false;
 		this.specText = JSON.stringify(this.spec, null, 2);
 		this.specError = null;
-		this.selectedPart = null;
-		this.selectedFastener = null;
-		this.hiddenComponents = new Set();
-		this.opened = new Set();
+		this.resetView();
 		this.current = null;
 		this.dirty = false;
 		this.recompile();
@@ -236,7 +257,15 @@ class AppState {
 	/** A finding's one-click fix: the engine edits the spec, then recompiles. */
 	applyFix(fix: Fix) {
 		if (!this.engine) return;
-		this.applySpec(this.engine.applyFix(this.spec, fix));
+		const before = JSON.stringify(this.spec);
+		const next = this.engine.applyFix(this.spec, fix);
+		// The engine hands the spec back untouched when the fix no longer
+		// applies (the field it points at changed shape): say so.
+		if (JSON.stringify(next) === before) {
+			this.specError = `no se pudo aplicar «${fix.label}»: la spec cambió desde que se propuso`;
+			return;
+		}
+		this.applySpec(next);
 	}
 
 	/** A whole new spec (a fix applied by the engine): replaces what is on screen. */
@@ -249,13 +278,31 @@ class AppState {
 		this.recompile();
 	}
 
+	/** A spec file opened from disk: never a new version of the server record on screen. */
+	openSpecFile(text: string) {
+		this.current = null;
+		this.variant = null;
+		this.resetView();
+		this.applySpecText(text);
+	}
+
 	/** Apply hand-edited JSON. A parse error leaves the last good spec. */
 	applySpecText(text: string) {
 		this.specText = text;
 		try {
 			const parsed = JSON.parse(text) as FurnitureSpec;
+			if (parsed === null || typeof parsed !== 'object' || Array.isArray(parsed)) {
+				this.specError = 'la spec tiene que ser un objeto JSON';
+				return;
+			}
 			this.specError = null;
-			if (parsed.id !== this.spec.id) this.variant = null;
+			// Another piece of furniture: it is not the server record on
+			// screen, and nothing selected or hidden applies to it.
+			if (parsed.id !== this.spec.id) {
+				this.variant = null;
+				this.current = null;
+				this.resetView();
+			}
 			this.spec = parsed;
 			this.dirty = true;
 			this.recompile();

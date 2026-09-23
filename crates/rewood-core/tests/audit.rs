@@ -309,14 +309,16 @@ fn audit(name: &str, plan: &ManufacturingPlan, libs: &Libraries, allowed: &[&str
                     if plates.len() != 2 {
                         a.note(format!("{}: {} agujeros de base", j.id, plates.len()));
                     }
-                    let side_inner = side.placement.world_axis(Face::Front.normal_local());
                     for (op, w) in plates {
-                        if op.face != Face::Front {
+                        // A large face of the panel: which one depends on
+                        // the side of the panel the door hangs on.
+                        if !matches!(op.face, Face::Front | Face::Back) {
                             a.note(format!(
                                 "{}: base {} en {:?} de {}",
                                 j.id, op.id, op.face, side.id
                             ));
                         }
+                        let plate_normal = side.placement.world_axis(op.face.normal_local());
                         let from_front = side.aabb.max.1 - w.1;
                         if (from_front - 37.0).abs() > EPS {
                             a.note(format!(
@@ -332,11 +334,10 @@ fn audit(name: &str, plan: &ManufacturingPlan, libs: &Libraries, allowed: &[&str
                                 w.2 - cup.2
                             ));
                         }
-                        // The plate faces the door: the side's inner normal
-                        // points from the side towards the door's hinge edge
-                        // side of the bay.
+                        // The plate faces the door: its face's normal points
+                        // from the panel towards the door.
                         let towards_door =
-                            (door.aabb.center() - side.aabb.center()).dot(side_inner.vec());
+                            (door.aabb.center() - side.aabb.center()).dot(plate_normal.vec());
                         if towards_door < 0.0 {
                             a.note(format!(
                                 "{}: la base en {} queda del lado opuesto a la puerta",
@@ -358,6 +359,14 @@ fn audit(name: &str, plan: &ManufacturingPlan, libs: &Libraries, allowed: &[&str
                     } else {
                         bx.aabb.min.0 - cs.aabb.max.0
                     };
+                    // A spacer between panel and slide widens the gap by
+                    // its thickness.
+                    let spacer: f64 = hw
+                        .iter()
+                        .filter_map(|h| h.spacer.as_ref())
+                        .map(|s| s.thickness)
+                        .sum();
+                    let gap = gap - spacer;
                     if (gap - slide.side_clearance).abs() > EPS {
                         a.note(format!(
                             "{}: luz de corredera {gap:.2} mm entre {} y {} (espera {})",
@@ -841,6 +850,7 @@ fn every_option_value_is_manufacturable() {
         "DESIGN-115",
         "DESIGN-116",
         "DESIGN-117",
+        "DESIGN-118",
         "SPEC-211",
         "CON-001",
     ];
