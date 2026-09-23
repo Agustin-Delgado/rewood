@@ -23,6 +23,31 @@
 		return [...map.entries()];
 	});
 
+	/**
+	 * The doors component a selected door leaf belongs to, when its hinge
+	 * side is the user's to pick: one side-hung leaf per bay. With two per
+	 * bay each hangs on its own side, and a flap has no side at all.
+	 */
+	const doorOf = $derived.by(() => {
+		const p = app.selected;
+		if (!p || !/door_\d+$/.test(p.role)) return null;
+		const c = app.spec.components.find((x) => x.id === p.component);
+		if (!c || c.type !== 'doors' || (c.opening ?? 'side') !== 'side' || c.hinge === null) return null;
+		const prefix = p.role.replace(/\d+$/, '');
+		const pair = (app.plan?.parts ?? []).some(
+			(q) => q.id !== p.id && q.component === p.component && q.role.replace(/\d+$/, '') === prefix && Math.abs(q.aabb.min[2] - p.aabb.min[2]) < 1
+		);
+		return { c, pair };
+	});
+
+	function setHingeSide(side: 'auto' | 'left' | 'right') {
+		const c = doorOf?.c;
+		if (!c || c.type !== 'doors') return;
+		if (side === 'auto') delete c.hingeSide;
+		else c.hingeSide = side;
+		app.touch();
+	}
+
 	function onInput(name: string, raw: string, wasNumber: boolean) {
 		const trimmed = raw.trim();
 		if (trimmed === '') return;
@@ -35,7 +60,7 @@
 
 <div class="props">
 	{#if !app.fastener && !app.selected}
-		<p class="hint">Tocá una pieza o un herraje en el 3D para ver su detalle.</p>
+		<p class="hint">Tocá una pieza o un herraje en el 3D para ver su detalle; tocala de nuevo, tocá el fondo o apretá Esc para soltarla. En una puerta elegís hacia qué lado abre.</p>
 	{/if}
 	{#if app.fastener}
 		{@const { joint, fastener } = app.fastener}
@@ -80,6 +105,21 @@
 		{@const hardware = app.hardwareOf(p.id)}
 		<h3>{partName(p.name)} <span class="muted">{p.id}</span></h3>
 		<div class="row"><span class="name">de</span><span>{labels.get(p.component) ?? p.component}</span></div>
+		{#if doorOf}
+			<div class="row">
+				<span class="name">abre hacia</span>
+				{#if doorOf.pair}
+					<span class="muted">cada puerta de su lado (son dos por bahía)</span>
+				{:else}
+					{@const side = doorOf.c.type === 'doors' ? (doorOf.c.hingeSide ?? 'auto') : 'auto'}
+					<span class="seg" role="group" aria-label="Lado de las bisagras">
+						<button class:on={side === 'left'} title="Bisagras a la izquierda" onclick={() => setHingeSide('left')}>izquierda</button>
+						<button class:on={side === 'right'} title="Bisagras a la derecha" onclick={() => setHingeSide('right')}>derecha</button>
+						<button class:on={side === 'auto'} title="Hacia afuera del mueble; en una puerta sola, del lado que no choca" onclick={() => setHingeSide('auto')}>auto</button>
+					</span>
+				{/if}
+			</div>
+		{/if}
 		<div class="row"><span class="name">material</span><span>{p.material}</span></div>
 		<div class="row"><span class="name">terminada</span><span>{size(p.dims)}</span></div>
 		<div class="row"><span class="name">corte</span><span>{mm(p.cut.length)} × {mm(p.cut.width)}</span></div>
@@ -250,6 +290,24 @@
 	.mono {
 		font-family: ui-monospace, monospace;
 		white-space: nowrap;
+	}
+	.seg {
+		display: inline-flex;
+		gap: 2px;
+	}
+	.seg button {
+		font: inherit;
+		font-size: 11px;
+		padding: 1px 8px;
+		border: 1px solid #d1d5db;
+		border-radius: 3px;
+		background: #fff;
+		cursor: pointer;
+	}
+	.seg button.on {
+		background: #1f2937;
+		border-color: #1f2937;
+		color: #fff;
 	}
 	.link {
 		background: none;

@@ -18,7 +18,41 @@
 	import Instances from './Instances.svelte';
 
 	interactivity();
-	const { size } = useThrelte();
+	const { size, dom } = useThrelte();
+
+	// Selection: a click picks a part, a click on it again drops it (not
+	// the second click of a double click, which opens the front), and a
+	// click on empty space drops whatever was picked. A drag orbits the
+	// view and changes nothing.
+	let hit = false;
+	function pickPart(id: string, e: MouseEvent) {
+		if (e.detail > 1) return;
+		app.selectPart(app.selectedPart === id ? null : id);
+	}
+	$effect(() => {
+		const el = dom;
+		let down: [number, number] | null = null;
+		const onDown = (e: PointerEvent) => (down = [e.clientX, e.clientY]);
+		const onClick = (e: MouseEvent) => {
+			const still = down && Math.hypot(e.clientX - down[0], e.clientY - down[1]) < 4;
+			// After the scene's own click handlers, whichever listener ran first.
+			setTimeout(() => {
+				if (!hit && still) app.selectPart(null);
+				hit = false;
+			});
+		};
+		const onKey = (e: KeyboardEvent) => {
+			if (e.key === 'Escape' && !app.catalogOpen) app.selectPart(null);
+		};
+		el.addEventListener('pointerdown', onDown);
+		el.addEventListener('click', onClick);
+		window.addEventListener('keydown', onKey);
+		return () => {
+			el.removeEventListener('pointerdown', onDown);
+			el.removeEventListener('click', onClick);
+			window.removeEventListener('keydown', onKey);
+		};
+	});
 
 	const parts = $derived(app.plan?.parts.filter((p) => !app.hiddenComponents.has(p.component)) ?? []);
 	// Offsets from every part, hidden ones included, so hiding a component
@@ -235,6 +269,7 @@
 	function pickPrim(list: Placed[]) {
 		return (i: number) => {
 			const x = list[i];
+			hit = true;
 			if (x) app.selectFastener(x.sym.joint.id, x.sym.index);
 		};
 	}
@@ -427,7 +462,7 @@
 {#each parts as part (part.id)}
 	{@const at = pose(part.id)}
 	<T.Group position={at.position} quaternion={at.quaternion}>
-		<T.Mesh position={centre(part)} scale={size3(part)} geometry={unitBox} onclick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); app.selectPart(part.id); }} ondblclick={(e: { stopPropagation: () => void }) => toggleFront(part, e)}>
+		<T.Mesh position={centre(part)} scale={size3(part)} geometry={unitBox} onclick={(e: { stopPropagation: () => void; nativeEvent: MouseEvent }) => { e.stopPropagation(); hit = true; pickPart(part.id, e.nativeEvent); }} ondblclick={(e: { stopPropagation: () => void }) => toggleFront(part, e)}>
 			{#if part.outsourced && part.material.startsWith('glass')}
 				<!-- Glass: seen through, so the shelves behind the doors read. -->
 				<T.MeshStandardMaterial color={colourOf(part)} roughness={0.1} metalness={0.1} transparent opacity={0.35} depthWrite={false} />

@@ -46,4 +46,16 @@ describe('workshop library', () => {
     const g = setValue({}, 'hardware', 'hinge_glass_overlay', ['hinge', 'maxDoor'], [500, 700]);
     expect(applyOverrides(libraries(), g).hardware.items['hinge_glass_overlay'].hinge?.maxDoor).toEqual([500, 700]);
   });
+
+  it("takes a spec's changes straight from the app's reactive state", () => {
+    // Svelte's $state hands out Proxies all the way down, which
+    // structuredClone refuses.
+    const deep = <T extends object>(o: T): T =>
+      new Proxy(o, { get: (t, k) => { const v = Reflect.get(t, k); return typeof v === 'object' && v !== null ? deep(v) : v; } });
+    const own = deep(setValue({}, 'edgeMaterials', 'pvc_0_45mm', ['pricePerMetre'], 250));
+    const w = setValue({}, 'materials', 'hdf_3', ['sheetLength'], 2750);
+    const eff = applyOverrides(libraries(), combine(w, own));
+    expect(eff.materials.edgeMaterials['pvc_0_45mm'].pricePerMetre).toBe(250);
+    expect(applyOverrides(libraries(), combine(undefined, own)).materials.edgeMaterials['pvc_0_45mm'].pricePerMetre).toBe(250);
+  });
 });

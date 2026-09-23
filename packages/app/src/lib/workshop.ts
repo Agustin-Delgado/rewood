@@ -15,15 +15,23 @@ export const LISTS: ListKey[] = ['materials', 'edgeMaterials', 'hardware', 'supp
 
 const STORAGE_KEY = 'rewood.workshop.v1';
 
+/**
+ * A deep copy. Not `structuredClone`: the overrides often come from the
+ * app's reactive state, a Proxy it refuses to copy. They are JSON anyway.
+ */
+function clone<T>(v: T): T {
+	return v === undefined ? v : (JSON.parse(JSON.stringify(v)) as T);
+}
+
 function isObject(v: unknown): v is Record<string, unknown> {
 	return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
 /** Deep merge, the engine's rule: objects merge key by key, anything else (arrays too) replaces. */
 export function merge<T>(base: T, patch: unknown): T {
-	if (!isObject(base) || !isObject(patch)) return structuredClone(patch) as T;
+	if (!isObject(base) || !isObject(patch)) return clone(patch) as T;
 	const out: Record<string, unknown> = { ...base };
-	for (const [k, v] of Object.entries(patch)) out[k] = k in out ? merge(out[k], v) : structuredClone(v);
+	for (const [k, v] of Object.entries(patch)) out[k] = k in out ? merge(out[k], v) : clone(v);
 	return out as T;
 }
 
@@ -37,7 +45,7 @@ export function combine(a: LibraryOverrides | undefined, b: LibraryOverrides | u
 		for (const e of [...((a[key] ?? []) as Entry[]), ...((b[key] ?? []) as Entry[])]) {
 			const i = list.findIndex((x) => x.id === e.id);
 			if (i >= 0) list[i] = merge(list[i], e);
-			else list.push(structuredClone(e));
+			else list.push(clone(e));
 		}
 		if (list.length) (out as Record<string, unknown>)[key] = list;
 	}
@@ -52,9 +60,9 @@ export function isEmpty(o: LibraryOverrides): boolean {
 /** The libraries the engine will use: the defaults with the overrides applied. */
 export function applyOverrides(base: LibrariesSnapshot, o: LibraryOverrides | undefined): LibrariesSnapshot {
 	if (!o || isEmpty(o)) return base;
-	const out = structuredClone(base);
+	const out = clone(base);
 	const into = (map: Record<string, unknown>, list: Entry[] | undefined) => {
-		for (const e of list ?? []) map[e.id] = e.id in map ? merge(map[e.id], e) : structuredClone(e);
+		for (const e of list ?? []) map[e.id] = e.id in map ? merge(map[e.id], e) : clone(e);
 	};
 	into(out.materials.materials as Record<string, unknown>, o.materials as Entry[]);
 	into(out.materials.edgeMaterials as Record<string, unknown>, o.edgeMaterials as Entry[]);
@@ -87,7 +95,7 @@ export function saveWorkshop(o: LibraryOverrides) {
 
 /** Set one value (a path of keys) of one entry of a list, keeping the rest of its override. */
 export function setValue(o: LibraryOverrides, list: ListKey, id: string, path: string[], value: unknown): LibraryOverrides {
-	const next = structuredClone(o);
+	const next = clone(o);
 	const entries = ((next[list] ?? []) as Entry[]).slice();
 	let entry = entries.find((e) => e.id === id);
 	if (!entry) {
@@ -106,7 +114,7 @@ export function setValue(o: LibraryOverrides, list: ListKey, id: string, path: s
 
 /** Back to the standard: the entry's override goes (a new item goes altogether). */
 export function resetEntry(o: LibraryOverrides, list: ListKey, id: string): LibraryOverrides {
-	const next = structuredClone(o);
+	const next = clone(o);
 	const entries = ((next[list] ?? []) as Entry[]).filter((e) => e.id !== id);
 	if (entries.length) (next as Record<string, unknown>)[list] = entries;
 	else delete next[list];
@@ -115,8 +123,8 @@ export function resetEntry(o: LibraryOverrides, list: ListKey, id: string): Libr
 
 /** A new item copied whole from an existing one (a new id has to be complete). */
 export function duplicate(o: LibraryOverrides, list: ListKey, from: Entry, id: string, name: string): LibraryOverrides {
-	const next = structuredClone(o);
-	const copy = { ...structuredClone(from), id, name };
+	const next = clone(o);
+	const copy = { ...clone(from), id, name };
 	(next as Record<string, unknown>)[list] = [...((next[list] ?? []) as Entry[]), copy];
 	return next;
 }
