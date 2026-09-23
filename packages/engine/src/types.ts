@@ -223,6 +223,8 @@ export interface DrawersSpec {
   /** Screws fixing the front to the box front; `null` = not modelled. Defaults to `screw_4x30_face`. */
   frontFixing?: JointSpec | null;
   handle?: HandleSpec;
+  /** Rails for hanging files along the top of the box sides (default `file_rails_legal`). */
+  files?: { hardware?: string[]; screws?: string[] };
   edges?: EdgeBanding;
 }
 
@@ -420,7 +422,9 @@ export interface HardwareDef {
   /** Slides only. `style` `ball` (default) or `roller`. */
   slide?: { length: number; sideClearance: number; axisFromBoxBottom: number; softClose?: boolean; style?: string };
   /** Legs only. */
-  leg?: { height: number; baseDiameter: number };
+  leg?: { height: number; baseDiameter: number; caster?: boolean };
+  /** Hanging-file rails only: the inner box width they span and the height a folder needs. */
+  files?: { minInner: number; maxInner: number; minHeight: number };
   /** Sliding door tracks only: lanes, their pitch and the room the track takes. */
   sliding?: { lanes: number; lanePitch: number; frontInset: number; depth: number; bottomClearance: number; topClearance: number };
   /** Sinks only: how far the bowl hangs under the top. */

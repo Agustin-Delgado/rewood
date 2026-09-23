@@ -625,6 +625,17 @@ fn build_legs(
         .entity(id));
     };
     let base_r = leg_data.base_diameter / 2.0;
+    if leg_data.caster && legs.plinth.is_some() {
+        return Err(Diagnostic::new(
+            "SPEC-338",
+            Severity::Fatal,
+            format!(
+                "'{id}': con ruedas no va zócalo; taparía las ruedas y no dejaría andar el mueble"
+            ),
+        )
+        .entity(id)
+        .fix("Sin zócalo", id, "legs.plinth", serde_json::Value::Null));
+    }
     if max_spacing <= 0.0 {
         return Err(Diagnostic::new(
             "SPEC-312",

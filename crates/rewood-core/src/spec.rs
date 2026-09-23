@@ -541,6 +541,9 @@ pub enum ComponentSpec {
         /// Horizontal handle centred on the front.
         #[serde(default)]
         handle: Option<HandleSpec>,
+        /// Rails for hanging files along the top of the box sides.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        files: Option<DrawerFilesSpec>,
         #[serde(default)]
         edges: EdgeBanding,
     },
@@ -652,6 +655,21 @@ pub enum ComponentSpec {
         #[serde(default)]
         edges: EdgeBanding,
     },
+}
+
+/// Hanging files in a drawer: the rail pair (`kind: file_rails`) and the
+/// screws that hold it to the box sides.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct DrawerFilesSpec {
+    #[serde(default = "default_file_rails")]
+    pub hardware: Vec<String>,
+    #[serde(default = "default_track_screw")]
+    pub screws: Vec<String>,
+}
+
+fn default_file_rails() -> Vec<String> {
+    vec!["file_rails_legal".into()]
 }
 
 /// A sheet glued over a door's front: a mirror on a medicine cabinet.

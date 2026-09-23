@@ -360,6 +360,14 @@ export function hardwareSymbols(
 					const n = hs[0].n;
 					const height = hw?.leg?.height ?? 100;
 					const base = hw?.leg?.baseDiameter ?? 50;
+					if (hw?.leg?.caster) {
+						// A plate, the swivel and the wheel under it, its axle across X.
+						const wheel = height - 18;
+						box(add(c, scale(n, 2)), sized([1, 0, 0], n, base, 4, base), ZINC, face);
+						box(add(c, scale(n, 4 + (height - wheel - 4) / 2)), sized([1, 0, 0], n, 20, height - wheel - 4, 30), ZINC, face);
+						cyl(add(c, scale(n, height - wheel / 2)), [1, 0, 0], wheel / 2, 22, BLACK, face);
+						break;
+					}
 					cyl(add(c, scale(n, 1.5)), n, base / 2, 3, BLACK, face);
 					cyl(add(c, scale(n, 3 + (height - 9) / 2)), n, 14, height - 9, BLACK, face);
 					cyl(add(c, scale(n, height - 3)), n, 20, 6, BLACK, face);
@@ -375,7 +383,10 @@ export function hardwareSymbols(
 					const along: Vec3 = hi[0] - lo[0] >= hi[1] - lo[1] ? [1, 0, 0] : [0, 1, 0];
 					const pos = add(mid(lo, hi), scale(n, 6));
 					const length = len(sub(hi, lo)) + 100;
-					box(pos, sized(along, n, length, 12, trackDepth), ZINC, face);
+					// On a vertical face it is a file rail along a drawer side,
+					// not a sliding door track under a top.
+					const rest = Math.abs(n[2]) < 0.5 ? 20 : trackDepth;
+					box(pos, sized(along, n, length, 12, rest), ZINC, face);
 					break;
 				}
 				case 'sliding_roller':

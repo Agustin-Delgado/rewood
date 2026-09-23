@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0",
+  "id": "filing_cabinet",
+  "name": "Archivero de carpetas colgantes oficio, 2 cajones",
+  "version": "1.0",
+  "parameters": {
+    "width": 490,
+    "height": 720,
+    "depth": 600,
+    "drawers": 2
+  },
+  "options": [
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": 475, "max": 495, "step": 5, "unit": "mm", "help": "Lo fijan las carpetas oficio: la caja mide entre 375 y 400 por dentro." },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": "ceil((36 + 290 * drawers) / 10) * 10", "max": 1350, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 560, "max": 700, "step": 10, "unit": "mm" },
+    { "param": "drawers", "label": "Cajones", "group": "Cajones", "min": 1, "max": "min(4, floor((height - 36) / 290))", "step": 1 }
+  ],
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
+    },
+    {
+      "type": "drawers",
+      "id": "drawers",
+      "count": "drawers",
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "slide": { "hardware": ["slide_ball_500"] },
+      "softClose": true,
+      "files": {},
+      "handle": { "hardware": ["handle_bar_192"] }
+    }
+  ]
+}

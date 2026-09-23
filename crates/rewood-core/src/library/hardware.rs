@@ -172,6 +172,9 @@ pub struct HardwareDef {
     /// Hinges only: which door mount the arm is made for.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hinge: Option<HingeSpec>,
+    /// Hanging-file rails only: the box they fit.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub files: Option<FilesSpec>,
     /// Sinks only: how far the bowl hangs below the top.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sink: Option<SinkSpec>,
@@ -318,6 +321,19 @@ pub struct LegSpec {
     pub height: f64,
     /// Base plate diameter, for the edge-distance check and the drawing.
     pub base_diameter: f64,
+    /// A caster: the furniture rolls, and no plinth goes round it.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub caster: bool,
+}
+
+/// A pair of rails for hanging files in a drawer: the box has to be as
+/// wide inside as the folders' hooks reach, and as tall as a folder.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct FilesSpec {
+    pub min_inner: f64,
+    pub max_inner: f64,
+    pub min_height: f64,
 }
 
 impl HardwareDef {
@@ -368,6 +384,7 @@ impl HardwareDef {
                     | "sink"
                     | "passage"
                     | "adhesive"
+                    | "file_rails"
             ),
         }
     }

@@ -20,6 +20,8 @@ import tvUnit from '../../../../fixtures/tv_unit/input.json';
 import vanity from '../../../../fixtures/vanity/input.json';
 import medicineCabinet from '../../../../fixtures/medicine_cabinet/input.json';
 import displayCabinet from '../../../../fixtures/display_cabinet/input.json';
+import mobilePedestal from '../../../../fixtures/mobile_pedestal/input.json';
+import filingCabinet from '../../../../fixtures/filing_cabinet/input.json';
 import wallCabinet from '../../../../fixtures/wall_cabinet/input.json';
 import wardrobe from '../../../../fixtures/wardrobe_1800/input.json';
 import wardrobeModules from '../../../../fixtures/wardrobe_modules/input.json';
@@ -303,6 +305,39 @@ export const CATALOG: Category[] = [
 				description: 'Dos puertas con espejo, 900 de ancho.',
 				spec: t(medicineCabinet),
 				preset: { width: 900, doors: 2 }
+			}
+		]
+	},
+	{
+		id: 'office',
+		name: 'Oficina',
+		description: 'Cajoneras con ruedas y archiveros de carpetas colgantes.',
+		variants: [
+			{
+				id: 'mobile_pedestal',
+				name: 'Cajonera con ruedas',
+				description: 'Tres cajones sobre ruedas con freno, para ir bajo el escritorio.',
+				spec: t(mobilePedestal)
+			},
+			{
+				id: 'mobile_pedestal_two',
+				name: 'Cajonera con ruedas de dos',
+				description: 'Dos cajones altos.',
+				spec: t(mobilePedestal),
+				preset: { drawers: 2 }
+			},
+			{
+				id: 'filing_cabinet',
+				name: 'Archivero',
+				description: 'Dos cajones para carpetas colgantes oficio, con sus rieles.',
+				spec: t(filingCabinet)
+			},
+			{
+				id: 'filing_cabinet_tall',
+				name: 'Archivero de cuatro',
+				description: 'Cuatro cajones de carpetas, 1350 de alto.',
+				spec: t(filingCabinet),
+				preset: { drawers: 4, height: 1350 }
 			}
 		]
 	}

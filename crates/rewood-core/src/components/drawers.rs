@@ -41,6 +41,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         soft_close,
         front_fixing,
         handle,
+        files,
         edges,
         ..
     } = spec
@@ -323,6 +324,76 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         .entity(id));
     }
 
+    // Hanging files: the box as wide inside as the folders' hooks reach
+    // and as tall as a folder.
+    let files = match files {
+        Some(f) => {
+            let def = f
+                .hardware
+                .iter()
+                .find_map(|h| ctx.libs.hardware.get(h)?.files.clone())
+                .ok_or_else(|| {
+                    Diagnostic::new(
+                        "SPEC-339",
+                        Severity::Fatal,
+                        format!("'{id}.files' tiene que nombrar rieles para carpetas colgantes (kind: file_rails)"),
+                    )
+                    .entity(id)
+                })?;
+            if inner_length < def.min_inner - crate::units::EPS
+                || inner_length > def.max_inner + crate::units::EPS
+            {
+                // How wide the carcass has to be for the box to come out
+                // in the middle of the folders' span.
+                let want = (def.min_inner + def.max_inner) / 2.0;
+                let fix = (!carcass.bays.is_empty() && carcass.bays.len() == 1).then(|| {
+                    (
+                        format!(
+                            "Carcasa de {} mm",
+                            mm((carcass.width + want - inner_length).round())
+                        ),
+                        carcass.id.clone(),
+                        "width".to_string(),
+                        serde_json::json!((carcass.width + want - inner_length).round()),
+                    )
+                });
+                return Err(Diagnostic::new(
+                    "SPEC-339",
+                    Severity::Fatal,
+                    format!(
+                        "'{id}': la caja mide {} por dentro y las carpetas colgantes piden entre {} y {}",
+                        mm(inner_length),
+                        mm(def.min_inner),
+                        mm(def.max_inner)
+                    ),
+                )
+                .entity(id)
+                .suggestion("Ajustá el ancho de la carcasa (o de la bahía).")
+                .fix_opt(fix));
+            }
+            if box_height < def.min_height - crate::units::EPS {
+                return Err(Diagnostic::new(
+                    "SPEC-339",
+                    Severity::Fatal,
+                    format!(
+                        "'{id}': cajas de {} mm de alto; una carpeta colgante pide {}",
+                        mm(box_height),
+                        mm(def.min_height)
+                    ),
+                )
+                .entity(id)
+                .suggestion("Menos cajones, o una caja más alta ('boxHeight').")
+                .fix(
+                    format!("Caja de {} mm", mm(def.min_height)),
+                    id,
+                    "boxHeight",
+                    serde_json::json!(def.min_height),
+                ));
+            }
+            Some(f.clone())
+        }
+        None => None,
+    };
     ctx.publish(id, "count", count as f64);
     ctx.publish(id, "front_height", front_height);
     ctx.publish(id, "front_width", front_width);
@@ -680,6 +751,39 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                     &front,
                     &spec,
                 );
+            }
+
+            if let Some(f) = &files {
+                // A rail along the top of each side, inside, screwed from
+                // the front to the back; the pair goes in the BOM.
+                let z = z_box + box_height - 12.0;
+                for (side, x, looks) in
+                    [(&side_left, xl, Axis::PosX), (&side_right, xr, Axis::NegX)]
+                {
+                    let face = ctx.part_mut(side).face_facing(looks);
+                    ctx.request(
+                        JointKind::Row {
+                            from: Vec3(x, y_front - 20.0, z),
+                            to: Vec3(x, y_back + 20.0, z),
+                            face,
+                        },
+                        id,
+                        side,
+                        side,
+                        &crate::spec::JointSpec {
+                            hardware: f.screws.clone(),
+                            placement: None,
+                        },
+                    );
+                }
+                if let Some(h) = f.hardware.first() {
+                    ctx.extra_bom.push(super::ExtraBom {
+                        component: id.to_string(),
+                        hardware: h.clone(),
+                        quantity: 1,
+                        metres: 0.0,
+                    });
+                }
             }
 
             // Slides: box side ↔ the panel bounding the bay on that side.

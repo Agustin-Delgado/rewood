@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0",
+  "id": "mobile_pedestal",
+  "name": "Cajonera con ruedas 400×580×500",
+  "version": "1.0",
+  "parameters": {
+    "width": 400,
+    "height": 580,
+    "depth": 500,
+    "drawers": 3
+  },
+  "options": [
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": 350, "max": 500, "step": 10, "unit": "mm" },
+    { "param": "height", "label": "Alto de la caja", "group": "Medidas", "min": "max(450, ceil((36 + 130 * drawers) / 10) * 10)", "max": 650, "step": 10, "unit": "mm", "help": "Más las ruedas (65 mm): que pase bajo el escritorio." },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 480, "max": 600, "step": 10, "unit": "mm" },
+    { "param": "drawers", "label": "Cajones", "group": "Cajones", "min": 2, "max": "min(4, floor((height - 36) / 130))", "step": 1 }
+  ],
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "hardware": ["caster_50"], "inset": 50 }
+    },
+    {
+      "type": "drawers",
+      "id": "drawers",
+      "count": "drawers",
+      "joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 40, "maxSpacing": 150 } },
+      "slide": { "hardware": ["slide_ball_450"] },
+      "softClose": true,
+      "handle": { "hardware": ["handle_bar_128"] }
+    }
+  ],
+  "constraints": [
+    {
+      "id": "under_desk",
+      "expr": "height + 65 <= 700",
+      "severity": "WARNING",
+      "message": "Con las ruedas pasa de 700 mm y no entra bajo un escritorio de 740"
+    }
+  ]
+}
