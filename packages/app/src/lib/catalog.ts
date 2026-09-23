@@ -22,6 +22,8 @@ import medicineCabinet from '../../../../fixtures/medicine_cabinet/input.json';
 import displayCabinet from '../../../../fixtures/display_cabinet/input.json';
 import mobilePedestal from '../../../../fixtures/mobile_pedestal/input.json';
 import filingCabinet from '../../../../fixtures/filing_cabinet/input.json';
+import bedDrawers from '../../../../fixtures/bed_drawers/input.json';
+import shoeCabinet from '../../../../fixtures/shoe_cabinet/input.json';
 import wallCabinet from '../../../../fixtures/wall_cabinet/input.json';
 import wardrobe from '../../../../fixtures/wardrobe_1800/input.json';
 import wardrobeModules from '../../../../fixtures/wardrobe_modules/input.json';
@@ -229,6 +231,26 @@ export const CATALOG: Category[] = [
 			},
 			{ id: 'drawer_unit', name: 'Cajonera', description: 'Cajones de arriba abajo, sobre patas con zócalo.', spec: t(drawerUnit) },
 			{
+				id: 'bed_drawers',
+				name: 'Base de cama con cajones',
+				description: 'Dos plazas, tres cajones a cada costado; la tapa de MDF va bajo el colchón.',
+				spec: t(bedDrawers)
+			},
+			{
+				id: 'bed_drawers_single',
+				name: 'Cama de una plaza con cajones',
+				description: 'Cuatro cajones por lado, 100×190.',
+				spec: t(bedDrawers),
+				preset: { bed_width: 1000, drawers: 4 }
+			},
+			{
+				id: 'bed_drawers_queen',
+				name: 'Base queen con cajones',
+				description: '160×200, base más alta.',
+				spec: t(bedDrawers),
+				preset: { bed_width: 1600, bed_length: 2000, height: 350 }
+			},
+			{
 				id: 'dresser',
 				name: 'Cómoda',
 				description: 'Cinco cajones anchos, de 900.',
@@ -352,6 +374,33 @@ export const CATALOG: Category[] = [
 				description: 'Cuatro cajones de carpetas, 1350 de alto.',
 				spec: t(filingCabinet),
 				preset: { drawers: 4, height: 1350 }
+			}
+		]
+	},
+	{
+		id: 'entryway',
+		name: 'Recibidor',
+		description: 'Zapateros cerrados y bancos zapateros.',
+		variants: [
+			{
+				id: 'shoe_cabinet',
+				name: 'Zapatero con puertas',
+				description: 'Puertas push-open y estantes regulables cada par de zapatos.',
+				spec: t(shoeCabinet)
+			},
+			{
+				id: 'shoe_cabinet_wide',
+				name: 'Zapatero de dos cuerpos',
+				description: 'Dos huecos, 1200 de ancho.',
+				spec: t(shoeCabinet),
+				preset: { width: 1200, bays: 2 }
+			},
+			{
+				id: 'shoe_bench',
+				name: 'Banco zapatero',
+				description: 'Abierto, a la altura de sentarse, tres huecos con un estante.',
+				spec: t(shoeCabinet),
+				preset: { doors: false, height: 450, width: 1000, bays: 3, shelves: 1 }
 			}
 		]
 	}

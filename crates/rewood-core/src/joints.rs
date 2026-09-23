@@ -321,9 +321,21 @@ pub fn resolve(
     libs: &Libraries,
     diags: &mut Diagnostics,
 ) -> Vec<Joint> {
+    resolve_from(parts, requests, libs, diags, 1)
+}
+
+/// Like [`resolve`], numbering the joints from `first` (a second batch
+/// resolved after the first one, continuing its ids).
+pub fn resolve_from(
+    parts: &mut [Part],
+    requests: &[JointRequest],
+    libs: &Libraries,
+    diags: &mut Diagnostics,
+    first: usize,
+) -> Vec<Joint> {
     let mut joints = Vec::new();
     for req in requests {
-        let joint_id = format!("J{:03}", joints.len() + 1);
+        let joint_id = format!("J{:03}", joints.len() + first);
         let Some(ia) = parts.iter().position(|p| p.id == req.part_a) else {
             continue;
         };
@@ -606,6 +618,37 @@ pub fn resolve(
                             }
                         }
                         continue;
+                    }
+                    // A row hole already through the panel (pins on both
+                    // faces of a divider) serves this face too: a hinge
+                    // plate's screw lands in it from the other side.
+                    if !is_row(hw_id) {
+                        let placement = part.placement;
+                        let dims = part.dims;
+                        let n = placement.world_axis(face.normal_local()).index();
+                        let through_row = part.operations.iter().any(|o| {
+                            o.face == face.opposite()
+                                && o.source.as_ref().is_some_and(|s| is_row(&s.hardware))
+                                && match &o.geometry {
+                                    OpGeometry::Drill {
+                                        u: ou,
+                                        v: ov,
+                                        diameter,
+                                        through: true,
+                                        ..
+                                    } => {
+                                        let w =
+                                            placement.to_world(dims.uv_to_local(o.face, *ou, *ov));
+                                        let (a, b) = ([w.0, w.1, w.2], [at.0, at.1, at.2]);
+                                        (diameter - hole.diameter).abs() < 0.05
+                                            && (0..3).all(|i| i == n || (a[i] - b[i]).abs() < 0.05)
+                                    }
+                                    _ => false,
+                                }
+                        });
+                        if through_row {
+                            continue;
+                        }
                     }
                     // Shelf pins on both faces of a divider, same spot: two
                     // blind holes would meet inside the panel, so it is one

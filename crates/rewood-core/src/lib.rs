@@ -91,13 +91,32 @@ fn build(spec: &FurnitureSpec, params: &ParamGraph, libs: &Libraries, hints: Hin
         parts.clear();
         joint_requests.clear();
     }
-    let mut joints = joints::resolve(&mut parts, &joint_requests, libs, &mut diags);
+    // A joint between something that turns and something that does not (a
+    // worktop over a turned carcass) is resolved once both are where they
+    // end up; everything else in the frame it was generated in.
+    let component_of: std::collections::BTreeMap<String, String> = parts
+        .iter()
+        .map(|p| (p.id.clone(), p.component.clone()))
+        .collect();
+    let turned = |part: &str| {
+        component_of
+            .get(part)
+            .is_some_and(|c| turns.contains_key(c))
+    };
+    let (late, early): (Vec<_>, Vec<_>) = joint_requests.into_iter().partition(|r| {
+        !turns.contains_key(&r.component) && (turned(&r.part_a) || turned(&r.part_b))
+    });
+    let mut joints = joints::resolve(&mut parts, &early, libs, &mut diags);
     // Fasteners of butt joints that run into another hole move along
     // their joint line before anything checks them.
     stagger::stagger(&mut parts, &mut joints, libs);
     // Everything is generated and joined facing +Y; a turned carcass turns
     // now, parts and joints alike, before any rule looks at the whole.
     components::turn(&mut parts, &mut joints, &turns);
+    let first = joints.len() + 1;
+    joints.extend(joints::resolve_from(
+        &mut parts, &late, libs, &mut diags, first,
+    ));
     Built {
         parts,
         joints,

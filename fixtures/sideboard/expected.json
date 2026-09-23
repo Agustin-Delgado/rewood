@@ -2660,7 +2660,7 @@
           "id": "P006-OP24",
           "face": "back",
           "type": "DRILL",
-          "u": 367.0,
+          "u": 327.0,
           "v": 17.0,
           "diameter": 3.0,
           "depth": 12.0,
@@ -2676,7 +2676,7 @@
           "id": "P006-OP25",
           "face": "back",
           "type": "DRILL",
-          "u": 367.0,
+          "u": 327.0,
           "v": 49.0,
           "diameter": 3.0,
           "depth": 12.0,
@@ -6556,7 +6556,7 @@
           "id": "P029-OP07",
           "face": "front",
           "type": "DRILL",
-          "u": 383.0,
+          "u": 343.0,
           "v": 15.0,
           "diameter": 3.0,
           "depth": 10.0,
@@ -9154,12 +9154,12 @@
         "min": [
           518.0,
           428.0,
-          385.0
+          345.0
         ],
         "max": [
           518.0,
           428.0,
-          385.0
+          345.0
         ]
       },
       "axis": "neg_y",
@@ -9171,7 +9171,7 @@
           "position": [
             518.0,
             428.0,
-            385.0
+            345.0
           ]
         }
       ]
@@ -9189,12 +9189,12 @@
         "min": [
           510.0,
           450.0,
-          385.0
+          345.0
         ],
         "max": [
           510.0,
           450.0,
-          385.0
+          345.0
         ]
       },
       "axis": "pos_z",
@@ -9206,7 +9206,7 @@
           "position": [
             510.0,
             450.0,
-            385.0
+            345.0
           ]
         }
       ]
@@ -10133,7 +10133,7 @@
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 3062.995,
+    "totalSeconds": 3062.847,
     "programs": [
       {
         "part": "P001",
@@ -10204,8 +10204,8 @@
         "operations": 4,
         "toolChanges": 2,
         "cutMm": 48.0,
-        "rapidMm": 1193.052,
-        "seconds": 24.079
+        "rapidMm": 1200.536,
+        "seconds": 24.102
       },
       {
         "part": "P007",
@@ -10501,8 +10501,8 @@
         "operations": 7,
         "toolChanges": 3,
         "cutMm": 79.0,
-        "rapidMm": 2945.46,
-        "seconds": 42.847
+        "rapidMm": 2888.38,
+        "seconds": 42.676
       },
       {
         "part": "P030",

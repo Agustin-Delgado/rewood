@@ -67,24 +67,18 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
             continue;
         }
         let c = ctx.carcass_for(id, Some(sid))?;
-        if c.turns != 0 {
-            return Err(Diagnostic::new(
-                "SPEC-333",
-                Severity::Fatal,
-                format!(
-                    "la tapa '{id}' no puede apoyar en '{}', que está girada: una tapa va sobre una hilera recta",
-                    c.id
-                ),
-            )
-            .entity(id)
-            .suggestion("Nombrá en 'carcasses' sólo los módulos sin girar (una tapa por hilera)."));
+        // Its footprint where it ends up, turned or not.
+        let print = crate::geometry::Aabb {
+            min: c.origin,
+            max: c.origin + Vec3(c.width, c.depth, 0.0),
         }
+        .turned_about(c.origin, c.turns);
         under.push(Support {
             id: c.id.clone(),
-            x0: c.origin.0,
-            x1: c.origin.0 + c.width,
-            y0: c.origin.1,
-            y1: c.origin.1 + c.depth,
+            x0: print.min.0,
+            x1: print.max.0,
+            y0: print.min.1,
+            y1: print.max.1,
             z_top: c.origin.2 + c.height,
             left_part: c.side_left.clone(),
             right_part: c.side_right.clone(),

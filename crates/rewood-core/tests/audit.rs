@@ -179,7 +179,15 @@ fn frames(plan: &ManufacturingPlan) -> Vec<ManufacturingPlan> {
         .map(|key| {
             let mut sub = plan.clone();
             sub.parts.retain(|p| group(&p.component) == key);
-            sub.joints.retain(|j| group(&j.component) == key);
+            // A joint across frames (a worktop on a turned carcass) is
+            // checked in neither: its parts are in different frames.
+            let ids: std::collections::BTreeSet<String> =
+                sub.parts.iter().map(|p| p.id.clone()).collect();
+            sub.joints.retain(|j| {
+                group(&j.component) == key
+                    && ids.contains(&j.edge_part)
+                    && ids.contains(&j.face_part)
+            });
             if !key.is_empty() {
                 let q = (4 - turns(&key).unwrap()) % 4;
                 let pivot = Vec3(
@@ -800,6 +808,8 @@ fn variants() -> Vec<(String, String, Vec<&'static str>)> {
         "display_cabinet",
         "mobile_pedestal",
         "filing_cabinet",
+        "bed_drawers",
+        "shoe_cabinet",
         "wardrobe_sliding",
     ] {
         let path = format!(

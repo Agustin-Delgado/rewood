@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0",
+  "id": "bed_drawers",
+  "name": "Base de cama 140×190 con cajones a los costados (tapa de MDF bajo el colchón)",
+  "version": "1.0",
+  "parameters": {
+    "bed_width": 1400,
+    "bed_length": 1900,
+    "height": 300,
+    "depth": 500,
+    "drawers": 3
+  },
+  "options": [
+    { "param": "bed_width", "label": "Ancho del colchón", "group": "Colchón", "choices": [{ "value": 1000, "label": "1 plaza (100)" }, { "value": 1400, "label": "2 plazas (140)" }, { "value": 1600, "label": "queen (160)" }] },
+    { "param": "bed_length", "label": "Largo del colchón", "group": "Colchón", "choices": [{ "value": 1900, "label": "190" }, { "value": 2000, "label": "200" }] },
+    { "param": "height", "label": "Alto de la base", "group": "Base", "min": 250, "max": 400, "step": 10, "unit": "mm", "help": "Más el colchón. Con menos de 250 los cajones quedan chatos." },
+    { "param": "drawers", "label": "Cajones por lado", "group": "Base", "min": 3, "max": 4, "step": 1, "help": "Con menos, las cajas pasan de 900 mm y la tapa y la base de cada costado se pandean." }
+  ],
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "left",
+      "width": "bed_length",
+      "depth": "depth",
+      "bays": "drawers",
+      "origin": { "x": "depth", "y": 0, "rotation": 90 },
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" }
+    },
+    {
+      "type": "drawers",
+      "id": "left_drawers",
+      "carcass": "left",
+      "count": 1,
+      "joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 40, "maxSpacing": 150 } },
+      "slide": { "hardware": ["slide_ball_450"] },
+      "handle": { "hardware": ["handle_bar_192"] }
+    },
+    {
+      "type": "carcass",
+      "id": "right",
+      "width": "bed_length",
+      "depth": "depth",
+      "bays": "drawers",
+      "origin": { "x": "bed_width - depth", "y": "bed_length", "rotation": 270 },
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" }
+    },
+    {
+      "type": "drawers",
+      "id": "right_drawers",
+      "carcass": "right",
+      "count": 1,
+      "joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 40, "maxSpacing": 150 } },
+      "slide": { "hardware": ["slide_ball_450"] },
+      "handle": { "hardware": ["handle_bar_192"] }
+    },
+    {
+      "type": "worktop",
+      "id": "platform",
+      "carcasses": ["left", "right"],
+      "material": "mdf_18",
+      "overhang": { "front": 0 }
+    }
+  ]
+}

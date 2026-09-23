@@ -35,6 +35,9 @@ const STRIKE_INSET: f64 = 8.0;
 /// this far below the top's underside.
 const CATCH_FROM_EDGE: f64 = 25.0;
 const STRIKE_DROP: f64 = 10.0;
+/// How much lower the catch of the door left of a divider sits than the
+/// one on its right.
+const CATCH_STAGGER: f64 = 40.0;
 /// Edge a fixed front has to cover for a dowel into it: Ø8 with 4 mm of
 /// panel on each side.
 const FIXING_WIDTH: f64 = 16.0;
@@ -644,14 +647,24 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                     // On the panel opposite the hinge, on the face that
                     // looks into the bay, at the door's mid height; the
                     // plate just inside that panel's face.
-                    let z = zone.z0 + gap_lo + door_height / 2.0;
                     let door_cx = x_left + width / 2.0;
+                    let on_divider =
+                        *opposite != carcass.side_left && *opposite != carcass.side_right;
                     let p = ctx.part_mut(opposite);
                     let into_bay = if door_cx < p.aabb.center().0 {
                         -1.0
                     } else {
                         1.0
                     };
+                    // On a divider the door of the next bay may put its
+                    // catch on the other face at the same spot, screw into
+                    // screw: the one on the left of the divider sits lower.
+                    let drop = if on_divider && into_bay < 0.0 {
+                        CATCH_STAGGER
+                    } else {
+                        0.0
+                    };
+                    let z = zone.z0 + gap_lo + door_height / 2.0 - drop;
                     let x_face = if into_bay < 0.0 {
                         p.aabb.min.0
                     } else {
