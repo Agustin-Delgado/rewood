@@ -22,7 +22,7 @@ use crate::diagnostics::{Diagnostic, Severity};
 use crate::geometry::{Axis, Face, Placement, Vec3};
 use crate::model::Grain;
 use crate::rules::mm;
-use crate::spec::{ComponentSpec, EdgeBanding, FrontMount, HingeSide};
+use crate::spec::{ComponentSpec, DoorOpening, EdgeBanding, FrontMount, HingeSide};
 
 /// Catch body centre behind the door's back plane: its striking face is
 /// flush with the panel's front edge (or the door's back), the screws
@@ -59,6 +59,8 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         fixed,
         fixing,
         facing,
+        opening,
+        stays,
         edges,
         ..
     } = spec
@@ -67,6 +69,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     };
     let id = id.as_str();
     let fixed = *fixed;
+    let flap = !opening.is_side();
     if fixed && (*mount != FrontMount::Overlay || handle.is_some() || catch.is_some()) {
         return Err(Diagnostic::new(
             "SPEC-334",
@@ -159,6 +162,14 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         .entity(id));
     }
     let count = count as usize;
+    if flap && (count > 1 || fixed || catch.is_some() || !hinge_side.is_auto()) {
+        return Err(Diagnostic::new(
+            "SPEC-340",
+            Severity::Fatal,
+            format!("'{id}': una puerta rebatible o basculante va sola en su bahía, colgada de la tapa o de la base, sin cierre ni lado de bisagra"),
+        )
+        .entity(id));
+    }
     if count > 1 && !hinge_side.is_auto() {
         return Err(Diagnostic::new(
             "SPEC-306",
@@ -283,8 +294,9 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
 
     // What a cabinetmaker would say before cutting: none of it stops the
     // doors from being generated.
-    if fixed {
-        // A fixed front is as wide as the blind part it closes.
+    if fixed || flap {
+        // A fixed front is as wide as the blind part it closes; a flap
+        // hangs on its long edge.
     } else if door_width > 600.0 {
         ctx.warn(
             Diagnostic::new(
@@ -538,6 +550,29 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 }
                 continue;
             }
+            if flap {
+                flap_door(
+                    ctx,
+                    FlapDoor {
+                        id,
+                        carcass: &carcass,
+                        bay,
+                        door: &door,
+                        up: *opening == DoorOpening::Up,
+                        hinge,
+                        soft_close: *soft_close,
+                        stays: stays.as_deref(),
+                        handle: handle.as_ref(),
+                        zone,
+                        x_left,
+                        width,
+                        z0: zone.z0 + gap_lo,
+                        height: door_height,
+                        y_back: y_origin - t,
+                    },
+                )?;
+                continue;
+            }
             // Two doors hang on their outer panels; one hangs where
             // `hingeSide` says, `auto` away from the furniture's middle.
             let on_right = if count == 1 {
@@ -762,6 +797,158 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 );
             }
         }
+    }
+    Ok(())
+}
+
+struct FlapDoor<'a> {
+    id: &'a str,
+    carcass: &'a super::CarcassInfo,
+    bay: &'a super::Bay,
+    door: &'a str,
+    /// Hung on the top (lift-up) or on the bottom (drop-down).
+    up: bool,
+    hinge: Option<&'a crate::spec::JointSpec>,
+    soft_close: Option<bool>,
+    stays: Option<&'a [String]>,
+    handle: Option<&'a crate::spec::HandleSpec>,
+    zone: super::Zone,
+    x_left: f64,
+    width: f64,
+    z0: f64,
+    height: f64,
+    y_back: f64,
+}
+
+/// A flap: hinges on its top edge into the top panel (lift-up) or on its
+/// bottom edge into the bottom (drop-down), a stay on each side panel
+/// holding it open, its plate on the door's back, and the handle along the
+/// free edge.
+fn flap_door(ctx: &mut BuildCtx<'_>, f: FlapDoor<'_>) -> Result<(), Diagnostic> {
+    let id = f.id;
+    let (role, reaches) = if f.up {
+        (
+            "top",
+            (f.zone.z1 - f.carcass.height).abs() < crate::units::EPS,
+        )
+    } else {
+        ("bottom", f.zone.z0.abs() < crate::units::EPS)
+    };
+    let panel = ctx
+        .parts
+        .iter()
+        .find(|p| p.component == f.carcass.id && p.role == role)
+        .map(|p| p.id.clone());
+    let Some(panel) = panel.filter(|_| reaches) else {
+        return Err(Diagnostic::new(
+            "SPEC-340",
+            Severity::Fatal,
+            format!(
+                "'{id}': una puerta {} cuelga de la {}: su zona tiene que llegar hasta ahí",
+                if f.up { "basculante" } else { "rebatible" },
+                if f.up { "tapa" } else { "base" }
+            ),
+        )
+        .entity(id));
+    };
+    if let Some(hinge) = f.hinge {
+        let hinge = ctx.hinge_variant(id, hinge, "overlay", f.soft_close)?;
+        ctx.request(
+            JointKind::Hinge {
+                hinge_edge: if f.up { Axis::PosZ } else { Axis::NegZ },
+            },
+            id,
+            f.door,
+            &panel,
+            &hinge,
+        );
+    }
+    // A stay on each side panel, 60 back from the front, a hand below the
+    // top (or above the bottom); its plate on the door's back beside it.
+    let default = if f.up { "lift_stay" } else { "flap_stay" };
+    let stays: Vec<String> = f
+        .stays
+        .map_or_else(|| vec![default.to_string()], <[String]>::to_vec);
+    let strikes: Vec<String> = stays
+        .iter()
+        .filter_map(|h| ctx.libs.hardware.get(h))
+        .filter_map(|d| d.catch.as_ref().and_then(|c| c.strike.clone()))
+        .collect();
+    let z_body = if f.up {
+        f.zone.z1 - f.carcass.thickness - 150.0
+    } else {
+        f.zone.z0 + f.carcass.thickness + 150.0
+    };
+    let z_plate = if f.up {
+        f.z0 + f.height - 200.0
+    } else {
+        f.z0 + 200.0
+    };
+    for (panel, into_bay) in [(&f.bay.left_part, 1.0), (&f.bay.right_part, -1.0)] {
+        let p = ctx.part_mut(panel);
+        let x_face = if into_bay > 0.0 {
+            p.aabb.max.0
+        } else {
+            p.aabb.min.0
+        };
+        let face = p.face_facing(if into_bay > 0.0 {
+            Axis::PosX
+        } else {
+            Axis::NegX
+        });
+        ctx.request(
+            JointKind::Fixture {
+                centre: Vec3(x_face, f.carcass.depth - 60.0, z_body),
+                face,
+                along: Axis::NegY,
+            },
+            id,
+            panel,
+            panel,
+            &crate::spec::JointSpec {
+                hardware: stays.clone(),
+                placement: None,
+            },
+        );
+        if !strikes.is_empty() {
+            ctx.request(
+                JointKind::Fixture {
+                    centre: Vec3(x_face + into_bay * 30.0, f.y_back, z_plate),
+                    face: Face::Front,
+                    along: Axis::PosZ,
+                },
+                id,
+                f.door,
+                f.door,
+                &crate::spec::JointSpec {
+                    hardware: strikes.clone(),
+                    placement: None,
+                },
+            );
+        }
+    }
+    if let Some(handle) = f.handle {
+        // Horizontal, along the free edge.
+        let from_edge = ctx.eval(id, "handle.fromEdge", &handle.from_edge)?;
+        let z = if f.up {
+            f.z0 + from_edge
+        } else {
+            f.z0 + f.height - from_edge
+        };
+        let spec = crate::spec::JointSpec {
+            hardware: handle.hardware.clone(),
+            placement: None,
+        };
+        ctx.request(
+            JointKind::Handle {
+                centre: Vec3(f.x_left + f.width / 2.0, f.y_back, z),
+                along: Axis::PosX,
+            },
+            id,
+            f.door,
+            f.door,
+            &spec,
+        );
     }
     Ok(())
 }

@@ -399,6 +399,7 @@ export function hardwareSymbols(
 					break;
 				}
 				case 'catch':
+				case 'stay':
 				case 'strike':
 				case 'clip':
 				case 'rail_support':
@@ -410,6 +411,8 @@ export function hardwareSymbols(
 					const [along, across, thick, colour] =
 						kind === 'catch'
 							? [Math.max(46, span + 16), 16, 12, BLACK]
+							: kind === 'stay'
+								? [Math.max(120, span + 20), 22, 20, ZINC]
 							: kind === 'strike'
 								? [30, 14, 2, ZINC]
 								: kind === 'clip'

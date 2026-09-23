@@ -15,7 +15,7 @@
     { "param": "height", "label": "Alto", "group": "Medidas", "min": 300, "max": 500, "step": 10, "unit": "mm" },
     { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 380, "max": 500, "step": 10, "unit": "mm" },
     { "param": "middle", "label": "Hueco del medio", "group": "Interior", "min": 400, "max": "min(900, width - 672)", "step": 10, "unit": "mm", "help": "Más de 900 mm, la tapa y el estante del medio se pandean." },
-    { "param": "sides", "label": "A los lados", "group": "Interior", "choices": [{ "value": 0, "label": "cajones" }, { "value": 1, "label": "puertas" }, { "value": 2, "label": "abiertos" }] }
+    { "param": "sides", "label": "A los lados", "group": "Interior", "choices": [{ "value": 0, "label": "cajones" }, { "value": 1, "label": "puertas" }, { "value": 2, "label": "abiertos" }, { "value": 3, "label": "rebatibles" }] }
   ],
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",
@@ -81,6 +81,24 @@
       "bay": 3,
       "count": 1,
       "catch": { "hardware": ["push_latch"] }
+    },
+    {
+      "type": "doors",
+      "id": "flap_left",
+      "when": "sides == 3",
+      "bay": 1,
+      "count": 1,
+      "opening": "down",
+      "handle": { "hardware": ["handle_bar_128"] }
+    },
+    {
+      "type": "doors",
+      "id": "flap_right",
+      "when": "sides == 3",
+      "bay": 3,
+      "count": 1,
+      "opening": "down",
+      "handle": { "hardware": ["handle_bar_128"] }
     },
     {
       "type": "shelves",

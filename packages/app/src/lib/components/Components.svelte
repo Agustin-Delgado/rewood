@@ -382,6 +382,13 @@
 								</label>
 							{/if}
 							{#if c.type === 'doors'}
+								<label class="row" title="De costado, hacia arriba (basculante, colgada de la tapa) o hacia abajo (rebatible, de la base)"><span>abre</span>
+									<select value={c.opening ?? 'side'} onchange={(e) => { const v = e.currentTarget.value as 'side' | 'up' | 'down'; if (v === 'side') delete c.opening; else { c.opening = v; c.count = 1; delete c.hingeSide; delete c.catch; } app.touch(); }}>
+										<option value="side">de costado</option>
+										<option value="up">hacia arriba (basculante)</option>
+										<option value="down">hacia abajo (rebatible)</option>
+									</select>
+								</label>
 								<label class="row" title="Un espejo pegado sobre el frente de cada puerta"><span>espejo</span><input type="checkbox" checked={!!c.facing} onchange={(e) => { if (e.currentTarget.checked) { c.facing = {}; delete c.handle; } else delete c.facing; app.touch(); }} /></label>
 							{/if}
 							{#if c.type === 'drawers' && c.mount === 'inset'}

@@ -68,6 +68,8 @@ export function componentLabels(spec: FurnitureSpec, plan?: ManufacturingPlan | 
 		if (c.type === 'drawers' && c.mount === 'inset') noun = 'Cajones interiores';
 		if (c.type === 'doors' && c.fixed) noun = 'Frente fijo';
 		if (c.type === 'doors' && c.facing) noun = 'Puertas con espejo';
+		if (c.type === 'doors' && c.opening === 'up') noun = 'Puerta basculante';
+		if (c.type === 'doors' && c.opening === 'down') noun = 'Tapa rebatible';
 		const where: string[] = [];
 		const carcass = (c as { carcass?: string }).carcass ?? (many ? undefined : carcasses[0]);
 		if (carcass && many) where.push(moduleName(carcass));

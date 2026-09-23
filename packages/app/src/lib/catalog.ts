@@ -197,6 +197,13 @@ export const CATALOG: Category[] = [
 				spec: t(wallCabinet),
 				preset: { width: 600, height: 360, shelf_count: 0 }
 			},
+			{
+				id: 'wall_cabinet_lift',
+				name: 'Alacena basculante',
+				description: 'Una puerta que se abre hacia arriba, con pistones a gas.',
+				spec: t(wallCabinet),
+				preset: { lift: true, width: 900, height: 400, shelf_count: 0 }
+			},
 			{ id: 'basic_cabinet', name: 'Módulo básico', description: 'Carcasa con estantes y puertas.', spec: t(basicCabinet) }
 		]
 	},
@@ -249,6 +256,13 @@ export const CATALOG: Category[] = [
 				description: 'Tres huecos con estante, sin frentes.',
 				spec: t(tvUnit),
 				preset: { sides: 2 }
+			},
+			{
+				id: 'tv_unit_flaps',
+				name: 'Mueble de TV con tapas rebatibles',
+				description: 'Los lados se abren hacia abajo, sostenidos por compases.',
+				spec: t(tvUnit),
+				preset: { sides: 3 }
 			},
 			{
 				id: 'display_cabinet',

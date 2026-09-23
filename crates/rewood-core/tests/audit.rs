@@ -377,21 +377,28 @@ fn audit_frame(a: &mut Audit, plan: &ManufacturingPlan, libs: &Libraries) {
                         .find(|x| x.label == "cup")
                         .and_then(|x| x.offset_from_edge)
                         .unwrap_or(22.5);
-                    let from_edge = (cup.0 - p.0).abs();
+                    // Along the hinge line (vertical on a side, across on a
+                    // flap) and away from it.
+                    let a_ix = j.axis.index();
+                    let e_ix = if a_ix == 2 { 0 } else { 2 };
+                    let c3 = [cup.0, cup.1, cup.2];
+                    let p3 = [p.0, p.1, p.2];
+                    let from_edge = (c3[e_ix] - p3[e_ix]).abs();
                     if (from_edge - wanted_edge).abs() > EPS {
                         a.note(format!(
                             "{}: cazoleta a {from_edge} mm del canto de bisagra",
                             j.id
                         ));
                     }
-                    if (cup.2 - p.2).abs() > EPS {
+                    if (c3[a_ix] - p3[a_ix]).abs() > EPS {
                         a.note(format!(
                             "{}: cazoleta a otra altura que el punto de bisagra",
                             j.id
                         ));
                     }
                     // Cup 100 mm from the door ends, never closer.
-                    let end = (cup.2 - door.aabb.min.2).min(door.aabb.max.2 - cup.2);
+                    let (lo, hi) = (door.aabb.min.component(a_ix), door.aabb.max.component(a_ix));
+                    let end = (c3[a_ix] - lo).min(hi - c3[a_ix]);
                     if end < 60.0 {
                         a.note(format!(
                             "{}: cazoleta a {end} mm del extremo de la puerta",
@@ -409,7 +416,7 @@ fn audit_frame(a: &mut Audit, plan: &ManufacturingPlan, libs: &Libraries) {
                         .filter_map(|op| world(side, op).map(|w| (op, w)))
                         .filter(|(_, w)| {
                             (side.aabb.max.1 - w.1 - 37.0).abs() < EPS
-                                && ((w.2 - cup.2).abs() - 16.0).abs() < EPS
+                                && ((w.component(a_ix) - c3[a_ix]).abs() - 16.0).abs() < EPS
                         })
                         .collect();
                     if plates.len() != 2 {
@@ -432,12 +439,12 @@ fn audit_frame(a: &mut Audit, plan: &ManufacturingPlan, libs: &Libraries) {
                                 j.id, op.id
                             ));
                         }
-                        if ((w.2 - cup.2).abs() - 16.0).abs() > EPS {
+                        if ((w.component(a_ix) - c3[a_ix]).abs() - 16.0).abs() > EPS {
                             a.note(format!(
                                 "{}: base {} a {} mm de la cazoleta en altura",
                                 j.id,
                                 op.id,
-                                w.2 - cup.2
+                                w.component(a_ix) - c3[a_ix]
                             ));
                         }
                         // The plate faces the door: its face's normal points

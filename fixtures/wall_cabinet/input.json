@@ -7,14 +7,16 @@
     "height": 720,
     "depth": 350,
     "shelf_count": 1,
-    "door_count": 2
+    "door_count": 2,
+    "lift": false
   },
   "options": [
     { "param": "width", "label": "Ancho", "group": "Medidas", "min": 300, "max": 1200, "step": 10, "unit": "mm" },
     { "param": "height", "label": "Alto", "group": "Medidas", "min": 300, "max": 1000, "step": 10, "unit": "mm" },
     { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 250, "max": 400, "step": 10, "unit": "mm" },
     { "param": "shelf_count", "label": "Estantes", "group": "Interior", "min": 0, "max": 4, "step": 1 },
-    { "param": "door_count", "label": "Puertas", "group": "Interior", "choices": [{ "value": 1, "label": "una" }, { "value": 2, "label": "dos" }] }
+    { "param": "lift", "label": "Puerta basculante", "group": "Interior", "help": "Una sola puerta que se abre hacia arriba, sostenida por dos pistones." },
+    { "param": "door_count", "label": "Puertas", "group": "Interior", "choices": [{ "value": 1, "label": "una" }, { "value": 2, "label": "dos" }], "when": "not lift" }
   ],
   "material": "melamine_18",
   "edgeMaterial": "abs_1mm",
@@ -41,7 +43,20 @@
     },
     {
       "type": "doors",
+      "id": "flap",
+      "when": "lift",
+      "count": 1,
+      "opening": "up",
+      "handle": {
+        "hardware": [
+          "handle_bar_128"
+        ]
+      }
+    },
+    {
+      "type": "doors",
       "id": "doors",
+      "when": "not lift",
       "count": "door_count",
       "handle": {
         "hardware": [

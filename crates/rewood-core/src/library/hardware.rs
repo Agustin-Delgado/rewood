@@ -359,6 +359,7 @@ impl HardwareDef {
                         | "sliding_guide"
                         | "sink"
                         | "passage"
+                        | "stay"
                 )
             }
             JointKind::Row { .. } => matches!(self.kind.as_str(), "pin_row" | "track_screw"),
@@ -385,6 +386,7 @@ impl HardwareDef {
                     | "passage"
                     | "adhesive"
                     | "file_rails"
+                    | "stay"
             ),
         }
     }

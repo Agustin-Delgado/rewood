@@ -182,6 +182,10 @@ export interface DoorsSpec {
   fixed?: boolean;
   /** Fasteners of a fixed front; default dowels. */
   fixing?: JointSpec;
+  /** `up`: lift-up flap hung on the top (gas struts); `down`: drop-down flap hung on the bottom (stays). One per bay. */
+  opening?: 'side' | 'up' | 'down';
+  /** What holds a flap open, one per side; default `lift_stay` / `flap_stay`. */
+  stays?: string[];
   /** A mirror (or glass) glued over each door's front, `inset` in from its edges (default mirror_4, 3 mm). */
   facing?: { material?: string; inset?: NumOrExpr; adhesive?: string[] };
   edges?: EdgeBanding;

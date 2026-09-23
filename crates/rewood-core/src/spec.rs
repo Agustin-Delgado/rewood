@@ -111,6 +111,23 @@ impl HingeSide {
     }
 }
 
+/// Which way a door opens: on a side panel (the usual), or on the top (a
+/// lift-up flap) or the bottom (a drop-down flap).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DoorOpening {
+    #[default]
+    Side,
+    Up,
+    Down,
+}
+
+impl DoorOpening {
+    pub fn is_side(&self) -> bool {
+        *self == DoorOpening::Side
+    }
+}
+
 /// Where a front (door, drawer front) sits relative to the carcass.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -414,6 +431,15 @@ pub enum ComponentSpec {
         /// from its edges.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         facing: Option<FacingSpec>,
+        /// `up`: a lift-up flap hung on the top, held open by gas struts;
+        /// `down`: a drop-down flap hung on the bottom, held by stays. One
+        /// door per bay, reaching the panel it hangs on.
+        #[serde(default, skip_serializing_if = "DoorOpening::is_side")]
+        opening: DoorOpening,
+        /// What holds a flap open, one on each side (default `lift_stay`
+        /// for `up`, `flap_stay` for `down`).
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        stays: Option<Vec<String>>,
         #[serde(default)]
         edges: EdgeBanding,
     },

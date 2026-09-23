@@ -285,6 +285,10 @@
         {
           "value": 2.0,
           "label": "abiertos"
+        },
+        {
+          "value": 3.0,
+          "label": "rebatibles"
         }
       ],
       "active": true
@@ -293,6 +297,8 @@
   "inactive": [
     "door_left",
     "door_right",
+    "flap_left",
+    "flap_right",
     "side_shelves",
     "side_shelves_right"
   ],

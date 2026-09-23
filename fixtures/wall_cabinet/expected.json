@@ -213,6 +213,7 @@
     "depth": 350.0,
     "door_count": 2.0,
     "height": 720.0,
+    "lift": false,
     "shelf_count": 1.0,
     "width": 900.0
   },
@@ -265,6 +266,15 @@
       "active": true
     },
     {
+      "param": "lift",
+      "label": "Puerta basculante",
+      "group": "Interior",
+      "help": "Una sola puerta que se abre hacia arriba, sostenida por dos pistones.",
+      "kind": "toggle",
+      "value": false,
+      "active": true
+    },
+    {
       "param": "door_count",
       "label": "Puertas",
       "group": "Interior",
@@ -282,6 +292,9 @@
       ],
       "active": true
     }
+  ],
+  "inactive": [
+    "flap"
   ],
   "derived": {
     "carcass.back_length": 879.0,
