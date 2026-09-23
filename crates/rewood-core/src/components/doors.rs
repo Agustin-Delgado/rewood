@@ -58,6 +58,7 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
         handle,
         fixed,
         fixing,
+        facing,
         edges,
         ..
     } = spec
@@ -188,6 +189,63 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
     }
     let material = ctx.material_or_default(id, material.as_ref())?.to_string();
     let t = ctx.thickness_of(&material);
+    // A glass door hangs on glass hinges: a board hinge's Ø35 cup does not
+    // go into glass.
+    let glass_door = ctx
+        .libs
+        .materials
+        .material(&material)
+        .is_some_and(|m| m.outsourced);
+    if let Some(h) = hinge.as_ref().filter(|_| !fixed) {
+        let glass_hinge = h
+            .hardware
+            .iter()
+            .filter_map(|x| ctx.libs.hardware.get(x)?.hinge.as_ref())
+            .any(|s| s.glass);
+        if glass_door != glass_hinge {
+            let alt = ctx.libs.hardware.iter().find(|d| {
+                d.hinge
+                    .as_ref()
+                    .is_some_and(|s| s.glass == glass_door && s.mount == "overlay" && !s.soft_close)
+            });
+            return Err(Diagnostic::new(
+                "SPEC-337",
+                Severity::Fatal,
+                if glass_door {
+                    format!("'{id}': las puertas son de vidrio y la bisagra es para placa")
+                } else {
+                    format!("'{id}': la bisagra es para vidrio y las puertas son de placa")
+                },
+            )
+            .entity(id)
+            .fix_opt(alt.map(|a| {
+                (
+                    format!("Usar {}", a.name),
+                    id.to_string(),
+                    "hinge.hardware".to_string(),
+                    serde_json::json!([a.id]),
+                )
+            })));
+        }
+    }
+    // The facing glued on the front: its material and how far in.
+    let facing = match facing {
+        Some(f) => {
+            let m = ctx.material_or_default(id, Some(&f.material))?.to_string();
+            let inset = ctx.eval(id, "facing.inset", &f.inset)?;
+            if handle.is_some() {
+                return Err(Diagnostic::new(
+                    "SPEC-337",
+                    Severity::Fatal,
+                    format!("'{id}': un tirador no se atornilla a través del espejo"),
+                )
+                .entity(id)
+                .suggestion("Sacá el tirador y abrí con push-open ('catch' con push_latch)."));
+            }
+            Some((m, inset, f.adhesive.clone()))
+        }
+        None => None,
+    };
 
     // Where the zone ends inside the carcass another front (or the next
     // zone) takes over: each side leaves half the gap, so fronts that meet
@@ -400,6 +458,42 @@ pub fn build(ctx: &mut BuildCtx<'_>, spec: &ComponentSpec) -> Result<(), Diagnos
                 ),
                 banded_edges: &all_edges,
             });
+            if let Some((m, inset, adhesive)) = &facing {
+                // Glued over the door's front, a little in from its edges.
+                let tm = ctx.thickness_of(m);
+                let (mname, mrole) = if many {
+                    (
+                        format!("Espejo {n} bahía {}", bay.index),
+                        format!("bay{}_mirror_{}", bay.index, i + 1),
+                    )
+                } else {
+                    (format!("Espejo {n}"), format!("mirror_{n}"))
+                };
+                let front = y_origin;
+                ctx.add_part(PartInit {
+                    name: mname,
+                    component: id,
+                    role: &mrole,
+                    material: m,
+                    length: door_height - 2.0 * inset,
+                    width: width - 2.0 * inset,
+                    grain: Grain::None,
+                    placement: Placement::new(
+                        Vec3(x_left + width - inset, front + tm, zone.z0 + gap_lo + inset),
+                        Axis::PosZ,
+                        Axis::NegX,
+                    ),
+                    banded_edges: &[],
+                });
+                if let Some(h) = adhesive.first() {
+                    ctx.extra_bom.push(super::ExtraBom {
+                        component: id.to_string(),
+                        hardware: h.clone(),
+                        quantity: 1,
+                        metres: 0.0,
+                    });
+                }
+            }
             if fixed {
                 // Joined to the front edges of the panels behind it (the
                 // bay's sides, the top, the bottom) where the front covers

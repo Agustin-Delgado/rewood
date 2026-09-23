@@ -75,7 +75,7 @@ impl Rule for PartFitsMachine {
     fn check(&self, input: &RuleInput<'_>) -> Vec<Diagnostic> {
         let p = &input.libs.profile;
         let mut out = Vec::new();
-        for part in input.parts {
+        for part in input.parts.iter().filter(|p| !p.outsourced) {
             let (l, w) = (part.cut.length, part.cut.width);
             let [ml, mw] = p.max_part_size;
             if !(fits(l, w, ml, mw) || fits(w, l, ml, mw)) {

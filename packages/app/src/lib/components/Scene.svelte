@@ -291,6 +291,8 @@
 		if (level === 'ERROR' || level === 'FATAL') return '#d95f4b';
 		if (level === 'WARNING') return '#e3c25c';
 		if (part.material.startsWith('hdf')) return '#8a6a4a';
+		if (part.material.startsWith('mirror')) return '#c9d6dc';
+		if (part.material.startsWith('glass')) return '#bfe3ea';
 		// Fronts (doors, drawer fronts) lighter than the carcass, so the
 		// furniture reads at a glance.
 		if (part.role.includes('door') || (part.role.endsWith('_front') && !part.role.includes('box_front'))) return '#eadbc0';
@@ -426,7 +428,14 @@
 	{@const at = pose(part.id)}
 	<T.Group position={at.position} quaternion={at.quaternion}>
 		<T.Mesh position={centre(part)} scale={size3(part)} geometry={unitBox} onclick={(e: { stopPropagation: () => void }) => { e.stopPropagation(); app.selectPart(part.id); }} ondblclick={(e: { stopPropagation: () => void }) => toggleFront(part, e)}>
-			<T.MeshStandardMaterial color={colourOf(part)} roughness={0.8} />
+			{#if part.outsourced && part.material.startsWith('glass')}
+				<!-- Glass: seen through, so the shelves behind the doors read. -->
+				<T.MeshStandardMaterial color={colourOf(part)} roughness={0.1} metalness={0.1} transparent opacity={0.35} depthWrite={false} />
+			{:else if part.outsourced}
+				<T.MeshStandardMaterial color={colourOf(part)} roughness={0.05} metalness={0.8} />
+			{:else}
+				<T.MeshStandardMaterial color={colourOf(part)} roughness={0.8} />
+			{/if}
 		</T.Mesh>
 		<!-- The outline makes the elevations readable: face against face
 		     of the same colour has no edge otherwise. -->

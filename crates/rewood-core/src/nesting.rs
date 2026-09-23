@@ -475,6 +475,10 @@ pub fn nest(parts: &[Part], libs: &Libraries, rules: &NestingRules) -> Vec<Sheet
         let Some(m) = libs.materials.material(material) else {
             continue;
         };
+        // Cut to size by the supplier: nothing to lay out on a sheet.
+        if m.outsourced {
+            continue;
+        }
         let mut queue: Vec<&Part> = parts.iter().filter(|p| p.material == material).collect();
         // Largest first; ties by id so the result never depends on input order.
         queue.sort_by(|a, b| {

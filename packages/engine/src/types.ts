@@ -182,6 +182,8 @@ export interface DoorsSpec {
   fixed?: boolean;
   /** Fasteners of a fixed front; default dowels. */
   fixing?: JointSpec;
+  /** A mirror (or glass) glued over each door's front, `inset` in from its edges (default mirror_4, 3 mm). */
+  facing?: { material?: string; inset?: NumOrExpr; adhesive?: string[] };
   edges?: EdgeBanding;
 }
 
@@ -609,6 +611,8 @@ export interface CutoutOperation extends OperationBase {
 export type Operation = DrillOperation | GrooveOperation | EdgeBandOperation | CutoutOperation;
 
 export interface Part {
+  /** Cut to size by the material's supplier (glass, mirror): no nesting, banding or CNC. */
+  outsourced?: boolean;
   id: string;
   name: string;
   component: string;

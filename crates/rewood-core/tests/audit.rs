@@ -237,6 +237,7 @@ fn audit_frame(a: &mut Audit, plan: &ManufacturingPlan, libs: &Libraries) {
         .filter(|p| {
             !p.role.contains("door")
                 && !p.role.contains("fixed_front")
+                && !p.role.contains("mirror")
                 && !p.role.ends_with("_front")
                 && p.role != "worktop"
         })
@@ -333,7 +334,7 @@ fn audit_frame(a: &mut Audit, plan: &ManufacturingPlan, libs: &Libraries) {
                     }
                     let cups: Vec<_> = on_edge
                         .iter()
-                        .filter(|(op, _)| matches!(&op.geometry, OpGeometry::Drill { diameter, .. } if *diameter > 30.0))
+                        .filter(|(op, _)| matches!(&op.geometry, OpGeometry::Drill { diameter, .. } if *diameter > 20.0))
                         .collect();
                     if cups.len() != 1 {
                         a.note(format!(
@@ -369,8 +370,15 @@ fn audit_frame(a: &mut Audit, plan: &ManufacturingPlan, libs: &Libraries) {
                             j.id, cup_op.id, cup_op.face
                         ));
                     }
+                    // 22.5 on a board door; a glass hinge says its own.
+                    let wanted_edge = hw
+                        .iter()
+                        .flat_map(|h| h.holes.iter())
+                        .find(|x| x.label == "cup")
+                        .and_then(|x| x.offset_from_edge)
+                        .unwrap_or(22.5);
                     let from_edge = (cup.0 - p.0).abs();
-                    if (from_edge - 22.5).abs() > EPS {
+                    if (from_edge - wanted_edge).abs() > EPS {
                         a.note(format!(
                             "{}: cazoleta a {from_edge} mm del canto de bisagra",
                             j.id
@@ -781,6 +789,8 @@ fn variants() -> Vec<(String, String, Vec<&'static str>)> {
         "wardrobe_modules",
         "kitchen_corner",
         "vanity",
+        "medicine_cabinet",
+        "display_cabinet",
         "wardrobe_sliding",
     ] {
         let path = format!(

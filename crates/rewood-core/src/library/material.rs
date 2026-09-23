@@ -38,6 +38,14 @@ pub struct Material {
     /// bridge before it sags visibly (mm); `None` = 50 × thickness.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub max_span: Option<f64>,
+    /// Cut to size by its supplier (glass, mirror): not nested, not
+    /// banded, not machined in the shop; ordered piece by piece and priced
+    /// by the square metre.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub outsourced: bool,
+    /// Price per m² of an outsourced material; 0 = unknown.
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub price_per_m2: f64,
 }
 
 pub(crate) fn is_zero(v: &f64) -> bool {

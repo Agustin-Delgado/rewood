@@ -196,11 +196,22 @@ pub struct PurchaseOrder {
 pub fn purchasing(bom: &Bom, libs: &Libraries) -> Vec<PurchaseOrder> {
     let mut by_supplier: BTreeMap<String, Vec<PurchaseLine>> = BTreeMap::new();
     for s in &bom.sheets {
-        let sup = libs
-            .materials
-            .material(&s.material)
-            .map(|m| m.supplier.clone())
-            .unwrap_or_default();
+        let m = libs.materials.material(&s.material);
+        let sup = m.map(|m| m.supplier.clone()).unwrap_or_default();
+        if m.is_some_and(|m| m.outsourced) {
+            // Cut to size: the order is the area, the pieces are in the
+            // cutlist.
+            by_supplier.entry(sup).or_default().push(PurchaseLine {
+                kind: "cut_to_size".into(),
+                id: s.material.clone(),
+                name: format!("{} a medida ({} piezas)", s.name, s.parts),
+                quantity: crate::units::round3(s.net_area_m2),
+                unit: "m²".into(),
+                unit_price: m.map_or(0.0, |m| m.price_per_m2),
+                cost: s.cost,
+            });
+            continue;
+        }
         by_supplier.entry(sup).or_default().push(PurchaseLine {
             kind: "sheet".into(),
             id: s.material.clone(),
@@ -570,6 +581,16 @@ pub fn bom(
             .iter()
             .filter(|l| l.material == line.material)
             .count();
+        if m.outsourced {
+            // Bought cut to size: by the square metre, no sheets.
+            line.estimated_sheets = 0;
+            line.yield_ratio = 0.0;
+            line.cost = line.net_area_m2 * m.price_per_m2;
+            if m.price_per_m2 == 0.0 {
+                unpriced.push(line.material.clone());
+            }
+            continue;
+        }
         line.estimated_sheets = if nested > 0 {
             nested
         } else {

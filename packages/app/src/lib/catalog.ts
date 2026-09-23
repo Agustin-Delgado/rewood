@@ -18,6 +18,8 @@ import nightstand from '../../../../fixtures/nightstand/input.json';
 import sideboard from '../../../../fixtures/sideboard/input.json';
 import tvUnit from '../../../../fixtures/tv_unit/input.json';
 import vanity from '../../../../fixtures/vanity/input.json';
+import medicineCabinet from '../../../../fixtures/medicine_cabinet/input.json';
+import displayCabinet from '../../../../fixtures/display_cabinet/input.json';
 import wallCabinet from '../../../../fixtures/wall_cabinet/input.json';
 import wardrobe from '../../../../fixtures/wardrobe_1800/input.json';
 import wardrobeModules from '../../../../fixtures/wardrobe_modules/input.json';
@@ -246,6 +248,12 @@ export const CATALOG: Category[] = [
 				spec: t(tvUnit),
 				preset: { sides: 2 }
 			},
+			{
+				id: 'display_cabinet',
+				name: 'Vitrina',
+				description: 'Puertas y estantes de vidrio templado; el vidrio lo corta y perfora la vidriería.',
+				spec: t(displayCabinet)
+			},
 			{ id: 'sideboard', name: 'Aparador', description: 'Push-open, cajones con cierre suave y patas.', spec: t(sideboard) }
 		]
 	},
@@ -282,6 +290,19 @@ export const CATALOG: Category[] = [
 				description: 'Angosto, una puerta; la bacha va arriba y la tapa sólo lleva el desagüe.',
 				spec: t(vanity),
 				preset: { basin: 1, width: 600, doors: 1 }
+			},
+			{
+				id: 'medicine_cabinet',
+				name: 'Botiquín con espejo',
+				description: 'Colgado y poco profundo, puerta con espejo pegado y push-open.',
+				spec: t(medicineCabinet)
+			},
+			{
+				id: 'medicine_cabinet_wide',
+				name: 'Botiquín doble',
+				description: 'Dos puertas con espejo, 900 de ancho.',
+				spec: t(medicineCabinet),
+				preset: { width: 900, doors: 2 }
 			}
 		]
 	}

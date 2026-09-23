@@ -352,6 +352,20 @@ pub fn cutlist_txt(plan: &ManufacturingPlan) -> String {
     )
     .unwrap();
     for sh in &plan.bom.sheets {
+        // Glass and mirror come cut to size from the glazier.
+        let outsourced = plan
+            .parts
+            .iter()
+            .any(|p| p.material == sh.material && p.outsourced);
+        if outsourced {
+            writeln!(
+                s,
+                "  {:<28} {:>3} piezas  {:>7.3} m²  a medida (vidriería)",
+                sh.name, sh.parts, sh.net_area_m2
+            )
+            .unwrap();
+            continue;
+        }
         writeln!(
             s,
             "  {:<28} {:>3} piezas  {:>7.3} m²  ≈ {} placa(s) de {}×{}",

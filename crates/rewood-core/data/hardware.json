@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "_note": "Hole diameters, depths and offsets are indicative defaults for 18 mm panels (Minifix B34 / 35 mm cup hinge with 45/9.5 pilot pattern and 37 mm plate line). Verify against the supplier's catalog before manufacturing; the engine treats these as data. maxLoadKg is the load one unit carries (a hinge its share of the door, a slide pair the loaded drawer, a leg its share of the furniture); the design rules compare part weights against it. hinge_35_inset keeps the plate line 37 mm from the carcass front edge; its offsetFromEdge is measured from an 18 mm door's back plane. A rail's bomItems are per metre of bar. Slides: ball-bearing telescopic (full extension) and roller (three-quarter) in 50 mm steps; `softClose` variants share the drilling and are swapped in by the drawers' `softClose`. Hinges: overlay / half_overlay (a door on a divider) / inset, plain and soft-close, chosen by the doors generator from the geometry within one opening angle. Catches (magnetic, push) sit on the panel opposite the hinge; their `catch.strike` is the plate on the door; their screws keep clear of the 37 mm line where hinge plates, slides and pin rows sit. A handle's screws depend on what they cross: M4×25 through a door (18 mm), M4×45 through a drawer front and the box front behind it (36 mm); `through` on a BOM item picks by the panel a fastener crosses. Spacers (`kind: spacer`) go between the carcass panel and a slide when an inner drawer sits behind a door: the drawers generator takes the thinnest one that moves the drawer clear of the door swung open (door thickness plus a few mm for an inset door); thicknesses are indicative. Sliding doors: `sliding_track_2` is a double aluminium track by the metre (top and bottom), inside the opening; its `sliding` block gives lane pitch, the depth it takes from the front (dividers and shelves stay behind it) and the clearances above and below the doors. Each door runs on two `sliding_roller` (maxLoadKg per roller) and is held by two `sliding_guide`; the track is screwed every 300 mm (`track_screw`). All indicative. Sinks (`kind: sink`) and pipe passages (`kind: passage`) are fixtures that cut openings instead of drilling holes: `cutouts` place a rounded rectangle (or a circle) through the part at the fixture point, and `sink.below` is how far the bowl hangs under the top. The cutout sizes follow the usual templates of a 50×40 inset basin and a Ø40 countertop basin's drain; use the one printed on the box.",
+  "_note": "Hole diameters, depths and offsets are indicative defaults for 18 mm panels (Minifix B34 / 35 mm cup hinge with 45/9.5 pilot pattern and 37 mm plate line). Verify against the supplier's catalog before manufacturing; the engine treats these as data. maxLoadKg is the load one unit carries (a hinge its share of the door, a slide pair the loaded drawer, a leg its share of the furniture); the design rules compare part weights against it. hinge_35_inset keeps the plate line 37 mm from the carcass front edge; its offsetFromEdge is measured from an 18 mm door's back plane. A rail's bomItems are per metre of bar. Slides: ball-bearing telescopic (full extension) and roller (three-quarter) in 50 mm steps; `softClose` variants share the drilling and are swapped in by the drawers' `softClose`. Hinges: overlay / half_overlay (a door on a divider) / inset, plain and soft-close, chosen by the doors generator from the geometry within one opening angle. Catches (magnetic, push) sit on the panel opposite the hinge; their `catch.strike` is the plate on the door; their screws keep clear of the 37 mm line where hinge plates, slides and pin rows sit. A handle's screws depend on what they cross: M4×25 through a door (18 mm), M4×45 through a drawer front and the box front behind it (36 mm); `through` on a BOM item picks by the panel a fastener crosses. Spacers (`kind: spacer`) go between the carcass panel and a slide when an inner drawer sits behind a door: the drawers generator takes the thinnest one that moves the drawer clear of the door swung open (door thickness plus a few mm for an inset door); thicknesses are indicative. Sliding doors: `sliding_track_2` is a double aluminium track by the metre (top and bottom), inside the opening; its `sliding` block gives lane pitch, the depth it takes from the front (dividers and shelves stay behind it) and the clearances above and below the doors. Each door runs on two `sliding_roller` (maxLoadKg per roller) and is held by two `sliding_guide`; the track is screwed every 300 mm (`track_screw`). All indicative. Sinks (`kind: sink`) and pipe passages (`kind: passage`) are fixtures that cut openings instead of drilling holes: `cutouts` place a rounded rectangle (or a circle) through the part at the fixture point, and `sink.below` is how far the bowl hangs under the top. The cutout sizes follow the usual templates of a 50×40 inset basin and a Ø40 countertop basin's drain; use the one printed on the box. A glass door hangs on `hinge_glass_overlay`: a Ø26 cup through the glass, drilled by the glazier from the plan, and the usual plate on the carcass; `hinge.glass` keeps variants within glass hinges. `mirror_adhesive` is one cartridge per mirror glued on a door.",
   "hardware": [
     {
       "id": "minifix_15",
@@ -216,6 +216,80 @@
       "supplier": "hardware_supplier",
       "hinge": {
         "mount": "overlay"
+      }
+    },
+    {
+      "id": "hinge_glass_overlay",
+      "name": "Bisagra para puerta de vidrio superpuesta",
+      "kind": "hinge",
+      "maxLoadKg": 5,
+      "compatibleThickness": [
+        4,
+        25
+      ],
+      "placement": {
+        "endOffset": 100,
+        "maxSpacing": 750,
+        "countByLength": [
+          [
+            900,
+            2
+          ],
+          [
+            1500,
+            3
+          ],
+          [
+            2000,
+            4
+          ],
+          [
+            2400,
+            5
+          ]
+        ]
+      },
+      "holes": [
+        {
+          "label": "cup",
+          "side": "edge_part",
+          "location": "face_offset",
+          "offsetFromEdge": 20,
+          "diameter": 26
+        },
+        {
+          "label": "plate_a",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": 16,
+          "diameter": 5,
+          "depth": 11
+        },
+        {
+          "label": "plate_b",
+          "side": "face_part",
+          "location": "face_inset",
+          "offsetFromEdge": 37,
+          "offsetAlong": -16,
+          "diameter": 5,
+          "depth": 11
+        }
+      ],
+      "bomItems": [
+        {
+          "name": "Bisagra para vidrio superpuesta (con tapa y buje)",
+          "quantity": 1
+        },
+        {
+          "name": "Base de bisagra cruz H0",
+          "quantity": 1
+        }
+      ],
+      "supplier": "hardware_supplier",
+      "hinge": {
+        "mount": "overlay",
+        "glass": true
       }
     },
     {
@@ -3936,6 +4010,30 @@
         }
       ],
       "bomItems": []
+    },
+    {
+      "id": "mirror_adhesive",
+      "name": "Adhesivo para espejos",
+      "kind": "adhesive",
+      "supplier": "hardware_supplier",
+      "compatibleThickness": [
+        0,
+        100
+      ],
+      "placement": {
+        "endOffset": 0,
+        "maxSpacing": 1000,
+        "fixed": [
+          0
+        ]
+      },
+      "holes": [],
+      "bomItems": [
+        {
+          "name": "Adhesivo neutro para espejos (cartucho)",
+          "quantity": 1
+        }
+      ]
     },
     {
       "id": "cabinet_hanger",

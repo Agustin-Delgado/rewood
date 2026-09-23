@@ -64,6 +64,15 @@ export function motions(plan: ManufacturingPlan): Map<string, Motion> {
 		out.set(door.id, { key: `${door.component}:${door.role}`, kind: 'door', pivot, axis, angle });
 	}
 
+	// A mirror glued on a door goes with it: `mirror_1` on `door_1`.
+	for (const p of plan.parts) {
+		const role = p.role.replace(/mirror_(\d+)$/, 'door_$1');
+		if (role === p.role) continue;
+		const door = plan.parts.find((d) => d.component === p.component && d.role === role);
+		const m = door && out.get(door.id);
+		if (m) out.set(p.id, m);
+	}
+
 	// Sliding doors: the ones on the front lane (every second one) run over
 	// the door before them, as far as their width less the overlap.
 	const sliding = new Map<string, Map<number, Part>>();

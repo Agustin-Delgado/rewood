@@ -381,6 +381,9 @@
 									</select>
 								</label>
 							{/if}
+							{#if c.type === 'doors'}
+								<label class="row" title="Un espejo pegado sobre el frente de cada puerta"><span>espejo</span><input type="checkbox" checked={!!c.facing} onchange={(e) => { if (e.currentTarget.checked) { c.facing = {}; delete c.handle; } else delete c.facing; app.touch(); }} /></label>
+							{/if}
 							{#if c.type === 'drawers' && c.mount === 'inset'}
 								<label class="row"><span>retranqueo</span><input placeholder="0" value={show(c.setback)} onchange={(e) => setField(c, 'setback', e.currentTarget.value, true)} /></label>
 							{/if}

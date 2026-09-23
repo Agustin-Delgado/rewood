@@ -239,6 +239,10 @@ pub struct HingeSpec {
     /// Opening angle, degrees; variants are swapped within one angle.
     #[serde(default = "hinge_opening")]
     pub opening: f64,
+    /// For a glass door (its cup goes through the glass, drilled by the
+    /// glazier); variants are swapped within glass or board hinges.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub glass: bool,
 }
 
 fn hinge_opening() -> f64 {
@@ -363,6 +367,7 @@ impl HardwareDef {
                     | "sliding_guide"
                     | "sink"
                     | "passage"
+                    | "adhesive"
             ),
         }
     }

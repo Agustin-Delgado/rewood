@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0",
+  "id": "medicine_cabinet",
+  "name": "Botiquín con espejo 600×700×150",
+  "version": "1.0",
+  "parameters": {
+    "width": 600,
+    "height": 700,
+    "depth": 150,
+    "doors": 1,
+    "shelves": 2
+  },
+  "options": [
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": 350, "max": 1000, "step": 10, "unit": "mm", "help": "Más de 600, dos puertas." },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": "max(400, ceil((186 + 130 * shelves) / 10) * 10)", "max": 900, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 120, "max": 200, "step": 10, "unit": "mm" },
+    { "param": "doors", "label": "Puertas con espejo", "group": "Frente", "choices": [{ "value": 1, "label": "una" }, { "value": 2, "label": "dos" }] },
+    { "param": "shelves", "label": "Estantes", "group": "Interior", "min": 0, "max": "min(4, floor((height - 186) / 130))", "step": 1 }
+  ],
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "hanging": {}
+    },
+    {
+      "type": "shelves",
+      "id": "shelves",
+      "when": "shelves > 0",
+      "count": "shelves",
+      "setback": 10,
+      "support": "pins"
+    },
+    {
+      "type": "doors",
+      "id": "doors",
+      "count": "doors",
+      "catch": { "hardware": ["push_latch"] },
+      "facing": {}
+    }
+  ]
+}

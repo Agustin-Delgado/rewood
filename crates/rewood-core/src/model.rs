@@ -194,6 +194,10 @@ pub struct Part {
     pub placement: Placement,
     pub aabb: Aabb,
     pub operations: Vec<Operation>,
+    /// Cut to size by the material's supplier (glass, mirror): no nesting,
+    /// no banding, no CNC program.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub outsourced: bool,
     /// Parts this one is allowed to overlap in space (a back panel sitting
     /// inside the groove of the part it is housed in).
     #[serde(default, skip_serializing_if = "Vec::is_empty")]

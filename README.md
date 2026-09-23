@@ -307,6 +307,19 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   controlan cada una en su marco (`SPEC-213`), la bisagra `auto` busca el
   medio de su propia hilera, y una tapa no apoya sobre módulos girados
   (`SPEC-333`).
+- Vidrio y espejo: un material `outsourced` (`glass_6`, `mirror_4`) lo
+  corta, pule y perfora la vidriería: sus piezas no entran al nesting, no
+  llevan canto ni programa de CNC, el despiece las marca "a medida
+  (vidriería)" y la compra va por m² (`pricePerM2`) al proveedor
+  `glass_supplier`. Una puerta de vidrio (`material: "glass_6"`) cuelga de
+  `hinge_glass_overlay` (cazoleta Ø26 pasante a 20 del canto, la hace la
+  vidriería con el plano; la base es la de siempre); una bisagra de placa en
+  una puerta de vidrio, o al revés, es `SPEC-337` con la otra como arreglo.
+  `facing: {}` pega un espejo sobre el frente de cada puerta (3 mm adentro
+  del borde, un cartucho de `mirror_adhesive` por puerta; con tirador es
+  `SPEC-337`: abre con push-open). `fixtures/medicine_cabinet` (botiquín) y
+  `fixtures/display_cabinet` (vitrina con estantes de vidrio sobre
+  soportes; `maxSpan` 800 para el templado de 6).
 - Bacha (`sink`): una bacha de la biblioteca (`kind: sink`) sobre la tapa
   de una carcasa, centrada en su bahía (`bay`) y a media profundidad
   (`fromFront`, `offset`). La bacha dice qué recortes le hace a la tapa
@@ -593,6 +606,7 @@ Todo de catálogo corriente (Häfele/Hettich/Blum genérico), en
   vale sólo para el herraje cuyos agujeros pasantes cruzan esa cantidad de
   placa. Así el tirador pide M4×25 en una puerta (18 mm) y M4×45 en un
   frente de cajón con su frente interior detrás (36 mm).
+- `hinge_glass_overlay` (bisagra para puerta de vidrio) y `mirror_adhesive`.
 - `sink_inset_500x400` (bacha de embutir, recorte 470×370 r30, cuelga 180),
   `sink_vessel_400` (de apoyo, sólo el desagüe Ø45) y `pipe_passage`
   (200×160 en el fondo): herrajes que recortan en vez de perforar.
@@ -711,7 +725,7 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 
 | familia | qué cubre |
 |---|---|
-| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes; `002` más de 2000 piezas, que es una cantidad desbocada y no un mueble; `103` un `when` que no es condición; `302` ranura del fondo fuera de la pieza; `304` retiros o luces negativos; `318` más estantes sobre soportes que líneas libres en la grilla; `322/323` lateral o faldón sin medida o sin tapa, faldón con retiro negativo; `324` tirador en un cajón interior que no entra en su retiro; `330` reparto de herrajes con `maxSpacing` ≤ 0; `332` giro que no es de a 90°; `333` tapa sobre módulos girados; `334` frente fijo embutido, con tirador o cierre, o sin canto donde fijarse; `336` bacha que no está en la biblioteca, sin tapa o fondo donde ir, o que no entra en su bahía; `335` corredizas sin riel de la biblioteca, más gruesas que su carril o con divisores que llegan al frente; `501–503` opciones sobre un parámetro inexistente, sobre una fórmula, o con el valor fuera de cota); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo sin estantes (`212`; con estantes es una estantería a la vista a propósito, como una biblioteca con puertas abajo), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`), estantes que llegan al plano de una puerta embutida o corrediza (`215`), cajones interiores en el plano de una puerta embutida (`214`, con el retranqueo como arreglo) |
+| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes; `002` más de 2000 piezas, que es una cantidad desbocada y no un mueble; `103` un `when` que no es condición; `302` ranura del fondo fuera de la pieza; `304` retiros o luces negativos; `318` más estantes sobre soportes que líneas libres en la grilla; `322/323` lateral o faldón sin medida o sin tapa, faldón con retiro negativo; `324` tirador en un cajón interior que no entra en su retiro; `330` reparto de herrajes con `maxSpacing` ≤ 0; `332` giro que no es de a 90°; `333` tapa sobre módulos girados; `334` frente fijo embutido, con tirador o cierre, o sin canto donde fijarse; `337` puerta de vidrio con bisagra de placa (o al revés), espejo con tirador; `336` bacha que no está en la biblioteca, sin tapa o fondo donde ir, o que no entra en su bahía; `335` corredizas sin riel de la biblioteca, más gruesas que su carril o con divisores que llegan al frente; `501–503` opciones sobre un parámetro inexistente, sobre una fórmula, o con el valor fuera de cota); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo sin estantes (`212`; con estantes es una estantería a la vista a propósito, como una biblioteca con puertas abajo), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`), estantes que llegan al plano de una puerta embutida o corrediza (`215`), cajones interiores en el plano de una puerta embutida (`214`, con el retranqueo como arreglo) |
 | `PARAM-*` | ciclos o expresiones inválidas en parámetros (un resultado que no es un número finito, como la raíz de un negativo, es error; `and`/`or` cortan en el lado que decide; más de 64 niveles de anidamiento o 2000 símbolos no se aceptan) |
 | `LIB-*` | material, canto o herraje desconocido |
 | `CON-001` | una restricción declarada no se cumple |

@@ -12,6 +12,12 @@
       "id": "hardware_supplier",
       "name": "Ferretería de herrajes (genérica)",
       "leadDays": 3
+    },
+    {
+      "id": "glass_supplier",
+      "name": "Vidriería (genérica)",
+      "leadDays": 4,
+      "notes": "Corte a medida, pulido de cantos y perforaciones para bisagras de vidrio."
     }
   ]
 }

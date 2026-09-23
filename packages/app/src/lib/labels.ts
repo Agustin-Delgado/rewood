@@ -67,6 +67,7 @@ export function componentLabels(spec: FurnitureSpec, plan?: ManufacturingPlan | 
 		let noun = NOUN[c.type] ?? c.type;
 		if (c.type === 'drawers' && c.mount === 'inset') noun = 'Cajones interiores';
 		if (c.type === 'doors' && c.fixed) noun = 'Frente fijo';
+		if (c.type === 'doors' && c.facing) noun = 'Puertas con espejo';
 		const where: string[] = [];
 		const carcass = (c as { carcass?: string }).carcass ?? (many ? undefined : carcasses[0]);
 		if (carcass && many) where.push(moduleName(carcass));

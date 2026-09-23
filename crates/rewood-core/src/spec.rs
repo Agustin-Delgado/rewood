@@ -410,6 +410,10 @@ pub enum ComponentSpec {
         /// Default dowels.
         #[serde(default, skip_serializing_if = "Option::is_none")]
         fixing: Option<JointSpec>,
+        /// A mirror (or glass) glued over each door's front, a little in
+        /// from its edges.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        facing: Option<FacingSpec>,
         #[serde(default)]
         edges: EdgeBanding,
     },
@@ -648,6 +652,32 @@ pub enum ComponentSpec {
         #[serde(default)]
         edges: EdgeBanding,
     },
+}
+
+/// A sheet glued over a door's front: a mirror on a medicine cabinet.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct FacingSpec {
+    /// Default `mirror_4`.
+    #[serde(default = "default_facing")]
+    pub material: String,
+    /// In from the door's edges, all round. Default 3.
+    #[serde(default = "facing_inset")]
+    pub inset: NumOrExpr,
+    /// What sticks it (`kind: adhesive`, one per door); default
+    /// `mirror_adhesive`.
+    #[serde(default = "default_adhesive")]
+    pub adhesive: Vec<String>,
+}
+
+fn default_facing() -> String {
+    "mirror_4".into()
+}
+fn facing_inset() -> NumOrExpr {
+    num(3.0)
+}
+fn default_adhesive() -> Vec<String> {
+    vec!["mirror_adhesive".into()]
 }
 
 /// An opening in the back panel for the pipes, under a sink.

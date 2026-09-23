@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0",
+  "id": "display_cabinet",
+  "name": "Vitrina 800×1800×400 con puertas y estantes de vidrio",
+  "version": "1.0",
+  "parameters": {
+    "width": 800,
+    "height": 1800,
+    "depth": 400,
+    "shelves": 3
+  },
+  "options": [
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": 500, "max": 1000, "step": 10, "unit": "mm", "help": "Dos puertas de vidrio; más ancho, cada una pasa de 500 mm." },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": 1200, "max": 2100, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 300, "max": 500, "step": 10, "unit": "mm" },
+    { "param": "shelves", "label": "Estantes de vidrio", "group": "Interior", "min": 0, "max": 5, "step": 1 }
+  ],
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
+    },
+    {
+      "type": "shelves",
+      "id": "shelves",
+      "when": "shelves > 0",
+      "count": "shelves",
+      "material": "glass_6",
+      "support": "pins"
+    },
+    {
+      "type": "doors",
+      "id": "doors",
+      "count": 2,
+      "material": "glass_6",
+      "hinge": { "hardware": ["hinge_glass_overlay"] }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "_note": "Indicative sheets; maxSpan is the unsupported span (mm) past which a loaded horizontal panel sags visibly, from common workshop practice (about 50 x thickness for particle board and MDF). A workshop replaces them through libraries.materials.",
+  "_note": "Indicative sheets; maxSpan is the unsupported span (mm) past which a loaded horizontal panel sags visibly, from common workshop practice (about 50 x thickness for particle board and MDF). A workshop replaces them through libraries.materials. Glass and mirror (`outsourced`) are cut, polished and drilled by the glazier: no nesting, no banding, no CNC; the order is by area (`pricePerM2`). Tempered 6 mm glass shelves take about 800 mm between pins under light loads (display, not books).",
   "materials": [
     {
       "id": "melamine_18",
@@ -53,6 +53,31 @@
       "wasteFactor": 1.1,
       "maxSpan": 300,
       "supplier": "boards_supplier"
+    },
+    {
+      "id": "mirror_4",
+      "name": "Espejo 4 mm",
+      "nominalThickness": 4,
+      "actualThickness": 4,
+      "sheetLength": 3210,
+      "sheetWidth": 2250,
+      "grain": "none",
+      "density": 2500,
+      "supplier": "glass_supplier",
+      "outsourced": true
+    },
+    {
+      "id": "glass_6",
+      "name": "Vidrio templado 6 mm",
+      "nominalThickness": 6,
+      "actualThickness": 6,
+      "sheetLength": 3210,
+      "sheetWidth": 2250,
+      "grain": "none",
+      "density": 2500,
+      "supplier": "glass_supplier",
+      "outsourced": true,
+      "maxSpan": 800
     }
   ],
   "edgeMaterials": [

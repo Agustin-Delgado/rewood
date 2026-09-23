@@ -521,7 +521,13 @@ impl<'a> BuildCtx<'a> {
             length: init.length,
             width: init.width,
         };
-        if let Some(edge_id) = &self.spec.edge_material {
+        // Glass and mirror come polished from the supplier: no band.
+        let banding = self
+            .spec
+            .edge_material
+            .as_ref()
+            .filter(|_| !material.outsourced);
+        if let Some(edge_id) = banding {
             if let Some(edge) = self.libs.materials.edge(edge_id) {
                 for axis in init.banded_edges {
                     let face = init.placement.face_facing(*axis);
@@ -554,6 +560,7 @@ impl<'a> BuildCtx<'a> {
             placement: init.placement,
             aabb,
             operations: Vec::new(),
+            outsourced: material.outsourced,
             overlap_exempt: Vec::new(),
         });
         id
@@ -752,6 +759,7 @@ impl<'a> BuildCtx<'a> {
                     && d.hinge.as_ref().is_some_and(|s| {
                         s.mount == mount
                             && s.soft_close == soft
+                            && s.glass == spec.glass
                             && (s.opening - spec.opening).abs() < crate::units::EPS
                     })
             });

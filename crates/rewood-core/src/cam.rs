@@ -261,6 +261,10 @@ pub fn programs(
     profile: &ManufacturingProfile,
     diags: &mut Diagnostics,
 ) -> Vec<Program> {
+    // The glazier cuts and drills glass; the shop's CNC never sees it.
+    if part.outsourced {
+        return Vec::new();
+    }
     let (len, wid, t) = (part.dims.length, part.dims.width, part.dims.thickness);
     let nested = profile.workflow == Workflow::NestedRouter;
     // Band thickness on each edge: what the raw panel lacks there.
