@@ -172,6 +172,9 @@ pub struct HardwareDef {
     /// Hinges only: which door mount the arm is made for.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub hinge: Option<HingeSpec>,
+    /// Sinks only: how far the bowl hangs below the top.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sink: Option<SinkSpec>,
     /// Sliding door tracks only: lanes and the room they take.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sliding: Option<SlidingSpec>,
@@ -189,6 +192,10 @@ pub struct HardwareDef {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub max_load_kg: Option<f64>,
     pub holes: Vec<HoleSpec>,
+    /// Openings cut through the part it is fixed to (a sink, a drain, a
+    /// pipe passage), placed like holes on the face at the fixture point.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub cutouts: Vec<CutoutSpec>,
     #[serde(default)]
     pub bom_items: Vec<BomItem>,
     /// Supplier id (`libraries.suppliers`); empty = no supplier.
@@ -252,6 +259,30 @@ pub struct CatchSpec {
     pub push: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SinkSpec {
+    /// Depth of the bowl under the top (0 for a countertop basin).
+    pub below: f64,
+}
+
+/// An opening through a panel: `width` along the joint's axis, `height`
+/// across it on the face, centred at the fixture point plus the offsets.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct CutoutSpec {
+    pub label: String,
+    pub width: f64,
+    pub height: f64,
+    /// Corner radius; half the smaller side makes it round.
+    #[serde(default)]
+    pub radius: f64,
+    #[serde(default)]
+    pub offset_along: f64,
+    #[serde(default)]
+    pub offset_across: f64,
+}
+
 /// A double (or triple) track for sliding doors, screwed under the top and
 /// on the bottom inside the opening.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -306,6 +337,8 @@ impl HardwareDef {
                         | "strike"
                         | "sliding_roller"
                         | "sliding_guide"
+                        | "sink"
+                        | "passage"
                 )
             }
             JointKind::Row { .. } => matches!(self.kind.as_str(), "pin_row" | "track_screw"),
@@ -328,6 +361,8 @@ impl HardwareDef {
                     | "track_screw"
                     | "sliding_roller"
                     | "sliding_guide"
+                    | "sink"
+                    | "passage"
             ),
         }
     }

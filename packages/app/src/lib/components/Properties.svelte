@@ -64,6 +64,8 @@
 									Ø{op.diameter} {op.through ? 'pasante' : `×${op.depth}`} @ ({op.u}, {op.v})
 								{:else if op.type === 'GROOVE'}
 									{op.width}×{op.depth}
+								{:else if op.type === 'CUTOUT'}
+									recorte {op.width}×{op.height} r{op.radius} @ ({op.u}, {op.v})
 								{/if}
 							</td>
 						</tr>
@@ -120,6 +122,8 @@
 								Ø{op.diameter} {op.through ? 'pasante' : `×${op.depth}`} @ ({op.u}, {op.v})
 							{:else if op.type === 'GROOVE'}
 								{op.width}×{op.depth} ({op.from.join(',')})–({op.to.join(',')})
+							{:else if op.type === 'CUTOUT'}
+								recorte {op.width}×{op.height} r{op.radius} @ ({op.u}, {op.v})
 							{:else}
 								{op.material} {op.length} mm
 							{/if}

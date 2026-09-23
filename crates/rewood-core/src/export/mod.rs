@@ -257,6 +257,28 @@ pub fn operations_csv(plan: &ManufacturingPlan) -> String {
                     "false".into(),
                     source,
                 ],
+                // A cutout: centre in u/v, its width and height in the
+                // second pair, the corner radius as the "diameter".
+                OpGeometry::Cutout {
+                    u,
+                    v,
+                    width,
+                    height,
+                    radius,
+                } => vec![
+                    p.id.clone(),
+                    op.id.clone(),
+                    "CUTOUT".into(),
+                    face,
+                    n(*u),
+                    n(*v),
+                    n(*width),
+                    n(*height),
+                    n(*radius),
+                    String::new(),
+                    "true".into(),
+                    source,
+                ],
                 OpGeometry::EdgeBand {
                     material,
                     thickness,

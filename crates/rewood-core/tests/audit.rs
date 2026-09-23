@@ -780,6 +780,7 @@ fn variants() -> Vec<(String, String, Vec<&'static str>)> {
         "sideboard",
         "wardrobe_modules",
         "kitchen_corner",
+        "vanity",
         "wardrobe_sliding",
     ] {
         let path = format!(

@@ -222,6 +222,25 @@ pub fn part_dxf(part: &Part) -> String {
                     dxf.rect(&layer, x0 - half, y0, *width, y1 - y0);
                 }
             }
+            OpGeometry::Cutout {
+                u,
+                v,
+                width,
+                height,
+                radius,
+            } => {
+                // Through, so the same on either face: the finished opening.
+                let layer = "CUTOUT";
+                let round = (width - height).abs() < 1e-9 && (radius - width / 2.0).abs() < 1e-9;
+                if round {
+                    dxf.circle(layer, *u, *v, *radius);
+                } else {
+                    let path = crate::model::cutout_path(*u, *v, *width, *height, *radius, 0.0);
+                    for w in path.windows(2) {
+                        dxf.line(layer, w[0][0], w[0][1], w[1][0], w[1][1]);
+                    }
+                }
+            }
             OpGeometry::EdgeBand { thickness, .. } => {
                 let layer = format!("EDGE_BAND_{}", layer_num(*thickness));
                 let (x1, y1, x2, y2) = match op.face {

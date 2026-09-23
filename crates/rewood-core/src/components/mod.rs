@@ -11,6 +11,7 @@ mod modesty;
 mod panel;
 mod rail;
 mod shelves;
+mod sink;
 mod sliding;
 mod worktop;
 
@@ -165,6 +166,8 @@ pub enum OccupancyKind {
     Shelves,
     /// The hanging height under a rail.
     Rail,
+    /// The bowl of a sink under the top.
+    Sink,
 }
 
 /// A free-standing panel, for the worktop that rests on it.
@@ -936,6 +939,7 @@ impl<'a> BuildCtx<'a> {
             | ComponentSpec::Doors { carcass, .. }
             | ComponentSpec::Drawers { carcass, .. }
             | ComponentSpec::SlidingDoors { carcass, .. }
+            | ComponentSpec::Sink { carcass, .. }
             | ComponentSpec::Rail { carcass, .. } => match carcass {
                 Some(c) => off(c),
                 // The only carcass it would take is gone.
@@ -1158,6 +1162,7 @@ pub fn expand(ctx: &mut BuildCtx<'_>) {
             ComponentSpec::Panel { .. } => panel::build(ctx, component),
             ComponentSpec::Modesty { .. } => modesty::build(ctx, component),
             ComponentSpec::SlidingDoors { .. } => sliding::build(ctx, component),
+            ComponentSpec::Sink { .. } => sink::build(ctx, component),
         };
         if let Err(d) = result {
             ctx.diagnostics.push(d);

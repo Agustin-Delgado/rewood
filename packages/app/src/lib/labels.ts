@@ -14,7 +14,8 @@ const NOUN: Record<ComponentSpec['type'], string> = {
 	worktop: 'Tapa de trabajo',
 	panel: 'Panel',
 	modesty: 'Faldón',
-	sliding_doors: 'Puertas corredizas'
+	sliding_doors: 'Puertas corredizas',
+	sink: 'Bacha'
 };
 
 /**

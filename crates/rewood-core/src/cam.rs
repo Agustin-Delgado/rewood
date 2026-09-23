@@ -62,6 +62,15 @@ pub enum ToolOp {
     /// Outline of the blank (the cut size on a router), tool outside,
     /// climb, in passes.
     Contour { length: f64, width: f64, depth: f64 },
+    /// A through opening: the tool follows the outline from inside, in
+    /// passes, and the slug drops.
+    Cutout {
+        centre: [f64; 2],
+        width: f64,
+        height: f64,
+        radius: f64,
+        depth: f64,
+    },
     /// Horizontal drilling into an edge, from outside the part.
     HorizontalDrill {
         side: EdgeSide,
@@ -139,6 +148,19 @@ impl Program {
                     width: length,
                     depth,
                 },
+                ToolOp::Cutout {
+                    centre,
+                    width,
+                    height,
+                    radius,
+                    depth,
+                } => ToolOp::Cutout {
+                    centre: map(centre),
+                    width: height,
+                    height: width,
+                    radius,
+                    depth,
+                },
                 ToolOp::HorizontalDrill {
                     side,
                     along,
@@ -191,6 +213,23 @@ fn pick_end_mill(profile: &ManufacturingProfile, max_diameter: f64) -> Option<To
         .tools
         .iter()
         .filter(|t| t.kind == ToolKind::EndMill && t.diameter <= max_diameter + EPS)
+        .max_by(|a, b| a.diameter.partial_cmp(&b.diameter).unwrap())
+        .cloned()
+}
+
+/// The widest router bit that turns the corners of a cutout (its radius
+/// no more than theirs) and fits well inside it.
+fn pick_cutout_tool(
+    profile: &ManufacturingProfile,
+    width: f64,
+    height: f64,
+    radius: f64,
+) -> Option<ToolDef> {
+    profile
+        .tools
+        .iter()
+        .filter(|t| matches!(t.kind, ToolKind::CompressionBit | ToolKind::EndMill))
+        .filter(|t| t.diameter / 2.0 <= radius + EPS && t.diameter < width.min(height) - 2.0)
         .max_by(|a, b| a.diameter.partial_cmp(&b.diameter).unwrap())
         .cloned()
 }
@@ -391,6 +430,45 @@ pub fn programs(
                 });
             }
             OpGeometry::EdgeBand { .. } => {}
+            OpGeometry::Cutout {
+                u,
+                v,
+                width,
+                height,
+                radius,
+            } => {
+                let Some(tool) = pick_cutout_tool(profile, *width, *height, *radius) else {
+                    missing(
+                        diags,
+                        &op.id,
+                        format!(
+                            "no hay fresa de radio ≤ {} que entre en el recorte de {}×{}",
+                            round3(*radius),
+                            round3(*width),
+                            round3(*height)
+                        ),
+                    );
+                    continue;
+                };
+                // Through: from whichever face it is drawn on (the same
+                // opening seen from the other side).
+                let (prog, centre) = if op.face == Face::Back {
+                    (&mut b, back_xy(*u, *v))
+                } else {
+                    (&mut a, front_xy(*u, *v))
+                };
+                prog.operations.push(ToolOperation {
+                    tool,
+                    source,
+                    op: ToolOp::Cutout {
+                        centre,
+                        width: *width,
+                        height: *height,
+                        radius: *radius,
+                        depth: t + 0.5,
+                    },
+                });
+            }
         }
     }
 
@@ -614,6 +692,43 @@ impl GenericIso {
         out.push_str(&format!("G00 Z{}\n", fmt(self.safe_z)));
     }
 
+    #[allow(clippy::too_many_arguments)]
+    fn cutout(
+        &self,
+        out: &mut String,
+        tool: &ToolDef,
+        centre: [f64; 2],
+        size: [f64; 2],
+        radius: f64,
+        depth: f64,
+    ) {
+        // The outline from inside, one tool radius in, in passes.
+        let path = crate::model::cutout_path(
+            centre[0],
+            centre[1],
+            size[0],
+            size[1],
+            radius,
+            tool.diameter / 2.0,
+        );
+        let passes = (depth / tool.max_depth_per_pass).ceil().max(1.0) as usize;
+        out.push_str(&format!("G00 Z{}\n", fmt(self.clearance_z)));
+        out.push_str(&format!("G00 X{} Y{}\n", fmt(path[0][0]), fmt(path[0][1])));
+        for k in 1..=passes {
+            let z = -(depth * k as f64 / passes as f64);
+            out.push_str(&format!("G01 Z{} F{}\n", fmt(z), fmt(tool.feed_z)));
+            for p in path.iter().skip(1) {
+                out.push_str(&format!(
+                    "G01 X{} Y{} F{}\n",
+                    fmt(p[0]),
+                    fmt(p[1]),
+                    fmt(tool.feed_xy)
+                ));
+            }
+        }
+        out.push_str(&format!("G00 Z{}\n", fmt(self.safe_z)));
+    }
+
     fn horizontal_drill(
         &self,
         out: &mut String,
@@ -680,6 +795,13 @@ impl PostProcessor for GenericIso {
                     width,
                     depth,
                 } => self.contour(&mut out, &o.tool, length, width, depth),
+                ToolOp::Cutout {
+                    centre,
+                    width,
+                    height,
+                    radius,
+                    depth,
+                } => self.cutout(&mut out, &o.tool, centre, [width, height], radius, depth),
                 ToolOp::HorizontalDrill {
                     side,
                     along,

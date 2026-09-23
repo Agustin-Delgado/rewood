@@ -284,6 +284,22 @@ export interface SlidingDoorsSpec {
   edges?: EdgeBanding;
 }
 
+export interface SinkSpec {
+  type: 'sink';
+  id: string;
+  when?: NumOrExpr;
+  carcass?: string;
+  bay?: NumOrExpr;
+  /** `kind: sink` from the library. */
+  hardware: string[];
+  /** Basin centre back from the carcass front; default mid depth. */
+  fromFront?: NumOrExpr;
+  /** Sideways from the bay's middle. */
+  offset?: NumOrExpr;
+  /** An opening in the back for the pipes (`kind: passage`, default `pipe_passage`). */
+  passage?: { hardware?: string[]; height?: NumOrExpr };
+}
+
 export type ComponentSpec =
   | CarcassSpec
   | ShelvesSpec
@@ -293,7 +309,8 @@ export type ComponentSpec =
   | WorktopSpec
   | PanelSpec
   | ModestySpec
-  | SlidingDoorsSpec;
+  | SlidingDoorsSpec
+  | SinkSpec;
 
 /** A choice offered on a template, bound to a literal parameter. */
 export interface OptionSpec {
@@ -404,6 +421,10 @@ export interface HardwareDef {
   leg?: { height: number; baseDiameter: number };
   /** Sliding door tracks only: lanes, their pitch and the room the track takes. */
   sliding?: { lanes: number; lanePitch: number; frontInset: number; depth: number; bottomClearance: number; topClearance: number };
+  /** Sinks only: how far the bowl hangs under the top. */
+  sink?: { below: number };
+  /** Openings cut through the part the fixture sits on (a sink, a drain, a pipe passage). */
+  cutouts?: { label: string; width: number; height: number; radius?: number; offsetAlong?: number; offsetAcross?: number }[];
   /** Spacers only: how far it moves a slide (and an inner drawer) off the panel, mm. */
   spacer?: { thickness: number };
   holes: HoleSpec[];
@@ -423,7 +444,8 @@ export type OperationKind =
   | 'CONTOUR'
   | 'CHAMFER'
   | 'ROUND'
-  | 'EDGE_BAND';
+  | 'EDGE_BAND'
+  | 'CUTOUT';
 
 export type ToolKind = 'drill' | 'end_mill' | 'compression_bit';
 
@@ -574,7 +596,17 @@ export interface EdgeBandOperation extends OperationBase {
   length: number;
 }
 
-export type Operation = DrillOperation | GrooveOperation | EdgeBandOperation;
+/** A through opening centred on (u, v): `width` along u, `height` along v, corners rounded to `radius`. */
+export interface CutoutOperation extends OperationBase {
+  type: 'CUTOUT';
+  u: number;
+  v: number;
+  width: number;
+  height: number;
+  radius: number;
+}
+
+export type Operation = DrillOperation | GrooveOperation | EdgeBandOperation | CutoutOperation;
 
 export interface Part {
   id: string;

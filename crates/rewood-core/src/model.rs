@@ -33,6 +33,7 @@ pub enum OperationKind {
     Chamfer,
     Round,
     EdgeBand,
+    Cutout,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -70,6 +71,60 @@ pub enum OpGeometry {
         thickness: f64,
         length: f64,
     },
+    /// A through opening cut out of the panel: a rectangle `width` (along
+    /// u) by `height` (along v) centred on (u, v), its corners rounded to
+    /// `radius` (half the smaller side = a circle or a slot). A sink, a
+    /// drain, a pipe passage, a cable grommet.
+    #[serde(rename_all = "camelCase")]
+    Cutout {
+        u: f64,
+        v: f64,
+        width: f64,
+        height: f64,
+        radius: f64,
+    },
+}
+
+/// The outline of a cutout centred on (u, v), `inset` inside its edge (a
+/// tool's radius, for the path it follows): a closed polygon, the first
+/// point repeated at the end, counter-clockwise, each rounded corner in
+/// six segments. Rounded to thousandths, like the NC.
+pub fn cutout_path(
+    u: f64,
+    v: f64,
+    width: f64,
+    height: f64,
+    radius: f64,
+    inset: f64,
+) -> Vec<[f64; 2]> {
+    const CORNER_STEPS: usize = 6;
+    let hw = width / 2.0 - inset;
+    let hh = height / 2.0 - inset;
+    let r = (radius - inset).max(0.0).min(hw).min(hh);
+    let r3 = |x: f64| (x * 1000.0).round() / 1000.0 + 0.0;
+    let mut out = Vec::new();
+    // Corner centres, counter-clockwise from the upper right.
+    let corners = [
+        (hw - r, hh - r),
+        (-(hw - r), hh - r),
+        (-(hw - r), -(hh - r)),
+        (hw - r, -(hh - r)),
+    ];
+    for (k, (cx, cy)) in corners.iter().enumerate() {
+        if r <= 0.0 {
+            out.push([r3(u + cx), r3(v + cy)]);
+            continue;
+        }
+        for s in 0..=CORNER_STEPS {
+            let a = (k as f64 * 90.0 + s as f64 * 90.0 / CORNER_STEPS as f64).to_radians();
+            out.push([r3(u + cx + r * a.cos()), r3(v + cy + r * a.sin())]);
+        }
+    }
+    out.dedup();
+    if let Some(first) = out.first().copied() {
+        out.push(first);
+    }
+    out
 }
 
 impl OpGeometry {
@@ -78,6 +133,7 @@ impl OpGeometry {
             OpGeometry::Drill { .. } => OperationKind::Drill,
             OpGeometry::Groove { .. } => OperationKind::Groove,
             OpGeometry::EdgeBand { .. } => OperationKind::EdgeBand,
+            OpGeometry::Cutout { .. } => OperationKind::Cutout,
         }
     }
 }

@@ -447,6 +447,29 @@ pub enum ComponentSpec {
         #[serde(default)]
         edges: EdgeBanding,
     },
+    /// A sink on a carcass's top: the basin (`kind: sink` from the library)
+    /// cuts the top where it says, centred on the bay, and its bowl takes
+    /// the height it hangs into. `passage` opens the back for the pipes.
+    #[serde(rename_all = "camelCase")]
+    Sink {
+        id: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        when: Option<NumOrExpr>,
+        #[serde(default)]
+        carcass: Option<String>,
+        /// The bay it sits over; omitted = the only one.
+        #[serde(default)]
+        bay: Option<NumOrExpr>,
+        hardware: Vec<String>,
+        /// Basin centre back from the carcass front; default mid depth.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        from_front: Option<NumOrExpr>,
+        /// Sideways from the bay's middle, + to the right.
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        offset: Option<NumOrExpr>,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        passage: Option<PassageSpec>,
+    },
     /// `count` drawers stacked from the bottom of a carcass, each with an
     /// overlay front and a box (two sides, front, back, grooved bottom)
     /// running on side-mounted slides.
@@ -627,6 +650,22 @@ pub enum ComponentSpec {
     },
 }
 
+/// An opening in the back panel for the pipes, under a sink.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PassageSpec {
+    /// `kind: passage`; default `pipe_passage`.
+    #[serde(default = "default_passage")]
+    pub hardware: Vec<String>,
+    /// Centre above the carcass bottom; default half its height.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub height: Option<NumOrExpr>,
+}
+
+fn default_passage() -> Vec<String> {
+    vec!["pipe_passage".into()]
+}
+
 /// Which way a free-standing panel's inner face looks.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -726,6 +765,7 @@ impl ComponentSpec {
             ComponentSpec::Panel { .. } => "panel",
             ComponentSpec::Modesty { .. } => "modesty",
             ComponentSpec::SlidingDoors { .. } => "sliding_doors",
+            ComponentSpec::Sink { .. } => "sink",
         }
     }
 
@@ -740,7 +780,8 @@ impl ComponentSpec {
             | ComponentSpec::Worktop { when, .. }
             | ComponentSpec::Panel { when, .. }
             | ComponentSpec::Modesty { when, .. }
-            | ComponentSpec::SlidingDoors { when, .. } => when.as_ref(),
+            | ComponentSpec::SlidingDoors { when, .. }
+            | ComponentSpec::Sink { when, .. } => when.as_ref(),
         }
     }
 
@@ -751,6 +792,7 @@ impl ComponentSpec {
             | ComponentSpec::Doors { carcass, .. }
             | ComponentSpec::Drawers { carcass, .. }
             | ComponentSpec::SlidingDoors { carcass, .. }
+            | ComponentSpec::Sink { carcass, .. }
             | ComponentSpec::Rail { carcass, .. } => carcass.as_deref(),
             _ => None,
         }
@@ -859,7 +901,8 @@ impl ComponentSpec {
             | ComponentSpec::Worktop { id, .. }
             | ComponentSpec::Panel { id, .. }
             | ComponentSpec::Modesty { id, .. }
-            | ComponentSpec::SlidingDoors { id, .. } => id,
+            | ComponentSpec::SlidingDoors { id, .. }
+            | ComponentSpec::Sink { id, .. } => id,
         }
     }
 }

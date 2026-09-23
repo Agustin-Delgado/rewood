@@ -171,6 +171,9 @@
 			case 'sliding_doors':
 				c = { type: 'sliding_doors', id, count: 2 };
 				break;
+			case 'sink':
+				c = { type: 'sink', id, hardware: ['sink_inset_500x400'], passage: {} };
+				break;
 		}
 		app.spec.components.push(c);
 		app.touch();
@@ -196,7 +199,8 @@
 		worktop: 'tapa',
 		panel: 'lateral',
 		modesty: 'faldón',
-		sliding_doors: 'corredizas'
+		sliding_doors: 'corredizas',
+		sink: 'bacha'
 	};
 	let open: Record<string, boolean> = $state({});
 	// A finding clicked in the bottom panel unfolds its component.
@@ -270,6 +274,16 @@
 						<label class="row"><span>puertas</span><input value={show(c.count)} onchange={(e) => setField(c, 'count', e.currentTarget.value)} /></label>
 						<label class="row"><span>solape</span><input value={show(c.overlap ?? 30)} onchange={(e) => setField(c, 'overlap', e.currentTarget.value)} /></label>
 						<label class="row"><span>luz a los lados</span><input value={show(c.gap ?? 2)} onchange={(e) => setField(c, 'gap', e.currentTarget.value)} /></label>
+					{:else if c.type === 'sink'}
+						<label class="row"><span>carcasa</span><input placeholder="la única" value={c.carcass ?? ''} onchange={(e) => setText(c, 'carcass', e.currentTarget.value.trim(), true)} /></label>
+						<label class="row"><span>bahía</span><input placeholder="la única" value={show(c.bay)} onchange={(e) => setField(c, 'bay', e.currentTarget.value, true)} /></label>
+						<div class="row"><span>bacha</span>
+							<select value={c.hardware[0] ?? ''} onchange={(e) => { c.hardware = [e.currentTarget.value]; app.touch(); }}>
+								{#each byKind(['sink']) as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
+							</select>
+						</div>
+						<label class="row"><span>desde el frente</span><input placeholder="medio" value={show(c.fromFront)} onchange={(e) => setField(c, 'fromFront', e.currentTarget.value, true)} /></label>
+						<label class="row"><span>pase de caños</span><input type="checkbox" checked={!!c.passage} onchange={(e) => { if (e.currentTarget.checked) c.passage = {}; else delete c.passage; app.touch(); }} /></label>
 					{:else if c.type === 'modesty'}
 						<label class="row"><span>tapa</span><input placeholder="la única" value={c.worktop ?? ''} onchange={(e) => setText(c, 'worktop', e.currentTarget.value.trim(), true)} /></label>
 						<label class="row"><span>alto</span><input value={show(c.height ?? 300)} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
@@ -406,7 +420,7 @@
 					{#if c.type === 'carcass'}
 						<label class="row"><span>colgada</span><input type="checkbox" checked={!!c.hanging} onchange={(e) => { if (e.currentTarget.checked) { c.hanging = {}; delete c.legs; } else delete c.hanging; app.touch(); }} /></label>
 					{/if}
-					{#if c.type !== 'rail'}
+					{#if c.type !== 'rail' && c.type !== 'sink'}
 					<label class="row"><span>material</span>
 						<select value={c.material ?? ''} onchange={(e) => setText(c, 'material', e.currentTarget.value, true)}>
 							<option value="">— el del mueble —</option>
@@ -419,7 +433,7 @@
 						</select>
 					</label>
 					{/if}
-					{#if c.type !== 'doors' && c.type !== 'rail' && c.type !== 'worktop' && c.type !== 'sliding_doors' && !(c.type === 'shelves' && c.support === 'pins')}
+					{#if c.type !== 'doors' && c.type !== 'rail' && c.type !== 'worktop' && c.type !== 'sliding_doors' && c.type !== 'sink' && !(c.type === 'shelves' && c.support === 'pins')}
 						{@const hw = c.joint?.hardware ?? []}
 						<div class="row"><span>herrajes</span>
 							<span class="chips">
@@ -475,7 +489,7 @@
 	{/each}
 	<div class="add">
 		<select bind:value={newType}>
-			<option value="carcass">carcasa</option><option value="shelves">estantes</option><option value="doors">puertas</option><option value="drawers">cajones</option><option value="rail">barral</option><option value="worktop">tapa de trabajo</option><option value="panel">lateral de apoyo</option><option value="modesty">faldón</option><option value="sliding_doors">puertas corredizas</option>
+			<option value="carcass">carcasa</option><option value="shelves">estantes</option><option value="doors">puertas</option><option value="drawers">cajones</option><option value="rail">barral</option><option value="worktop">tapa de trabajo</option><option value="panel">lateral de apoyo</option><option value="modesty">faldón</option><option value="sliding_doors">puertas corredizas</option><option value="sink">bacha</option>
 		</select>
 		<button onclick={addComponent}>+ agregar</button>
 	</div>

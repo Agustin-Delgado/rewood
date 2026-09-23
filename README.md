@@ -307,6 +307,16 @@ dice dónde (`plan.parts[2].operations[1].u: 36 vs 34`).
   controlan cada una en su marco (`SPEC-213`), la bisagra `auto` busca el
   medio de su propia hilera, y una tapa no apoya sobre módulos girados
   (`SPEC-333`).
+- Bacha (`sink`): una bacha de la biblioteca (`kind: sink`) sobre la tapa
+  de una carcasa, centrada en su bahía (`bay`) y a media profundidad
+  (`fromFront`, `offset`). La bacha dice qué recortes le hace a la tapa
+  (`cutouts`: el cuenco de una de embutir, sólo el desagüe de una de apoyo)
+  y cuánto cuelga bajo la tapa (`sink.below`), que la bahía no puede usar
+  para otra cosa (`SPEC-210`). `passage: {}` abre el fondo para los caños
+  (`pipe_passage`, a media altura o en `height`). Un recorte que no entra en
+  la bahía con 45 mm a cada lado (ahí están los excéntricos de la tapa) es
+  `SPEC-336`. `fixtures/vanity`: vanitory colgante con bacha de embutir o de
+  apoyo.
 - Puertas corredizas (`sliding_doors`, `count` 2 a 4): cruzan toda la
   carcasa dentro del hueco, sobre un riel doble bajo la tapa y sobre la base
   (`track`, por metro, con su bloque `sliding`: carriles, paso, lo que ocupa
@@ -583,6 +593,9 @@ Todo de catálogo corriente (Häfele/Hettich/Blum genérico), en
   vale sólo para el herraje cuyos agujeros pasantes cruzan esa cantidad de
   placa. Así el tirador pide M4×25 en una puerta (18 mm) y M4×45 en un
   frente de cajón con su frente interior detrás (36 mm).
+- `sink_inset_500x400` (bacha de embutir, recorte 470×370 r30, cuelga 180),
+  `sink_vessel_400` (de apoyo, sólo el desagüe Ø45) y `pipe_passage`
+  (200×160 en el fondo): herrajes que recortan en vez de perforar.
 - `sliding_track_2` (riel doble por metro, `kind: sliding_track`),
   `track_screw`, `sliding_roller` (`maxLoadKg` por rueda) y
   `sliding_guide`: puertas corredizas.
@@ -611,7 +624,12 @@ sobre la pieza terminada. El `cnc/README.txt` del paquete dice cuál es.
 de canto salvo en el router, y el contorno en el router), **B** sólo si el
 dorso tiene mecanizados (pieza girada sobre su eje X: `(u, v)` del dorso →
 `(u, ancho − v)`) y **E** en el router. Origen en la esquina inferior
-izquierda, Z0 en la cara superior. La
+izquierda, Z0 en la cara superior. Un recorte pasante (`CUTOUT`: rectángulo
+con esquinas redondeadas o círculo) sale en la puesta de la cara donde se
+dibujó, con la fresa más ancha que dobla sus esquinas (radio ≤ el del
+recorte), por dentro del contorno, en pasadas hasta 0,5 mm más que el
+espesor; la simulación exige el contorno entero a la profundidad final y
+acepta la fresa dentro de ese corredor. En el DXF va en la capa `CUTOUT`. La
 herramienta sale de `profile.tools` (mecha por diámetro exacto, fresa ≤ ancho
 de ranura, la compresión más ancha para el contorno); lo que falta es
 `CAM-201`, y una perforación de canto sin taladro horizontal en el perfil es
@@ -693,13 +711,13 @@ deja generar el plan (`status: errors`); un `FATAL` lo bloquea
 
 | familia | qué cubre |
 |---|---|
-| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes; `002` más de 2000 piezas, que es una cantidad desbocada y no un mueble; `103` un `when` que no es condición; `302` ranura del fondo fuera de la pieza; `304` retiros o luces negativos; `318` más estantes sobre soportes que líneas libres en la grilla; `322/323` lateral o faldón sin medida o sin tapa, faldón con retiro negativo; `324` tirador en un cajón interior que no entra en su retiro; `330` reparto de herrajes con `maxSpacing` ≤ 0; `332` giro que no es de a 90°; `333` tapa sobre módulos girados; `334` frente fijo embutido, con tirador o cierre, o sin canto donde fijarse; `335` corredizas sin riel de la biblioteca, más gruesas que su carril o con divisores que llegan al frente; `501–503` opciones sobre un parámetro inexistente, sobre una fórmula, o con el valor fuera de cota); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo sin estantes (`212`; con estantes es una estantería a la vista a propósito, como una biblioteca con puertas abajo), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`), estantes que llegan al plano de una puerta embutida o corrediza (`215`), cajones interiores en el plano de una puerta embutida (`214`, con el retranqueo como arreglo) |
+| `SPEC-*` | la spec no se puede leer o no tiene sentido (versión, campos, componentes; `002` más de 2000 piezas, que es una cantidad desbocada y no un mueble; `103` un `when` que no es condición; `302` ranura del fondo fuera de la pieza; `304` retiros o luces negativos; `318` más estantes sobre soportes que líneas libres en la grilla; `322/323` lateral o faldón sin medida o sin tapa, faldón con retiro negativo; `324` tirador en un cajón interior que no entra en su retiro; `330` reparto de herrajes con `maxSpacing` ≤ 0; `332` giro que no es de a 90°; `333` tapa sobre módulos girados; `334` frente fijo embutido, con tirador o cierre, o sin canto donde fijarse; `336` bacha que no está en la biblioteca, sin tapa o fondo donde ir, o que no entra en su bahía; `335` corredizas sin riel de la biblioteca, más gruesas que su carril o con divisores que llegan al frente; `501–503` opciones sobre un parámetro inexistente, sobre una fórmula, o con el valor fuera de cota); `SPEC-21x` es la distribución dentro de la carcasa una vez expandidos todos los componentes: dos frentes (o cajones y estantes) sobre la misma altura de una bahía (`210`, error), una bahía vacía (`211`, info), una bahía con frentes que la dejan abierta en un tramo sin estantes (`212`; con estantes es una estantería a la vista a propósito, como una biblioteca con puertas abajo), módulos de una hilera que se pisan o dejan una rendija ≤ 50 mm (`213`), estantes que llegan al plano de una puerta embutida o corrediza (`215`), cajones interiores en el plano de una puerta embutida (`214`, con el retranqueo como arreglo) |
 | `PARAM-*` | ciclos o expresiones inválidas en parámetros (un resultado que no es un número finito, como la raíz de un negativo, es error; `and`/`or` cortan en el lado que decide; más de 64 niveles de anidamiento o 2000 símbolos no se aceptan) |
 | `LIB-*` | material, canto o herraje desconocido |
 | `CON-001` | una restricción declarada no se cumple |
 | `JOINT-*` | las piezas no se tocan, el tipo de contacto no está soportado, o el herraje no es del tipo de la unión (`JOINT-104`) |
 | `FAB-1xx` | geometría: piezas superpuestas (`101`); una pata que atraviesa una pieza u otra pata (`102`); una bisagra cuya base cae donde otra pieza toca el panel, o cuya cazoleta choca con algo detrás de la puerta, y que no encontró otra línea libre (`103`) |
-| `FAB-2xx` | mecanizado: perforación fuera de cara, distancia al borde, profundidad, cruces de perforaciones, ranura, mecha inexistente, operación no admitida, ranura que deja poco material (`208`), perforación que cae dentro de una ranura (`209`: el tarugo iría donde corre el fondo) |
+| `FAB-2xx` | mecanizado: perforación fuera de cara, distancia al borde, profundidad, cruces de perforaciones, ranura, mecha inexistente, operación no admitida, ranura que deja poco material (`208`), perforación que cae dentro de una ranura (`209`: el tarugo iría donde corre el fondo), recorte a menos de la distancia mínima del borde o que se lleva una perforación o una ranura (`210`) |
 | `FAB-3xx` | material/máquina: no sale de la placa (con el mismo margen que usa el nesting: una pieza que sólo entra en la placa pelada quedaría afuera de todo acomodo), excede el área de trabajo, espesor incompatible con el herraje |
 | `DESIGN-1xx` | lo que un carpintero diría antes de cortar; nunca bloquea. `101` luz de estantes, tapa y base mayor que `maxSpan` de la placa (pandeo; la tapa y la base miden la bahía más ancha, no la carcasa); `102` puerta de más de 600 o menos de 200 mm; `103` luz entre frentes menor a 1,5 mm; `104` frentes de cajón de menos de 100 mm o caja sin altura para la corredera; `105` cajón de más de 900 mm; `106` menos de 150 mm libres entre estantes; `107` carcasa sin fondo; `108` medidas que no parecen milímetros o profundidad de más de 1000; `109` sin canto (info a nivel mueble, aviso en frentes con `edges: none`); `110` manija pasada la mitad de la puerta, del lado de la bisagra; `111` carga: puerta más pesada que lo que aguantan sus bisagras, o cajón cuya caja más 10 kg de contenido supera la corredera (`maxLoadKg` del herraje; el peso sale de la densidad del material); `113` (info) medida escrita como número donde va un parámetro; `114` barral con menos de 900 mm libres debajo; `115` tapa de trabajo de más de 2400 o con más de 1200 de luz entre apoyos; `117` tapa sobre laterales sueltos sin faldón, o lateral que no sostiene nada; `116` cierres: push-open con cierre suave (lo anula) o con tirador (info), o dos puertas por bahía sin tapa ni base al borde de la zona donde apoyar el cierre; `118` una puerta abierta a 95° choca con un cajón abierto (sacado lo que da su corredera) o con otra puerta abierta, con el otro lado de bisagra como arreglo cuando la puerta está sola en su bahía, o con un frente que no se mueve (un frente fijo, o uno cerrado de la hilera de al lado en una L); vale en cualquier giro (los cajones interiores detrás de una puerta no: van sobre distanciadores; queda sólo si la biblioteca no tiene uno bastante grueso) |
 | `CAM-2xx` | sin herramienta para una ranura o el contorno; perforación de canto sin taladro horizontal |

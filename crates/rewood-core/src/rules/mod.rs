@@ -34,6 +34,7 @@ pub fn all_rules() -> Vec<Box<dyn Rule>> {
         Box::new(machining::HoleCollision),
         Box::new(machining::GrooveDepth),
         Box::new(machining::HoleThroughGroove),
+        Box::new(machining::CutoutPlacement),
         Box::new(machining::ToolAvailable),
         Box::new(machining::OperationAllowed),
         Box::new(material::PartFitsSheet),

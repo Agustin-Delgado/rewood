@@ -36,6 +36,7 @@ text{font-family:Helvetica,Arial,sans-serif;fill:#111}\
 .hole-back{fill:none;stroke:#06c;stroke-width:0.8;stroke-dasharray:3 2}\
 .edge-hole{stroke:#c00;stroke-width:1.2}\
 .groove{fill:#fde;stroke:#a06;stroke-width:0.6}\
+.cutout{fill:#fff;stroke:#a06;stroke-width:0.8;stroke-dasharray:3 2}\
 .band{stroke:#0a0;stroke-width:3}\
 .dim{stroke:#555;stroke-width:0.6}\
 .dimtext{font-size:9px;fill:#333;text-anchor:middle}\
@@ -224,6 +225,33 @@ pub fn part_drawing_svg(part: &Part) -> String {
                     n(from[1]),
                     n(to[0]),
                     n(to[1])
+                ));
+            }
+            OpGeometry::Cutout {
+                u,
+                v,
+                width,
+                height,
+                radius,
+            } => {
+                writeln!(
+                    s,
+                    "<rect class=\"cutout\" x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\"/>",
+                    n(x(u - width / 2.0)),
+                    n(y(v + height / 2.0)),
+                    n(width * scale),
+                    n(height * scale),
+                    n(radius * scale)
+                )
+                .unwrap();
+                holes_rows.push(format!(
+                    "{} | recorte pasante | {}×{} r {} | centro ({},{})",
+                    op.id,
+                    n(*width),
+                    n(*height),
+                    n(*radius),
+                    n(*u),
+                    n(*v)
                 ));
             }
             OpGeometry::EdgeBand { .. } => {

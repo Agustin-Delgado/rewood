@@ -1,8 +1,8 @@
 {
   "schemaVersion": "1.0",
   "furniture": {
-    "id": "bookcase_fixed",
-    "name": "Biblioteca 800×2000×300 con estante fijo",
+    "id": "vanity",
+    "name": "Vanitory colgante 800 con bacha de embutir",
     "version": "1.0"
   },
   "versions": {
@@ -210,10 +210,10 @@
   "status": "ok",
   "manufacturingBlocked": false,
   "parameters": {
-    "depth": 300.0,
-    "divider_z": 1000.0,
-    "doors": false,
-    "height": 2000.0,
+    "basin": 0.0,
+    "depth": 460.0,
+    "doors": 2.0,
+    "height": 500.0,
     "width": 800.0
   },
   "options": [
@@ -223,8 +223,8 @@
       "group": "Medidas",
       "kind": "number",
       "value": 800.0,
-      "min": 400.0,
-      "max": 1000.0,
+      "min": 600.0,
+      "max": 1200.0,
       "step": 10.0,
       "unit": "mm",
       "active": true
@@ -234,9 +234,9 @@
       "label": "Alto",
       "group": "Medidas",
       "kind": "number",
-      "value": 2000.0,
-      "min": 1600.0,
-      "max": 2400.0,
+      "value": 500.0,
+      "min": 400.0,
+      "max": 650.0,
       "step": 10.0,
       "unit": "mm",
       "active": true
@@ -246,47 +246,64 @@
       "label": "Profundidad",
       "group": "Medidas",
       "kind": "number",
-      "value": 300.0,
-      "min": 200.0,
-      "max": 450.0,
+      "value": 460.0,
+      "min": 420.0,
+      "max": 550.0,
       "step": 10.0,
       "unit": "mm",
       "active": true
     },
     {
-      "param": "divider_z",
-      "label": "Altura del estante fijo",
-      "group": "Interior",
-      "kind": "number",
-      "value": 1000.0,
-      "min": 600.0,
-      "max": 1400.0,
-      "step": 10.0,
-      "unit": "mm",
+      "param": "basin",
+      "label": "Bacha",
+      "group": "Bacha",
+      "kind": "choice",
+      "value": 0.0,
+      "choices": [
+        {
+          "value": 0.0,
+          "label": "de embutir"
+        },
+        {
+          "value": 1.0,
+          "label": "de apoyo"
+        }
+      ],
       "active": true
     },
     {
       "param": "doors",
-      "label": "Puertas abajo",
-      "group": "Interior",
-      "help": "Cierra con puertas el tramo bajo el estante fijo.",
-      "kind": "toggle",
-      "value": false,
+      "label": "Puertas",
+      "group": "Frente",
+      "help": "Más de 600 de ancho, dos.",
+      "kind": "choice",
+      "value": 2.0,
+      "choices": [
+        {
+          "value": 1.0,
+          "label": "una"
+        },
+        {
+          "value": 2.0,
+          "label": "dos"
+        }
+      ],
       "active": true
     }
   ],
   "inactive": [
-    "doors_low"
+    "sink_vessel"
   ],
   "derived": {
     "carcass.back_length": 779.0,
-    "carcass.back_width": 1979.0,
+    "carcass.back_width": 479.0,
     "carcass.bay_1_width": 764.0,
     "carcass.bay_width": 764.0,
     "carcass.bays": 1.0,
-    "carcass.depth": 300.0,
-    "carcass.height": 2000.0,
-    "carcass.inner_height": 1964.0,
+    "carcass.depth": 460.0,
+    "carcass.hangers": 2.0,
+    "carcass.height": 500.0,
+    "carcass.inner_height": 464.0,
     "carcass.inner_width": 764.0,
     "carcass.origin_x": 0.0,
     "carcass.origin_y": 0.0,
@@ -294,17 +311,10 @@
     "carcass.rotation": 0.0,
     "carcass.thickness": 18.0,
     "carcass.width": 800.0,
-    "divider.count": 1.0,
-    "divider.depth": 286.8,
-    "divider.length": 764.0,
-    "shelves_high.bay_height": 309.333,
-    "shelves_high.count": 2.0,
-    "shelves_high.depth": 266.8,
-    "shelves_high.length": 764.0,
-    "shelves_low.bay_height": 315.333,
-    "shelves_low.count": 2.0,
-    "shelves_low.depth": 266.8,
-    "shelves_low.length": 764.0
+    "doors.count": 2.0,
+    "doors.door_height": 496.0,
+    "doors.door_width": 397.0,
+    "sink_inset.below": 180.0
   },
   "parts": [
     {
@@ -314,13 +324,13 @@
       "role": "side_left",
       "material": "melamine_18",
       "dims": {
-        "length": 2000.0,
-        "width": 300.0,
+        "length": 500.0,
+        "width": 460.0,
         "thickness": 18.0
       },
       "cut": {
-        "length": 2000.0,
-        "width": 299.0
+        "length": 500.0,
+        "width": 459.0
       },
       "grain": "length",
       "edges": {
@@ -329,7 +339,7 @@
       "placement": {
         "origin": [
           0.0,
-          300.0,
+          460.0,
           0.0
         ],
         "x": "pos_z",
@@ -343,8 +353,8 @@
         ],
         "max": [
           18.0,
-          300.0,
-          2000.0
+          460.0,
+          500.0
         ]
       },
       "operations": [
@@ -354,11 +364,11 @@
           "type": "GROOVE",
           "from": [
             0.0,
-            288.4
+            448.4
           ],
           "to": [
-            2000.0,
-            288.4
+            500.0,
+            448.4
           ],
           "width": 3.2,
           "depth": 8.0
@@ -367,8 +377,8 @@
           "id": "P001-OP02",
           "face": "front",
           "type": "DRILL",
-          "u": 1991.0,
-          "v": 250.0,
+          "u": 491.0,
+          "v": 410.0,
           "diameter": 5.0,
           "depth": 11.5,
           "through": false,
@@ -383,7 +393,7 @@
           "id": "P001-OP03",
           "face": "front",
           "type": "DRILL",
-          "u": 1991.0,
+          "u": 491.0,
           "v": 50.0,
           "diameter": 5.0,
           "depth": 11.5,
@@ -399,8 +409,8 @@
           "id": "P001-OP04",
           "face": "front",
           "type": "DRILL",
-          "u": 1991.0,
-          "v": 180.0,
+          "u": 491.0,
+          "v": 340.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -415,7 +425,7 @@
           "id": "P001-OP05",
           "face": "front",
           "type": "DRILL",
-          "u": 1991.0,
+          "u": 491.0,
           "v": 120.0,
           "diameter": 8.0,
           "depth": 13.0,
@@ -432,7 +442,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 9.0,
-          "v": 250.0,
+          "v": 410.0,
           "diameter": 5.0,
           "depth": 11.5,
           "through": false,
@@ -464,7 +474,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 9.0,
-          "v": 180.0,
+          "v": 340.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -495,201 +505,121 @@
           "id": "P001-OP10",
           "face": "front",
           "type": "DRILL",
-          "u": 1009.0,
-          "v": 236.8,
-          "diameter": 5.0,
-          "depth": 11.5,
+          "u": 470.0,
+          "v": 406.8,
+          "diameter": 3.0,
+          "depth": 12.0,
           "through": false,
           "source": {
             "joint": "J005",
-            "hardware": "minifix_15",
+            "hardware": "cabinet_hanger",
             "fastener": 0,
-            "label": "bolt_thread"
+            "label": "screw_top"
           }
         },
         {
           "id": "P001-OP11",
           "face": "front",
           "type": "DRILL",
-          "u": 1009.0,
-          "v": 50.0,
-          "diameter": 5.0,
-          "depth": 11.5,
+          "u": 434.0,
+          "v": 406.8,
+          "diameter": 3.0,
+          "depth": 12.0,
           "through": false,
           "source": {
             "joint": "J005",
-            "hardware": "minifix_15",
-            "fastener": 1,
-            "label": "bolt_thread"
+            "hardware": "cabinet_hanger",
+            "fastener": 0,
+            "label": "screw_bottom"
           }
         },
         {
           "id": "P001-OP12",
           "face": "front",
           "type": "DRILL",
-          "u": 1009.0,
-          "v": 166.8,
-          "diameter": 8.0,
-          "depth": 13.0,
+          "u": 452.0,
+          "v": 384.8,
+          "diameter": 3.0,
+          "depth": 12.0,
           "through": false,
           "source": {
             "joint": "J005",
-            "hardware": "dowel_8x30",
+            "hardware": "cabinet_hanger",
             "fastener": 0,
-            "label": "dowel_face"
+            "label": "screw_front"
           }
         },
         {
           "id": "P001-OP13",
           "face": "front",
           "type": "DRILL",
-          "u": 1009.0,
-          "v": 120.0,
-          "diameter": 8.0,
-          "depth": 13.0,
+          "u": 133.0,
+          "v": 37.0,
+          "diameter": 5.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J005",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_face"
+            "joint": "J009",
+            "hardware": "hinge_35_overlay_soft",
+            "fastener": 0,
+            "label": "plate_a"
           }
         },
         {
           "id": "P001-OP14",
           "face": "front",
           "type": "DRILL",
-          "u": 342.333,
-          "v": 169.4,
-          "diameter": 8.0,
-          "depth": 13.0,
+          "u": 101.0,
+          "v": 37.0,
+          "diameter": 5.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J007",
-            "hardware": "dowel_8x30",
+            "joint": "J009",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 0,
-            "label": "dowel_face"
+            "label": "plate_b"
           }
         },
         {
           "id": "P001-OP15",
           "face": "front",
           "type": "DRILL",
-          "u": 342.333,
-          "v": 137.4,
-          "diameter": 8.0,
-          "depth": 13.0,
+          "u": 421.0,
+          "v": 37.0,
+          "diameter": 5.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J007",
-            "hardware": "dowel_8x30",
+            "joint": "J009",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 1,
-            "label": "dowel_face"
+            "label": "plate_a"
           }
         },
         {
           "id": "P001-OP16",
           "face": "front",
           "type": "DRILL",
-          "u": 675.667,
-          "v": 169.4,
-          "diameter": 8.0,
-          "depth": 13.0,
+          "u": 389.0,
+          "v": 37.0,
+          "diameter": 5.0,
+          "depth": 11.0,
           "through": false,
           "source": {
             "joint": "J009",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_face"
+            "hardware": "hinge_35_overlay_soft",
+            "fastener": 1,
+            "label": "plate_b"
           }
         },
         {
           "id": "P001-OP17",
-          "face": "front",
-          "type": "DRILL",
-          "u": 675.667,
-          "v": 137.4,
-          "diameter": 8.0,
-          "depth": 13.0,
-          "through": false,
-          "source": {
-            "joint": "J009",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_face"
-          }
-        },
-        {
-          "id": "P001-OP18",
-          "face": "front",
-          "type": "DRILL",
-          "u": 1336.333,
-          "v": 169.4,
-          "diameter": 8.0,
-          "depth": 13.0,
-          "through": false,
-          "source": {
-            "joint": "J011",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_face"
-          }
-        },
-        {
-          "id": "P001-OP19",
-          "face": "front",
-          "type": "DRILL",
-          "u": 1336.333,
-          "v": 137.4,
-          "diameter": 8.0,
-          "depth": 13.0,
-          "through": false,
-          "source": {
-            "joint": "J011",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_face"
-          }
-        },
-        {
-          "id": "P001-OP20",
-          "face": "front",
-          "type": "DRILL",
-          "u": 1663.667,
-          "v": 169.4,
-          "diameter": 8.0,
-          "depth": 13.0,
-          "through": false,
-          "source": {
-            "joint": "J013",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_face"
-          }
-        },
-        {
-          "id": "P001-OP21",
-          "face": "front",
-          "type": "DRILL",
-          "u": 1663.667,
-          "v": 137.4,
-          "diameter": 8.0,
-          "depth": 13.0,
-          "through": false,
-          "source": {
-            "joint": "J013",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_face"
-          }
-        },
-        {
-          "id": "P001-OP22",
           "face": "bottom",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 2000.0
+          "length": 500.0
         }
       ],
       "overlapExempt": [
@@ -703,13 +633,13 @@
       "role": "side_right",
       "material": "melamine_18",
       "dims": {
-        "length": 2000.0,
-        "width": 300.0,
+        "length": 500.0,
+        "width": 460.0,
         "thickness": 18.0
       },
       "cut": {
-        "length": 2000.0,
-        "width": 299.0
+        "length": 500.0,
+        "width": 459.0
       },
       "grain": "length",
       "edges": {
@@ -732,8 +662,8 @@
         ],
         "max": [
           800.0,
-          300.0,
-          2000.0
+          460.0,
+          500.0
         ]
       },
       "operations": [
@@ -746,7 +676,7 @@
             11.6
           ],
           "to": [
-            2000.0,
+            500.0,
             11.6
           ],
           "width": 3.2,
@@ -756,7 +686,7 @@
           "id": "P002-OP02",
           "face": "front",
           "type": "DRILL",
-          "u": 1991.0,
+          "u": 491.0,
           "v": 50.0,
           "diameter": 5.0,
           "depth": 11.5,
@@ -772,8 +702,8 @@
           "id": "P002-OP03",
           "face": "front",
           "type": "DRILL",
-          "u": 1991.0,
-          "v": 250.0,
+          "u": 491.0,
+          "v": 410.0,
           "diameter": 5.0,
           "depth": 11.5,
           "through": false,
@@ -788,7 +718,7 @@
           "id": "P002-OP04",
           "face": "front",
           "type": "DRILL",
-          "u": 1991.0,
+          "u": 491.0,
           "v": 120.0,
           "diameter": 8.0,
           "depth": 13.0,
@@ -804,8 +734,8 @@
           "id": "P002-OP05",
           "face": "front",
           "type": "DRILL",
-          "u": 1991.0,
-          "v": 180.0,
+          "u": 491.0,
+          "v": 340.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -837,7 +767,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 9.0,
-          "v": 250.0,
+          "v": 410.0,
           "diameter": 5.0,
           "depth": 11.5,
           "through": false,
@@ -869,7 +799,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 9.0,
-          "v": 180.0,
+          "v": 340.0,
           "diameter": 8.0,
           "depth": 13.0,
           "through": false,
@@ -884,201 +814,121 @@
           "id": "P002-OP10",
           "face": "front",
           "type": "DRILL",
-          "u": 1009.0,
-          "v": 63.2,
-          "diameter": 5.0,
-          "depth": 11.5,
+          "u": 470.0,
+          "v": 53.2,
+          "diameter": 3.0,
+          "depth": 12.0,
           "through": false,
           "source": {
             "joint": "J006",
-            "hardware": "minifix_15",
+            "hardware": "cabinet_hanger",
             "fastener": 0,
-            "label": "bolt_thread"
+            "label": "screw_top"
           }
         },
         {
           "id": "P002-OP11",
           "face": "front",
           "type": "DRILL",
-          "u": 1009.0,
-          "v": 250.0,
-          "diameter": 5.0,
-          "depth": 11.5,
+          "u": 434.0,
+          "v": 53.2,
+          "diameter": 3.0,
+          "depth": 12.0,
           "through": false,
           "source": {
             "joint": "J006",
-            "hardware": "minifix_15",
-            "fastener": 1,
-            "label": "bolt_thread"
+            "hardware": "cabinet_hanger",
+            "fastener": 0,
+            "label": "screw_bottom"
           }
         },
         {
           "id": "P002-OP12",
           "face": "front",
           "type": "DRILL",
-          "u": 1009.0,
-          "v": 133.2,
-          "diameter": 8.0,
-          "depth": 13.0,
+          "u": 452.0,
+          "v": 75.2,
+          "diameter": 3.0,
+          "depth": 12.0,
           "through": false,
           "source": {
             "joint": "J006",
-            "hardware": "dowel_8x30",
+            "hardware": "cabinet_hanger",
             "fastener": 0,
-            "label": "dowel_face"
+            "label": "screw_front"
           }
         },
         {
           "id": "P002-OP13",
           "face": "front",
           "type": "DRILL",
-          "u": 1009.0,
-          "v": 180.0,
-          "diameter": 8.0,
-          "depth": 13.0,
+          "u": 133.0,
+          "v": 423.0,
+          "diameter": 5.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J006",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_face"
+            "joint": "J011",
+            "hardware": "hinge_35_overlay_soft",
+            "fastener": 0,
+            "label": "plate_a"
           }
         },
         {
           "id": "P002-OP14",
           "face": "front",
           "type": "DRILL",
-          "u": 342.333,
-          "v": 130.6,
-          "diameter": 8.0,
-          "depth": 13.0,
+          "u": 101.0,
+          "v": 423.0,
+          "diameter": 5.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J008",
-            "hardware": "dowel_8x30",
+            "joint": "J011",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 0,
-            "label": "dowel_face"
+            "label": "plate_b"
           }
         },
         {
           "id": "P002-OP15",
           "face": "front",
           "type": "DRILL",
-          "u": 342.333,
-          "v": 162.6,
-          "diameter": 8.0,
-          "depth": 13.0,
+          "u": 421.0,
+          "v": 423.0,
+          "diameter": 5.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J008",
-            "hardware": "dowel_8x30",
+            "joint": "J011",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 1,
-            "label": "dowel_face"
+            "label": "plate_a"
           }
         },
         {
           "id": "P002-OP16",
           "face": "front",
           "type": "DRILL",
-          "u": 675.667,
-          "v": 130.6,
-          "diameter": 8.0,
-          "depth": 13.0,
+          "u": 389.0,
+          "v": 423.0,
+          "diameter": 5.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J010",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_face"
+            "joint": "J011",
+            "hardware": "hinge_35_overlay_soft",
+            "fastener": 1,
+            "label": "plate_b"
           }
         },
         {
           "id": "P002-OP17",
-          "face": "front",
-          "type": "DRILL",
-          "u": 675.667,
-          "v": 162.6,
-          "diameter": 8.0,
-          "depth": 13.0,
-          "through": false,
-          "source": {
-            "joint": "J010",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_face"
-          }
-        },
-        {
-          "id": "P002-OP18",
-          "face": "front",
-          "type": "DRILL",
-          "u": 1336.333,
-          "v": 130.6,
-          "diameter": 8.0,
-          "depth": 13.0,
-          "through": false,
-          "source": {
-            "joint": "J012",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_face"
-          }
-        },
-        {
-          "id": "P002-OP19",
-          "face": "front",
-          "type": "DRILL",
-          "u": 1336.333,
-          "v": 162.6,
-          "diameter": 8.0,
-          "depth": 13.0,
-          "through": false,
-          "source": {
-            "joint": "J012",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_face"
-          }
-        },
-        {
-          "id": "P002-OP20",
-          "face": "front",
-          "type": "DRILL",
-          "u": 1663.667,
-          "v": 130.6,
-          "diameter": 8.0,
-          "depth": 13.0,
-          "through": false,
-          "source": {
-            "joint": "J014",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_face"
-          }
-        },
-        {
-          "id": "P002-OP21",
-          "face": "front",
-          "type": "DRILL",
-          "u": 1663.667,
-          "v": 162.6,
-          "diameter": 8.0,
-          "depth": 13.0,
-          "through": false,
-          "source": {
-            "joint": "J014",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_face"
-          }
-        },
-        {
-          "id": "P002-OP22",
           "face": "top",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 2000.0
+          "length": 500.0
         }
       ],
       "overlapExempt": [
@@ -1093,12 +943,12 @@
       "material": "melamine_18",
       "dims": {
         "length": 764.0,
-        "width": 300.0,
+        "width": 460.0,
         "thickness": 18.0
       },
       "cut": {
         "length": 764.0,
-        "width": 299.0
+        "width": 459.0
       },
       "grain": "length",
       "edges": {
@@ -1107,8 +957,8 @@
       "placement": {
         "origin": [
           18.0,
-          300.0,
-          2000.0
+          460.0,
+          500.0
         ],
         "x": "pos_x",
         "y": "neg_y"
@@ -1117,12 +967,12 @@
         "min": [
           18.0,
           0.0,
-          1982.0
+          482.0
         ],
         "max": [
           782.0,
-          300.0,
-          2000.0
+          460.0,
+          500.0
         ]
       },
       "operations": [
@@ -1132,11 +982,11 @@
           "type": "GROOVE",
           "from": [
             0.0,
-            288.4
+            448.4
           ],
           "to": [
             764.0,
-            288.4
+            448.4
           ],
           "width": 3.2,
           "depth": 8.0
@@ -1146,7 +996,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 34.0,
-          "v": 250.0,
+          "v": 410.0,
           "diameter": 15.0,
           "depth": 12.5,
           "through": false,
@@ -1161,7 +1011,7 @@
           "id": "P003-OP03",
           "face": "left",
           "type": "DRILL",
-          "u": 250.0,
+          "u": 410.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 34.0,
@@ -1209,7 +1059,7 @@
           "id": "P003-OP06",
           "face": "left",
           "type": "DRILL",
-          "u": 180.0,
+          "u": 340.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1242,7 +1092,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 730.0,
-          "v": 250.0,
+          "v": 410.0,
           "diameter": 15.0,
           "depth": 12.5,
           "through": false,
@@ -1257,7 +1107,7 @@
           "id": "P003-OP09",
           "face": "right",
           "type": "DRILL",
-          "u": 250.0,
+          "u": 410.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 34.0,
@@ -1305,7 +1155,7 @@
           "id": "P003-OP12",
           "face": "right",
           "type": "DRILL",
-          "u": 180.0,
+          "u": 340.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1335,6 +1185,22 @@
         },
         {
           "id": "P003-OP14",
+          "face": "back",
+          "type": "CUTOUT",
+          "u": 382.0,
+          "v": 223.4,
+          "width": 470.0,
+          "height": 370.0,
+          "radius": 30.0,
+          "source": {
+            "joint": "J007",
+            "hardware": "sink_inset_500x400",
+            "fastener": 0,
+            "label": "bowl"
+          }
+        },
+        {
+          "id": "P003-OP15",
           "face": "bottom",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
@@ -1354,12 +1220,12 @@
       "material": "melamine_18",
       "dims": {
         "length": 764.0,
-        "width": 300.0,
+        "width": 460.0,
         "thickness": 18.0
       },
       "cut": {
         "length": 764.0,
-        "width": 299.0
+        "width": 459.0
       },
       "grain": "length",
       "edges": {
@@ -1382,7 +1248,7 @@
         ],
         "max": [
           782.0,
-          300.0,
+          460.0,
           18.0
         ]
       },
@@ -1439,7 +1305,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 34.0,
-          "v": 250.0,
+          "v": 410.0,
           "diameter": 15.0,
           "depth": 12.5,
           "through": false,
@@ -1454,7 +1320,7 @@
           "id": "P004-OP05",
           "face": "left",
           "type": "DRILL",
-          "u": 250.0,
+          "u": 410.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 34.0,
@@ -1486,7 +1352,7 @@
           "id": "P004-OP07",
           "face": "left",
           "type": "DRILL",
-          "u": 180.0,
+          "u": 340.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1535,7 +1401,7 @@
           "face": "front",
           "type": "DRILL",
           "u": 730.0,
-          "v": 250.0,
+          "v": 410.0,
           "diameter": 15.0,
           "depth": 12.5,
           "through": false,
@@ -1550,7 +1416,7 @@
           "id": "P004-OP11",
           "face": "right",
           "type": "DRILL",
-          "u": 250.0,
+          "u": 410.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 34.0,
@@ -1582,7 +1448,7 @@
           "id": "P004-OP13",
           "face": "right",
           "type": "DRILL",
-          "u": 180.0,
+          "u": 340.0,
           "v": 9.0,
           "diameter": 8.0,
           "depth": 18.0,
@@ -1615,12 +1481,12 @@
       "material": "hdf_3",
       "dims": {
         "length": 779.0,
-        "width": 1979.0,
+        "width": 479.0,
         "thickness": 3.0
       },
       "cut": {
         "length": 779.0,
-        "width": 1979.0
+        "width": 479.0
       },
       "grain": "none",
       "edges": {},
@@ -1642,10 +1508,27 @@
         "max": [
           789.5,
           13.1,
-          1989.5
+          489.5
         ]
       },
-      "operations": [],
+      "operations": [
+        {
+          "id": "P005-OP01",
+          "face": "back",
+          "type": "CUTOUT",
+          "u": 389.5,
+          "v": 239.5,
+          "width": 200.0,
+          "height": 160.0,
+          "radius": 30.0,
+          "source": {
+            "joint": "J008",
+            "hardware": "pipe_passage",
+            "fastener": 0,
+            "label": "passage"
+          }
+        }
+      ],
       "overlapExempt": [
         "P001",
         "P002",
@@ -1655,42 +1538,45 @@
     },
     {
       "id": "P006",
-      "name": "Estante fijo 1",
-      "component": "divider",
-      "role": "fixed_shelf_1",
+      "name": "Puerta 1",
+      "component": "doors",
+      "role": "door_1",
       "material": "melamine_18",
       "dims": {
-        "length": 764.0,
-        "width": 286.8,
+        "length": 496.0,
+        "width": 397.0,
         "thickness": 18.0
       },
       "cut": {
-        "length": 764.0,
-        "width": 285.8
+        "length": 494.0,
+        "width": 395.0
       },
       "grain": "length",
       "edges": {
+        "left": "abs_1mm",
+        "right": "abs_1mm",
+        "bottom": "abs_1mm",
         "top": "abs_1mm"
       },
       "placement": {
         "origin": [
-          18.0,
-          13.2,
-          1000.0
+          399.0,
+          478.0,
+          2.0
         ],
-        "x": "pos_x",
-        "y": "pos_y"
+        "x": "pos_z",
+        "y": "neg_x"
       },
       "aabb": {
         "min": [
-          18.0,
-          13.2,
-          1000.0
+          2.0,
+          460.0,
+          2.0
         ],
         "max": [
-          782.0,
-          300.0,
-          1018.0
+          399.0,
+          478.0,
+          498.0
         ]
       },
       "operations": [
@@ -1698,661 +1584,367 @@
           "id": "P006-OP01",
           "face": "front",
           "type": "DRILL",
-          "u": 34.0,
-          "v": 50.0,
-          "diameter": 15.0,
+          "u": 115.0,
+          "v": 374.5,
+          "diameter": 35.0,
           "depth": 12.5,
           "through": false,
           "source": {
-            "joint": "J005",
-            "hardware": "minifix_15",
+            "joint": "J009",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 0,
-            "label": "cam"
+            "label": "cup"
           }
         },
         {
           "id": "P006-OP02",
-          "face": "left",
+          "face": "front",
           "type": "DRILL",
-          "u": 50.0,
-          "v": 9.0,
+          "u": 137.5,
+          "v": 365.0,
           "diameter": 8.0,
-          "depth": 34.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J005",
-            "hardware": "minifix_15",
+            "joint": "J009",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 0,
-            "label": "bolt"
+            "label": "cup_pilot_a"
           }
         },
         {
           "id": "P006-OP03",
           "face": "front",
           "type": "DRILL",
-          "u": 34.0,
-          "v": 236.8,
-          "diameter": 15.0,
-          "depth": 12.5,
+          "u": 92.5,
+          "v": 365.0,
+          "diameter": 8.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J005",
-            "hardware": "minifix_15",
-            "fastener": 1,
-            "label": "cam"
+            "joint": "J009",
+            "hardware": "hinge_35_overlay_soft",
+            "fastener": 0,
+            "label": "cup_pilot_b"
           }
         },
         {
           "id": "P006-OP04",
-          "face": "left",
+          "face": "front",
           "type": "DRILL",
-          "u": 236.8,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 34.0,
+          "u": 403.0,
+          "v": 374.5,
+          "diameter": 35.0,
+          "depth": 12.5,
           "through": false,
           "source": {
-            "joint": "J005",
-            "hardware": "minifix_15",
+            "joint": "J009",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 1,
-            "label": "bolt"
+            "label": "cup"
           }
         },
         {
           "id": "P006-OP05",
-          "face": "left",
+          "face": "front",
           "type": "DRILL",
-          "u": 120.0,
-          "v": 9.0,
+          "u": 425.5,
+          "v": 365.0,
           "diameter": 8.0,
-          "depth": 18.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J005",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_edge"
+            "joint": "J009",
+            "hardware": "hinge_35_overlay_soft",
+            "fastener": 1,
+            "label": "cup_pilot_a"
           }
         },
         {
           "id": "P006-OP06",
-          "face": "left",
+          "face": "front",
           "type": "DRILL",
-          "u": 166.8,
-          "v": 9.0,
+          "u": 380.5,
+          "v": 365.0,
           "diameter": 8.0,
-          "depth": 18.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J005",
-            "hardware": "dowel_8x30",
+            "joint": "J009",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 1,
-            "label": "dowel_edge"
+            "label": "cup_pilot_b"
           }
         },
         {
           "id": "P006-OP07",
           "face": "front",
           "type": "DRILL",
-          "u": 730.0,
-          "v": 50.0,
-          "diameter": 15.0,
-          "depth": 12.5,
-          "through": false,
+          "u": 312.0,
+          "v": 40.0,
+          "diameter": 4.5,
+          "depth": null,
+          "through": true,
           "source": {
-            "joint": "J006",
-            "hardware": "minifix_15",
+            "joint": "J010",
+            "hardware": "handle_bar_128",
             "fastener": 0,
-            "label": "cam"
+            "label": "screw_a"
           }
         },
         {
           "id": "P006-OP08",
-          "face": "right",
+          "face": "front",
           "type": "DRILL",
-          "u": 50.0,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 34.0,
-          "through": false,
+          "u": 184.0,
+          "v": 40.0,
+          "diameter": 4.5,
+          "depth": null,
+          "through": true,
           "source": {
-            "joint": "J006",
-            "hardware": "minifix_15",
+            "joint": "J010",
+            "hardware": "handle_bar_128",
             "fastener": 0,
-            "label": "bolt"
+            "label": "screw_b"
           }
         },
         {
           "id": "P006-OP09",
-          "face": "front",
-          "type": "DRILL",
-          "u": 730.0,
-          "v": 236.8,
-          "diameter": 15.0,
-          "depth": 12.5,
-          "through": false,
-          "source": {
-            "joint": "J006",
-            "hardware": "minifix_15",
-            "fastener": 1,
-            "label": "cam"
-          }
+          "face": "left",
+          "type": "EDGE_BAND",
+          "material": "abs_1mm",
+          "thickness": 1.0,
+          "length": 397.0
         },
         {
           "id": "P006-OP10",
           "face": "right",
-          "type": "DRILL",
-          "u": 236.8,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 34.0,
-          "through": false,
-          "source": {
-            "joint": "J006",
-            "hardware": "minifix_15",
-            "fastener": 1,
-            "label": "bolt"
-          }
+          "type": "EDGE_BAND",
+          "material": "abs_1mm",
+          "thickness": 1.0,
+          "length": 397.0
         },
         {
           "id": "P006-OP11",
-          "face": "right",
-          "type": "DRILL",
-          "u": 120.0,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
-          "source": {
-            "joint": "J006",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_edge"
-          }
+          "face": "bottom",
+          "type": "EDGE_BAND",
+          "material": "abs_1mm",
+          "thickness": 1.0,
+          "length": 496.0
         },
         {
           "id": "P006-OP12",
-          "face": "right",
-          "type": "DRILL",
-          "u": 166.8,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
-          "source": {
-            "joint": "J006",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_edge"
-          }
-        },
-        {
-          "id": "P006-OP13",
           "face": "top",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 764.0
+          "length": 496.0
         }
       ]
     },
     {
       "id": "P007",
-      "name": "Estante 1 (shelves_low)",
-      "component": "shelves_low",
-      "role": "shelf_1",
+      "name": "Puerta 2",
+      "component": "doors",
+      "role": "door_2",
       "material": "melamine_18",
       "dims": {
-        "length": 764.0,
-        "width": 266.8,
+        "length": 496.0,
+        "width": 397.0,
         "thickness": 18.0
       },
       "cut": {
-        "length": 764.0,
-        "width": 265.8
+        "length": 494.0,
+        "width": 395.0
       },
       "grain": "length",
       "edges": {
+        "left": "abs_1mm",
+        "right": "abs_1mm",
+        "bottom": "abs_1mm",
         "top": "abs_1mm"
       },
       "placement": {
         "origin": [
-          18.0,
-          13.2,
-          333.333
+          798.0,
+          478.0,
+          2.0
         ],
-        "x": "pos_x",
-        "y": "pos_y"
+        "x": "pos_z",
+        "y": "neg_x"
       },
       "aabb": {
         "min": [
-          18.0,
-          13.2,
-          333.333
+          401.0,
+          460.0,
+          2.0
         ],
         "max": [
-          782.0,
-          280.0,
-          351.333
+          798.0,
+          478.0,
+          498.0
         ]
       },
       "operations": [
         {
           "id": "P007-OP01",
-          "face": "left",
+          "face": "front",
           "type": "DRILL",
-          "u": 117.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
+          "u": 115.0,
+          "v": 22.5,
+          "diameter": 35.0,
+          "depth": 12.5,
           "through": false,
           "source": {
-            "joint": "J007",
-            "hardware": "dowel_8x30",
+            "joint": "J011",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 0,
-            "label": "dowel_edge"
+            "label": "cup"
           }
         },
         {
           "id": "P007-OP02",
-          "face": "left",
+          "face": "front",
           "type": "DRILL",
-          "u": 149.4,
-          "v": 9.0,
+          "u": 137.5,
+          "v": 32.0,
           "diameter": 8.0,
-          "depth": 18.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J007",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_edge"
+            "joint": "J011",
+            "hardware": "hinge_35_overlay_soft",
+            "fastener": 0,
+            "label": "cup_pilot_a"
           }
         },
         {
           "id": "P007-OP03",
-          "face": "right",
+          "face": "front",
           "type": "DRILL",
-          "u": 117.4,
-          "v": 9.0,
+          "u": 92.5,
+          "v": 32.0,
           "diameter": 8.0,
-          "depth": 18.0,
+          "depth": 11.0,
           "through": false,
           "source": {
-            "joint": "J008",
-            "hardware": "dowel_8x30",
+            "joint": "J011",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 0,
-            "label": "dowel_edge"
+            "label": "cup_pilot_b"
           }
         },
         {
           "id": "P007-OP04",
-          "face": "right",
+          "face": "front",
           "type": "DRILL",
-          "u": 149.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
+          "u": 403.0,
+          "v": 22.5,
+          "diameter": 35.0,
+          "depth": 12.5,
           "through": false,
           "source": {
-            "joint": "J008",
-            "hardware": "dowel_8x30",
+            "joint": "J011",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 1,
-            "label": "dowel_edge"
+            "label": "cup"
           }
         },
         {
           "id": "P007-OP05",
-          "face": "top",
-          "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
-          "length": 764.0
-        }
-      ]
-    },
-    {
-      "id": "P008",
-      "name": "Estante 2 (shelves_low)",
-      "component": "shelves_low",
-      "role": "shelf_2",
-      "material": "melamine_18",
-      "dims": {
-        "length": 764.0,
-        "width": 266.8,
-        "thickness": 18.0
-      },
-      "cut": {
-        "length": 764.0,
-        "width": 265.8
-      },
-      "grain": "length",
-      "edges": {
-        "top": "abs_1mm"
-      },
-      "placement": {
-        "origin": [
-          18.0,
-          13.2,
-          666.667
-        ],
-        "x": "pos_x",
-        "y": "pos_y"
-      },
-      "aabb": {
-        "min": [
-          18.0,
-          13.2,
-          666.667
-        ],
-        "max": [
-          782.0,
-          280.0,
-          684.667
-        ]
-      },
-      "operations": [
-        {
-          "id": "P008-OP01",
-          "face": "left",
+          "face": "front",
           "type": "DRILL",
-          "u": 117.4,
-          "v": 9.0,
+          "u": 425.5,
+          "v": 32.0,
           "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
-          "source": {
-            "joint": "J009",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_edge"
-          }
-        },
-        {
-          "id": "P008-OP02",
-          "face": "left",
-          "type": "DRILL",
-          "u": 149.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
-          "source": {
-            "joint": "J009",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_edge"
-          }
-        },
-        {
-          "id": "P008-OP03",
-          "face": "right",
-          "type": "DRILL",
-          "u": 117.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
-          "source": {
-            "joint": "J010",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_edge"
-          }
-        },
-        {
-          "id": "P008-OP04",
-          "face": "right",
-          "type": "DRILL",
-          "u": 149.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
-          "source": {
-            "joint": "J010",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_edge"
-          }
-        },
-        {
-          "id": "P008-OP05",
-          "face": "top",
-          "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
-          "length": 764.0
-        }
-      ]
-    },
-    {
-      "id": "P009",
-      "name": "Estante 1 (shelves_high)",
-      "component": "shelves_high",
-      "role": "shelf_1",
-      "material": "melamine_18",
-      "dims": {
-        "length": 764.0,
-        "width": 266.8,
-        "thickness": 18.0
-      },
-      "cut": {
-        "length": 764.0,
-        "width": 265.8
-      },
-      "grain": "length",
-      "edges": {
-        "top": "abs_1mm"
-      },
-      "placement": {
-        "origin": [
-          18.0,
-          13.2,
-          1327.333
-        ],
-        "x": "pos_x",
-        "y": "pos_y"
-      },
-      "aabb": {
-        "min": [
-          18.0,
-          13.2,
-          1327.333
-        ],
-        "max": [
-          782.0,
-          280.0,
-          1345.333
-        ]
-      },
-      "operations": [
-        {
-          "id": "P009-OP01",
-          "face": "left",
-          "type": "DRILL",
-          "u": 117.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
+          "depth": 11.0,
           "through": false,
           "source": {
             "joint": "J011",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_edge"
+            "hardware": "hinge_35_overlay_soft",
+            "fastener": 1,
+            "label": "cup_pilot_a"
           }
         },
         {
-          "id": "P009-OP02",
-          "face": "left",
+          "id": "P007-OP06",
+          "face": "front",
           "type": "DRILL",
-          "u": 149.4,
-          "v": 9.0,
+          "u": 380.5,
+          "v": 32.0,
           "diameter": 8.0,
-          "depth": 18.0,
+          "depth": 11.0,
           "through": false,
           "source": {
             "joint": "J011",
-            "hardware": "dowel_8x30",
+            "hardware": "hinge_35_overlay_soft",
             "fastener": 1,
-            "label": "dowel_edge"
+            "label": "cup_pilot_b"
           }
         },
         {
-          "id": "P009-OP03",
-          "face": "right",
+          "id": "P007-OP07",
+          "face": "front",
           "type": "DRILL",
-          "u": 117.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
+          "u": 312.0,
+          "v": 357.0,
+          "diameter": 4.5,
+          "depth": null,
+          "through": true,
           "source": {
             "joint": "J012",
-            "hardware": "dowel_8x30",
+            "hardware": "handle_bar_128",
             "fastener": 0,
-            "label": "dowel_edge"
+            "label": "screw_a"
           }
         },
         {
-          "id": "P009-OP04",
-          "face": "right",
+          "id": "P007-OP08",
+          "face": "front",
           "type": "DRILL",
-          "u": 149.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
+          "u": 184.0,
+          "v": 357.0,
+          "diameter": 4.5,
+          "depth": null,
+          "through": true,
           "source": {
             "joint": "J012",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_edge"
+            "hardware": "handle_bar_128",
+            "fastener": 0,
+            "label": "screw_b"
           }
         },
         {
-          "id": "P009-OP05",
+          "id": "P007-OP09",
+          "face": "left",
+          "type": "EDGE_BAND",
+          "material": "abs_1mm",
+          "thickness": 1.0,
+          "length": 397.0
+        },
+        {
+          "id": "P007-OP10",
+          "face": "right",
+          "type": "EDGE_BAND",
+          "material": "abs_1mm",
+          "thickness": 1.0,
+          "length": 397.0
+        },
+        {
+          "id": "P007-OP11",
+          "face": "bottom",
+          "type": "EDGE_BAND",
+          "material": "abs_1mm",
+          "thickness": 1.0,
+          "length": 496.0
+        },
+        {
+          "id": "P007-OP12",
           "face": "top",
           "type": "EDGE_BAND",
           "material": "abs_1mm",
           "thickness": 1.0,
-          "length": 764.0
-        }
-      ]
-    },
-    {
-      "id": "P010",
-      "name": "Estante 2 (shelves_high)",
-      "component": "shelves_high",
-      "role": "shelf_2",
-      "material": "melamine_18",
-      "dims": {
-        "length": 764.0,
-        "width": 266.8,
-        "thickness": 18.0
-      },
-      "cut": {
-        "length": 764.0,
-        "width": 265.8
-      },
-      "grain": "length",
-      "edges": {
-        "top": "abs_1mm"
-      },
-      "placement": {
-        "origin": [
-          18.0,
-          13.2,
-          1654.667
-        ],
-        "x": "pos_x",
-        "y": "pos_y"
-      },
-      "aabb": {
-        "min": [
-          18.0,
-          13.2,
-          1654.667
-        ],
-        "max": [
-          782.0,
-          280.0,
-          1672.667
-        ]
-      },
-      "operations": [
-        {
-          "id": "P010-OP01",
-          "face": "left",
-          "type": "DRILL",
-          "u": 117.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
-          "source": {
-            "joint": "J013",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_edge"
-          }
-        },
-        {
-          "id": "P010-OP02",
-          "face": "left",
-          "type": "DRILL",
-          "u": 149.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
-          "source": {
-            "joint": "J013",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_edge"
-          }
-        },
-        {
-          "id": "P010-OP03",
-          "face": "right",
-          "type": "DRILL",
-          "u": 117.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
-          "source": {
-            "joint": "J014",
-            "hardware": "dowel_8x30",
-            "fastener": 0,
-            "label": "dowel_edge"
-          }
-        },
-        {
-          "id": "P010-OP04",
-          "face": "right",
-          "type": "DRILL",
-          "u": 149.4,
-          "v": 9.0,
-          "diameter": 8.0,
-          "depth": 18.0,
-          "through": false,
-          "source": {
-            "joint": "J014",
-            "hardware": "dowel_8x30",
-            "fastener": 1,
-            "label": "dowel_edge"
-          }
-        },
-        {
-          "id": "P010-OP05",
-          "face": "top",
-          "type": "EDGE_BAND",
-          "material": "abs_1mm",
-          "thickness": 1.0,
-          "length": 764.0
+          "length": 496.0
         }
       ]
     }
@@ -2372,16 +1964,16 @@
         "min": [
           18.0,
           0.0,
-          1982.0
+          482.0
         ],
         "max": [
           18.0,
-          300.0,
-          2000.0
+          460.0,
+          500.0
         ]
       },
       "axis": "pos_y",
-      "length": 300.0,
+      "length": 460.0,
       "fasteners": [
         {
           "hardware": "minifix_15",
@@ -2389,7 +1981,7 @@
           "position": [
             18.0,
             50.0,
-            1991.0
+            491.0
           ]
         },
         {
@@ -2397,8 +1989,8 @@
           "index": 1,
           "position": [
             18.0,
-            250.0,
-            1991.0
+            410.0,
+            491.0
           ]
         },
         {
@@ -2407,7 +1999,7 @@
           "position": [
             18.0,
             120.0,
-            1991.0
+            491.0
           ]
         },
         {
@@ -2415,8 +2007,8 @@
           "index": 1,
           "position": [
             18.0,
-            180.0,
-            1991.0
+            340.0,
+            491.0
           ]
         }
       ]
@@ -2435,16 +2027,16 @@
         "min": [
           782.0,
           0.0,
-          1982.0
+          482.0
         ],
         "max": [
           782.0,
-          300.0,
-          2000.0
+          460.0,
+          500.0
         ]
       },
       "axis": "pos_y",
-      "length": 300.0,
+      "length": 460.0,
       "fasteners": [
         {
           "hardware": "minifix_15",
@@ -2452,7 +2044,7 @@
           "position": [
             782.0,
             50.0,
-            1991.0
+            491.0
           ]
         },
         {
@@ -2460,8 +2052,8 @@
           "index": 1,
           "position": [
             782.0,
-            250.0,
-            1991.0
+            410.0,
+            491.0
           ]
         },
         {
@@ -2470,7 +2062,7 @@
           "position": [
             782.0,
             120.0,
-            1991.0
+            491.0
           ]
         },
         {
@@ -2478,8 +2070,8 @@
           "index": 1,
           "position": [
             782.0,
-            180.0,
-            1991.0
+            340.0,
+            491.0
           ]
         }
       ]
@@ -2502,12 +2094,12 @@
         ],
         "max": [
           18.0,
-          300.0,
+          460.0,
           18.0
         ]
       },
       "axis": "pos_y",
-      "length": 300.0,
+      "length": 460.0,
       "fasteners": [
         {
           "hardware": "minifix_15",
@@ -2523,7 +2115,7 @@
           "index": 1,
           "position": [
             18.0,
-            250.0,
+            410.0,
             9.0
           ]
         },
@@ -2541,7 +2133,7 @@
           "index": 1,
           "position": [
             18.0,
-            180.0,
+            340.0,
             9.0
           ]
         }
@@ -2565,12 +2157,12 @@
         ],
         "max": [
           782.0,
-          300.0,
+          460.0,
           18.0
         ]
       },
       "axis": "pos_y",
-      "length": 300.0,
+      "length": 460.0,
       "fasteners": [
         {
           "hardware": "minifix_15",
@@ -2586,7 +2178,7 @@
           "index": 1,
           "position": [
             782.0,
-            250.0,
+            410.0,
             9.0
           ]
         },
@@ -2604,7 +2196,7 @@
           "index": 1,
           "position": [
             782.0,
-            180.0,
+            340.0,
             9.0
           ]
         }
@@ -2612,478 +2204,298 @@
     },
     {
       "id": "J005",
-      "kind": "butt",
-      "component": "divider",
-      "edgePart": "P006",
+      "kind": "fixture",
+      "component": "carcass",
+      "edgePart": "P001",
       "facePart": "P001",
       "hardware": [
-        "minifix_15",
-        "dowel_8x30"
+        "cabinet_hanger"
       ],
       "contact": {
         "min": [
           18.0,
-          13.2,
-          1000.0
+          53.2,
+          452.0
         ],
         "max": [
           18.0,
-          300.0,
-          1018.0
+          53.2,
+          452.0
         ]
       },
-      "axis": "pos_y",
-      "length": 286.8,
+      "axis": "pos_z",
+      "length": 0.0,
       "fasteners": [
         {
-          "hardware": "minifix_15",
+          "hardware": "cabinet_hanger",
           "index": 0,
           "position": [
             18.0,
-            63.2,
-            1009.0
-          ]
-        },
-        {
-          "hardware": "minifix_15",
-          "index": 1,
-          "position": [
-            18.0,
-            250.0,
-            1009.0
-          ]
-        },
-        {
-          "hardware": "dowel_8x30",
-          "index": 0,
-          "position": [
-            18.0,
-            133.2,
-            1009.0
-          ]
-        },
-        {
-          "hardware": "dowel_8x30",
-          "index": 1,
-          "position": [
-            18.0,
-            180.0,
-            1009.0
+            53.2,
+            452.0
           ]
         }
       ]
     },
     {
       "id": "J006",
-      "kind": "butt",
-      "component": "divider",
-      "edgePart": "P006",
+      "kind": "fixture",
+      "component": "carcass",
+      "edgePart": "P002",
       "facePart": "P002",
       "hardware": [
-        "minifix_15",
-        "dowel_8x30"
+        "cabinet_hanger"
       ],
       "contact": {
         "min": [
           782.0,
-          13.2,
-          1000.0
+          53.2,
+          452.0
         ],
         "max": [
           782.0,
-          300.0,
-          1018.0
+          53.2,
+          452.0
         ]
       },
-      "axis": "pos_y",
-      "length": 286.8,
+      "axis": "pos_z",
+      "length": 0.0,
       "fasteners": [
         {
-          "hardware": "minifix_15",
+          "hardware": "cabinet_hanger",
           "index": 0,
           "position": [
             782.0,
-            63.2,
-            1009.0
-          ]
-        },
-        {
-          "hardware": "minifix_15",
-          "index": 1,
-          "position": [
-            782.0,
-            250.0,
-            1009.0
-          ]
-        },
-        {
-          "hardware": "dowel_8x30",
-          "index": 0,
-          "position": [
-            782.0,
-            133.2,
-            1009.0
-          ]
-        },
-        {
-          "hardware": "dowel_8x30",
-          "index": 1,
-          "position": [
-            782.0,
-            180.0,
-            1009.0
+            53.2,
+            452.0
           ]
         }
       ]
     },
     {
       "id": "J007",
-      "kind": "butt",
-      "component": "shelves_low",
-      "edgePart": "P007",
-      "facePart": "P001",
+      "kind": "fixture",
+      "component": "sink_inset",
+      "edgePart": "P003",
+      "facePart": "P003",
       "hardware": [
-        "dowel_8x30"
+        "sink_inset_500x400"
       ],
       "contact": {
         "min": [
-          18.0,
-          13.2,
-          333.333
+          400.0,
+          236.6,
+          500.0
         ],
         "max": [
-          18.0,
-          280.0,
-          351.333
+          400.0,
+          236.6,
+          500.0
         ]
       },
-      "axis": "pos_y",
-      "length": 266.8,
+      "axis": "pos_x",
+      "length": 0.0,
       "fasteners": [
         {
-          "hardware": "dowel_8x30",
+          "hardware": "sink_inset_500x400",
           "index": 0,
           "position": [
-            18.0,
-            130.6,
-            342.333
-          ]
-        },
-        {
-          "hardware": "dowel_8x30",
-          "index": 1,
-          "position": [
-            18.0,
-            162.6,
-            342.333
+            400.0,
+            236.6,
+            500.0
           ]
         }
       ]
     },
     {
       "id": "J008",
-      "kind": "butt",
-      "component": "shelves_low",
-      "edgePart": "P007",
-      "facePart": "P002",
+      "kind": "fixture",
+      "component": "sink_inset",
+      "edgePart": "P005",
+      "facePart": "P005",
       "hardware": [
-        "dowel_8x30"
+        "pipe_passage"
       ],
       "contact": {
         "min": [
-          782.0,
-          13.2,
-          333.333
+          400.0,
+          13.1,
+          250.0
         ],
         "max": [
-          782.0,
-          280.0,
-          351.333
+          400.0,
+          13.1,
+          250.0
         ]
       },
-      "axis": "pos_y",
-      "length": 266.8,
+      "axis": "pos_x",
+      "length": 0.0,
       "fasteners": [
         {
-          "hardware": "dowel_8x30",
+          "hardware": "pipe_passage",
           "index": 0,
           "position": [
-            782.0,
-            130.6,
-            342.333
-          ]
-        },
-        {
-          "hardware": "dowel_8x30",
-          "index": 1,
-          "position": [
-            782.0,
-            162.6,
-            342.333
+            400.0,
+            13.1,
+            250.0
           ]
         }
       ]
     },
     {
       "id": "J009",
-      "kind": "butt",
-      "component": "shelves_low",
-      "edgePart": "P008",
+      "kind": "hinge",
+      "component": "doors",
+      "edgePart": "P006",
       "facePart": "P001",
       "hardware": [
-        "dowel_8x30"
+        "hinge_35_overlay_soft"
       ],
       "contact": {
         "min": [
-          18.0,
-          13.2,
-          666.667
+          2.0,
+          460.0,
+          2.0
         ],
         "max": [
-          18.0,
-          280.0,
-          684.667
+          2.0,
+          460.0,
+          498.0
         ]
       },
-      "axis": "pos_y",
-      "length": 266.8,
+      "axis": "pos_z",
+      "length": 496.0,
       "fasteners": [
         {
-          "hardware": "dowel_8x30",
+          "hardware": "hinge_35_overlay_soft",
           "index": 0,
           "position": [
-            18.0,
-            130.6,
-            675.667
+            2.0,
+            460.0,
+            117.0
           ]
         },
         {
-          "hardware": "dowel_8x30",
+          "hardware": "hinge_35_overlay_soft",
           "index": 1,
           "position": [
-            18.0,
-            162.6,
-            675.667
+            2.0,
+            460.0,
+            405.0
           ]
         }
       ]
     },
     {
       "id": "J010",
-      "kind": "butt",
-      "component": "shelves_low",
-      "edgePart": "P008",
-      "facePart": "P002",
+      "kind": "handle",
+      "component": "doors",
+      "edgePart": "P006",
+      "facePart": "P006",
       "hardware": [
-        "dowel_8x30"
+        "handle_bar_128"
       ],
       "contact": {
         "min": [
-          782.0,
-          13.2,
-          666.667
+          359.0,
+          460.0,
+          250.0
         ],
         "max": [
-          782.0,
-          280.0,
-          684.667
+          359.0,
+          460.0,
+          250.0
         ]
       },
-      "axis": "pos_y",
-      "length": 266.8,
+      "axis": "pos_z",
+      "length": 0.0,
       "fasteners": [
         {
-          "hardware": "dowel_8x30",
+          "hardware": "handle_bar_128",
           "index": 0,
           "position": [
-            782.0,
-            130.6,
-            675.667
-          ]
-        },
-        {
-          "hardware": "dowel_8x30",
-          "index": 1,
-          "position": [
-            782.0,
-            162.6,
-            675.667
+            359.0,
+            460.0,
+            250.0
           ]
         }
       ]
     },
     {
       "id": "J011",
-      "kind": "butt",
-      "component": "shelves_high",
-      "edgePart": "P009",
-      "facePart": "P001",
+      "kind": "hinge",
+      "component": "doors",
+      "edgePart": "P007",
+      "facePart": "P002",
       "hardware": [
-        "dowel_8x30"
+        "hinge_35_overlay_soft"
       ],
       "contact": {
         "min": [
-          18.0,
-          13.2,
-          1327.333
+          798.0,
+          460.0,
+          2.0
         ],
         "max": [
-          18.0,
-          280.0,
-          1345.333
+          798.0,
+          460.0,
+          498.0
         ]
       },
-      "axis": "pos_y",
-      "length": 266.8,
+      "axis": "pos_z",
+      "length": 496.0,
       "fasteners": [
         {
-          "hardware": "dowel_8x30",
+          "hardware": "hinge_35_overlay_soft",
           "index": 0,
           "position": [
-            18.0,
-            130.6,
-            1336.333
+            798.0,
+            460.0,
+            117.0
           ]
         },
         {
-          "hardware": "dowel_8x30",
+          "hardware": "hinge_35_overlay_soft",
           "index": 1,
           "position": [
-            18.0,
-            162.6,
-            1336.333
+            798.0,
+            460.0,
+            405.0
           ]
         }
       ]
     },
     {
       "id": "J012",
-      "kind": "butt",
-      "component": "shelves_high",
-      "edgePart": "P009",
-      "facePart": "P002",
+      "kind": "handle",
+      "component": "doors",
+      "edgePart": "P007",
+      "facePart": "P007",
       "hardware": [
-        "dowel_8x30"
+        "handle_bar_128"
       ],
       "contact": {
         "min": [
-          782.0,
-          13.2,
-          1327.333
+          441.0,
+          460.0,
+          250.0
         ],
         "max": [
-          782.0,
-          280.0,
-          1345.333
+          441.0,
+          460.0,
+          250.0
         ]
       },
-      "axis": "pos_y",
-      "length": 266.8,
+      "axis": "pos_z",
+      "length": 0.0,
       "fasteners": [
         {
-          "hardware": "dowel_8x30",
+          "hardware": "handle_bar_128",
           "index": 0,
           "position": [
-            782.0,
-            130.6,
-            1336.333
-          ]
-        },
-        {
-          "hardware": "dowel_8x30",
-          "index": 1,
-          "position": [
-            782.0,
-            162.6,
-            1336.333
-          ]
-        }
-      ]
-    },
-    {
-      "id": "J013",
-      "kind": "butt",
-      "component": "shelves_high",
-      "edgePart": "P010",
-      "facePart": "P001",
-      "hardware": [
-        "dowel_8x30"
-      ],
-      "contact": {
-        "min": [
-          18.0,
-          13.2,
-          1654.667
-        ],
-        "max": [
-          18.0,
-          280.0,
-          1672.667
-        ]
-      },
-      "axis": "pos_y",
-      "length": 266.8,
-      "fasteners": [
-        {
-          "hardware": "dowel_8x30",
-          "index": 0,
-          "position": [
-            18.0,
-            130.6,
-            1663.667
-          ]
-        },
-        {
-          "hardware": "dowel_8x30",
-          "index": 1,
-          "position": [
-            18.0,
-            162.6,
-            1663.667
-          ]
-        }
-      ]
-    },
-    {
-      "id": "J014",
-      "kind": "butt",
-      "component": "shelves_high",
-      "edgePart": "P010",
-      "facePart": "P002",
-      "hardware": [
-        "dowel_8x30"
-      ],
-      "contact": {
-        "min": [
-          782.0,
-          13.2,
-          1654.667
-        ],
-        "max": [
-          782.0,
-          280.0,
-          1672.667
-        ]
-      },
-      "axis": "pos_y",
-      "length": 266.8,
-      "fasteners": [
-        {
-          "hardware": "dowel_8x30",
-          "index": 0,
-          "position": [
-            782.0,
-            130.6,
-            1663.667
-          ]
-        },
-        {
-          "hardware": "dowel_8x30",
-          "index": 1,
-          "position": [
-            782.0,
-            162.6,
-            1663.667
+            441.0,
+            460.0,
+            250.0
           ]
         }
       ]
@@ -3097,15 +2509,15 @@
       "name": "Lateral izquierdo",
       "quantity": 1,
       "material": "melamine_18",
-      "cutLength": 2000.0,
-      "cutWidth": 299.0,
-      "finishedLength": 2000.0,
-      "finishedWidth": 300.0,
+      "cutLength": 500.0,
+      "cutWidth": 459.0,
+      "finishedLength": 500.0,
+      "finishedWidth": 460.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/abs_1mm/-",
-      "operations": 22,
-      "weightKg": 7.02
+      "operations": 17,
+      "weightKg": 2.691
     },
     {
       "partIds": [
@@ -3114,15 +2526,15 @@
       "name": "Lateral derecho",
       "quantity": 1,
       "material": "melamine_18",
-      "cutLength": 2000.0,
-      "cutWidth": 299.0,
-      "finishedLength": 2000.0,
-      "finishedWidth": 300.0,
+      "cutLength": 500.0,
+      "cutWidth": 459.0,
+      "finishedLength": 500.0,
+      "finishedWidth": 460.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/-/abs_1mm",
-      "operations": 22,
-      "weightKg": 7.02
+      "operations": 17,
+      "weightKg": 2.691
     },
     {
       "partIds": [
@@ -3132,14 +2544,14 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 764.0,
-      "cutWidth": 299.0,
+      "cutWidth": 459.0,
       "finishedLength": 764.0,
-      "finishedWidth": 300.0,
+      "finishedWidth": 460.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/abs_1mm/-",
-      "operations": 14,
-      "weightKg": 2.682
+      "operations": 15,
+      "weightKg": 4.112
     },
     {
       "partIds": [
@@ -3149,14 +2561,14 @@
       "quantity": 1,
       "material": "melamine_18",
       "cutLength": 764.0,
-      "cutWidth": 299.0,
+      "cutWidth": 459.0,
       "finishedLength": 764.0,
-      "finishedWidth": 300.0,
+      "finishedWidth": 460.0,
       "thickness": 18.0,
       "grain": "length",
       "edges": "-/-/-/abs_1mm",
       "operations": 14,
-      "weightKg": 2.682
+      "weightKg": 4.112
     },
     {
       "partIds": [
@@ -3166,51 +2578,48 @@
       "quantity": 1,
       "material": "hdf_3",
       "cutLength": 779.0,
-      "cutWidth": 1979.0,
+      "cutWidth": 479.0,
       "finishedLength": 779.0,
-      "finishedWidth": 1979.0,
+      "finishedWidth": 479.0,
       "thickness": 3.0,
       "grain": "none",
       "edges": "-/-/-/-",
-      "operations": 0,
-      "weightKg": 3.931
+      "operations": 1,
+      "weightKg": 0.952
     },
     {
       "partIds": [
         "P006"
       ],
-      "name": "Estante fijo 1",
+      "name": "Puerta 1",
       "quantity": 1,
       "material": "melamine_18",
-      "cutLength": 764.0,
-      "cutWidth": 285.8,
-      "finishedLength": 764.0,
-      "finishedWidth": 286.8,
+      "cutLength": 494.0,
+      "cutWidth": 395.0,
+      "finishedLength": 496.0,
+      "finishedWidth": 397.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
-      "operations": 13,
-      "weightKg": 2.564
+      "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
+      "operations": 12,
+      "weightKg": 2.304
     },
     {
       "partIds": [
-        "P007",
-        "P008",
-        "P009",
-        "P010"
+        "P007"
       ],
-      "name": "Estante",
-      "quantity": 4,
+      "name": "Puerta 2",
+      "quantity": 1,
       "material": "melamine_18",
-      "cutLength": 764.0,
-      "cutWidth": 265.8,
-      "finishedLength": 764.0,
-      "finishedWidth": 266.8,
+      "cutLength": 494.0,
+      "cutWidth": 395.0,
+      "finishedLength": 496.0,
+      "finishedWidth": 397.0,
       "thickness": 18.0,
       "grain": "length",
-      "edges": "-/-/-/abs_1mm",
-      "operations": 5,
-      "weightKg": 2.385
+      "edges": "abs_1mm/abs_1mm/abs_1mm/abs_1mm",
+      "operations": 12,
+      "weightKg": 2.304
     }
   ],
   "bom": {
@@ -3219,34 +2628,88 @@
         "material": "hdf_3",
         "name": "Fibrofácil HDF 3 mm",
         "parts": 1,
-        "netAreaM2": 1.542,
+        "netAreaM2": 0.373,
         "sheetLength": 2750.0,
         "sheetWidth": 1830.0,
         "estimatedSheets": 1,
-        "yieldRatio": 0.306,
+        "yieldRatio": 0.074,
         "cost": 0.0
       },
       {
         "material": "melamine_18",
         "name": "Melamina 18 mm",
-        "parts": 9,
-        "netAreaM2": 2.684,
+        "parts": 6,
+        "netAreaM2": 1.551,
         "sheetLength": 2750.0,
         "sheetWidth": 1830.0,
         "estimatedSheets": 1,
-        "yieldRatio": 0.533,
+        "yieldRatio": 0.308,
         "cost": 0.0
       }
     ],
     "hardware": [
       {
+        "hardware": "cabinet_hanger",
+        "name": "Colgador de alacena regulable",
+        "quantity": 2,
+        "items": [
+          {
+            "name": "Colgador de alacena regulable (par izq/der)",
+            "quantity": 1.0,
+            "cost": 0.0
+          },
+          {
+            "name": "Tornillo 4×16",
+            "quantity": 6.0,
+            "cost": 0.0
+          }
+        ],
+        "cost": 0.0
+      },
+      {
         "hardware": "dowel_8x30",
         "name": "Tarugo de madera 8×30",
-        "quantity": 28,
+        "quantity": 8,
         "items": [
           {
             "name": "Tarugo 8×30",
-            "quantity": 28.0,
+            "quantity": 8.0,
+            "cost": 0.0
+          }
+        ],
+        "cost": 0.0
+      },
+      {
+        "hardware": "handle_bar_128",
+        "name": "Tirador barra 128 mm entre centros",
+        "quantity": 2,
+        "items": [
+          {
+            "name": "Tirador barra 128 mm",
+            "quantity": 2.0,
+            "cost": 0.0
+          },
+          {
+            "name": "Tornillo M4×25",
+            "quantity": 4.0,
+            "cost": 0.0
+          }
+        ],
+        "cost": 0.0
+      },
+      {
+        "hardware": "hinge_35_overlay_soft",
+        "name": "Bisagra cazoleta Ø35 superpuesta con cierre suave",
+        "quantity": 4,
+        "items": [
+          {
+            "name": "Bisagra cazoleta Ø35 superpuesta con cierre suave",
+            "quantity": 4.0,
+            "cost": 0.0
+          },
+          {
+            "name": "Base de bisagra cruz H0",
+            "quantity": 4.0,
             "cost": 0.0
           }
         ],
@@ -3255,16 +2718,51 @@
       {
         "hardware": "minifix_15",
         "name": "Minifix Ø15 con perno B34",
-        "quantity": 12,
+        "quantity": 8,
         "items": [
           {
             "name": "Excéntrica Minifix 15",
-            "quantity": 12.0,
+            "quantity": 8.0,
             "cost": 0.0
           },
           {
             "name": "Perno Minifix B34",
-            "quantity": 12.0,
+            "quantity": 8.0,
+            "cost": 0.0
+          }
+        ],
+        "cost": 0.0
+      },
+      {
+        "hardware": "pipe_passage",
+        "name": "Pase de caños",
+        "quantity": 1,
+        "items": [],
+        "cost": 0.0
+      },
+      {
+        "hardware": "sink_inset_500x400",
+        "name": "Bacha de embutir 50×40",
+        "quantity": 1,
+        "items": [
+          {
+            "name": "Bacha de embutir 50×40 cm",
+            "quantity": 1.0,
+            "cost": 0.0
+          },
+          {
+            "name": "Válvula de desagüe con rebalse",
+            "quantity": 1.0,
+            "cost": 0.0
+          },
+          {
+            "name": "Sifón",
+            "quantity": 1.0,
+            "cost": 0.0
+          },
+          {
+            "name": "Sellador siliconado (cartucho)",
+            "quantity": 1.0,
             "cost": 0.0
           }
         ],
@@ -3275,21 +2773,25 @@
       {
         "material": "abs_1mm",
         "name": "Canto ABS 1 mm",
-        "lengthM": 9.348,
+        "lengthM": 6.1,
         "cost": 0.0
       }
     ],
-    "totalWeightKg": 35.438,
+    "totalWeightKg": 19.165,
     "materialsCost": 0.0,
     "machiningCost": 0.0,
     "totalCost": 0.0,
     "unpriced": [
       "abs_1mm",
+      "cabinet_hanger",
       "dowel_8x30",
+      "handle_bar_128",
       "hdf_3",
+      "hinge_35_overlay_soft",
       "melamine_18",
       "minifix_15",
-      "máquina"
+      "máquina",
+      "sink_inset_500x400"
     ]
   },
   "nesting": [
@@ -3303,13 +2805,13 @@
           "part": "P005",
           "x": 10.0,
           "y": 10.0,
-          "length": 1979.0,
+          "length": 479.0,
           "width": 779.0,
           "rotated": true
         }
       ],
-      "usedAreaM2": 1.542,
-      "wasteRatio": 0.694
+      "usedAreaM2": 0.373,
+      "wasteRatio": 0.926
     },
     {
       "material": "melamine_18",
@@ -3318,103 +2820,79 @@
       "sheetWidth": 1830.0,
       "parts": [
         {
-          "part": "P001",
-          "x": 10.0,
-          "y": 10.0,
-          "length": 2000.0,
-          "width": 299.0,
-          "rotated": false
-        },
-        {
-          "part": "P002",
-          "x": 10.0,
-          "y": 313.0,
-          "length": 2000.0,
-          "width": 299.0,
-          "rotated": false
-        },
-        {
           "part": "P003",
           "x": 10.0,
-          "y": 616.0,
+          "y": 10.0,
           "length": 764.0,
-          "width": 299.0,
+          "width": 459.0,
           "rotated": false
         },
         {
           "part": "P004",
           "x": 10.0,
-          "y": 919.0,
+          "y": 473.0,
           "length": 764.0,
-          "width": 299.0,
+          "width": 459.0,
+          "rotated": false
+        },
+        {
+          "part": "P001",
+          "x": 10.0,
+          "y": 936.0,
+          "length": 500.0,
+          "width": 459.0,
+          "rotated": false
+        },
+        {
+          "part": "P002",
+          "x": 514.0,
+          "y": 936.0,
+          "length": 500.0,
+          "width": 459.0,
           "rotated": false
         },
         {
           "part": "P006",
           "x": 10.0,
-          "y": 1222.0,
-          "length": 764.0,
-          "width": 285.8,
+          "y": 1399.0,
+          "length": 494.0,
+          "width": 395.0,
           "rotated": false
         },
         {
           "part": "P007",
-          "x": 10.0,
-          "y": 1511.8,
-          "length": 764.0,
-          "width": 265.8,
-          "rotated": false
-        },
-        {
-          "part": "P008",
-          "x": 778.0,
-          "y": 616.0,
-          "length": 764.0,
-          "width": 265.8,
-          "rotated": false
-        },
-        {
-          "part": "P009",
-          "x": 1546.0,
-          "y": 616.0,
-          "length": 764.0,
-          "width": 265.8,
-          "rotated": false
-        },
-        {
-          "part": "P010",
-          "x": 778.0,
-          "y": 885.8,
-          "length": 764.0,
-          "width": 265.8,
+          "x": 508.0,
+          "y": 1399.0,
+          "length": 494.0,
+          "width": 395.0,
           "rotated": false
         }
       ],
-      "usedAreaM2": 2.684,
-      "wasteRatio": 0.467
+      "usedAreaM2": 1.551,
+      "wasteRatio": 0.692
     }
   ],
   "machining": {
     "postProcessor": "generic_iso",
-    "totalSeconds": 1423.464,
+    "totalSeconds": 850.361,
     "programs": [
       {
         "part": "P001",
         "setup": "A",
-        "operations": 21,
-        "toolChanges": 3,
-        "cutMm": 12273.0,
-        "rapidMm": 15840.36,
-        "seconds": 457.046
+        "operations": 16,
+        "toolChanges": 4,
+        "cutMm": 3200.0,
+        "rapidMm": 5038.704,
+        "seconds": 156.041
       },
       {
         "part": "P002",
         "setup": "A",
-        "operations": 21,
-        "toolChanges": 3,
-        "cutMm": 12273.0,
-        "rapidMm": 15825.371,
-        "seconds": 457.001
+        "operations": 16,
+        "toolChanges": 4,
+        "cutMm": 3200.0,
+        "rapidMm": 4890.306,
+        "seconds": 155.596
       },
       {
         "part": "P003",
@@ -3422,8 +2900,17 @@
         "operations": 13,
         "toolChanges": 2,
         "cutMm": 4864.0,
-        "rapidMm": 3158.378,
-        "seconds": 206.067
+        "rapidMm": 3760.59,
+        "seconds": 207.874
+      },
+      {
+        "part": "P003",
+        "setup": "B",
+        "operations": 1,
+        "toolChanges": 1,
+        "cutMm": 1611.867,
+        "rapidMm": 921.221,
+        "seconds": 23.336
       },
       {
         "part": "P004",
@@ -3431,8 +2918,8 @@
         "operations": 13,
         "toolChanges": 2,
         "cutMm": 4864.0,
-        "rapidMm": 2966.603,
-        "seconds": 205.492
+        "rapidMm": 3409.743,
+        "seconds": 206.821
       },
       {
         "part": "P005",
@@ -3444,49 +2931,31 @@
         "seconds": 0.36
       },
       {
+        "part": "P005",
+        "setup": "B",
+        "operations": 1,
+        "toolChanges": 1,
+        "cutMm": 636.867,
+        "rapidMm": 744.045,
+        "seconds": 15.155
+      },
+      {
         "part": "P006",
         "setup": "A",
-        "operations": 12,
-        "toolChanges": 1,
-        "cutMm": 258.0,
-        "rapidMm": 1328.697,
-        "seconds": 52.858
+        "operations": 8,
+        "toolChanges": 3,
+        "cutMm": 106.0,
+        "rapidMm": 2029.533,
+        "seconds": 42.35
       },
       {
         "part": "P007",
         "setup": "A",
-        "operations": 4,
-        "toolChanges": 0,
-        "cutMm": 72.0,
-        "rapidMm": 120.0,
-        "seconds": 11.16
-      },
-      {
-        "part": "P008",
-        "setup": "A",
-        "operations": 4,
-        "toolChanges": 0,
-        "cutMm": 72.0,
-        "rapidMm": 120.0,
-        "seconds": 11.16
-      },
-      {
-        "part": "P009",
-        "setup": "A",
-        "operations": 4,
-        "toolChanges": 0,
-        "cutMm": 72.0,
-        "rapidMm": 120.0,
-        "seconds": 11.16
-      },
-      {
-        "part": "P010",
-        "setup": "A",
-        "operations": 4,
-        "toolChanges": 0,
-        "cutMm": 72.0,
-        "rapidMm": 120.0,
-        "seconds": 11.16
+        "operations": 8,
+        "toolChanges": 3,
+        "cutMm": 106.0,
+        "rapidMm": 2189.103,
+        "seconds": 42.828
       }
     ]
   },
@@ -3500,7 +2969,7 @@
           "kind": "edge_band",
           "id": "abs_1mm",
           "name": "Canto ABS 1 mm",
-          "quantity": 9.348,
+          "quantity": 6.1,
           "unit": "m",
           "unitPrice": 0.0,
           "cost": 0.0
@@ -3533,9 +3002,45 @@
       "lines": [
         {
           "kind": "hardware",
+          "id": "sink_inset_500x400",
+          "name": "Bacha de embutir 50×40 cm",
+          "quantity": 1.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
+          "id": "hinge_35_overlay_soft",
+          "name": "Base de bisagra cruz H0",
+          "quantity": 4.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
+          "id": "hinge_35_overlay_soft",
+          "name": "Bisagra cazoleta Ø35 superpuesta con cierre suave",
+          "quantity": 4.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
+          "id": "cabinet_hanger",
+          "name": "Colgador de alacena regulable (par izq/der)",
+          "quantity": 1.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
           "id": "minifix_15",
           "name": "Excéntrica Minifix 15",
-          "quantity": 12.0,
+          "quantity": 8.0,
           "unit": "u",
           "unitPrice": 0.0,
           "cost": 0.0
@@ -3544,7 +3049,25 @@
           "kind": "hardware",
           "id": "minifix_15",
           "name": "Perno Minifix B34",
-          "quantity": 12.0,
+          "quantity": 8.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
+          "id": "sink_inset_500x400",
+          "name": "Sellador siliconado (cartucho)",
+          "quantity": 1.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
+          "id": "sink_inset_500x400",
+          "name": "Sifón",
+          "quantity": 1.0,
           "unit": "u",
           "unitPrice": 0.0,
           "cost": 0.0
@@ -3553,7 +3076,43 @@
           "kind": "hardware",
           "id": "dowel_8x30",
           "name": "Tarugo 8×30",
-          "quantity": 28.0,
+          "quantity": 8.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
+          "id": "handle_bar_128",
+          "name": "Tirador barra 128 mm",
+          "quantity": 2.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
+          "id": "cabinet_hanger",
+          "name": "Tornillo 4×16",
+          "quantity": 6.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
+          "id": "handle_bar_128",
+          "name": "Tornillo M4×25",
+          "quantity": 4.0,
+          "unit": "u",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "hardware",
+          "id": "sink_inset_500x400",
+          "name": "Válvula de desagüe con rebalse",
+          "quantity": 1.0,
           "unit": "u",
           "unitPrice": 0.0,
           "cost": 0.0

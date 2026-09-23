@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.0",
+  "id": "vanity",
+  "name": "Vanitory colgante 800 con bacha de embutir",
+  "version": "1.0",
+  "parameters": {
+    "width": 800,
+    "height": 500,
+    "depth": 460,
+    "doors": 2,
+    "basin": 0
+  },
+  "options": [
+    { "param": "width", "label": "Ancho", "group": "Medidas", "min": "if(basin == 0, 600, 450)", "max": 1200, "step": 10, "unit": "mm" },
+    { "param": "height", "label": "Alto", "group": "Medidas", "min": 400, "max": 650, "step": 10, "unit": "mm" },
+    { "param": "depth", "label": "Profundidad", "group": "Medidas", "min": 420, "max": 550, "step": 10, "unit": "mm" },
+    { "param": "basin", "label": "Bacha", "group": "Bacha", "choices": [{ "value": 0, "label": "de embutir" }, { "value": 1, "label": "de apoyo" }] },
+    { "param": "doors", "label": "Puertas", "group": "Frente", "choices": [{ "value": 1, "label": "una" }, { "value": 2, "label": "dos" }], "help": "Más de 600 de ancho, dos." }
+  ],
+  "material": "melamine_18",
+  "edgeMaterial": "abs_1mm",
+  "components": [
+    {
+      "type": "carcass",
+      "id": "carcass",
+      "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
+      "back": { "material": "hdf_3" },
+      "hanging": {}
+    },
+    {
+      "type": "sink",
+      "id": "sink_inset",
+      "when": "basin == 0",
+      "hardware": ["sink_inset_500x400"],
+      "passage": {}
+    },
+    {
+      "type": "sink",
+      "id": "sink_vessel",
+      "when": "basin == 1",
+      "hardware": ["sink_vessel_400"],
+      "passage": {}
+    },
+    {
+      "type": "doors",
+      "id": "doors",
+      "count": "doors",
+      "softClose": true,
+      "handle": { "hardware": ["handle_bar_128"] }
+    }
+  ]
+}

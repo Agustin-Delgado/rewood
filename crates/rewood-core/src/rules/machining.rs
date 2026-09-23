@@ -599,3 +599,117 @@ mod tests {
         assert!((d - 3.0).abs() < 1e-9);
     }
 }
+
+/// FAB-210: a cutout too close to the edge of its panel, or cutting away a
+/// hole or a groove of the same part (a hinge plate, a joint, the back's
+/// groove would be left hanging in the opening).
+pub struct CutoutPlacement;
+
+impl Rule for CutoutPlacement {
+    fn id(&self) -> &'static str {
+        "FAB-210"
+    }
+
+    fn check(&self, input: &RuleInput<'_>) -> Vec<Diagnostic> {
+        let min_edge = input.libs.profile.min_edge_distance;
+        let mut out = Vec::new();
+        for part in input.parts {
+            let t = input
+                .libs
+                .materials
+                .material(&part.material)
+                .map(|m| m.actual_thickness)
+                .unwrap_or(part.dims.thickness);
+            for op in &part.operations {
+                let OpGeometry::Cutout {
+                    u,
+                    v,
+                    width,
+                    height,
+                    ..
+                } = op.geometry
+                else {
+                    continue;
+                };
+                let (lu, lv) = part.dims.face_extent(op.face);
+                let margin = [
+                    u - width / 2.0,
+                    lu - (u + width / 2.0),
+                    v - height / 2.0,
+                    lv - (v + height / 2.0),
+                ]
+                .into_iter()
+                .fold(f64::INFINITY, f64::min);
+                if margin < min_edge - EPS {
+                    out.push(
+                        Diagnostic::new(
+                            self.id(),
+                            Severity::Error,
+                            format!(
+                                "{} / {}: el recorte queda a {} mm del borde; el mínimo es {} mm",
+                                part.id,
+                                op.id,
+                                crate::rules::mm(margin.max(0.0)),
+                                crate::rules::mm(min_edge)
+                            ),
+                        )
+                        .entity(part.id.clone())
+                        .location(op.id.clone())
+                        .suggestion("Un recorte más chico o una pieza más grande."),
+                    );
+                }
+                // The opening as a box through the part.
+                let a = part
+                    .dims
+                    .uv_to_local(op.face, u - width / 2.0, v - height / 2.0);
+                let b = part
+                    .dims
+                    .uv_to_local(op.face, u + width / 2.0, v + height / 2.0);
+                let inward = op.face.normal_local().vec() * (-t);
+                let mut min = a;
+                let mut max = a;
+                for c in [a, b, a + inward, b + inward] {
+                    min = Vec3(min.0.min(c.0), min.1.min(c.1), min.2.min(c.2));
+                    max = Vec3(max.0.max(c.0), max.1.max(c.1), max.2.max(c.2));
+                }
+                let opening = Slot {
+                    min,
+                    max,
+                    op_id: op.id.clone(),
+                };
+                let mut lost: Vec<String> = cylinders(part, t)
+                    .iter()
+                    .filter(|c| cylinder_hits_box(c, &opening))
+                    .map(|c| c.op_id.clone())
+                    .collect();
+                for g in slots(part) {
+                    let overlaps = (0..3).all(|i| {
+                        g.min.component(i) < opening.max.component(i) - EPS
+                            && g.max.component(i) > opening.min.component(i) + EPS
+                    });
+                    if overlaps {
+                        lost.push(g.op_id.clone());
+                    }
+                }
+                if !lost.is_empty() {
+                    out.push(
+                        Diagnostic::new(
+                            self.id(),
+                            Severity::Error,
+                            format!(
+                                "{} / {}: el recorte se lleva {}",
+                                part.id,
+                                op.id,
+                                lost.join(", ")
+                            ),
+                        )
+                        .entity(part.id.clone())
+                        .location(op.id.clone())
+                        .suggestion("Corré el recorte o el herraje que cae adentro."),
+                    );
+                }
+            }
+        }
+        out
+    }
+}

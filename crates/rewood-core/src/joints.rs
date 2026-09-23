@@ -527,6 +527,43 @@ pub fn resolve(
                     position: point,
                 });
 
+                // Openings through the part the fixture sits on.
+                for c in &hw.cutouts {
+                    let mut at = point + contact.axis.vec() * c.offset_along;
+                    if let Some(i) = contact.across {
+                        let mut v = [0.0; 3];
+                        v[i] = c.offset_across;
+                        at = at + Vec3(v[0], v[1], v[2]);
+                    }
+                    let part = &mut parts[contact.face_part];
+                    let face = contact.face_part_face;
+                    let (u, v) = part.world_point_to_face_uv(face, at);
+                    // Which of u, v the joint's axis runs along.
+                    let (u1, v1) = part.world_point_to_face_uv(face, at + contact.axis.vec());
+                    let (width, height) = if (u1 - u).abs() >= (v1 - v).abs() {
+                        (c.width, c.height)
+                    } else {
+                        (c.height, c.width)
+                    };
+                    let op = Operation {
+                        id: part.next_op_id(),
+                        face,
+                        geometry: OpGeometry::Cutout {
+                            u,
+                            v,
+                            width,
+                            height,
+                            radius: c.radius.min(width.min(height) / 2.0),
+                        },
+                        source: Some(OpSource {
+                            joint: joint_id.clone(),
+                            hardware: hw_id.clone(),
+                            fastener: index,
+                            label: c.label.clone(),
+                        }),
+                    };
+                    part.operations.push(op);
+                }
                 for hole in &hw.holes {
                     let (part_index, face, at) = match place_hole(&contact, point, hole) {
                         Ok(p) => p,

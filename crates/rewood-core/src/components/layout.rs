@@ -301,6 +301,7 @@ impl OccupancyKind {
             OccupancyKind::InnerDrawers => "los cajones interiores",
             OccupancyKind::Shelves => "los estantes",
             OccupancyKind::Rail => "el barral (y lo colgado)",
+            OccupancyKind::Sink => "la bacha",
         }
     }
 

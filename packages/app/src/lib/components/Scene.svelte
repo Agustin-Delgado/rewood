@@ -371,6 +371,22 @@
 					local: new THREE.Matrix4().compose(new THREE.Vector3(...toThree(c)), new THREE.Quaternion(), new THREE.Vector3(...toThree(s)))
 				});
 			}
+			// A cutout: a box through the panel, the size of the opening.
+			for (const op of part.operations) {
+				if (op.type !== 'CUTOUT') continue;
+				const c = faceUvToWorld(part, op.face, op.u, op.v);
+				const n = faceNormalWorld(part.placement, op.face);
+				const e = faceUvToWorld(part, op.face, op.u + 1, op.v);
+				const du = [e[0] - c[0], e[1] - c[1], e[2] - c[2]].map(Math.abs);
+				const t = part.dims.thickness;
+				const s: Vec3 = [0, 0, 0];
+				for (let i = 0; i < 3; i++) s[i] = n[i] !== 0 ? t + 0.6 : du[i] > 0.5 ? op.width : op.height;
+				const m: Vec3 = [c[0] - (n[0] * t) / 2, c[1] - (n[1] * t) / 2, c[2] - (n[2] * t) / 2];
+				out.push({
+					part: part.id,
+					local: new THREE.Matrix4().compose(new THREE.Vector3(...toThree(m)), new THREE.Quaternion(), new THREE.Vector3(...toThree(s)))
+				});
+			}
 		}
 		return out;
 	});

@@ -17,6 +17,7 @@ import kitchenCorner from '../../../../fixtures/kitchen_corner/input.json';
 import nightstand from '../../../../fixtures/nightstand/input.json';
 import sideboard from '../../../../fixtures/sideboard/input.json';
 import tvUnit from '../../../../fixtures/tv_unit/input.json';
+import vanity from '../../../../fixtures/vanity/input.json';
 import wallCabinet from '../../../../fixtures/wall_cabinet/input.json';
 import wardrobe from '../../../../fixtures/wardrobe_1800/input.json';
 import wardrobeModules from '../../../../fixtures/wardrobe_modules/input.json';
@@ -262,6 +263,26 @@ export const CATALOG: Category[] = [
 				preset: { doors: true }
 			},
 			{ id: 'bookcase_adjustable', name: 'Regulable', description: 'Estantes sobre soportes Sistema 32, que se mueven.', spec: t(bookcaseAdjustable) }
+		]
+	},
+	{
+		id: 'bathroom',
+		name: 'Baño',
+		description: 'Vanitories colgantes con la bacha y el pase de caños resueltos.',
+		variants: [
+			{
+				id: 'vanity',
+				name: 'Vanitory con bacha de embutir',
+				description: 'Colgado, dos puertas; la tapa lleva el recorte de la bacha y el fondo el pase de caños.',
+				spec: t(vanity)
+			},
+			{
+				id: 'vanity_vessel',
+				name: 'Vanitory con bacha de apoyo',
+				description: 'Angosto, una puerta; la bacha va arriba y la tapa sólo lleva el desagüe.',
+				spec: t(vanity),
+				preset: { basin: 1, width: 600, doors: 1 }
+			}
 		]
 	}
 ];

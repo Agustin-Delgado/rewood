@@ -187,7 +187,8 @@
       "CUT",
       "DRILL",
       "GROOVE",
-      "EDGE_BAND"
+      "EDGE_BAND",
+      "CUTOUT"
     ],
     "tolerances": {
       "length": 0.2,

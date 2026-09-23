@@ -829,6 +829,53 @@ fn verify_operations(
                 }
                 all
             }
+            ToolOp::Cutout {
+                centre,
+                width,
+                height,
+                radius,
+                depth,
+            } => {
+                // Every edge of the outline, one tool radius in, at the
+                // final depth.
+                let path = crate::model::cutout_path(
+                    centre[0],
+                    centre[1],
+                    *width,
+                    *height,
+                    *radius,
+                    o.tool.diameter / 2.0,
+                );
+                let mut all = true;
+                for w in path.windows(2) {
+                    let found = cuts.iter().enumerate().find(|(i, c)| {
+                        !used[*i]
+                            && matches!(c, Cut::Segment { tool, from: a, to: b }
+                                if *tool == o.tool.id
+                                    && (a[2] + depth).abs() <= 0.01
+                                    && (b[2] + depth).abs() <= 0.01
+                                    && covers(&w[0], &w[1], [a[0], a[1]], [b[0], b[1]], 0.01))
+                    });
+                    match found {
+                        Some((i, _)) => used[i] = true,
+                        None => all = false,
+                    }
+                }
+                if !all {
+                    findings.push((
+                        "CAM-306",
+                        format!(
+                            "{}: el recorte de {}×{} en ({}, {}) no se corta entero en el NC",
+                            o.source,
+                            round3(*width),
+                            round3(*height),
+                            round3(centre[0]),
+                            round3(centre[1])
+                        ),
+                    ));
+                }
+                all
+            }
             ToolOp::HorizontalDrill {
                 side,
                 along,
@@ -898,6 +945,15 @@ fn verify_operations(
                         .iter()
                         .any(|(p, q)| covers_part(p, q, [a[0], a[1]], [b[0], b[1]], 0.01))
                 }
+                ToolOp::Cutout {
+                    centre,
+                    width,
+                    height,
+                    radius,
+                    ..
+                } => crate::model::cutout_path(centre[0], centre[1], *width, *height, *radius, r)
+                    .windows(2)
+                    .any(|w| covers_part(&w[0], &w[1], [a[0], a[1]], [b[0], b[1]], 0.01)),
                 _ => false,
             }
         })
@@ -999,6 +1055,42 @@ mod tests {
             .flat_map(|p| crate::cam::programs(p, &libs.profile, &mut diags))
             .collect();
         (progs, libs.profile)
+    }
+
+    #[test]
+    fn a_cutout_is_cut_along_its_whole_outline_and_nowhere_else() {
+        let (progs, profile) = programs_of(include_str!("../../../fixtures/vanity/input.json"));
+        let post = GenericIso::default();
+        let p = progs
+            .iter()
+            .find(|p| {
+                p.operations
+                    .iter()
+                    .any(|o| matches!(o.op, ToolOp::Cutout { .. }))
+            })
+            .unwrap();
+        let codes = |nc: &str| {
+            let mut diags = Diagnostics::default();
+            simulate(p, nc, &profile, &mut diags);
+            diags
+                .items
+                .iter()
+                .map(|d| d.code.clone())
+                .collect::<Vec<_>>()
+        };
+        let nc = post.render(p);
+        assert!(codes(&nc).is_empty(), "{:?}", codes(&nc));
+        // The last full-depth move of the outline left out: the slug hangs
+        // on by that corner.
+        let lines: Vec<&str> = nc.lines().collect();
+        let last = lines.iter().rposition(|l| l.starts_with("G01 X")).unwrap();
+        let cut: String = lines
+            .iter()
+            .enumerate()
+            .filter(|(i, _)| *i != last)
+            .map(|(_, l)| format!("{l}\n"))
+            .collect();
+        assert!(codes(&cut).contains(&"CAM-306".to_string()));
     }
 
     #[test]
