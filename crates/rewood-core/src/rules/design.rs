@@ -519,3 +519,80 @@ impl Rule for FrontsCollideOpen {
         out
     }
 }
+
+/// DESIGN-119: a door or drawer front of a cabinet that stands straight on
+/// the floor, with less than `FLOOR_CLEARANCE` under it. The floor is
+/// never flat: the front scrapes it (or the rug) when it opens, and a
+/// drawer front that low has nothing to grip under it either. Legs with a
+/// plinth are the fix. A wall-hung cabinet has no floor under it and is
+/// left alone.
+pub struct FrontOnFloor;
+
+/// Least gap between an opening front and the floor.
+const FLOOR_CLEARANCE: f64 = 10.0;
+
+fn opens(role: &str) -> bool {
+    !role.contains("fixed_front")
+        && (role.contains("door")
+            || role.contains("flap")
+            || role.contains("mirror")
+            || (role.ends_with("_front") && !role.ends_with("box_front")))
+}
+
+impl Rule for FrontOnFloor {
+    fn id(&self) -> &'static str {
+        "DESIGN-119"
+    }
+
+    fn check(&self, input: &RuleInput<'_>) -> Vec<Diagnostic> {
+        let hardware =
+            |j: &crate::model::Joint| j.hardware.first().and_then(|h| input.libs.hardware.get(h));
+        if input
+            .joints
+            .iter()
+            .any(|j| hardware(j).is_some_and(|h| h.kind == "hanger"))
+        {
+            return Vec::new();
+        }
+        // The floor: the lowest a part or a leg reaches.
+        let mut floor = input
+            .parts
+            .iter()
+            .map(|p| p.aabb.min.2)
+            .fold(f64::INFINITY, f64::min);
+        for j in input.joints.iter().filter(|j| j.kind == "fixture") {
+            if let Some(leg) = hardware(j).and_then(|h| h.leg.as_ref()) {
+                floor = floor.min(j.contact.center().2 - leg.height);
+            }
+        }
+        // component → (lowest gap, part ids)
+        let mut hits: BTreeMap<String, (f64, Vec<String>)> = BTreeMap::new();
+        for part in input.parts.iter().filter(|p| opens(&p.role)) {
+            let gap = part.aabb.min.2 - floor;
+            if gap < FLOOR_CLEARANCE - EPS {
+                let e = hits
+                    .entry(part.component.clone())
+                    .or_insert((f64::INFINITY, Vec::new()));
+                e.0 = e.0.min(gap);
+                e.1.push(part.id.clone());
+            }
+        }
+        hits.into_iter()
+            .map(|(component, (gap, ids))| {
+                Diagnostic::new(
+                    self.id(),
+                    Severity::Warning,
+                    format!(
+                        "'{component}': {} a {} mm del piso ({}): roza al abrir, el piso nunca es plano; hacen falta {} mm",
+                        if ids.len() == 1 { "el frente queda" } else { "los frentes quedan" },
+                        mm(gap),
+                        ids.join(", "),
+                        mm(FLOOR_CLEARANCE)
+                    ),
+                )
+                .entity(component)
+                .suggestion("Poné patas con zócalo en la carcasa (legs con plinth), o colgala.")
+            })
+            .collect()
+    }
+}

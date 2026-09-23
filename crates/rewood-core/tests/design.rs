@@ -14,7 +14,7 @@ fn cabinet(params: &str, components: &str) -> String {
   "material": "melamine_18", "edgeMaterial": "abs_1mm",
   "components": [
     {{ "type": "carcass", "id": "c", "joint": {{ "hardware": ["dowel_8x30"] }},
-      "back": {{ "material": "hdf_3" }} {components}
+      "back": {{ "material": "hdf_3" }}, "legs": {{}} {components}
   ]
 }}"#
     )
@@ -429,4 +429,29 @@ fn a_slide_that_does_not_fit_offers_the_longest_that_does() {
     rewood_core::spec::apply_fix(&mut v, fix).unwrap();
     let after = rewood_core::compile_json(&v.to_string());
     assert!(!after.manufacturing_blocked, "{:#?}", after.diagnostics);
+}
+
+#[test]
+fn a_front_down_to_the_floor_is_flagged() {
+    let on_floor = cabinet(
+        "",
+        r#"}, { "type": "doors", "id": "do", "count": 2, "handle": { "hardware": ["handle_bar_128"] } }"#,
+    )
+    .replace(r#", "legs": {}"#, "");
+    let f = findings(&on_floor, "DESIGN-119");
+    assert_eq!(f.len(), 1, "{f:?}");
+    assert_eq!(f[0].0, Severity::Warning);
+    assert!(f[0].1.contains("a 2 mm del piso"), "{}", f[0].1);
+
+    // On legs, or hung on the wall, there is no floor under the fronts.
+    let legs = cabinet(
+        "",
+        r#"}, { "type": "drawers", "id": "dr", "count": 2, "joint": { "hardware": ["dowel_8x30"], "placement": { "endOffset": 40, "maxSpacing": 150 } }, "handle": { "hardware": ["handle_bar_128"] } }"#,
+    );
+    assert!(findings(&legs, "DESIGN-119").is_empty());
+    let hung = on_floor.replace(
+        r#""back": { "material": "hdf_3" }"#,
+        r#""back": { "material": "hdf_3" }, "hanging": {}"#,
+    );
+    assert!(findings(&hung, "DESIGN-119").is_empty());
 }

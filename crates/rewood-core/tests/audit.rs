@@ -910,7 +910,7 @@ fn variants() -> Vec<(String, String, Vec<&'static str>)> {
   "parameters": {{ "width": {w}, "height": {h}, "depth": {d} }},
   "material": "melamine_18", "edgeMaterial": "abs_1mm",
   "components": [
-    {{ "type": "carcass", "id": "c", "joint": {{ "hardware": ["minifix_15", "dowel_8x30"] }}, "back": {{ "material": "hdf_3" }} }},
+    {{ "type": "carcass", "id": "c", "joint": {{ "hardware": ["minifix_15", "dowel_8x30"] }}, "back": {{ "material": "hdf_3" }}, "legs": {{ "plinth": {{ "setback": 40 }} }} }},
     {{ "type": "drawers", "id": "dr", "count": {n}, "softClose": {soft}, "joint": {{ "hardware": ["dowel_8x30"], "placement": {{ "endOffset": 40, "maxSpacing": 150 }} }}, "slide": {{ "hardware": ["{slide}"] }}, "handle": {{ "hardware": ["handle_bar_128"] }} }}
   ]
 }}"#,

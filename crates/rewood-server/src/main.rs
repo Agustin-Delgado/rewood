@@ -133,7 +133,7 @@ mod tests {
         let (s, plan, _) = call(&app, "POST", &format!("/furniture/{fid}/recalculate"), None).await;
         assert_eq!(s, StatusCode::OK);
         assert_eq!(plan["status"], "ok");
-        assert_eq!(plan["parts"].as_array().unwrap().len(), 9);
+        assert_eq!(plan["parts"].as_array().unwrap().len(), 10);
         // Same as compiling directly: the service adds nothing to the plan.
         let direct = rewood_core::compile_json(SPEC).to_json_value();
         assert_eq!(plan, direct);
@@ -223,7 +223,7 @@ mod tests {
         .await;
         assert_eq!(s, StatusCode::OK);
         assert_eq!(prod["status"], "planned");
-        assert_eq!(prod["summary"]["parts"], 9);
+        assert_eq!(prod["summary"]["parts"], 10);
         let (s, prod, _) = call(
             &app,
             "POST",

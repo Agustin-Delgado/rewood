@@ -30,7 +30,8 @@ fn basic_cabinet_is_manufacturable() {
     let plan = rewood_core::compile_json(BASIC);
     assert_eq!(plan.status, PlanStatus::Ok, "{:#?}", plan.diagnostics);
     assert!(!plan.manufacturing_blocked);
-    assert_eq!(plan.parts.len(), 9);
+    // Sides, top, bottom, back, plinth, 2 shelves, 2 doors.
+    assert_eq!(plan.parts.len(), 10);
     let holes: usize = plan
         .parts
         .iter()
@@ -39,9 +40,10 @@ fn basic_cabinet_is_manufacturable() {
         .count();
     // 4 carcass joints × (2 minifix × 3 holes + 2 dowels × 2 holes)
     // + 4 shelf joints × 2 dowels × 2 holes
-    // + 2 doors × 2 hinges × (3 holes on the door + 2 on the side).
-    assert_eq!(holes, 4 * (6 + 4) + 4 * 4 + 2 * 2 * 5);
-    assert_eq!(plan.joints.len(), 10);
+    // + 2 doors × 2 hinges × (3 holes on the door + 2 on the side)
+    // + 6 legs × 4 screws + 3 plinth clips × 2 screws.
+    assert_eq!(holes, 4 * (6 + 4) + 4 * 4 + 2 * 2 * 5 + 6 * 4 + 3 * 2);
+    assert_eq!(plan.joints.len(), 10 + 6 + 3);
     let hinges = plan
         .bom
         .hardware
@@ -222,7 +224,10 @@ fn three_doors_without_dividers_is_fatal_unless_hinges_are_off() {
         plan.parts.iter().filter(|p| p.component == "doors").count(),
         3
     );
-    assert!(plan.joints.iter().all(|j| j.kind == "butt"));
+    assert!(plan
+        .joints
+        .iter()
+        .all(|j| j.kind == "butt" || j.kind == "fixture"));
 }
 
 #[test]
@@ -747,7 +752,7 @@ fn older_snapshots_still_load() {
         layout.as_object_mut().unwrap().remove("cuts");
     }
     let plan: rewood_core::plan::ManufacturingPlan = serde_json::from_value(v).unwrap();
-    assert_eq!(plan.parts.len(), 9);
+    assert_eq!(plan.parts.len(), 10);
     assert_eq!(plan.bom.total_cost, 0.0);
     assert!(plan.purchasing.is_empty());
 }

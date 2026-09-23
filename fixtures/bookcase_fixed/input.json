@@ -24,7 +24,8 @@
       "type": "carcass",
       "id": "carcass",
       "joint": { "hardware": ["minifix_15", "dowel_8x30"] },
-      "back": { "material": "hdf_3" }
+      "back": { "material": "hdf_3" },
+      "legs": { "plinth": { "setback": 40 } }
     },
     {
       "type": "shelves",

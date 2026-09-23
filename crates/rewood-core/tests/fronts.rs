@@ -7,7 +7,7 @@ const WARDROBE: &str = r#"{
   "parameters": { "width": 1200, "height": 2100, "depth": 560, "drawer_top": 500 },
   "material": "melamine_18", "edgeMaterial": "abs_1mm",
   "components": [
-    { "type": "carcass", "id": "c", "bays": 2, "joint": { "hardware": ["dowel_8x30"] }, "back": { "material": "hdf_3" } },
+    { "type": "carcass", "id": "c", "bays": 2, "joint": { "hardware": ["dowel_8x30"] }, "back": { "material": "hdf_3" }, "legs": {} },
     { "type": "rail", "id": "rail", "bay": 1 },
     { "type": "shelves", "id": "sh", "bay": 2, "count": 4, "joint": { "hardware": ["dowel_8x30"] } },
     { "type": "drawers", "id": "dr", "bay": 1, "count": 2, "zone": { "from": 0, "to": "drawer_top" }, "mount": "inset", "setback": 20,
@@ -267,9 +267,9 @@ fn run(middle: &str, right_door: &str) -> String {
   "parameters": {{ "height": 720, "depth": 560 }},
   "material": "melamine_18", "edgeMaterial": "abs_1mm",
   "components": [
-    {{ "type": "carcass", "id": "a", "width": 500, "joint": {{ "hardware": ["dowel_8x30"] }}, "back": {{ "material": "hdf_3" }} }},
-    {{ "type": "carcass", "id": "b", "width": 500, "origin": {{ "x": 500 }}, "joint": {{ "hardware": ["dowel_8x30"] }}, "back": {{ "material": "hdf_3" }} }},
-    {{ "type": "carcass", "id": "c", "width": 500, "origin": {{ "x": 1000 }}, "joint": {{ "hardware": ["dowel_8x30"] }}, "back": {{ "material": "hdf_3" }} }},
+    {{ "type": "carcass", "id": "a", "width": 500, "joint": {{ "hardware": ["dowel_8x30"] }}, "back": {{ "material": "hdf_3" }}, "legs": {{}} }},
+    {{ "type": "carcass", "id": "b", "width": 500, "origin": {{ "x": 500 }}, "joint": {{ "hardware": ["dowel_8x30"] }}, "back": {{ "material": "hdf_3" }}, "legs": {{}} }},
+    {{ "type": "carcass", "id": "c", "width": 500, "origin": {{ "x": 1000 }}, "joint": {{ "hardware": ["dowel_8x30"] }}, "back": {{ "material": "hdf_3" }}, "legs": {{}} }},
     {{ "type": "doors", "id": "da", "carcass": "a", "count": 1 }},
     {middle},
     {{ "type": "doors", "id": "dc", "carcass": "c", "count": 1{right_door} }}
@@ -328,7 +328,7 @@ fn fronts_meeting_inside_a_carcass_keep_one_gap_and_front_height_occupies_what_i
   "parameters": { "width": 600, "height": 900, "depth": 560 },
   "material": "melamine_18", "edgeMaterial": "abs_1mm",
   "components": [
-    { "type": "carcass", "id": "c", "joint": { "hardware": ["dowel_8x30"] }, "back": { "material": "hdf_3" } },
+    { "type": "carcass", "id": "c", "joint": { "hardware": ["dowel_8x30"] }, "back": { "material": "hdf_3" }, "legs": {} },
     { "type": "drawers", "id": "d", "count": 2, "zone": { "from": 0, "to": 400 }, "slide": { "hardware": ["slide_ball_450"] }, "joint": { "hardware": ["dowel_8x30"] } },
     { "type": "doors", "id": "o", "count": 1, "zone": { "from": 400, "to": 900 } }
   ]
@@ -405,7 +405,7 @@ fn a_fixed_front_is_dowelled_to_the_edges_it_covers() {
   "parameters": { "width": 1000, "height": 720, "depth": 560 },
   "material": "melamine_18", "edgeMaterial": "abs_1mm",
   "components": [
-    { "type": "carcass", "id": "c", "bays": 2, "bayWidths": [600, "auto"], "joint": { "hardware": ["dowel_8x30"] }, "back": { "material": "hdf_3" } },
+    { "type": "carcass", "id": "c", "bays": 2, "bayWidths": [600, "auto"], "joint": { "hardware": ["dowel_8x30"] }, "back": { "material": "hdf_3" }, "legs": {} },
     { "type": "doors", "id": "blind", "bay": 1, "count": 1, "fixed": true },
     { "type": "doors", "id": "door", "bay": 2, "count": 1 }
   ]

@@ -23,6 +23,11 @@
       },
       "back": {
         "material": "hdf_3"
+      },
+      "legs": {
+        "plinth": {
+          "setback": 40
+        }
       }
     },
     {

@@ -43,6 +43,7 @@ pub fn all_rules() -> Vec<Box<dyn Rule>> {
         Box::new(design::PanelSpan),
         Box::new(design::HardwareLoad),
         Box::new(design::FrontsCollideOpen),
+        Box::new(design::FrontOnFloor),
     ]
 }
 

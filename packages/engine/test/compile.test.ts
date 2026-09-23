@@ -22,7 +22,7 @@ describe('@rewood/engine', () => {
     const expected = JSON.parse(fixture('basic_cabinet', 'expected.json'));
     expect(plan).toEqual(expected);
     expect(plan.status).toBe('ok');
-    expect(plan.parts).toHaveLength(9);
+    expect(plan.parts).toHaveLength(10);
   });
 
   it('accepts a typed spec and exposes typed operations', () => {
