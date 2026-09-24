@@ -6,8 +6,16 @@
 	 * spec that is compiled, packaged or saved.
 	 */
 	import type { EdgeMaterial, HardwareDef, LibraryOverrides, Material } from '@rewood/engine/browser';
+	import type { Snippet } from 'svelte';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
+	import Copy from '@lucide/svelte/icons/copy';
+	import Download from '@lucide/svelte/icons/download';
+	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+	import Search from '@lucide/svelte/icons/search';
+	import Upload from '@lucide/svelte/icons/upload';
 	import { app } from '../state.svelte';
 	import { duplicate, hasOverride, isEmpty, resetEntry, setValue } from '../workshop';
+	import { Badge, Button, EmptyState, Input, NumberField, Section, Segmented } from '$lib/ui';
 
 	type ListKey = 'materials' | 'edgeMaterials' | 'hardware';
 	/** `always`: shown even when neither the item nor the standard has it (a price to fill in). */
@@ -87,6 +95,7 @@
 	let filter = $state('');
 	let open: string | null = $state(null);
 	let message: string | null = $state(null);
+	let fileInput: HTMLInputElement | null = $state(null);
 
 	const libs = $derived(app.libraries);
 	const defaults = $derived(app.defaults);
@@ -135,9 +144,9 @@
 		}
 		app.setWorkshop(next);
 	}
-	function num(list: ListKey, item: Record<string, unknown>, path: (string | number)[], raw: string) {
-		const v = Number(raw.replace(',', '.'));
-		if (raw.trim() === '' || !Number.isFinite(v)) return;
+	/** A number committed by a field; an emptied field keeps the value it had. */
+	function num(list: ListKey, item: Record<string, unknown>, path: (string | number)[], v: number | null) {
+		if (v === null || !Number.isFinite(v)) return;
 		write(list, item, path, v);
 	}
 	function text(list: ListKey, item: Record<string, unknown>, path: string[], raw: string) {
@@ -157,9 +166,8 @@
 		const along = (h.holes ?? []).map((x) => x.offsetAlong ?? 0);
 		return along.length === 2 ? Math.abs(along[1] - along[0]) : null;
 	}
-	function setCentres(h: HardwareDef, raw: string) {
-		const d = Number(raw.replace(',', '.'));
-		if (!Number.isFinite(d) || d <= 0 || (h.holes ?? []).length !== 2) return;
+	function setCentres(h: HardwareDef, d: number | null) {
+		if (d === null || !Number.isFinite(d) || d <= 0 || (h.holes ?? []).length !== 2) return;
 		const holes = structuredClone(h.holes);
 		holes[0].offsetAlong = -d / 2;
 		holes[1].offsetAlong = d / 2;
@@ -205,61 +213,100 @@
 		if (confirm('¿Volver toda la biblioteca a las medidas estándar? Se pierden los cambios del taller.')) app.setWorkshop({});
 	}
 	const fmt = (v: unknown) => (v === undefined || v === null ? '' : String(v));
+	const asNum = (v: unknown) => (typeof v === 'number' ? v : null);
+
+	const ROW = 'grid grid-cols-[minmax(0,1fr)_7.5rem] items-center gap-x-2 gap-y-0.5';
+	const LBL = 'truncate text-xs text-muted-foreground';
 </script>
 
 {#snippet numberRow(list: ListKey, item: Record<string, unknown>, f: Field)}
 	{@const value = get(item, f.path)}
 	{@const std = standard(list, item.id as string, f.path)}
+	{@const changed = std !== undefined && value !== std}
 	{#if value !== undefined || std !== undefined || f.always}
-		<label class="row" class:changed={std !== undefined && value !== std}>
-			<span>{f.label}</span>
-			<input inputmode="decimal" value={fmt(value)} onchange={(e) => num(list, item, f.path, e.currentTarget.value)} />
-			<span class="unit">{f.unit ?? ''}</span>
-			{#if std !== undefined && value !== std}<span class="std" title="medida estándar">estándar {fmt(std)}</span>{/if}
-		</label>
+		<div class={ROW}>
+			<span class="{LBL} {changed ? 'font-medium text-primary-soft-foreground' : ''}">{f.label}</span>
+			<NumberField size="xs" aria-label={f.label} unit={f.unit} value={asNum(value)} invalid={false}
+				class={changed ? '[&_[data-number-field-group]]:border-primary/60' : ''}
+				onChange={(v) => num(list, item, f.path, v)} />
+			{#if changed}<span class="col-start-2 text-right text-2xs text-subtle-foreground" title="medida estándar">estándar {fmt(std)}</span>{/if}
+		</div>
 	{/if}
 {/snippet}
 
 {#snippet head(list: ListKey, item: { id: string; name: string })}
-	<button class="item" class:open={open === item.id} onclick={() => (open = open === item.id ? null : item.id)}>
-		<span class="name">{item.name}</span>
-		{#if isNew(list, item.id)}<span class="tag new">nuevo</span>{:else if hasOverride(app.workshop, list, item.id)}<span class="tag">cambiado</span>{/if}
+	<button
+		class="flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm outline-none hover:bg-depth-2 focus-visible:ring-2 focus-visible:ring-ring/60 {open === item.id ? 'bg-depth-2' : ''}"
+		aria-expanded={open === item.id}
+		onclick={() => (open = open === item.id ? null : item.id)}
+	>
+		<ChevronRight class="size-3.5 shrink-0 text-subtle-foreground transition-transform {open === item.id ? 'rotate-90' : ''}" />
+		<span class="min-w-0 flex-1 truncate">{item.name}</span>
+		{#if isNew(list, item.id)}<Badge tone="success">nuevo</Badge>{:else if hasOverride(app.workshop, list, item.id)}<Badge tone="primary">modificado</Badge>{/if}
 	</button>
 {/snippet}
 
 {#snippet actions(list: ListKey, item: { id: string; name: string })}
-	<div class="actions">
-		<span class="id mono">{item.id}</span>
-		<span class="spacer"></span>
-		<button onclick={() => copy(list, item)} title="Un ítem nuevo con estos datos, para cargar otra medida">Duplicar</button>
+	<div class="mt-1 flex items-center gap-1 border-t pt-2">
+		<span class="min-w-0 flex-1 truncate font-mono text-2xs text-subtle-foreground">{item.id}</span>
+		<Button size="xs" variant="ghost" onclick={() => copy(list, item)} title="Un ítem nuevo con estos datos, para cargar otra medida"><Copy />Duplicar</Button>
 		{#if hasOverride(app.workshop, list, item.id)}
-			<button onclick={() => reset(list, item.id)}>{isNew(list, item.id) ? 'Quitar' : 'Volver al estándar'}</button>
+			<Button size="xs" variant={isNew(list, item.id) ? 'danger' : 'ghost'} onclick={() => reset(list, item.id)}>
+				<RotateCcw />{isNew(list, item.id) ? 'Quitar' : 'Volver al estándar'}
+			</Button>
 		{/if}
 	</div>
 {/snippet}
 
-<div class="library">
-	<p class="intro">
-		Por defecto, medidas estándar de Argentina. Lo que cambies acá vale para todos los muebles, lo recuerda este navegador y
-		viaja dentro de la spec al descargar el paquete o guardar en el servidor.
-	</p>
-	<div class="bar">
-		<div class="tabs">
-			<button class:active={section === 'boards'} onclick={() => (section = 'boards')}>Placas</button>
-			<button class:active={section === 'edges'} onclick={() => (section = 'edges')}>Cantos</button>
-			<button class:active={section === 'hardware'} onclick={() => (section = 'hardware')}>Herrajes</button>
+{#snippet nameRow(list: ListKey, item: Record<string, unknown>, name: string)}
+	<label class="grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2">
+		<span class={LBL}>nombre</span>
+		<Input size="xs" value={name} onchange={(e) => text(list, item, ['name'], e.currentTarget.value)} />
+	</label>
+{/snippet}
+
+{#snippet card(list: ListKey, item: { id: string; name: string }, body: Snippet)}
+	<div class="rounded-md border bg-depth-0 {open === item.id ? 'border-border-strong shadow-xs' : ''}">
+		{@render head(list, item)}
+		{#if open === item.id}
+			<div class="flex flex-col gap-1.5 border-t px-2.5 py-2">
+				{@render body()}
+				{@render actions(list, item)}
+			</div>
+		{/if}
+	</div>
+{/snippet}
+
+<div class="flex h-full flex-col">
+	<div class="flex shrink-0 flex-col gap-2 border-b p-3">
+		<p class="text-xs leading-relaxed text-muted-foreground">
+			Por defecto, medidas estándar de Argentina. Lo que cambies acá vale para todos los muebles, lo recuerda este navegador y
+			viaja dentro de la spec al descargar el paquete o guardar en el servidor.
+		</p>
+		<div class="flex items-center gap-2">
+			<Segmented
+				aria-label="Sección de la biblioteca"
+				bind:value={section}
+				options={[
+					{ value: 'boards', label: 'Placas' },
+					{ value: 'edges', label: 'Cantos' },
+					{ value: 'hardware', label: 'Herrajes' }
+				]}
+			/>
+			<div class="relative min-w-0 flex-1">
+				<Search class="pointer-events-none absolute top-1/2 left-2 size-3.5 -translate-y-1/2 text-subtle-foreground" />
+				<Input size="sm" class="pl-7" placeholder="buscar" aria-label="buscar en la biblioteca" bind:value={filter} />
+			</div>
 		</div>
-		<input class="filter" placeholder="buscar" bind:value={filter} />
 	</div>
 
-	{#if section === 'boards'}
-		{#each boards as m (m.id)}
-			{@const item = m as Material & Record<string, unknown>}
-			<div class="card">
-				{@render head('materials', m)}
-				{#if open === m.id}
-					<div class="fields">
-						<label class="row"><span>nombre</span><input value={m.name} onchange={(e) => text('materials', item, ['name'], e.currentTarget.value)} /></label>
+	<div class="min-h-0 flex-1 overflow-y-auto">
+		{#if section === 'boards'}
+			<div class="flex flex-col gap-1.5 p-3">
+				{#each boards as m (m.id)}
+					{@const item = m as Material & Record<string, unknown>}
+					{#snippet body()}
+						{@render nameRow('materials', item, m.name)}
 						{@render numberRow('materials', item, { path: ['nominalThickness'], label: 'espesor', unit: 'mm' })}
 						{@render numberRow('materials', item, { path: ['actualThickness'], label: 'espesor real', unit: 'mm' })}
 						{@render numberRow('materials', item, { path: ['sheetLength'], label: 'placa: largo', unit: 'mm' })}
@@ -271,248 +318,75 @@
 						{/if}
 						{@render numberRow('materials', item, { path: ['maxSpan'], label: 'luz sin pandeo', unit: 'mm', always: true })}
 						{@render numberRow('materials', item, { path: ['density'], label: 'densidad', unit: 'kg/m³' })}
-						{@render actions('materials', m)}
-					</div>
-				{/if}
+					{/snippet}
+					{@render card('materials', m, body)}
+				{:else}
+					<EmptyState title="Nada coincide" description="Probá con otro nombre o id." />
+				{/each}
 			</div>
-		{/each}
-	{:else if section === 'edges'}
-		{#each edges as c (c.id)}
-			{@const item = c as EdgeMaterial & Record<string, unknown>}
-			<div class="card">
-				{@render head('edgeMaterials', c)}
-				{#if open === c.id}
-					<div class="fields">
-						<label class="row"><span>nombre</span><input value={c.name} onchange={(e) => text('edgeMaterials', item, ['name'], e.currentTarget.value)} /></label>
+		{:else if section === 'edges'}
+			<div class="flex flex-col gap-1.5 p-3">
+				{#each edges as c (c.id)}
+					{@const item = c as EdgeMaterial & Record<string, unknown>}
+					{#snippet body()}
+						{@render nameRow('edgeMaterials', item, c.name)}
 						{@render numberRow('edgeMaterials', item, { path: ['thickness'], label: 'espesor', unit: 'mm' })}
 						{@render numberRow('edgeMaterials', item, { path: ['pricePerMetre'], label: 'precio por metro', unit: '$', always: true })}
-						{@render actions('edgeMaterials', c)}
-					</div>
-				{/if}
+					{/snippet}
+					{@render card('edgeMaterials', c, body)}
+				{:else}
+					<EmptyState title="Nada coincide" description="Probá con otro nombre o id." />
+				{/each}
 			</div>
-		{/each}
-	{:else}
-		{#each groups as [kind, list] (kind)}
-			{@const k = KINDS[kind] ?? OTHER}
-			<h4>{k.label}</h4>
-			{#each list as h (h.id)}
-				{@const item = h as unknown as Record<string, unknown>}
-				<div class="card">
-					{@render head('hardware', h)}
-					{#if open === h.id}
-						<div class="fields">
-							<label class="row"><span>nombre</span><input value={h.name} onchange={(e) => text('hardware', item, ['name'], e.currentTarget.value)} /></label>
+		{:else}
+			{#each groups as [kind, list] (kind)}
+				{@const k = KINDS[kind] ?? OTHER}
+				<Section title={k.label} count={list.length} bodyClass="flex flex-col gap-1.5">
+					{#each list as h (h.id)}
+						{@const item = h as unknown as Record<string, unknown>}
+						{#snippet body()}
+							{@render nameRow('hardware', item, h.name)}
 							{#each k.fields as f (f.path.join('.'))}
 								{@render numberRow('hardware', item, f)}
 							{/each}
 							{#if kind === 'handle' && centres(h) !== null}
-								<label class="row">
-									<span>entre centros</span>
-									<input inputmode="decimal" value={fmt(centres(h))} onchange={(e) => setCentres(h, e.currentTarget.value)} />
-									<span class="unit">mm</span>
-								</label>
+								<div class={ROW}>
+									<span class={LBL}>entre centros</span>
+									<NumberField size="xs" aria-label="entre centros" unit="mm" value={centres(h)} onChange={(v) => setCentres(h, v)} />
+								</div>
 							{/if}
 							{#if (h.bomItems ?? []).length}
-								<div class="bom">
-									<span class="bomhead">Se compra</span>
+								<div class="mt-1 flex flex-col gap-1">
+									<span class="text-2xs font-semibold tracking-wide text-subtle-foreground uppercase">Se compra</span>
 									{#each h.bomItems ?? [] as b, i (i)}
-										<div class="bomrow">
-											<input class="bname" value={b.name} onchange={(e) => write('hardware', item, ['bomItems', i, 'name'], e.currentTarget.value.trim() || b.name)} />
-											<input class="bnum" title="cantidad por unidad" inputmode="decimal" value={fmt(b.quantity)} onchange={(e) => num('hardware', item, ['bomItems', i, 'quantity'], e.currentTarget.value)} />
-											<input class="bnum" title="precio unitario" placeholder="$" inputmode="decimal" value={fmt(b.unitPrice)} onchange={(e) => num('hardware', item, ['bomItems', i, 'unitPrice'], e.currentTarget.value)} />
+										<div class="grid grid-cols-[minmax(0,1fr)_3.5rem_5rem] gap-1">
+											<Input size="xs" aria-label="artículo" value={b.name} onchange={(e) => write('hardware', item, ['bomItems', i, 'name'], e.currentTarget.value.trim() || b.name)} />
+											<NumberField size="xs" title="cantidad por unidad" aria-label="cantidad por unidad" value={b.quantity} onChange={(v) => num('hardware', item, ['bomItems', i, 'quantity'], v)} />
+											<NumberField size="xs" title="precio unitario" aria-label="precio unitario" placeholder="$" value={b.unitPrice} onChange={(v) => num('hardware', item, ['bomItems', i, 'unitPrice'], v)} />
 										</div>
 									{/each}
 								</div>
 							{/if}
-							{@render actions('hardware', h)}
-						</div>
-					{/if}
-				</div>
+						{/snippet}
+						{@render card('hardware', h, body)}
+					{/each}
+				</Section>
+			{:else}
+				<EmptyState title="Nada coincide" description="Probá con otro nombre o id." />
 			{/each}
-		{/each}
-	{/if}
-
-	<div class="footer">
-		<span class="count">{changes === 0 ? 'Sin cambios: todo estándar.' : `${changes} cambio${changes === 1 ? '' : 's'} del taller.`}</span>
-		<span class="spacer"></span>
-		<button onclick={exportFile} disabled={isEmpty(app.workshop)}>Exportar</button>
-		<label class="button">Importar<input type="file" accept="application/json,.json" onchange={(e) => importFile(e.currentTarget)} hidden /></label>
-		<button onclick={resetAll} disabled={isEmpty(app.workshop)}>Todo estándar</button>
+		{/if}
 	</div>
-	{#if message}<p class="message">{message}</p>{/if}
-</div>
 
-<style>
-	.library {
-		display: flex;
-		flex-direction: column;
-		gap: 6px;
-		font-size: 13px;
-	}
-	.intro {
-		margin: 0 0 4px;
-		color: #555;
-		line-height: 1.4;
-	}
-	.bar {
-		display: flex;
-		gap: 6px;
-		align-items: center;
-	}
-	.tabs {
-		display: flex;
-		gap: 2px;
-	}
-	.tabs button {
-		border: 1px solid #ccc;
-		background: #fff;
-		padding: 3px 8px;
-		cursor: pointer;
-		border-radius: 3px;
-	}
-	.tabs button.active {
-		background: #ff8c42;
-		border-color: #ff8c42;
-		color: #fff;
-	}
-	.filter {
-		flex: 1;
-		min-width: 0;
-		padding: 3px 6px;
-	}
-	h4 {
-		margin: 10px 0 2px;
-		font-size: 11px;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		color: #777;
-	}
-	.card {
-		border: 1px solid #e3e3e3;
-		border-radius: 4px;
-	}
-	.item {
-		display: flex;
-		width: 100%;
-		align-items: center;
-		gap: 6px;
-		background: none;
-		border: 0;
-		padding: 5px 8px;
-		text-align: left;
-		cursor: pointer;
-		font: inherit;
-	}
-	.item.open {
-		background: #fff4ec;
-	}
-	.name {
-		flex: 1;
-	}
-	.tag {
-		font-size: 11px;
-		color: #b85c14;
-		border: 1px solid #f0c29b;
-		border-radius: 8px;
-		padding: 0 6px;
-	}
-	.tag.new {
-		color: #1f7a3a;
-		border-color: #9fd3ae;
-	}
-	.fields {
-		display: flex;
-		flex-direction: column;
-		gap: 4px;
-		padding: 6px 8px 8px;
-		border-top: 1px solid #eee;
-	}
-	.row {
-		display: grid;
-		grid-template-columns: 1fr 90px 30px;
-		align-items: center;
-		gap: 6px;
-	}
-	.row input {
-		min-width: 0;
-		padding: 2px 4px;
-	}
-	.row:has(> span + input:not([inputmode])) {
-		grid-template-columns: 70px 1fr;
-	}
-	.row.changed input {
-		border-color: #ff8c42;
-	}
-	.std {
-		grid-column: 2 / 4;
-		font-size: 11px;
-		color: #888;
-		margin-top: -2px;
-	}
-	.unit {
-		color: #888;
-		font-size: 11px;
-	}
-	.bom {
-		display: flex;
-		flex-direction: column;
-		gap: 3px;
-		margin-top: 4px;
-	}
-	.bomhead {
-		font-size: 11px;
-		color: #777;
-	}
-	.bomrow {
-		display: grid;
-		grid-template-columns: 1fr 44px 70px;
-		gap: 4px;
-	}
-	.bomrow input {
-		min-width: 0;
-		padding: 2px 4px;
-	}
-	.actions,
-	.footer {
-		display: flex;
-		align-items: center;
-		gap: 6px;
-		margin-top: 4px;
-	}
-	.spacer {
-		flex: 1;
-	}
-	.id {
-		color: #999;
-		font-size: 11px;
-	}
-	.mono {
-		font-family: ui-monospace, monospace;
-	}
-	.footer {
-		border-top: 1px solid #eee;
-		padding-top: 8px;
-		margin-top: 8px;
-	}
-	.count {
-		color: #555;
-	}
-	button,
-	.button {
-		font: inherit;
-		font-size: 12px;
-		border: 1px solid #ccc;
-		background: #fff;
-		border-radius: 3px;
-		padding: 3px 8px;
-		cursor: pointer;
-	}
-	button:disabled {
-		opacity: 0.5;
-		cursor: default;
-	}
-	.message {
-		margin: 4px 0 0;
-		color: #555;
-	}
-</style>
+	<div class="flex shrink-0 flex-col gap-1 border-t bg-depth-1 px-3 py-2">
+		<p class="text-xs text-muted-foreground">
+			{#if changes === 0}Sin cambios: todo estándar.{:else}<Badge tone="primary" class="mr-1">{changes}</Badge>cambio{changes === 1 ? '' : 's'} del taller.{/if}
+		</p>
+		<div class="-mx-1.5 flex items-center gap-1">
+			<Button size="xs" variant="ghost" onclick={exportFile} disabled={isEmpty(app.workshop)} title="Exportar"><Download />Exportar</Button>
+			<Button size="xs" variant="ghost" onclick={() => fileInput?.click()} title="Importar"><Upload />Importar</Button>
+			<input bind:this={fileInput} type="file" accept="application/json,.json" onchange={(e) => importFile(e.currentTarget)} hidden />
+			<Button size="xs" variant="ghost" onclick={resetAll} disabled={isEmpty(app.workshop)}><RotateCcw />Todo estándar</Button>
+		</div>
+		{#if message}<p class="text-xs text-muted-foreground">{message}</p>{/if}
+	</div>
+</div>

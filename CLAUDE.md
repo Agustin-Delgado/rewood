@@ -43,6 +43,13 @@ referencia es el PDF *CAD paramétrico y motor de fabricación para mobiliario*
   `tests/audit.rs`, extremo por extremo. Si uno da ERROR o FATAL se ajusta
   la cota (con una expresión si depende de otra medida), no el test.
 
+- **La UI se arma con el sistema de diseño.** Toda pantalla usa los
+  componentes de `packages/app/src/lib/ui` (primitivas headless de
+  `@human-kit/ui` con las recetas de `recipes.ts`) y utilidades de Tailwind
+  sobre los tokens de `src/app.css`. Nada de `<button>`/`<select>`/`<input>`
+  sueltos ni colores escritos a mano: si falta algo, se agrega al sistema
+  (receta + componente + ejemplo en `/sistema`), no a la pantalla.
+
 ## Idioma
 
 Código, comentarios, nombres y mensajes de test en **inglés**. Textos que lee

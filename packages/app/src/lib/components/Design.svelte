@@ -5,9 +5,16 @@
 	 * range all come from the plan (the engine resolved them); a change
 	 * writes the parameter back and recompiles.
 	 */
-	import type { PlanOption } from '@rewood/engine/browser';
+	import type { Diagnostic, PlanOption } from '@rewood/engine/browser';
 	import { app } from '$lib/state.svelte';
 	import { findVariant, overall } from '$lib/catalog';
+	import { Badge, Button, EmptyState, NumberField, Section, Segmented, Slider, Switch, recipes } from '$lib/ui';
+	import Minus from '@lucide/svelte/icons/minus';
+	import Plus from '@lucide/svelte/icons/plus';
+	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
+	import LayoutGrid from '@lucide/svelte/icons/layout-grid';
+	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+	import Wrench from '@lucide/svelte/icons/wrench';
 
 	const options = $derived((app.plan?.options ?? []).filter((o) => o.active));
 	const groups = $derived.by(() => {
@@ -62,349 +69,163 @@
 		if (o.max !== undefined) v = Math.min(o.max, v);
 		set(o, Math.round(v * 1000) / 1000);
 	}
-	/** A typed value: empty or not a number puts the current one back (`Number('')` is 0). */
-	function typed(o: PlanOption, input: HTMLInputElement) {
-		const raw = input.value.trim().replace(',', '.');
-		const v = Number(raw);
-		if (raw === '' || !Number.isFinite(v)) {
-			input.value = String(num(o));
-			return;
-		}
+	/** A typed value; an emptied field keeps the current one. */
+	function typed(o: PlanOption, v: number | null) {
+		if (v === null || !Number.isFinite(v)) return;
 		if (v !== num(o)) set(o, v);
 	}
+	/** The discrete values of a short range, drawn as a row of choices. */
+	function ticks(o: PlanOption): number[] {
+		return Array.from({ length: Math.round((o.max! - o.min!) / stepOf(o)) + 1 }, (_, i) => o.min! + i * stepOf(o));
+	}
+	const tick = (o: PlanOption) => ticks(o).find((v) => Math.abs(num(o) - v) < 1e-6);
 	function reset() {
 		if (app.variant) app.loadVariant(app.variant);
 	}
 </script>
 
-<div class="design">
-	<div class="summary">
-		<div class="title">
-			{#if current}
-				<span class="crumb">{current.category.name}</span>
-				<span class="name">{current.variant.name}</span>
-			{:else}
-				<span class="name">{app.spec.name}</span>
+<div class="h-full overflow-y-auto">
+	<div class="p-3">
+		<div class={recipes.card({ class: 'grid gap-2 p-3' })}>
+			<div class="min-w-0">
+				{#if current}
+					<p class="text-2xs font-semibold tracking-[0.06em] text-subtle-foreground uppercase">{current.category.name}</p>
+					<p class="truncate text-base font-semibold">{current.variant.name}</p>
+				{:else}
+					<p class="truncate text-base font-semibold">{app.spec.name}</p>
+				{/if}
+			</div>
+			{#if size}
+				<p class="num font-mono text-xs text-foreground">
+					{size[0]} <span class="font-sans text-2xs text-subtle-foreground">ancho</span> × {size[1]}
+					<span class="font-sans text-2xs text-subtle-foreground">alto</span> × {size[2]}
+					<span class="font-sans text-2xs text-subtle-foreground">prof.</span> mm
+				</p>
 			{/if}
-		</div>
-		{#if size}
-			<div class="size">{size[0]} <i>ancho</i> × {size[1]} <i>alto</i> × {size[2]} <i>prof.</i> mm</div>
-		{/if}
-		<div class="stats">
-			<span>{app.plan?.parts.length ?? 0} piezas</span>
-			<span>{hardwareCount} herrajes</span>
-			{#if errors.length}
-				<span class="bad">{errors.length} {errors.length === 1 ? 'error' : 'errores'}</span>
-			{:else if warnings.length}
-				<span class="warn">{warnings.length} {warnings.length === 1 ? 'aviso' : 'avisos'}</span>
-			{:else}
-				<span class="ok">fabricable</span>
-			{/if}
-		</div>
-		<div class="actions">
-			<button onclick={() => (app.catalogOpen = true)}>Cambiar mueble…</button>
-			{#if app.variant}<button onclick={reset} title="Volver a los valores de esta variante">Restablecer</button>{/if}
+			<div class="flex flex-wrap gap-1">
+				<Badge>{app.plan?.parts.length ?? 0} piezas</Badge>
+				<Badge>{hardwareCount} herrajes</Badge>
+				{#if errors.length}
+					<Badge tone="danger">{errors.length} {errors.length === 1 ? 'error' : 'errores'}</Badge>
+				{:else if warnings.length}
+					<Badge tone="warning">{warnings.length} {warnings.length === 1 ? 'aviso' : 'avisos'}</Badge>
+				{:else}
+					<Badge tone="success">fabricable</Badge>
+				{/if}
+			</div>
+			<div class="flex gap-1.5 pt-0.5">
+				<Button size="xs" variant="soft" onclick={() => (app.catalogOpen = true)}><LayoutGrid />Cambiar mueble…</Button>
+				{#if app.variant}
+					<Button size="xs" variant="ghost" onclick={reset} title="Volver a los valores de esta variante"><RotateCcw />Restablecer</Button>
+				{/if}
+			</div>
 		</div>
 	</div>
 
 	{#if options.length === 0}
-		<p class="empty">
-			Este mueble no declara opciones. Sus medidas están en <b>Parámetros</b> y sus partes en <b>Componentes</b>.
-		</p>
+		<EmptyState
+			title="Sin opciones"
+			description="Este mueble no declara opciones. Sus medidas están en Parámetros y sus partes en Componentes."
+		/>
 	{/if}
 
-	{#each groups as [group, list] (group)}
-		<h3>{group}</h3>
-		{#each list as o (o.param)}
-			{@const bad = outOfRange(o)}
-			<div class="option" class:invalid={!!bad}>
-				<div class="label">
-					<span>{o.label}</span>
-					{#if o.kind === 'number'}
-						<span class="value">
-							<button class="nudge" onclick={() => nudge(o, -1)} disabled={o.min !== undefined && num(o) <= o.min} aria-label="menos">−</button>
-							<input
-								type="text"
-								inputmode="decimal"
-								value={num(o)}
-								onchange={(e) => typed(o, e.currentTarget)}
-								onkeydown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-							/>
-							{#if o.unit}<span class="unit">{o.unit}</span>{/if}
-							<button class="nudge" onclick={() => nudge(o, 1)} disabled={o.max !== undefined && num(o) >= o.max} aria-label="más">+</button>
-						</span>
-					{:else if o.kind === 'toggle'}
-						<button
-							class="switch"
-							role="switch"
-							aria-checked={o.value === true}
-							aria-label={o.label}
-							class:on={o.value === true}
-							onclick={() => set(o, o.value !== true)}
-						><span></span></button>
-					{/if}
-				</div>
-				{#if o.kind === 'number' && o.min !== undefined && o.max !== undefined && o.max > o.min}
-					{#if (o.max - o.min) / stepOf(o) <= 8}
-						<div class="ticks">
-							{#each Array.from({ length: Math.round((o.max - o.min) / stepOf(o)) + 1 }, (_, i) => o.min! + i * stepOf(o)) as v (v)}
-								<button class:on={Math.abs(num(o) - v) < 1e-6} onclick={() => set(o, v)}>{v}</button>
-							{/each}
+	<div class="border-t">
+		{#each groups as [group, list] (group)}
+			<Section title={group} count={list.length} bodyClass="px-3 pb-2">
+				{#each list as o (o.param)}
+					{@const bad = outOfRange(o)}
+					<div class="border-b border-border/60 py-2.5 first:pt-0.5 last:border-b-0">
+						<div class="flex min-h-7 items-center justify-between gap-3">
+							<span class="min-w-0 truncate text-sm font-medium">{o.label}</span>
+							{#if o.kind === 'number'}
+								<div class="flex shrink-0 items-center gap-0.5">
+									<Button
+										variant="ghost"
+										size="icon-xs"
+										onclick={() => nudge(o, -1)}
+										disabled={o.min !== undefined && num(o) <= o.min}
+										aria-label="menos"><Minus /></Button
+									>
+									<NumberField
+										class="w-24"
+										value={num(o)}
+										onChange={(v) => typed(o, v)}
+										step={stepOf(o)}
+										decimals={3}
+										unit={o.unit}
+										invalid={!!bad}
+										aria-label={o.label}
+									/>
+									<Button
+										variant="ghost"
+										size="icon-xs"
+										onclick={() => nudge(o, 1)}
+										disabled={o.max !== undefined && num(o) >= o.max}
+										aria-label="más"><Plus /></Button
+									>
+								</div>
+							{:else if o.kind === 'toggle'}
+								<Switch checked={o.value === true} aria-label={o.label} onChange={(v) => set(o, v)} />
+							{/if}
 						</div>
-					{:else}
-						<input
-							class="slider"
-							type="range"
-							min={o.min}
-							max={o.max}
-							step={stepOf(o)}
-							value={num(o)}
-							oninput={(e) => slide(o.param, Number(e.currentTarget.value))}
-							onchange={(e) => set(o, Number(e.currentTarget.value))}
-						/>
-						<div class="range"><span>{o.min}</span><span>{o.max}</span></div>
-					{/if}
-				{:else if o.kind === 'choice'}
-					<div class="choices">
-						{#each o.choices ?? [] as c (c.value)}
-							<button class:on={o.value === c.value} onclick={() => set(o, c.value)}>{c.label}</button>
-						{/each}
+						{#if o.kind === 'number' && o.min !== undefined && o.max !== undefined && o.max > o.min}
+							{#if (o.max - o.min) / stepOf(o) <= 8}
+								<Segmented
+									class="mt-2"
+									fill
+									aria-label={o.label}
+									value={tick(o) === undefined ? null : String(tick(o))}
+									options={ticks(o).map((v) => ({ value: String(v), label: String(v) }))}
+									onChange={(v) => set(o, Number(v))}
+								/>
+							{:else}
+								<Slider
+									class="mt-2"
+									aria-label={o.label}
+									min={o.min}
+									max={o.max}
+									step={stepOf(o)}
+									value={num(o)}
+									onInput={(v) => slide(o.param, v)}
+									onChange={(v) => set(o, v)}
+								/>
+								<div class="num flex justify-between text-2xs text-subtle-foreground">
+									<span>{o.min}</span><span>{o.max}</span>
+								</div>
+							{/if}
+						{:else if o.kind === 'choice'}
+							<Segmented
+								class="mt-2"
+								fill
+								aria-label={o.label}
+								value={String(o.value)}
+								options={(o.choices ?? []).map((c) => ({ value: String(c.value), label: c.label }))}
+								onChange={(v) => set(o, Number(v))}
+							/>
+						{/if}
+						{#if o.help}<p class="mt-1.5 text-xs leading-snug text-muted-foreground">{o.help}</p>{/if}
+						{#if bad}{@render finding(bad)}{/if}
 					</div>
-				{/if}
-				{#if o.help}<p class="help">{o.help}</p>{/if}
-				{#if bad}
-					<p class="finding">
-						{bad.message}
-						{#if bad.fix}<button class="fix" onclick={() => app.applyFix(bad.fix!)}>{bad.fix.label}</button>{/if}
-					</p>
-				{/if}
-			</div>
+				{/each}
+			</Section>
 		{/each}
-	{/each}
 
-	{#if blocking.length}
-		<h3>Para poder fabricarlo</h3>
-		{#each blocking.slice(0, 4) as d (d.code + (d.entity ?? '') + d.message)}
-			<p class="finding">
-				{d.message}
-				{#if d.fix}<button class="fix" onclick={() => app.applyFix(d.fix!)}>{d.fix.label}</button>{/if}
-			</p>
-		{/each}
-	{/if}
+		{#if blocking.length}
+			<Section title="Para poder fabricarlo" count={blocking.length} static bodyClass="grid gap-1.5 px-3 pb-3">
+				{#each blocking.slice(0, 4) as d (d.code + (d.entity ?? '') + d.message)}
+					{@render finding(d)}
+				{/each}
+			</Section>
+		{/if}
+	</div>
 </div>
 
-<style>
-	.design {
-		font-size: 13px;
-		overflow: auto;
-		height: 100%;
-		padding: 10px 12px 16px;
-		box-sizing: border-box;
-	}
-	.summary {
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-		padding: 10px 12px;
-		background: #fcfbf9;
-		display: grid;
-		gap: 4px;
-	}
-	.title {
-		display: flex;
-		flex-direction: column;
-	}
-	.crumb {
-		color: #9ca3af;
-		font-size: 11px;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-	.name {
-		font-size: 15px;
-		font-weight: 600;
-	}
-	.size {
-		font-variant-numeric: tabular-nums;
-		color: #374151;
-	}
-	.size i {
-		font-style: normal;
-		color: #9ca3af;
-		font-size: 11px;
-	}
-	.stats {
-		display: flex;
-		gap: 10px;
-		color: #6b7280;
-		font-size: 12px;
-	}
-	.ok {
-		color: #047857;
-	}
-	.warn {
-		color: #92400e;
-	}
-	.bad {
-		color: #b91c1c;
-		font-weight: 600;
-	}
-	.actions {
-		display: flex;
-		gap: 6px;
-		margin-top: 4px;
-	}
-	button {
-		font: inherit;
-		cursor: pointer;
-	}
-	.actions button {
-		font-size: 12px;
-		padding: 3px 10px;
-		border: 1px solid #d1d5db;
-		border-radius: 5px;
-		background: #fff;
-	}
-	.actions button:first-child {
-		border-color: #ff8c42;
-		color: #c2410c;
-	}
-	h3 {
-		font-size: 11px;
-		text-transform: uppercase;
-		letter-spacing: 0.06em;
-		color: #6b7280;
-		margin: 16px 0 6px;
-	}
-	.empty {
-		color: #6b7280;
-	}
-	.option {
-		padding: 8px 0;
-		border-bottom: 1px solid #f3f4f6;
-	}
-	.option.invalid .value input {
-		border-color: #dc2626;
-	}
-	.label {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		gap: 8px;
-		min-height: 26px;
-	}
-	.value {
-		display: inline-flex;
-		align-items: center;
-		gap: 4px;
-	}
-	.value input {
-		width: 64px;
-		text-align: right;
-		font: inherit;
-		font-variant-numeric: tabular-nums;
-		padding: 2px 6px;
-		border: 1px solid #d1d5db;
-		border-radius: 4px;
-	}
-	.unit {
-		color: #9ca3af;
-		font-size: 11px;
-	}
-	.nudge {
-		width: 24px;
-		height: 24px;
-		border: 1px solid #d1d5db;
-		border-radius: 4px;
-		background: #fff;
-		line-height: 1;
-	}
-	.nudge:disabled {
-		color: #d1d5db;
-		cursor: default;
-	}
-	.slider {
-		width: 100%;
-		accent-color: #ff8c42;
-		margin: 6px 0 0;
-	}
-	.range {
-		display: flex;
-		justify-content: space-between;
-		color: #9ca3af;
-		font-size: 11px;
-		font-variant-numeric: tabular-nums;
-	}
-	.ticks,
-	.choices {
-		display: flex;
-		gap: 4px;
-		margin-top: 6px;
-		flex-wrap: wrap;
-	}
-	.ticks button,
-	.choices button {
-		border: 1px solid #d1d5db;
-		background: #fff;
-		border-radius: 5px;
-		padding: 3px 10px;
-		min-width: 32px;
-	}
-	.ticks button.on,
-	.choices button.on {
-		background: #ff8c42;
-		border-color: #ff8c42;
-		color: #fff;
-	}
-	.choices button {
-		flex: 1;
-	}
-	.switch {
-		width: 36px;
-		height: 20px;
-		border-radius: 10px;
-		border: none;
-		background: #d1d5db;
-		position: relative;
-		padding: 0;
-		transition: background 0.15s;
-	}
-	.switch span {
-		position: absolute;
-		top: 2px;
-		left: 2px;
-		width: 16px;
-		height: 16px;
-		border-radius: 50%;
-		background: #fff;
-		transition: left 0.15s;
-	}
-	.switch.on {
-		background: #ff8c42;
-	}
-	.switch.on span {
-		left: 18px;
-	}
-	.help {
-		margin: 4px 0 0;
-		color: #6b7280;
-		font-size: 12px;
-	}
-	.finding {
-		margin: 6px 0 0;
-		color: #b91c1c;
-		background: #fef2f2;
-		border-radius: 4px;
-		padding: 4px 8px;
-		font-size: 12px;
-	}
-	.fix {
-		display: inline-block;
-		margin-left: 6px;
-		font-size: 11px;
-		padding: 0 6px;
-		border: 1px solid #059669;
-		border-radius: 3px;
-		background: #fff;
-		color: #059669;
-	}
-</style>
+{#snippet finding(d: Diagnostic)}
+	<div class="mt-1.5 flex items-start gap-2 rounded-md bg-danger-soft px-2 py-1.5 text-xs text-danger">
+		<TriangleAlert class="mt-px size-3.5 shrink-0" />
+		<p class="min-w-0 flex-1 leading-snug">{d.message}</p>
+		{#if d.fix}
+			<Button size="xs" class="-my-0.5 shrink-0" onclick={() => app.applyFix(d.fix!)}><Wrench />{d.fix.label}</Button>
+		{/if}
+	</div>
+{/snippet}

@@ -1,10 +1,13 @@
 <script lang="ts">
 	/** Diagnostics, cut list, BOM and the raw spec, as tabs. */
+	import CircleCheck from '@lucide/svelte/icons/circle-check';
 	import { app } from '$lib/state.svelte';
+	import { Badge, Button, EmptyState, Tabs, TabsList, TabsPanel, TabsTab, Textarea, recipes } from '$lib/ui';
 	import Nesting from './Nesting.svelte';
 	import Server from './Server.svelte';
 
-	let tab: 'diag' | 'cut' | 'bom' | 'buy' | 'nest' | 'cnc' | 'spec' | 'server' = $state('diag');
+	type Tab = 'diag' | 'cut' | 'bom' | 'buy' | 'nest' | 'cnc' | 'spec' | 'server';
+	let tab: Tab = $state('diag');
 
 	function minutes(seconds: number) {
 		const t = Math.round(seconds);
@@ -30,352 +33,296 @@
 		}
 		if (d.entity && app.spec.components.some((c) => c.id === d.entity)) app.focusComponent = d.entity;
 	}
+
+	const severityTone = (s: string) =>
+		s === 'FATAL' || s === 'ERROR' ? 'danger' : s === 'WARNING' ? 'warning' : 'info';
+	const severityBar: Record<string, string> = {
+		FATAL: 'border-l-danger',
+		ERROR: 'border-l-danger',
+		WARNING: 'border-l-warning',
+		INFO: 'border-l-info'
+	};
+	const statusTone = (s: string) => (s === 'ok' ? 'success' : s === 'warnings' ? 'warning' : 'danger');
+	const serverDot: Record<string, string> = { ok: 'bg-success', error: 'bg-danger' };
+
+	const t = recipes.table();
+	const num = 'num text-right whitespace-nowrap';
+	const panel = 'overflow-auto';
 </script>
 
-<div class="bottom">
-	<div class="tabs">
-		<button class:active={tab === 'diag'} onclick={() => (tab = 'diag')}>
-			Hallazgos
-			{#if counts.fatal}<span class="badge fatal">{counts.fatal}</span>{/if}
-			{#if counts.error}<span class="badge error">{counts.error}</span>{/if}
-			{#if counts.warning}<span class="badge warning">{counts.warning}</span>{/if}
-		</button>
-		<button class:active={tab === 'cut'} onclick={() => (tab = 'cut')}>Despiece</button>
-		<button class:active={tab === 'bom'} onclick={() => (tab = 'bom')}>BOM</button>
-		<button class:active={tab === 'buy'} onclick={() => (tab = 'buy')}>Compras</button>
-		<button class:active={tab === 'nest'} onclick={() => (tab = 'nest')}>Placas</button>
-		<button class:active={tab === 'cnc'} onclick={() => (tab = 'cnc')}>CNC</button>
-		<button class:active={tab === 'spec'} onclick={() => (tab = 'spec')}>Spec JSON</button>
-		<button class:active={tab === 'server'} onclick={() => (tab = 'server')}>
-			Servidor
-			<span class="dot {app.serverStatus}"></span>
-		</button>
-		{#if app.plan}
-			<span class="status {app.plan.status}"
-				>{app.plan.status}{app.plan.manufacturingBlocked ? ' · FABRICACIÓN BLOQUEADA' : ''}</span
-			>
-		{/if}
-	</div>
-	<div class="body">
-		{#if tab === 'diag'}
+<div class="flex h-full min-h-0 flex-col bg-depth-0">
+	<Tabs bind:value={tab} class="min-h-0 flex-1">
+		<TabsList aria-label="Salidas del plan">
+			<TabsTab value="diag">
+				Hallazgos
+				{#if counts.fatal}<Badge tone="danger">{counts.fatal}</Badge>{/if}
+				{#if counts.error}<Badge tone="danger">{counts.error}</Badge>{/if}
+				{#if counts.warning}<Badge tone="warning">{counts.warning}</Badge>{/if}
+			</TabsTab>
+			<TabsTab value="cut">Despiece</TabsTab>
+			<TabsTab value="bom">BOM</TabsTab>
+			<TabsTab value="buy">Compras</TabsTab>
+			<TabsTab value="nest">Placas</TabsTab>
+			<TabsTab value="cnc">CNC</TabsTab>
+			<TabsTab value="spec">Spec JSON</TabsTab>
+			<TabsTab value="server">
+				Servidor
+				<span class="size-1.5 rounded-full {serverDot[app.serverStatus] ?? 'bg-depth-4'}" aria-hidden="true"></span>
+			</TabsTab>
+			{#snippet end()}
+				{#if app.plan}
+					<Badge tone={statusTone(app.plan.status)} class="uppercase">{app.plan.status}</Badge>
+					{#if app.plan.manufacturingBlocked}<Badge tone="danger">FABRICACIÓN BLOQUEADA</Badge>{/if}
+				{/if}
+			{/snippet}
+		</TabsList>
+
+		<TabsPanel value="diag" class={panel}>
 			{#if diags.length === 0}
-				<p class="muted">Sin hallazgos.</p>
+				<EmptyState title="Sin hallazgos" description="El mueble se puede fabricar tal como está.">
+					{#snippet icon()}<CircleCheck />{/snippet}
+				</EmptyState>
+			{:else}
+				<ul class="divide-y divide-border/70">
+					{#each diags as d, i (i)}
+						<li class="flex items-start gap-3 border-l-2 py-1.5 pr-3 pl-2.5 hover:bg-depth-1 {severityBar[d.severity] ?? 'border-l-border'}">
+							<button
+								class="grid min-w-0 flex-1 cursor-pointer grid-cols-[4rem_11rem_minmax(0,1fr)] items-baseline gap-x-2.5 gap-y-0.5 text-left text-xs"
+								onclick={() => selectEntity(d)}
+							>
+								<Badge tone={severityTone(d.severity)} class="justify-self-start">{d.severity}</Badge>
+								<span class="truncate font-mono text-2xs font-medium text-muted-foreground" title={d.entity}>{d.code}{d.entity ? ` · ${d.entity}` : ''}</span>
+								<span class="text-foreground">{d.message}</span>
+								{#if d.suggestion}<span class="col-start-3 text-muted-foreground italic">{d.suggestion}</span>{/if}
+							</button>
+							{#if d.fix}
+								<Button variant="soft" size="xs" title="Aplica el cambio a la spec y recompila" onclick={() => app.applyFix(d.fix!)}>
+									{d.fix.label}
+								</Button>
+							{/if}
+						</li>
+					{/each}
+				</ul>
 			{/if}
-			{#each diags as d, i (i)}
-				<div class="diag {d.severity}">
-					<button class="text" onclick={() => selectEntity(d)}>
-						<b>{d.severity} {d.code}</b>
-						<span class="mono">{d.entity ?? ''}</span>
-						<span>{d.message}</span>
-						{#if d.suggestion}<i>{d.suggestion}</i>{/if}
-					</button>
-					{#if d.fix}
-						<button class="fix" title="Aplica el cambio a la spec y recompila" onclick={() => app.applyFix(d.fix!)}>{d.fix.label}</button>
+		</TabsPanel>
+
+		<TabsPanel value="cut" class={panel}>
+			{#if app.plan}
+				<table class={t.root()}>
+					<thead>
+						<tr>
+							<th class={t.th()}>ID</th><th class={t.th()}>Pieza</th><th class={t.th({ class: 'text-right' })}>Cant</th>
+							<th class={t.th()}>Material</th><th class={t.th({ class: 'text-right' })}>Corte</th>
+							<th class={t.th({ class: 'text-right' })}>Terminada</th><th class={t.th({ class: 'text-right' })}>Esp</th>
+							<th class={t.th()}>Veta</th><th class={t.th()}>Cantos</th><th class={t.th({ class: 'text-right' })}>Ops</th>
+							<th class={t.th({ class: 'text-right' })}>kg</th>
+						</tr>
+					</thead>
+					<tbody>
+						{#each app.plan.partList as r (r.partIds[0])}
+							<tr
+								class={t.tr({ class: 'cursor-pointer' })}
+								data-selected={r.partIds.includes(app.selectedPart ?? '') || undefined}
+								onclick={() => app.selectPart(r.partIds[0])}
+							>
+								<td class={t.td({ class: 'font-mono text-2xs' })}>{r.partIds.join(', ')}</td>
+								<td class={t.td()}>{r.name}</td>
+								<td class={t.td({ class: num })}>{r.quantity}</td>
+								<td class={t.td()}>{r.material}</td>
+								<td class={t.td({ class: num })}>{r.cutLength} × {r.cutWidth}</td>
+								<td class={t.td({ class: num })}>{r.finishedLength} × {r.finishedWidth}</td>
+								<td class={t.td({ class: num })}>{r.thickness}</td>
+								<td class={t.td()}>{r.grain}</td>
+								<td class={t.td({ class: 'font-mono text-2xs' })}>{r.edges}</td>
+								<td class={t.td({ class: num })}>{r.operations}</td>
+								<td class={t.td({ class: num })}>{(r.weightKg * r.quantity).toFixed(2)}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			{/if}
+		</TabsPanel>
+
+		<TabsPanel value="bom" class={panel}>
+			{#if app.plan}
+				<div class="grid grid-cols-3 items-start gap-4 p-3">
+					<div class="overflow-hidden rounded-md border">
+						<table class={t.root()}>
+							<thead>
+								<tr>
+									<th class={t.th()}>Placa</th><th class={t.th({ class: 'text-right' })}>Piezas</th>
+									<th class={t.th({ class: 'text-right' })}>m²</th><th class={t.th({ class: 'text-right' })}>Placas</th>
+									<th class={t.th({ class: 'text-right' })}>Aprovech.</th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each app.plan.bom.sheets as s (s.material)}
+									<tr class={t.tr()}>
+										<td class={t.td()}>{s.name}</td><td class={t.td({ class: num })}>{s.parts}</td>
+										<td class={t.td({ class: num })}>{s.netAreaM2.toFixed(3)}</td>
+										<td class={t.td({ class: num })}>{s.estimatedSheets}</td>
+										<td class={t.td({ class: num })}>{Math.round(s.yieldRatio * 100)}%</td>
+									</tr>
+								{/each}
+								{#each app.plan.bom.consumables as c (c.material)}
+									<tr class={t.tr()}>
+										<td class={t.td()}>{c.name}</td><td class={t.td()}></td>
+										<td class={t.td({ class: num })}>{c.lengthM.toFixed(2)} m</td><td class={t.td()}></td><td class={t.td()}></td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+					<div class="overflow-hidden rounded-md border">
+						<table class={t.root()}>
+							<thead><tr><th class={t.th()}>Herraje</th><th class={t.th({ class: 'text-right' })}>Cant</th></tr></thead>
+							<tbody>
+								{#each app.plan.bom.hardware as h (h.hardware)}
+									<tr class={t.tr()}><td class={t.td({ class: 'font-medium' })}>{h.name}</td><td class={t.td({ class: num })}>{h.quantity}</td></tr>
+									{#each h.items as i (i.name)}
+										<tr class={t.tr()}>
+											<td class={t.td({ class: 'pl-5 text-muted-foreground' })}>{i.name}</td>
+											<td class={t.td({ class: `${num} text-muted-foreground` })}>{i.quantity}</td>
+										</tr>
+									{/each}
+								{/each}
+								<tr class={t.tr()}>
+									<td class={t.td({ class: 'font-medium' })}>Peso total</td>
+									<td class={t.td({ class: `${num} font-medium` })}>{app.plan.bom.totalWeightKg.toFixed(2)} kg</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					{#if app.plan.bom.totalCost > 0}
+						{@const b = app.plan.bom}
+						<div class="overflow-hidden rounded-md border">
+							<table class={t.root()}>
+								<thead><tr><th class={t.th()}>Costo estimado</th><th class={t.th({ class: 'text-right' })}>{b.currency}</th></tr></thead>
+								<tbody>
+									{#each b.sheets as s (s.material)}
+										<tr class={t.tr()}><td class={t.td()}>{s.estimatedSheets} × {s.name}</td><td class={t.td({ class: num })}>{s.cost.toFixed(2)}</td></tr>
+									{/each}
+									{#each b.hardware as h (h.hardware)}
+										<tr class={t.tr()}><td class={t.td()}>{h.quantity} × {h.name}</td><td class={t.td({ class: num })}>{h.cost.toFixed(2)}</td></tr>
+									{/each}
+									{#each b.consumables as c (c.material)}
+										<tr class={t.tr()}><td class={t.td()}>{c.lengthM.toFixed(2)} m {c.name}</td><td class={t.td({ class: num })}>{c.cost.toFixed(2)}</td></tr>
+									{/each}
+									<tr class={t.tr()}>
+										<td class={t.td()}>Máquina ({minutes(app.plan.machining.totalSeconds)})</td>
+										<td class={t.td({ class: num })}>{b.machiningCost.toFixed(2)}</td>
+									</tr>
+									<tr class={t.tr()}>
+										<td class={t.td({ class: 'font-semibold' })}>Total</td>
+										<td class={t.td({ class: `${num} font-semibold` })}>{b.totalCost.toFixed(2)}</td>
+									</tr>
+									{#if b.unpriced?.length}
+										<tr>
+											<td class={t.td({ class: 'whitespace-normal text-muted-foreground' })} colspan="2">
+												sin precio (el total es un piso): {b.unpriced.join(', ')}
+											</td>
+										</tr>
+									{/if}
+								</tbody>
+							</table>
+						</div>
 					{/if}
 				</div>
-			{/each}
-		{:else if tab === 'cut' && app.plan}
-			<table>
-				<thead>
-					<tr>
-						<th>ID</th><th>Pieza</th><th>Cant</th><th>Material</th><th>Corte</th><th>Terminada</th
-						><th>Esp</th><th>Veta</th><th>Cantos</th><th>Ops</th><th>kg</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each app.plan.partList as r (r.partIds[0])}
-						<tr onclick={() => app.selectPart(r.partIds[0])}>
-							<td class="mono">{r.partIds.join(', ')}</td>
-							<td>{r.name}</td>
-							<td class="num">{r.quantity}</td>
-							<td>{r.material}</td>
-							<td class="num">{r.cutLength} × {r.cutWidth}</td>
-							<td class="num">{r.finishedLength} × {r.finishedWidth}</td>
-							<td class="num">{r.thickness}</td>
-							<td>{r.grain}</td>
-							<td class="mono">{r.edges}</td>
-							<td class="num">{r.operations}</td>
-							<td class="num">{(r.weightKg * r.quantity).toFixed(2)}</td>
-						</tr>
+			{/if}
+		</TabsPanel>
+
+		<TabsPanel value="buy" class={panel}>
+			{#if app.plan}
+				<div class="grid grid-cols-3 items-start gap-4 p-3">
+					{#each app.plan.purchasing as po (po.supplier)}
+						<div class="overflow-hidden rounded-md border">
+							<div class="flex items-baseline gap-2 border-b bg-depth-1 px-2 py-1.5">
+								<span class="text-xs font-semibold">{po.name}</span>
+								{#if po.leadDays}<span class="text-2xs text-muted-foreground">entrega ≈ {po.leadDays} días</span>{/if}
+							</div>
+							<table class={t.root()}>
+								<thead>
+									<tr>
+										<th class={t.th({ class: 'static' })}>Ítem</th><th class={t.th({ class: 'static text-right' })}>Cant</th>
+										<th class={t.th({ class: 'static' })}>Unidad</th><th class={t.th({ class: 'static text-right' })}>Costo</th>
+									</tr>
+								</thead>
+								<tbody>
+									{#each po.lines as l (l.kind + l.name + l.unitPrice)}
+										<tr class={t.tr()}>
+											<td class={t.td()}>{l.name}</td><td class={t.td({ class: num })}>{l.quantity}</td>
+											<td class={t.td()}>{l.unit}</td>
+											<td class={t.td({ class: num })}>{l.cost ? l.cost.toFixed(2) : '—'}</td>
+										</tr>
+									{/each}
+									<tr class={t.tr()}>
+										<td class={t.td({ class: 'font-semibold' })}>Total</td><td class={t.td()}></td><td class={t.td()}></td>
+										<td class={t.td({ class: `${num} font-semibold` })}>
+											{po.cost ? `${po.cost.toFixed(2)} ${app.plan.bom.currency ?? ''}` : '—'}
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
 					{/each}
-				</tbody>
-			</table>
-		{:else if tab === 'bom' && app.plan}
-			<div class="cols">
-				<table>
-					<thead><tr><th>Placa</th><th>Piezas</th><th>m²</th><th>Placas</th><th>Aprovech.</th></tr></thead>
-					<tbody>
-						{#each app.plan.bom.sheets as s (s.material)}
-							<tr
-								><td>{s.name}</td><td class="num">{s.parts}</td><td class="num">{s.netAreaM2.toFixed(3)}</td
-								><td class="num">{s.estimatedSheets}</td><td class="num">{Math.round(s.yieldRatio * 100)}%</td></tr
-							>
-						{/each}
-						{#each app.plan.bom.consumables as c (c.material)}
-							<tr><td>{c.name}</td><td></td><td class="num">{c.lengthM.toFixed(2)} m</td><td></td><td></td></tr>
-						{/each}
-					</tbody>
-				</table>
-				<table>
-					<thead><tr><th>Herraje</th><th>Cant</th></tr></thead>
-					<tbody>
-						{#each app.plan.bom.hardware as h (h.hardware)}
-							<tr><td><b>{h.name}</b></td><td class="num">{h.quantity}</td></tr>
-							{#each h.items as i (i.name)}
-								<tr><td class="muted">&nbsp;&nbsp;{i.name}</td><td class="num">{i.quantity}</td></tr>
-							{/each}
-						{/each}
-						<tr><td>Peso total</td><td class="num">{app.plan.bom.totalWeightKg.toFixed(2)} kg</td></tr>
-					</tbody>
-				</table>
-				{#if app.plan.bom.totalCost > 0}
-					{@const b = app.plan.bom}
-					<table>
-						<thead><tr><th>Costo estimado</th><th>{b.currency}</th></tr></thead>
-						<tbody>
-							{#each b.sheets as s (s.material)}<tr><td>{s.estimatedSheets} × {s.name}</td><td class="num">{s.cost.toFixed(2)}</td></tr>{/each}
-							{#each b.hardware as h (h.hardware)}<tr><td>{h.quantity} × {h.name}</td><td class="num">{h.cost.toFixed(2)}</td></tr>{/each}
-							{#each b.consumables as c (c.material)}<tr><td>{c.lengthM.toFixed(2)} m {c.name}</td><td class="num">{c.cost.toFixed(2)}</td></tr>{/each}
-							<tr><td>Máquina ({minutes(app.plan.machining.totalSeconds)})</td><td class="num">{b.machiningCost.toFixed(2)}</td></tr>
-							<tr><td><b>Total</b></td><td class="num"><b>{b.totalCost.toFixed(2)}</b></td></tr>
-							{#if b.unpriced?.length}<tr><td class="muted" colspan="2">sin precio (el total es un piso): {b.unpriced.join(', ')}</td></tr>{/if}
-						</tbody>
-					</table>
-				{/if}
-			</div>
-		{:else if tab === 'buy' && app.plan}
-			<div class="cols">
-				{#each app.plan.purchasing as po (po.supplier)}
-					<table>
-						<thead>
-							<tr><th colspan="4">{po.name}{po.leadDays ? ` · entrega ≈ ${po.leadDays} días` : ''}</th></tr>
-							<tr><th>Ítem</th><th>Cant</th><th>Unidad</th><th>Costo</th></tr>
-						</thead>
-						<tbody>
-							{#each po.lines as l (l.kind + l.name + l.unitPrice)}
-								<tr><td>{l.name}</td><td class="num">{l.quantity}</td><td>{l.unit}</td><td class="num">{l.cost ? l.cost.toFixed(2) : '—'}</td></tr>
-							{/each}
-							<tr><td><b>Total</b></td><td></td><td></td><td class="num"><b>{po.cost ? `${po.cost.toFixed(2)} ${app.plan.bom.currency ?? ''}` : '—'}</b></td></tr>
-						</tbody>
-					</table>
-				{/each}
-			</div>
-		{:else if tab === 'nest'}
+				</div>
+			{/if}
+		</TabsPanel>
+
+		<TabsPanel value="nest" class={panel}>
 			<Nesting />
-		{:else if tab === 'cnc' && app.plan}
-			<p>
-				Post <span class="mono">{app.plan.machining.postProcessor}</span> · {app.plan.machining.programs.length} programas ·
-				tiempo de máquina estimado <b>{minutes(app.plan.machining.totalSeconds)}</b>
-				<span class="muted">(avances del perfil; sin carga ni canteado; simulado desde el G-code)</span>
-			</p>
-			<table>
-				<thead>
-					<tr><th>Programa</th><th>Ops</th><th>Cambios</th><th>Corte (m)</th><th>Rápidos (m)</th><th>Tiempo</th></tr>
-				</thead>
-				<tbody>
-					{#each app.plan.machining.programs as p (p.part + p.setup)}
-						<tr onclick={() => app.selectPart(p.part)}>
-							<td class="mono">{p.part}_{p.setup}</td>
-							<td class="num">{p.operations}</td>
-							<td class="num">{p.toolChanges}</td>
-							<td class="num">{(p.cutMm / 1000).toFixed(2)}</td>
-							<td class="num">{(p.rapidMm / 1000).toFixed(2)}</td>
-							<td class="num">{minutes(p.seconds)}</td>
+		</TabsPanel>
+
+		<TabsPanel value="cnc" class={panel}>
+			{#if app.plan}
+				<p class="flex flex-wrap items-baseline gap-x-1.5 px-3 py-2 text-xs">
+					Post <span class="font-mono">{app.plan.machining.postProcessor}</span> · {app.plan.machining.programs.length} programas ·
+					tiempo de máquina estimado <span class="num font-semibold">{minutes(app.plan.machining.totalSeconds)}</span>
+					<span class="text-muted-foreground">(avances del perfil; sin carga ni canteado; simulado desde el G-code)</span>
+				</p>
+				<table class={t.root()}>
+					<thead>
+						<tr>
+							<th class={t.th()}>Programa</th><th class={t.th({ class: 'text-right' })}>Ops</th>
+							<th class={t.th({ class: 'text-right' })}>Cambios</th><th class={t.th({ class: 'text-right' })}>Corte (m)</th>
+							<th class={t.th({ class: 'text-right' })}>Rápidos (m)</th><th class={t.th({ class: 'text-right' })}>Tiempo</th>
 						</tr>
-					{/each}
-				</tbody>
-			</table>
-		{:else if tab === 'spec'}
-			<textarea spellcheck="false" value={app.specText} onchange={(e) => app.applySpecText(e.currentTarget.value)}
-			></textarea>
-			{#if app.specError}<div class="diag FATAL">JSON inválido: {app.specError}</div>{/if}
-		{:else if tab === 'server'}
+					</thead>
+					<tbody>
+						{#each app.plan.machining.programs as p (p.part + p.setup)}
+							<tr
+								class={t.tr({ class: 'cursor-pointer' })}
+								data-selected={app.selectedPart === p.part || undefined}
+								onclick={() => app.selectPart(p.part)}
+							>
+								<td class={t.td({ class: 'font-mono text-2xs' })}>{p.part}_{p.setup}</td>
+								<td class={t.td({ class: num })}>{p.operations}</td>
+								<td class={t.td({ class: num })}>{p.toolChanges}</td>
+								<td class={t.td({ class: num })}>{(p.cutMm / 1000).toFixed(2)}</td>
+								<td class={t.td({ class: num })}>{(p.rapidMm / 1000).toFixed(2)}</td>
+								<td class={t.td({ class: num })}>{minutes(p.seconds)}</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			{/if}
+		</TabsPanel>
+
+		<TabsPanel value="spec" class="flex flex-col gap-2 bg-depth-1 p-2">
+			<Textarea
+				mono
+				spellcheck="false"
+				value={app.specText}
+				onchange={(e: Event) => app.applySpecText((e.currentTarget as HTMLTextAreaElement).value)}
+				class="min-h-0 flex-1 resize-none text-2xs"
+			/>
+			{#if app.specError}
+				<div class="rounded-md border border-danger/30 bg-danger-soft px-2.5 py-1.5 text-xs text-danger">JSON inválido: {app.specError}</div>
+			{/if}
+		</TabsPanel>
+
+		<TabsPanel value="server" class="{panel} p-3">
 			<Server />
-		{/if}
-	</div>
+		</TabsPanel>
+	</Tabs>
 </div>
-
-<style>
-	.bottom {
-		display: flex;
-		flex-direction: column;
-		height: 100%;
-		font-size: 12px;
-	}
-	.tabs {
-		display: flex;
-		gap: 2px;
-		border-bottom: 1px solid #ddd;
-		background: #fafafa;
-		align-items: center;
-	}
-	.tabs button {
-		border: none;
-		background: none;
-		padding: 6px 12px;
-		cursor: pointer;
-		font: inherit;
-		border-bottom: 2px solid transparent;
-	}
-	.tabs button.active {
-		border-bottom-color: #ff8c42;
-		font-weight: 600;
-	}
-	.status {
-		margin-left: auto;
-		padding: 0 12px;
-		font-weight: 600;
-		text-transform: uppercase;
-	}
-	.status.ok {
-		color: #2a7;
-	}
-	.status.warnings {
-		color: #c90;
-	}
-	.status.errors,
-	.status.blocked {
-		color: #c33;
-	}
-	.badge {
-		display: inline-block;
-		min-width: 16px;
-		padding: 0 5px;
-		border-radius: 8px;
-		color: #fff;
-		font-size: 10px;
-		margin-left: 4px;
-	}
-	.badge.fatal {
-		background: #900;
-	}
-	.badge.error {
-		background: #c40;
-	}
-	.badge.warning {
-		background: #c90;
-	}
-	.dot {
-		display: inline-block;
-		width: 7px;
-		height: 7px;
-		border-radius: 50%;
-		background: #bbb;
-		margin-left: 4px;
-		vertical-align: middle;
-	}
-	.dot.ok {
-		background: #2a7;
-	}
-	.dot.error {
-		background: #c33;
-	}
-	.body {
-		overflow: auto;
-		flex: 1;
-		padding: 6px;
-	}
-	.diag {
-		display: flex;
-		align-items: flex-start;
-		gap: 8px;
-		border-left: 4px solid #999;
-		background: #f6f6f6;
-		padding: 3px 8px;
-		margin: 2px 0;
-	}
-	.diag .text {
-		flex: 1 1 auto;
-		width: 100%;
-		min-width: 0;
-		display: grid;
-		grid-template-columns: 110px 60px 1fr;
-		gap: 8px;
-		text-align: left;
-		border: none;
-		background: none;
-		padding: 0;
-		font: inherit;
-		cursor: pointer;
-	}
-	.diag .fix {
-		flex: none;
-		font: inherit;
-		font-size: 12px;
-		padding: 1px 8px;
-		border: 1px solid #2a7;
-		border-radius: 3px;
-		background: #fff;
-		color: #2a7;
-		cursor: pointer;
-		white-space: nowrap;
-	}
-	.diag .fix:hover {
-		background: #2a7;
-		color: #fff;
-	}
-
-	.diag i {
-		grid-column: 3;
-		color: #555;
-	}
-	.diag.FATAL {
-		border-color: #900;
-		background: #fee;
-	}
-	.diag.ERROR {
-		border-color: #c40;
-		background: #fee8e0;
-	}
-	.diag.WARNING {
-		border-color: #c90;
-		background: #fff6dd;
-	}
-	.diag.INFO {
-		border-color: #39c;
-		background: #eef6fc;
-	}
-	table {
-		border-collapse: collapse;
-		width: 100%;
-	}
-	th,
-	td {
-		text-align: left;
-		padding: 2px 8px;
-		border-bottom: 1px solid #eee;
-		white-space: nowrap;
-	}
-	th {
-		color: #666;
-		font-weight: 600;
-	}
-	tbody tr:hover {
-		background: #eef2f7;
-		cursor: pointer;
-	}
-	.num {
-		text-align: right;
-		font-variant-numeric: tabular-nums;
-	}
-	.mono {
-		font-family: ui-monospace, monospace;
-	}
-	.muted {
-		color: #888;
-	}
-	.cols {
-		display: grid;
-		grid-template-columns: 1fr 1fr 1fr;
-		gap: 16px;
-		align-items: start;
-	}
-	textarea {
-		width: 100%;
-		height: 100%;
-		min-height: 220px;
-		box-sizing: border-box;
-		font: 11px ui-monospace, monospace;
-		border: 1px solid #ddd;
-	}
-</style>

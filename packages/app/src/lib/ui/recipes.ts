@@ -28,6 +28,8 @@ export const button = tv({
 				hover:bg-depth-3/70 hover:text-foreground data-pressed:bg-depth-3`,
 			soft: `border-transparent bg-primary-soft text-primary-soft-foreground
 				hover:bg-primary-soft/70 data-pressed:bg-primary-soft/60`,
+			destructive: `border-danger/40 bg-danger text-primary-foreground raised
+				hover:bg-danger/90 data-pressed:bg-danger/85 data-pressed:shadow-none`,
 			danger: 'border-transparent text-danger hover:bg-danger-soft data-pressed:bg-danger-soft',
 			link: 'border-0 font-normal text-primary-soft-foreground underline-offset-3 hover:underline'
 		},

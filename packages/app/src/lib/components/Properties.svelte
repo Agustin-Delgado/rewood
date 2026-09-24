@@ -4,7 +4,12 @@
 	 * details. Numbers become number inputs; expressions stay text.
 	 */
 	import { app, JOINT_KIND_ES } from '$lib/state.svelte';
+	import type { Operation } from '@rewood/engine/browser';
 	import { componentLabels, mm, partName, size } from '$lib/labels';
+	import { Badge, Button, Checkbox, EmptyState, Field, Input, NumberField, Section, Segmented, recipes } from '$lib/ui';
+	import MousePointerClick from '@lucide/svelte/icons/mouse-pointer-click';
+
+	const t = recipes.table();
 
 	const params = $derived(Object.entries(app.spec.parameters ?? {}));
 	/** What the template calls each parameter ("Ancho", mm), when it offers it. */
@@ -58,267 +63,226 @@
 	}
 </script>
 
-<div class="props">
+<div class="h-full overflow-y-auto text-sm">
 	{#if !app.fastener && !app.selected}
-		<p class="hint">Tocá una pieza o un herraje en el 3D para ver su detalle; tocala de nuevo, tocá el fondo o apretá Esc para soltarla. En una puerta elegís hacia qué lado abre.</p>
+		<EmptyState
+			class="py-6"
+			title="Nada seleccionado"
+			description="Tocá una pieza o un herraje en el 3D para ver su detalle; tocala de nuevo, tocá el fondo o apretá Esc para soltarla. En una puerta elegís hacia qué lado abre."
+		>
+			{#snippet icon()}<MousePointerClick />{/snippet}
+		</EmptyState>
 	{/if}
+
 	{#if app.fastener}
 		{@const { joint, fastener } = app.fastener}
 		{@const edge = app.partById(joint.edgePart)}
 		{@const face = app.partById(joint.facePart)}
-		<h3>Herraje</h3>
-		<div class="row"><span class="name">qué es</span><span>{app.hardwareName(fastener.hardware)}</span></div>
-		<div class="row"><span class="name">unión</span><span>{joint.id} · {JOINT_KIND_ES[joint.kind]} · {(app.selectedFastener?.index ?? 0) + 1} de {joint.fasteners.length}</span></div>
-		{#if joint.edgePart === joint.facePart}
-			<div class="row"><span class="name">sobre</span><button class="link" onclick={() => app.selectPart(joint.edgePart)}>{joint.edgePart} {edge?.name ?? ''}</button></div>
-		{:else}
-			<div class="row"><span class="name">une</span><button class="link" onclick={() => app.selectPart(joint.edgePart)}>{joint.edgePart} {edge?.name ?? ''}</button></div>
-			<div class="row"><span class="name">con</span><button class="link" onclick={() => app.selectPart(joint.facePart)}>{joint.facePart} {face?.name ?? ''}</button></div>
-		{/if}
-		<div class="row"><span class="name">posición</span><span class="mono">({fastener.position.map((v) => Math.round(v * 10) / 10).join(', ')})</span></div>
-		<h3>Perforaciones de esta unión</h3>
-		<table>
-			<tbody>
-				{#each [edge, face].filter((p, i, a) => p && a.indexOf(p) === i) as p (p?.id)}
-					{#each (p?.operations ?? []).filter((op) => op.source?.joint === joint.id) as op (op.id)}
-						<tr>
-							<td class="mono">{op.id}</td>
-							<td>{op.face}</td>
-							<td class="mono">
-								{#if op.type === 'DRILL'}
-									Ø{op.diameter} {op.through ? 'pasante' : `×${op.depth}`} @ ({op.u}, {op.v})
-								{:else if op.type === 'GROOVE'}
-									{op.width}×{op.depth}
-								{:else if op.type === 'CUTOUT'}
-									recorte {op.width}×{op.height} r{op.radius} @ ({op.u}, {op.v})
-								{/if}
-							</td>
-						</tr>
+		<div class="border-b px-3 pt-3 pb-2.5">
+			<p class="text-2xs font-semibold tracking-[0.06em] text-subtle-foreground uppercase">Herraje</p>
+			<p class="text-base font-semibold">{app.hardwareName(fastener.hardware)}</p>
+			<p class="mt-0.5 text-xs text-muted-foreground">
+				{JOINT_KIND_ES[joint.kind]} · <span class="font-mono">{joint.id}</span> · {(app.selectedFastener?.index ?? 0) + 1} de {joint.fasteners.length}
+			</p>
+		</div>
+		<dl class="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5 px-3 py-2.5">
+			{#if joint.edgePart === joint.facePart}
+				<dt class="text-xs text-muted-foreground">sobre</dt>
+				<dd>{@render partLink(joint.edgePart, edge?.name)}</dd>
+			{:else}
+				<dt class="text-xs text-muted-foreground">une</dt>
+				<dd>{@render partLink(joint.edgePart, edge?.name)}</dd>
+				<dt class="text-xs text-muted-foreground">con</dt>
+				<dd>{@render partLink(joint.facePart, face?.name)}</dd>
+			{/if}
+			<dt class="text-xs text-muted-foreground">posición</dt>
+			<dd class="num font-mono text-xs">({fastener.position.map((v) => Math.round(v * 10) / 10).join(', ')})</dd>
+		</dl>
+		<Section title="Perforaciones de esta unión" static bodyClass="px-0 pb-2">
+			<table class={t.root()}>
+				<tbody>
+					{#each [edge, face].filter((p, i, a) => p && a.indexOf(p) === i) as p (p?.id)}
+						{#each (p?.operations ?? []).filter((op) => op.source?.joint === joint.id) as op (op.id)}
+							<tr class={t.tr()}>
+								<td class={t.td({ class: 'pl-3 font-mono whitespace-nowrap' })}>{op.id}</td>
+								<td class={t.td()}>{op.face}</td>
+								<td class={t.td({ class: 'pr-3 font-mono whitespace-nowrap' })}>{@render opText(op, false)}</td>
+							</tr>
+						{/each}
 					{/each}
-				{/each}
-			</tbody>
-		</table>
+				</tbody>
+			</table>
+		</Section>
 	{/if}
 
 	{#if app.selected}
 		{@const p = app.selected}
 		{@const hardware = app.hardwareOf(p.id)}
-		<h3>{partName(p.name)} <span class="muted">{p.id}</span></h3>
-		<div class="row"><span class="name">de</span><span>{labels.get(p.component) ?? p.component}</span></div>
+		<div class="border-b px-3 pt-3 pb-2.5">
+			<p class="truncate text-2xs font-semibold tracking-[0.06em] text-subtle-foreground uppercase">{labels.get(p.component) ?? p.component}</p>
+			<p class="text-base leading-snug font-semibold">{partName(p.name)}</p>
+			<p class="mt-0.5 font-mono text-2xs text-muted-foreground">{p.id}</p>
+		</div>
 		{#if doorOf}
-			<div class="row">
-				<span class="name">abre hacia</span>
-				{#if doorOf.pair}
-					<span class="muted">cada puerta de su lado (son dos por bahía)</span>
-				{:else}
-					{@const side = doorOf.c.type === 'doors' ? (doorOf.c.hingeSide ?? 'auto') : 'auto'}
-					<span class="seg" role="group" aria-label="Lado de las bisagras">
-						<button class:on={side === 'left'} title="Bisagras a la izquierda" onclick={() => setHingeSide('left')}>izquierda</button>
-						<button class:on={side === 'right'} title="Bisagras a la derecha" onclick={() => setHingeSide('right')}>derecha</button>
-						<button class:on={side === 'auto'} title="Hacia afuera del mueble; en una puerta sola, del lado que no choca" onclick={() => setHingeSide('auto')}>auto</button>
-					</span>
-				{/if}
+			<div class="border-b px-3 py-2.5">
+				<Field label="Abre hacia" hint={doorOf.pair ? 'Cada puerta de su lado (son dos por bahía).' : undefined}>
+					{#if !doorOf.pair}
+						{@const side = doorOf.c.type === 'doors' ? (doorOf.c.hingeSide ?? 'auto') : 'auto'}
+						<Segmented
+							fill
+							aria-label="Lado de las bisagras"
+							value={side}
+							onChange={setHingeSide}
+							options={[
+								{ value: 'left', label: 'izquierda', title: 'Bisagras a la izquierda' },
+								{ value: 'right', label: 'derecha', title: 'Bisagras a la derecha' },
+								{ value: 'auto', label: 'auto', title: 'Hacia afuera del mueble; en una puerta sola, del lado que no choca' }
+							]}
+						/>
+					{/if}
+				</Field>
 			</div>
 		{/if}
-		<div class="row"><span class="name">material</span><span>{p.material}</span></div>
-		<div class="row"><span class="name">terminada</span><span>{size(p.dims)}</span></div>
-		<div class="row"><span class="name">corte</span><span>{mm(p.cut.length)} × {mm(p.cut.width)}</span></div>
-		<div class="row"><span class="name">veta</span><span>{p.grain}</span></div>
-		<div class="row"><span class="name">cantos</span><span>{Object.entries(p.edges).map(([f, m]) => `${f}: ${m}`).join(', ') || '—'}</span></div>
-		<h3>Herrajes <span class="muted">{hardware.reduce((n, r) => n + r.count, 0)}</span></h3>
-		{#if hardware.length === 0}
-			<div class="muted">Ninguno: no participa de ninguna unión.</div>
-		{:else}
-			<table>
-				<tbody>
+		<dl class="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1.5 px-3 py-2.5">
+			<dt class="text-xs text-muted-foreground">material</dt>
+			<dd><Badge tone="primary">{p.material}</Badge></dd>
+			<dt class="text-xs text-muted-foreground">terminada</dt>
+			<dd class="num font-mono text-xs">{size(p.dims)}</dd>
+			<dt class="text-xs text-muted-foreground">corte</dt>
+			<dd class="num font-mono text-xs">{mm(p.cut.length)} × {mm(p.cut.width)}</dd>
+			<dt class="text-xs text-muted-foreground">veta</dt>
+			<dd class="text-xs">{p.grain}</dd>
+			<dt class="self-start pt-0.5 text-xs text-muted-foreground">cantos</dt>
+			<dd class="flex flex-wrap gap-1">
+				{#each Object.entries(p.edges) as [f, m] (f)}
+					<Badge title={f}><span class="text-subtle-foreground">{f}</span> {m}</Badge>
+				{:else}
+					<span class="text-xs text-subtle-foreground">—</span>
+				{/each}
+			</dd>
+		</dl>
+		<Section title="Herrajes" count={hardware.reduce((n, r) => n + r.count, 0)} static bodyClass="px-0 pb-2">
+			{#if hardware.length === 0}
+				<p class="px-3 text-xs text-muted-foreground">Ninguno: no participa de ninguna unión.</p>
+			{:else}
+				<ul class="grid gap-px">
 					{#each hardware as r (r.joint.id + r.hardware)}
-						<tr>
-							<td class="mono">{r.count} ×</td>
-							<td>{r.name}</td>
-							<td>
-								{#if r.other}
-									con <button class="link" onclick={() => app.selectPart(r.other?.id ?? null)}>{r.other.id} {r.other.name}</button>
-								{:else}
-									sobre la pieza
-								{/if}
-							</td>
-							<td class="muted">{JOINT_KIND_ES[r.joint.kind]} · {r.joint.id}</td>
+						<li class="flex gap-2 px-3 py-1.5 hover:bg-depth-1">
+							<span class="num w-6 shrink-0 font-mono text-xs text-muted-foreground">{r.count}×</span>
+							<div class="min-w-0 flex-1">
+								<p class="text-xs leading-snug">{r.name}</p>
+								<p class="mt-0.5 text-2xs leading-snug text-muted-foreground">
+									{#if r.other}
+										con {@render partLink(r.other.id, r.other.name)}
+									{:else}
+										sobre la pieza
+									{/if}
+									· {JOINT_KIND_ES[r.joint.kind]} · <span class="font-mono">{r.joint.id}</span>
+								</p>
+							</div>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</Section>
+		<Section title="Mecanizado" count="{p.operations.length} operaciones" open={false} bodyClass="px-0 pb-2">
+			<table class={t.root()}>
+				<tbody>
+					{#each p.operations as op (op.id)}
+						<tr class={t.tr()}>
+							<td class={t.td({ class: 'pl-3 font-mono whitespace-nowrap' })}>{op.id.slice(p.id.length + 1)}</td>
+							<td class={t.td()}>{op.type}</td>
+							<td class={t.td()}>{op.face}</td>
+							<td class={t.td({ class: 'font-mono whitespace-nowrap' })}>{@render opText(op, true)}</td>
+							<td class={t.td({ class: 'pr-3 text-muted-foreground' })}>{op.source ? `${op.source.joint} ${op.source.hardware}` : ''}</td>
 						</tr>
 					{/each}
 				</tbody>
 			</table>
-		{/if}
-		<details>
-		<summary>Mecanizado <span class="muted">{p.operations.length} operaciones</span></summary>
-		<table>
-			<tbody>
-				{#each p.operations as op (op.id)}
-					<tr>
-						<td class="mono">{op.id.slice(p.id.length + 1)}</td>
-						<td>{op.type}</td>
-						<td>{op.face}</td>
-						<td class="mono">
-							{#if op.type === 'DRILL'}
-								Ø{op.diameter} {op.through ? 'pasante' : `×${op.depth}`} @ ({op.u}, {op.v})
-							{:else if op.type === 'GROOVE'}
-								{op.width}×{op.depth} ({op.from.join(',')})–({op.to.join(',')})
-							{:else if op.type === 'CUTOUT'}
-								recorte {op.width}×{op.height} r{op.radius} @ ({op.u}, {op.v})
-							{:else}
-								{op.material} {op.length} mm
-							{/if}
-						</td>
-						<td class="muted">{op.source ? `${op.source.joint} ${op.source.hardware}` : ''}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-		</details>
-	{/if}
-	<h3>Parámetros</h3>
-	{#each named as [name, value] (name)}
-		{@render param(name, value, optionOf.get(name)?.label ?? name, optionOf.get(name)?.unit)}
-	{/each}
-	{#if other.length}
-		<details open={named.length === 0}>
-			<summary>{named.length ? 'Otros parámetros' : 'Parámetros de la spec'} <span class="muted">{other.length}</span></summary>
-			{#each other as [name, value] (name)}
-				{@render param(name, value, name)}
-			{/each}
-		</details>
+		</Section>
 	{/if}
 
-	{#if derivedGroups.length}
-		<details>
-			<summary>Valores calculados <span class="muted">para usar en expresiones</span></summary>
-			{#each derivedGroups as [component, values] (component)}
-				<div class="dgroup">{labels.get(component) ?? component} <span class="muted mono">{component}</span></div>
-				{#each values as [name, value] (name)}
-					<div class="row muted"><span class="name" title={name}>{name.slice(component.length + 1) || name}</span><span>{mm(value)}</span></div>
-				{/each}
+	<div class={app.selected || app.fastener ? 'border-t' : ''}>
+		<Section title="Parámetros" count={named.length || undefined} static bodyClass="grid gap-1.5 px-3 pb-3">
+			{#each named as [name, value] (name)}
+				{@render param(name, value, optionOf.get(name)?.label ?? name, optionOf.get(name)?.unit)}
+			{:else}
+				{#if !other.length}<p class="text-xs text-muted-foreground">Esta spec no tiene parámetros.</p>{/if}
 			{/each}
-		</details>
-	{/if}
+		</Section>
+		{#if other.length}
+			<Section
+				title={named.length ? 'Otros parámetros' : 'Parámetros de la spec'}
+				count={other.length}
+				open={named.length === 0}
+				bodyClass="grid gap-1.5 px-3 pb-3"
+			>
+				{#each other as [name, value] (name)}
+					{@render param(name, value, name)}
+				{/each}
+			</Section>
+		{/if}
+
+		{#if derivedGroups.length}
+			<Section title="Valores calculados" open={false} bodyClass="px-3 pb-3">
+				<p class="mb-2 text-xs text-muted-foreground">Para usar en expresiones.</p>
+				{#each derivedGroups as [component, values] (component)}
+					<p class="mt-2 mb-1 text-xs font-semibold">
+						{labels.get(component) ?? component} <span class="font-mono font-normal text-subtle-foreground">{component}</span>
+					</p>
+					<dl class="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+						{#each values as [name, value] (name)}
+							<dt class="truncate font-mono text-2xs" title={name}>{name.slice(component.length + 1) || name}</dt>
+							<dd class="num text-right">{mm(value)}</dd>
+						{/each}
+					</dl>
+				{/each}
+			</Section>
+		{/if}
+	</div>
 </div>
 
-{#snippet param(name: string, value: unknown, label: string, unit?: string)}
-	<label class="row" title={name}>
-		<span class="name">{label}{unit ? ` (${unit})` : ''}</span>
-		{#if typeof value === 'number'}
-			<input type="number" step="1" {value} onchange={(e) => onInput(name, e.currentTarget.value, true)} />
-		{:else if typeof value === 'boolean'}
-			<input type="checkbox" checked={value} onchange={(e) => app.setParameter(name, e.currentTarget.checked)} />
-		{:else}
-			<input type="text" value={String(value)} class="expr" onchange={(e) => onInput(name, e.currentTarget.value, false)} />
-		{/if}
-	</label>
+{#snippet partLink(id: string, name?: string)}
+	<Button variant="link" class="text-left text-[length:inherit] whitespace-normal" onclick={() => app.selectPart(id)}>
+		<span class="font-mono">{id}</span>
+		{name ?? ''}
+	</Button>
 {/snippet}
 
-<style>
-	.props {
-		font-size: 12px;
-		overflow: auto;
-		height: 100%;
-		padding: 8px;
-	}
-	h3 {
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		color: #666;
-		margin: 10px 0 4px;
-	}
-	.row {
-		display: grid;
-		grid-template-columns: 110px 1fr;
-		gap: 8px;
-		align-items: center;
-		padding: 2px 0;
-	}
-	.name {
-		color: #345;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-	input {
-		width: 100%;
-		box-sizing: border-box;
-		font: inherit;
-		padding: 2px 4px;
-		border: 1px solid #ccc;
-		border-radius: 3px;
-	}
-	input[type='checkbox'] {
-		width: auto;
-		justify-self: start;
-	}
-	.expr {
-		font-family: ui-monospace, monospace;
-	}
-	.muted {
-		color: #888;
-		font-weight: 400;
-		text-transform: none;
-		letter-spacing: 0;
-	}
-	.hint {
-		color: #888;
-		margin: 6px 0 2px;
-	}
-	details {
-		margin-top: 10px;
-	}
-	summary {
-		cursor: pointer;
-		color: #666;
-		font-weight: 600;
-	}
-	.dgroup {
-		margin-top: 6px;
-		font-weight: 600;
-	}
-	table {
-		border-collapse: collapse;
-		width: 100%;
-		font-size: 11px;
-	}
-	td {
-		padding: 1px 4px;
-		border-bottom: 1px solid #eee;
-		vertical-align: top;
-	}
-	.mono {
-		font-family: ui-monospace, monospace;
-		white-space: nowrap;
-	}
-	.seg {
-		display: inline-flex;
-		gap: 2px;
-	}
-	.seg button {
-		font: inherit;
-		font-size: 11px;
-		padding: 1px 8px;
-		border: 1px solid #d1d5db;
-		border-radius: 3px;
-		background: #fff;
-		cursor: pointer;
-	}
-	.seg button.on {
-		background: #1f2937;
-		border-color: #1f2937;
-		color: #fff;
-	}
-	.link {
-		background: none;
-		border: none;
-		padding: 0;
-		font: inherit;
-		color: #1a5fb4;
-		cursor: pointer;
-		text-align: left;
-	}
-	.link:hover {
-		text-decoration: underline;
-	}
-</style>
+{#snippet opText(op: Operation, full: boolean)}
+	{#if op.type === 'DRILL'}
+		Ø{op.diameter} {op.through ? 'pasante' : `×${op.depth}`} @ ({op.u}, {op.v})
+	{:else if op.type === 'GROOVE'}
+		{op.width}×{op.depth}{#if full}&nbsp;({op.from.join(',')})–({op.to.join(',')}){/if}
+	{:else if op.type === 'CUTOUT'}
+		recorte {op.width}×{op.height} r{op.radius} @ ({op.u}, {op.v})
+	{:else if full}
+		{op.material} {op.length} mm
+	{/if}
+{/snippet}
+
+{#snippet param(name: string, value: unknown, label: string, unit?: string)}
+	<Field label="{label}{unit ? ` (${unit})` : ''}" layout="inline" for="param-{name}">
+		{#if typeof value === 'number'}
+			<NumberField
+				id="param-{name}"
+				size="xs"
+				{value}
+				decimals={3}
+				title={name}
+				onChange={(v) => v !== null && Number.isFinite(v) && app.setParameter(name, v)}
+			/>
+		{:else if typeof value === 'boolean'}
+			<Checkbox checked={value} aria-label={label} onChange={(v) => app.setParameter(name, v)} />
+		{:else}
+			<Input
+				id="param-{name}"
+				size="xs"
+				mono
+				value={String(value)}
+				title={name}
+				onchange={(e: Event) => onInput(name, (e.currentTarget as HTMLInputElement).value, false)}
+			/>
+		{/if}
+	</Field>
+{/snippet}

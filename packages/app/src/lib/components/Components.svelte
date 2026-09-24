@@ -4,8 +4,14 @@
 	 * in place and recompiles; the JSON tab shows the same thing. Options
 	 * come from the engine's libraries, so nothing here is typed by hand.
 	 */
-	import type { ComponentSpec, HandleSpec, JointSpec, LibraryOverrides, NumOrExpr, ZoneSpec } from '@rewood/engine/browser';
+	import type { ComponentSpec, HandleSpec, HardwareDef, JointSpec, LibraryOverrides, NumOrExpr, ZoneSpec } from '@rewood/engine/browser';
+	import ArrowDown from '@lucide/svelte/icons/arrow-down';
+	import ArrowUp from '@lucide/svelte/icons/arrow-up';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
+	import Plus from '@lucide/svelte/icons/plus';
+	import X from '@lucide/svelte/icons/x';
 	import { app } from '$lib/state.svelte';
+	import { Badge, Button, Checkbox, Input, Section, Select, Textarea, Toggle, recipes, type SelectOption } from '$lib/ui';
 
 	const libs = $derived(app.libraries);
 	const hardware = $derived(Object.values(libs?.hardware.items ?? {}));
@@ -19,6 +25,16 @@
 	const hingeFamilies = $derived(byKind(['hinge']).filter((h) => !h.hinge?.softClose && h.hinge?.mount !== 'half_overlay' && h.hinge?.mount !== 'inset'));
 	const plainSlides = $derived(byKind(['slide']).filter((h) => !h.slide?.softClose));
 	const catches = $derived(byKind(['catch']));
+
+	/** The "nothing chosen" option of a select: the list keys items by value, so it can't be ''. */
+	const NONE = '__none';
+	/** What the engine puts under a carcass whose `legs` names no hardware. */
+	const DEFAULT_LEG = 'leg_adjustable_100';
+	const opt = (items: { id: string; name: string }[]): SelectOption[] => items.map((x) => ({ value: x.id, label: x.name }));
+	const hwOpt = (items: HardwareDef[]) => opt(items);
+	const withNone = (label: string, items: SelectOption[]): SelectOption[] => [{ value: NONE, label }, ...items];
+	const orNone = (v: string) => (v === NONE ? '' : v);
+	const materialOptions = $derived(opt(materials));
 
 	/** Number or expression from a text field. */
 	function numOrExpr(raw: string): NumOrExpr {
@@ -202,6 +218,24 @@
 		sliding_doors: 'corredizas',
 		sink: 'bacha'
 	};
+	const NEW_TYPES: SelectOption<ComponentSpec['type']>[] = [
+		{ value: 'carcass', label: 'carcasa' },
+		{ value: 'shelves', label: 'estantes' },
+		{ value: 'doors', label: 'puertas' },
+		{ value: 'drawers', label: 'cajones' },
+		{ value: 'rail', label: 'barral' },
+		{ value: 'worktop', label: 'tapa de trabajo' },
+		{ value: 'panel', label: 'lateral de apoyo' },
+		{ value: 'modesty', label: 'faldón' },
+		{ value: 'sliding_doors', label: 'puertas corredizas' },
+		{ value: 'sink', label: 'bacha' }
+	];
+	const SEVERITIES: SelectOption<'INFO' | 'WARNING' | 'ERROR' | 'FATAL'>[] = [
+		{ value: 'INFO', label: 'INFO' },
+		{ value: 'WARNING', label: 'WARNING' },
+		{ value: 'ERROR', label: 'ERROR' },
+		{ value: 'FATAL', label: 'FATAL' }
+	];
 	let open: Record<string, boolean> = $state({});
 	// A finding clicked in the bottom panel unfolds its component.
 	let cards: Record<string, HTMLElement> = $state({});
@@ -213,530 +247,364 @@
 		requestAnimationFrame(() => cards[id]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }));
 	});
 	const RANK = { INFO: 0, WARNING: 1, ERROR: 2, FATAL: 3 } as const;
-	function worst(list: { severity: keyof typeof RANK }[]) {
-		return list.reduce<keyof typeof RANK | null>((w, d) => (w === null || RANK[d.severity] > RANK[w] ? d.severity : w), null);
+	type Severity = keyof typeof RANK;
+	function worst(list: { severity: Severity }[]) {
+		return list.reduce<Severity | null>((w, d) => (w === null || RANK[d.severity] > RANK[w] ? d.severity : w), null);
 	}
+	const TONE = { INFO: 'info', WARNING: 'warning', ERROR: 'danger', FATAL: 'danger' } as const;
+	const WELL = { INFO: 'bg-info-soft', WARNING: 'bg-warning-soft', ERROR: 'bg-danger-soft', FATAL: 'bg-danger-soft' } as const;
+
+	// A label and its control, on one line.
+	const ROW = 'grid grid-cols-[104px_minmax(0,1fr)] items-center gap-2 py-0.5';
+	const LBL = 'truncate text-xs text-muted-foreground';
+	const INLINE = 'flex min-w-0 items-center gap-1.5';
 </script>
 
-<div class="comps">
-	<h3>Mueble</h3>
-	<label class="row"><span>id</span><input value={app.spec.id} onchange={(e) => { app.spec.id = e.currentTarget.value; app.touch(); }} /></label>
-	<label class="row"><span>nombre</span><input value={app.spec.name} onchange={(e) => { app.spec.name = e.currentTarget.value; app.touch(); }} /></label>
-	<label class="row"><span>material</span>
-		<select value={app.spec.material} onchange={(e) => { app.spec.material = e.currentTarget.value; app.touch(); }}>
-			{#each materials as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
-		</select>
-	</label>
-	<label class="row"><span>canto</span>
-		<select value={app.spec.edgeMaterial ?? ''} onchange={(e) => { app.spec.edgeMaterial = e.currentTarget.value || undefined; app.touch(); }}>
-			<option value="">— sin canto —</option>
-			{#each edgeMaterials as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
-		</select>
-	</label>
-
-	<h3>Componentes</h3>
-	{#each app.spec.components as c, i (c.id)}
-		{@const findings = app.findingsFor(c.id)}
-		{@const level = worst(findings)}
-		<div class="card" class:failing={level === 'ERROR' || level === 'FATAL'} class:warning={level === 'WARNING'} class:off={inactive.has(c.id)} bind:this={cards[c.id]}>
-			<div class="head">
-				<button class="fold" onclick={() => (open[c.id] = !open[c.id])}>{open[c.id] ? '▾' : '▸'}</button>
-				<span class="type">{TYPE_ES[c.type]}</span>
-				<input class="id" value={c.id} onchange={(e) => rename(c, e.currentTarget)} />
-				{#if level}<button class="badge {level}" title="ver hallazgos" onclick={() => (open[c.id] = true)}>{findings.length}</button>{/if}
-				{#if inactive.has(c.id)}<span class="offtag" title={c.when !== undefined ? `condición: ${String(c.when)}` : 'depende de un componente apagado'}>apagado</span>{/if}
-				<span class="spacer"></span>
-				<button title="subir" onclick={() => move(i, -1)}>↑</button>
-				<button title="bajar" onclick={() => move(i, 1)}>↓</button>
-				<button title="quitar" onclick={() => remove(i)}>✕</button>
+<div class="h-full overflow-y-auto">
+	<Section title="Mueble">
+		<div class="flex flex-col gap-1">
+			<label class={ROW}><span class={LBL}>id</span><Input size="xs" mono value={app.spec.id} onchange={(e) => { app.spec.id = e.currentTarget.value; app.touch(); }} /></label>
+			<label class={ROW}><span class={LBL}>nombre</span><Input size="xs" value={app.spec.name} onchange={(e) => { app.spec.name = e.currentTarget.value; app.touch(); }} /></label>
+			<div class={ROW}><span class={LBL}>material</span>
+				<Select size="xs" aria-label="material" options={materialOptions} value={app.spec.material} onChange={(v) => { app.spec.material = v; app.touch(); }} />
 			</div>
-			{#if idError?.component === c.id}
-				<div class="id-error">{idError.message}</div>
-			{/if}
-			{#if open[c.id]}
-				<div class="fields">
-					<label class="row"><span>condición</span>
-						<input class="mono" placeholder="siempre · ej. drawers > 0" value={show(c.when)}
-							onchange={(e) => { const raw = e.currentTarget.value.trim(); const rec = c as { when?: NumOrExpr }; if (raw === '' ) delete rec.when; else rec.when = raw === 'true' ? true : raw === 'false' ? false : raw; app.touch(); }} />
-					</label>
-					{#if c.type === 'panel'}
-						<label class="row"><span>x</span><input value={show(c.x ?? 0)} onchange={(e) => setField(c, 'x', e.currentTarget.value)} /></label>
-						<label class="row"><span>mira hacia</span>
-							<select value={c.facing ?? 'right'} onchange={(e) => { c.facing = e.currentTarget.value as 'right' | 'left'; app.touch(); }}>
-								<option value="right">la derecha (lateral izquierdo)</option>
-								<option value="left">la izquierda (lateral derecho)</option>
-							</select>
-						</label>
-						<label class="row"><span>profundidad</span><input value={show(c.depth ?? 'depth')} onchange={(e) => setField(c, 'depth', e.currentTarget.value)} /></label>
-						<label class="row"><span>alto</span><input value={show(c.height ?? 'height')} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
-					{:else if c.type === 'sliding_doors'}
-						<label class="row"><span>carcasa</span><input placeholder="la única" value={c.carcass ?? ''} onchange={(e) => setText(c, 'carcass', e.currentTarget.value.trim(), true)} /></label>
-						<label class="row"><span>puertas</span><input value={show(c.count)} onchange={(e) => setField(c, 'count', e.currentTarget.value)} /></label>
-						<label class="row"><span>solape</span><input value={show(c.overlap ?? 30)} onchange={(e) => setField(c, 'overlap', e.currentTarget.value)} /></label>
-						<label class="row"><span>luz a los lados</span><input value={show(c.gap ?? 2)} onchange={(e) => setField(c, 'gap', e.currentTarget.value)} /></label>
-					{:else if c.type === 'sink'}
-						<label class="row"><span>carcasa</span><input placeholder="la única" value={c.carcass ?? ''} onchange={(e) => setText(c, 'carcass', e.currentTarget.value.trim(), true)} /></label>
-						<label class="row"><span>bahía</span><input placeholder="la única" value={show(c.bay)} onchange={(e) => setField(c, 'bay', e.currentTarget.value, true)} /></label>
-						<div class="row"><span>bacha</span>
-							<select value={c.hardware[0] ?? ''} onchange={(e) => { c.hardware = [e.currentTarget.value]; app.touch(); }}>
-								{#each byKind(['sink']) as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
-							</select>
-						</div>
-						<label class="row"><span>desde el frente</span><input placeholder="medio" value={show(c.fromFront)} onchange={(e) => setField(c, 'fromFront', e.currentTarget.value, true)} /></label>
-						<label class="row"><span>pase de caños</span><input type="checkbox" checked={!!c.passage} onchange={(e) => { if (e.currentTarget.checked) c.passage = {}; else delete c.passage; app.touch(); }} /></label>
-					{:else if c.type === 'modesty'}
-						<label class="row"><span>tapa</span><input placeholder="la única" value={c.worktop ?? ''} onchange={(e) => setText(c, 'worktop', e.currentTarget.value.trim(), true)} /></label>
-						<label class="row"><span>alto</span><input value={show(c.height ?? 300)} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
-						<label class="row"><span>desde el fondo</span><input value={show(c.inset ?? 20)} onchange={(e) => setField(c, 'inset', e.currentTarget.value)} /></label>
+			<div class={ROW}><span class={LBL}>canto</span>
+				<Select size="xs" aria-label="canto" options={withNone('— sin canto —', opt(edgeMaterials))} value={app.spec.edgeMaterial ?? NONE}
+					onChange={(v) => { app.spec.edgeMaterial = orNone(v) || undefined; app.touch(); }} />
+			</div>
+		</div>
+	</Section>
+
+	<Section title="Componentes" count={app.spec.components.length}>
+		<div class="flex flex-col gap-1.5">
+			{#each app.spec.components as c, i (c.id)}
+				{@const findings = app.findingsFor(c.id)}
+				{@const level = worst(findings)}
+				<div
+					class="rounded-md border bg-depth-0 transition-colors {level === 'ERROR' || level === 'FATAL' ? 'border-danger/60' : level === 'WARNING' ? 'border-warning/60' : ''} {inactive.has(c.id) ? 'border-dashed opacity-60' : ''}"
+					bind:this={cards[c.id]}
+				>
+					<div class="flex min-w-0 items-center gap-1 px-1 py-1">
+						<Button variant="ghost" size="icon-xs" aria-label={open[c.id] ? 'plegar' : 'desplegar'} onclick={() => (open[c.id] = !open[c.id])}>
+							<ChevronRight class="transition-transform {open[c.id] ? 'rotate-90' : ''}" />
+						</Button>
+						<span class="shrink-0 text-xs font-medium">{TYPE_ES[c.type]}</span>
+						<Input size="xs" mono class="w-28" aria-label="id del componente" value={c.id} onchange={(e) => rename(c, e.currentTarget)} />
+						{#if level}
+							<button class={recipes.badge({ tone: TONE[level] })} title="ver hallazgos" onclick={() => (open[c.id] = true)}>{findings.length}</button>
+						{/if}
+						{#if inactive.has(c.id)}
+							<Badge outline title={c.when !== undefined ? `condición: ${String(c.when)}` : 'depende de un componente apagado'}>apagado</Badge>
+						{/if}
+						<span class="flex-1"></span>
+						<Button variant="ghost" size="icon-xs" title="subir" aria-label="subir" onclick={() => move(i, -1)}><ArrowUp /></Button>
+						<Button variant="ghost" size="icon-xs" title="bajar" aria-label="bajar" onclick={() => move(i, 1)}><ArrowDown /></Button>
+						<Button variant="danger" size="icon-xs" title="quitar" aria-label="quitar" onclick={() => remove(i)}><X /></Button>
+					</div>
+					{#if idError?.component === c.id}
+						<p class="px-8 pb-1 text-2xs text-danger">{idError.message}</p>
 					{/if}
-					{#if c.type === 'carcass'}
-						<label class="row"><span>ancho</span><input value={show(c.width ?? 'width')} onchange={(e) => setField(c, 'width', e.currentTarget.value)} /></label>
-						<label class="row"><span>alto</span><input value={show(c.height ?? 'height')} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
-						<label class="row"><span>profundidad</span><input value={show(c.depth ?? 'depth')} onchange={(e) => setField(c, 'depth', e.currentTarget.value)} /></label>
-						<label class="row"><span>origen x,y,z</span>
-							<input placeholder="0, 0, 0" value={c.origin ? [c.origin.x ?? 0, c.origin.y ?? 0, c.origin.z ?? 0].map(show).join(', ') : ''}
-								onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) { const [x, y, z] = raw.split(',').map((v) => numOrExpr(v || '0')); c.origin = { ...(c.origin ?? {}), x: x ?? 0, y: y ?? 0, z: z ?? 0 }; } else if (c.origin?.rotation !== undefined) c.origin = { rotation: c.origin.rotation }; else delete c.origin; app.touch(); }} />
-						</label>
-						<label class="row" title="Alrededor del origen, visto desde arriba"><span>giro</span>
-							<select value={String(c.origin?.rotation ?? 0)} onchange={(e) => { const v = Number(e.currentTarget.value); if (v) c.origin = { ...(c.origin ?? {}), rotation: v }; else if (c.origin) delete c.origin.rotation; app.touch(); }}>
-								<option value="0">sin girar (frente hacia adelante)</option>
-								<option value="90">90° (frente hacia la izquierda)</option>
-								<option value="180">180° (frente hacia atrás)</option>
-								<option value="270">270° (frente hacia la derecha)</option>
-							</select>
-						</label>
-						<label class="row" title="Lugar para el riel de puertas corredizas"><span>retiro divisores</span><input placeholder="0" value={show(c.dividerSetback)} onchange={(e) => setField(c, 'dividerSetback', e.currentTarget.value, true)} /></label>
-						<label class="row"><span>bahías</span><input value={show(c.bays ?? 1)} onchange={(e) => setField(c, 'bays', e.currentTarget.value)} /></label>
-						<label class="row"><span>anchos</span>
-							<input placeholder="reparto parejo · ej. 500, auto, 400" value={(c.bayWidths ?? []).join(', ')}
-								onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) c.bayWidths = raw.split(',').map((x) => numOrExpr(x)); else delete c.bayWidths; app.touch(); }} />
-						</label>
-						<label class="row"><span>fondo</span>
-							<select value={c.back?.material ?? ''} onchange={(e) => { const v = e.currentTarget.value; if (v) c.back = { ...(c.back ?? {}), material: v }; else delete c.back; app.touch(); }}>
-								<option value="">— sin fondo —</option>
-								{#each materials as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
-							</select>
-						</label>
-						<label class="row"><span>patas</span>
-							<select value={c.legs?.hardware?.[0] ?? ''} onchange={(e) => { const v = e.currentTarget.value; if (v) c.legs = { ...(c.legs ?? {}), hardware: [v] }; else delete c.legs; app.touch(); }}>
-								<option value="">— sin patas —</option>
-								{#each byKind(['leg']) as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
-							</select>
-						</label>
-						{#if c.legs}
-							<label class="row"><span>retiro patas</span><input value={show(c.legs.inset ?? 50)} onchange={(e) => { c.legs!.inset = numOrExpr(e.currentTarget.value); app.touch(); }} /></label>
-							<label class="row"><span>zócalo</span>
-								<span class="inline">
-									<input type="checkbox" checked={!!c.legs.plinth} onchange={(e) => { if (e.currentTarget.checked) c.legs!.plinth = { setback: 40 }; else delete c.legs!.plinth; app.touch(); }} />
-									{#if c.legs.plinth}
-										retiro <input class="short" value={show(c.legs.plinth.setback ?? 40)} onchange={(e) => { c.legs!.plinth!.setback = numOrExpr(e.currentTarget.value); app.touch(); }} />
+					{#if open[c.id]}
+						<div class="flex flex-col gap-0.5 border-t px-2.5 py-2">
+							<label class={ROW}><span class={LBL}>condición</span>
+								<Input size="xs" mono placeholder="siempre · ej. drawers > 0" value={show(c.when)}
+									onchange={(e) => { const raw = e.currentTarget.value.trim(); const rec = c as { when?: NumOrExpr }; if (raw === '' ) delete rec.when; else rec.when = raw === 'true' ? true : raw === 'false' ? false : raw; app.touch(); }} />
+							</label>
+							{#if c.type === 'panel'}
+								<label class={ROW}><span class={LBL}>x</span><Input size="xs" value={show(c.x ?? 0)} onchange={(e) => setField(c, 'x', e.currentTarget.value)} /></label>
+								<div class={ROW}><span class={LBL}>mira hacia</span>
+									<Select size="xs" aria-label="mira hacia" value={c.facing ?? 'right'} onChange={(v) => { c.facing = v; app.touch(); }}
+										options={[{ value: 'right', label: 'la derecha (lateral izquierdo)' }, { value: 'left', label: 'la izquierda (lateral derecho)' }]} />
+								</div>
+								<label class={ROW}><span class={LBL}>profundidad</span><Input size="xs" value={show(c.depth ?? 'depth')} onchange={(e) => setField(c, 'depth', e.currentTarget.value)} /></label>
+								<label class={ROW}><span class={LBL}>alto</span><Input size="xs" value={show(c.height ?? 'height')} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
+							{:else if c.type === 'sliding_doors'}
+								<label class={ROW}><span class={LBL}>carcasa</span><Input size="xs" placeholder="la única" value={c.carcass ?? ''} onchange={(e) => setText(c, 'carcass', e.currentTarget.value.trim(), true)} /></label>
+								<label class={ROW}><span class={LBL}>puertas</span><Input size="xs" value={show(c.count)} onchange={(e) => setField(c, 'count', e.currentTarget.value)} /></label>
+								<label class={ROW}><span class={LBL}>solape</span><Input size="xs" value={show(c.overlap ?? 30)} onchange={(e) => setField(c, 'overlap', e.currentTarget.value)} /></label>
+								<label class={ROW}><span class={LBL}>luz a los lados</span><Input size="xs" value={show(c.gap ?? 2)} onchange={(e) => setField(c, 'gap', e.currentTarget.value)} /></label>
+							{:else if c.type === 'sink'}
+								<label class={ROW}><span class={LBL}>carcasa</span><Input size="xs" placeholder="la única" value={c.carcass ?? ''} onchange={(e) => setText(c, 'carcass', e.currentTarget.value.trim(), true)} /></label>
+								<label class={ROW}><span class={LBL}>bahía</span><Input size="xs" placeholder="la única" value={show(c.bay)} onchange={(e) => setField(c, 'bay', e.currentTarget.value, true)} /></label>
+								<div class={ROW}><span class={LBL}>bacha</span>
+									<Select size="xs" aria-label="bacha" options={hwOpt(byKind(['sink']))} value={c.hardware[0] ?? ''} onChange={(v) => { c.hardware = [v]; app.touch(); }} />
+								</div>
+								<label class={ROW}><span class={LBL}>desde el frente</span><Input size="xs" placeholder="medio" value={show(c.fromFront)} onchange={(e) => setField(c, 'fromFront', e.currentTarget.value, true)} /></label>
+								<div class={ROW}><span class={LBL}>pase de caños</span>
+									<Checkbox aria-label="pase de caños" checked={!!c.passage} onChange={(on) => { if (on) c.passage = {}; else delete c.passage; app.touch(); }} />
+								</div>
+							{:else if c.type === 'modesty'}
+								<label class={ROW}><span class={LBL}>tapa</span><Input size="xs" placeholder="la única" value={c.worktop ?? ''} onchange={(e) => setText(c, 'worktop', e.currentTarget.value.trim(), true)} /></label>
+								<label class={ROW}><span class={LBL}>alto</span><Input size="xs" value={show(c.height ?? 300)} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
+								<label class={ROW}><span class={LBL}>desde el fondo</span><Input size="xs" value={show(c.inset ?? 20)} onchange={(e) => setField(c, 'inset', e.currentTarget.value)} /></label>
+							{/if}
+							{#if c.type === 'carcass'}
+								<label class={ROW}><span class={LBL}>ancho</span><Input size="xs" value={show(c.width ?? 'width')} onchange={(e) => setField(c, 'width', e.currentTarget.value)} /></label>
+								<label class={ROW}><span class={LBL}>alto</span><Input size="xs" value={show(c.height ?? 'height')} onchange={(e) => setField(c, 'height', e.currentTarget.value)} /></label>
+								<label class={ROW}><span class={LBL}>profundidad</span><Input size="xs" value={show(c.depth ?? 'depth')} onchange={(e) => setField(c, 'depth', e.currentTarget.value)} /></label>
+								<label class={ROW}><span class={LBL}>origen x,y,z</span>
+									<Input size="xs" placeholder="0, 0, 0" value={c.origin ? [c.origin.x ?? 0, c.origin.y ?? 0, c.origin.z ?? 0].map(show).join(', ') : ''}
+										onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) { const [x, y, z] = raw.split(',').map((v) => numOrExpr(v || '0')); c.origin = { ...(c.origin ?? {}), x: x ?? 0, y: y ?? 0, z: z ?? 0 }; } else if (c.origin?.rotation !== undefined) c.origin = { rotation: c.origin.rotation }; else delete c.origin; app.touch(); }} />
+								</label>
+								<div class={ROW} title="Alrededor del origen, visto desde arriba"><span class={LBL}>giro</span>
+									<Select size="xs" aria-label="giro" value={String(c.origin?.rotation ?? 0)}
+										onChange={(s) => { const v = Number(s); if (v) c.origin = { ...(c.origin ?? {}), rotation: v }; else if (c.origin) delete c.origin.rotation; app.touch(); }}
+										options={[
+											{ value: '0', label: 'sin girar (frente hacia adelante)' },
+											{ value: '90', label: '90° (frente hacia la izquierda)' },
+											{ value: '180', label: '180° (frente hacia atrás)' },
+											{ value: '270', label: '270° (frente hacia la derecha)' }
+										]} />
+								</div>
+								<label class={ROW} title="Lugar para el riel de puertas corredizas"><span class={LBL}>retiro divisores</span><Input size="xs" placeholder="0" value={show(c.dividerSetback)} onchange={(e) => setField(c, 'dividerSetback', e.currentTarget.value, true)} /></label>
+								<label class={ROW}><span class={LBL}>bahías</span><Input size="xs" value={show(c.bays ?? 1)} onchange={(e) => setField(c, 'bays', e.currentTarget.value)} /></label>
+								<label class={ROW}><span class={LBL}>anchos</span>
+									<Input size="xs" placeholder="reparto parejo · ej. 500, auto, 400" value={(c.bayWidths ?? []).join(', ')}
+										onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) c.bayWidths = raw.split(',').map((x) => numOrExpr(x)); else delete c.bayWidths; app.touch(); }} />
+								</label>
+								<div class={ROW}><span class={LBL}>fondo</span>
+									<Select size="xs" aria-label="fondo" options={withNone('— sin fondo —', materialOptions)} value={c.back?.material ?? NONE}
+										onChange={(s) => { const v = orNone(s); if (v) c.back = { ...(c.back ?? {}), material: v }; else delete c.back; app.touch(); }} />
+								</div>
+								<div class={ROW}><span class={LBL}>patas</span>
+									<Select size="xs" aria-label="patas" options={withNone('— sin patas —', hwOpt(byKind(['leg'])))} value={c.legs ? (c.legs.hardware?.[0] ?? DEFAULT_LEG) : NONE}
+										onChange={(s) => { const v = orNone(s); if (v) c.legs = { ...(c.legs ?? {}), hardware: [v] }; else delete c.legs; app.touch(); }} />
+								</div>
+								{#if c.legs}
+									<label class={ROW}><span class={LBL}>retiro patas</span><Input size="xs" value={show(c.legs.inset ?? 50)} onchange={(e) => { c.legs!.inset = numOrExpr(e.currentTarget.value); app.touch(); }} /></label>
+									<div class={ROW}><span class={LBL}>zócalo</span>
+										<span class={INLINE}>
+											<Checkbox aria-label="zócalo" checked={!!c.legs.plinth} onChange={(on) => { if (on) c.legs!.plinth = { setback: 40 }; else delete c.legs!.plinth; app.touch(); }} />
+											{#if c.legs.plinth}
+												<span class="text-xs text-muted-foreground">retiro</span>
+												<Input size="xs" class="w-16" aria-label="retiro del zócalo" value={show(c.legs.plinth.setback ?? 40)} onchange={(e) => { c.legs!.plinth!.setback = numOrExpr(e.currentTarget.value); app.touch(); }} />
+											{/if}
+										</span>
+									</div>
+								{/if}
+							{:else if c.type === 'shelves' || c.type === 'doors' || c.type === 'drawers' || c.type === 'rail'}
+								<label class={ROW}><span class={LBL}>bahía</span><Input size="xs" placeholder="todas" value={show(c.bay)} onchange={(e) => setField(c, 'bay', e.currentTarget.value, true)} /></label>
+								<label class={ROW}><span class={LBL}>hasta bahía</span><Input size="xs" placeholder="sólo esa" value={show(c.lastBay)} onchange={(e) => setField(c, 'lastBay', e.currentTarget.value, true)} /></label>
+								<div class={ROW}><span class={LBL}>zona</span>
+									<span class={INLINE}>
+										<Checkbox aria-label="zona" checked={!!c.zone} onChange={(on) => setZone(c, on)} />
+										{#if c.zone}
+											<Input size="xs" class="w-16" aria-label="zona desde" value={show(c.zone.from)} onchange={(e) => { c.zone!.from = numOrExpr(e.currentTarget.value); app.touch(); }} />
+											<span class="text-subtle-foreground">–</span>
+											<Input size="xs" class="w-16" aria-label="zona hasta" value={show(c.zone.to)} onchange={(e) => { c.zone!.to = numOrExpr(e.currentTarget.value); app.touch(); }} />
+										{/if}
+									</span>
+								</div>
+								{#if c.type === 'rail'}
+									<label class={ROW}><span class={LBL}>bajo la tapa</span><Input size="xs" value={show(c.fromTop ?? 60)} onchange={(e) => setField(c, 'fromTop', e.currentTarget.value)} /></label>
+									<div class={ROW}><span class={LBL}>barral</span>
+										<Select size="xs" aria-label="barral" options={hwOpt(byKind(['rail']))} value={c.hardware?.[0] ?? 'rail_oval_30'} onChange={(v) => { c.hardware = [v]; app.touch(); }} />
+									</div>
+									<div class={ROW}><span class={LBL}>soportes</span>
+										<Select size="xs" aria-label="soportes" options={hwOpt(byKind(['rail_support']))} value={c.supports?.[0] ?? 'rail_support_oval'} onChange={(v) => { c.supports = [v]; app.touch(); }} />
+									</div>
+								{:else if c.type !== 'shelves' || !c.positions?.length}
+									<label class={ROW}><span class={LBL}>cantidad</span><Input size="xs" value={show(c.count)} onchange={(e) => setField(c, 'count', e.currentTarget.value, c.type === 'shelves')} /></label>
+								{/if}
+								{#if c.type === 'doors'}
+									<label class={ROW}><span class={LBL}>bahías que cubre</span><Input size="xs" placeholder="1" value={show(c.span)} onchange={(e) => setField(c, 'span', e.currentTarget.value, true)} /></label>
+								{/if}
+								{#if c.type === 'doors' || c.type === 'drawers'}
+									<div class={ROW}><span class={LBL}>montaje</span>
+										<Select size="xs" aria-label="montaje" value={c.mount ?? 'overlay'}
+											onChange={(v) => { if (v === 'overlay') delete c.mount; else c.mount = 'inset'; app.touch(); }}
+											options={[
+												{ value: 'overlay', label: 'superpuesto (cubre la carcasa)' },
+												{ value: 'inset', label: c.type === 'doors' ? 'embutido (dentro del hueco)' : 'interior (detrás de una puerta)' }
+											]} />
+									</div>
+									{#if c.type === 'doors'}
+										<div class={ROW} title="Con una puerta por bahía; con dos, cada una cuelga de su lado"><span class={LBL}>bisagra</span>
+											<Select size="xs" aria-label="lado de la bisagra" value={c.hingeSide ?? 'auto'}
+												onChange={(v) => { if (v === 'auto') delete c.hingeSide; else c.hingeSide = v; app.touch(); }}
+												options={[
+													{ value: 'auto', label: 'automática (hacia afuera del mueble)' },
+													{ value: 'left', label: 'a la izquierda' },
+													{ value: 'right', label: 'a la derecha' }
+												]} />
+										</div>
 									{/if}
-								</span>
-							</label>
-						{/if}
-					{:else if c.type === 'shelves' || c.type === 'doors' || c.type === 'drawers' || c.type === 'rail'}
-						<label class="row"><span>bahía</span><input placeholder="todas" value={show(c.bay)} onchange={(e) => setField(c, 'bay', e.currentTarget.value, true)} /></label>
-						<label class="row"><span>hasta bahía</span><input placeholder="sólo esa" value={show(c.lastBay)} onchange={(e) => setField(c, 'lastBay', e.currentTarget.value, true)} /></label>
-						<label class="row"><span>zona</span>
-							<span class="inline">
-								<input type="checkbox" checked={!!c.zone} onchange={(e) => setZone(c, e.currentTarget.checked)} />
-								{#if c.zone}
-									<input class="short" value={show(c.zone.from)} onchange={(e) => { c.zone!.from = numOrExpr(e.currentTarget.value); app.touch(); }} />
-									–
-									<input class="short" value={show(c.zone.to)} onchange={(e) => { c.zone!.to = numOrExpr(e.currentTarget.value); app.touch(); }} />
+									{#if c.type === 'doors'}
+										<div class={ROW} title="De costado, hacia arriba (basculante, colgada de la tapa) o hacia abajo (rebatible, de la base)"><span class={LBL}>abre</span>
+											<Select size="xs" aria-label="abre" value={c.opening ?? 'side'}
+												onChange={(v) => { if (v === 'side') delete c.opening; else { c.opening = v; c.count = 1; delete c.hingeSide; delete c.catch; } app.touch(); }}
+												options={[
+													{ value: 'side', label: 'de costado' },
+													{ value: 'up', label: 'hacia arriba (basculante)' },
+													{ value: 'down', label: 'hacia abajo (rebatible)' }
+												]} />
+										</div>
+										<div class={ROW} title="Un espejo pegado sobre el frente de cada puerta"><span class={LBL}>espejo</span>
+											<Checkbox aria-label="espejo" checked={!!c.facing} onChange={(on) => { if (on) { c.facing = {}; delete c.handle; } else delete c.facing; app.touch(); }} />
+										</div>
+									{/if}
+									{#if c.type === 'drawers' && c.mount === 'inset'}
+										<label class={ROW}><span class={LBL}>retranqueo</span><Input size="xs" placeholder="0" value={show(c.setback)} onchange={(e) => setField(c, 'setback', e.currentTarget.value, true)} /></label>
+									{/if}
 								{/if}
-							</span>
-						</label>
-						{#if c.type === 'rail'}
-							<label class="row"><span>bajo la tapa</span><input value={show(c.fromTop ?? 60)} onchange={(e) => setField(c, 'fromTop', e.currentTarget.value)} /></label>
-							<div class="row"><span>barral</span>
-								<select value={c.hardware?.[0] ?? 'rail_oval_30'} onchange={(e) => { c.hardware = [e.currentTarget.value]; app.touch(); }}>
-									{#each byKind(['rail']) as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
-								</select>
-							</div>
-							<div class="row"><span>soportes</span>
-								<select value={c.supports?.[0] ?? 'rail_support_oval'} onchange={(e) => { c.supports = [e.currentTarget.value]; app.touch(); }}>
-									{#each byKind(['rail_support']) as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
-								</select>
-							</div>
-						{:else if c.type !== 'shelves' || !c.positions?.length}
-							<label class="row"><span>cantidad</span><input value={show(c.count)} onchange={(e) => setField(c, 'count', e.currentTarget.value, c.type === 'shelves')} /></label>
-						{/if}
-						{#if c.type === 'doors'}
-							<label class="row"><span>bahías que cubre</span><input placeholder="1" value={show(c.span)} onchange={(e) => setField(c, 'span', e.currentTarget.value, true)} /></label>
-						{/if}
-						{#if c.type === 'doors' || c.type === 'drawers'}
-							<label class="row"><span>montaje</span>
-								<select value={c.mount ?? 'overlay'} onchange={(e) => { const v = e.currentTarget.value; if (v === 'overlay') delete c.mount; else c.mount = 'inset'; app.touch(); }}>
-									<option value="overlay">superpuesto (cubre la carcasa)</option>
-									<option value="inset">{c.type === 'doors' ? 'embutido (dentro del hueco)' : 'interior (detrás de una puerta)'}</option>
-								</select>
-							</label>
-							{#if c.type === 'doors'}
-								<label class="row" title="Con una puerta por bahía; con dos, cada una cuelga de su lado"><span>bisagra</span>
-									<select value={c.hingeSide ?? 'auto'} onchange={(e) => { const v = e.currentTarget.value as 'auto' | 'left' | 'right'; if (v === 'auto') delete c.hingeSide; else c.hingeSide = v; app.touch(); }}>
-										<option value="auto">automática (hacia afuera del mueble)</option>
-										<option value="left">a la izquierda</option>
-										<option value="right">a la derecha</option>
-									</select>
+							{/if}
+							{#if c.type === 'shelves'}
+								<div class={ROW}><span class={LBL}>apoyo</span>
+									<Select size="xs" aria-label="apoyo" value={c.support ?? 'joint'}
+										onChange={(v) => { if (v === 'pins') { c.support = 'pins'; } else { delete c.support; c.joint ??= { hardware: ['dowel_8x30'] }; } app.touch(); }}
+										options={[
+											{ value: 'joint', label: 'unido con herrajes' },
+											{ value: 'pins', label: 'regulable con soportes (Sistema 32)' }
+										]} />
+								</div>
+								<label class={ROW}><span class={LBL}>fijos en</span>
+									<Input size="xs" placeholder="alturas · ej. 1000, divider_z" value={(c.positions ?? []).map(show).join(', ')}
+										onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) { c.positions = raw.split(',').map((x) => numOrExpr(x)); delete c.count; } else { delete c.positions; c.count ??= 2; } app.touch(); }} />
 								</label>
+								<label class={ROW}><span class={LBL}>retranqueo</span><Input size="xs" value={show(c.setback ?? (c.positions?.length ? 0 : 20))} onchange={(e) => setField(c, 'setback', e.currentTarget.value)} /></label>
+							{/if}
+							{#if c.type === 'doors' || c.type === 'drawers'}
+								<label class={ROW}><span class={LBL}>luz</span><Input size="xs" value={show(c.gap ?? 2)} onchange={(e) => setField(c, 'gap', e.currentTarget.value)} /></label>
+							{/if}
+							{#if c.type === 'drawers'}
+								<label class={ROW}><span class={LBL}>alto frente</span><Input size="xs" placeholder="reparto" value={show(c.frontHeight)} onchange={(e) => setField(c, 'frontHeight', e.currentTarget.value, true)} /></label>
+								<label class={ROW}><span class={LBL}>alto caja</span><Input size="xs" placeholder="frente − 40" value={show(c.boxHeight)} onchange={(e) => setField(c, 'boxHeight', e.currentTarget.value, true)} /></label>
+								<div class={ROW}><span class={LBL}>corredera</span>
+									<Select size="xs" aria-label="corredera" options={hwOpt(plainSlides)} value={c.slide.hardware[0] ?? ''} onChange={(v) => { c.slide.hardware = [v]; app.touch(); }} />
+								</div>
+								<div class={ROW}><span class={LBL}>cierre suave</span>
+									<Checkbox aria-label="cierre suave" checked={!!c.softClose} onChange={(on) => { if (on) c.softClose = true; else delete c.softClose; app.touch(); }} />
+								</div>
+							{/if}
+							{#if c.type === 'worktop'}
+								<label class={ROW}><span class={LBL}>vuelo frente</span><Input size="xs" value={show(c.overhang?.front ?? 20)} onchange={(e) => { c.overhang ??= {}; c.overhang.front = numOrExpr(e.currentTarget.value); app.touch(); }} /></label>
+								<label class={ROW}><span class={LBL}>vuelo lados</span><Input size="xs" value={show(c.overhang?.sides ?? 0)} onchange={(e) => { c.overhang ??= {}; c.overhang.sides = numOrExpr(e.currentTarget.value); app.touch(); }} /></label>
+								<label class={ROW}><span class={LBL}>sobre</span><Input size="xs" placeholder="todas las carcasas" value={(c.carcasses ?? []).join(', ')} onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) c.carcasses = raw.split(',').map((x) => x.trim()); else delete c.carcasses; app.touch(); }} /></label>
+							{/if}
+							{#if c.type === 'carcass'}
+								<div class={ROW}><span class={LBL}>colgada</span>
+									<Checkbox aria-label="colgada" checked={!!c.hanging} onChange={(on) => { if (on) { c.hanging = {}; delete c.legs; } else delete c.hanging; app.touch(); }} />
+								</div>
+							{/if}
+							{#if c.type !== 'rail' && c.type !== 'sink'}
+								<div class={ROW}><span class={LBL}>material</span>
+									<Select size="xs" aria-label="material del componente" options={withNone('— el del mueble —', materialOptions)} value={c.material ?? NONE}
+										onChange={(v) => setText(c, 'material', orNone(v), true)} />
+								</div>
+								<div class={ROW}><span class={LBL}>cantos</span>
+									<Select size="xs" aria-label="cantos" value={c.edges ?? 'default'} onChange={(v) => setText(c, 'edges', v)}
+										options={[
+											{ value: 'default', label: 'por defecto' },
+											{ value: 'none', label: 'ninguno' },
+											{ value: 'front', label: 'frente' },
+											{ value: 'all', label: 'todos' }
+										]} />
+								</div>
+							{/if}
+							{#if c.type !== 'doors' && c.type !== 'rail' && c.type !== 'worktop' && c.type !== 'sliding_doors' && c.type !== 'sink' && !(c.type === 'shelves' && c.support === 'pins')}
+								{@const hw = c.joint?.hardware ?? []}
+								<div class="grid grid-cols-[104px_minmax(0,1fr)] items-start gap-2 py-0.5"><span class="{LBL} pt-1">herrajes</span>
+									<span class="flex flex-wrap gap-1">
+										{#each fasteners as h (h.id)}
+											<Toggle size="xs" variant="secondary" class="max-w-full min-w-0" title={h.name} selected={hw.includes(h.id)} onChange={() => toggleHardware(c, h.id)}>
+												<span class="truncate">{h.name}</span>
+											</Toggle>
+										{/each}
+									</span>
+								</div>
 							{/if}
 							{#if c.type === 'doors'}
-								<label class="row" title="De costado, hacia arriba (basculante, colgada de la tapa) o hacia abajo (rebatible, de la base)"><span>abre</span>
-									<select value={c.opening ?? 'side'} onchange={(e) => { const v = e.currentTarget.value as 'side' | 'up' | 'down'; if (v === 'side') delete c.opening; else { c.opening = v; c.count = 1; delete c.hingeSide; delete c.catch; } app.touch(); }}>
-										<option value="side">de costado</option>
-										<option value="up">hacia arriba (basculante)</option>
-										<option value="down">hacia abajo (rebatible)</option>
-									</select>
-								</label>
-								<label class="row" title="Un espejo pegado sobre el frente de cada puerta"><span>espejo</span><input type="checkbox" checked={!!c.facing} onchange={(e) => { if (e.currentTarget.checked) { c.facing = {}; delete c.handle; } else delete c.facing; app.touch(); }} /></label>
-							{/if}
-							{#if c.type === 'drawers' && c.mount === 'inset'}
-								<label class="row"><span>retranqueo</span><input placeholder="0" value={show(c.setback)} onchange={(e) => setField(c, 'setback', e.currentTarget.value, true)} /></label>
-							{/if}
-						{/if}
-					{/if}
-					{#if c.type === 'shelves'}
-						<label class="row"><span>apoyo</span>
-							<select value={c.support ?? 'joint'} onchange={(e) => { const v = e.currentTarget.value; if (v === 'pins') { c.support = 'pins'; } else { delete c.support; c.joint ??= { hardware: ['dowel_8x30'] }; } app.touch(); }}>
-								<option value="joint">unido con herrajes</option>
-								<option value="pins">regulable con soportes (Sistema 32)</option>
-							</select>
-						</label>
-						<label class="row"><span>fijos en</span>
-							<input placeholder="alturas · ej. 1000, divider_z" value={(c.positions ?? []).map(show).join(', ')}
-								onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) { c.positions = raw.split(',').map((x) => numOrExpr(x)); delete c.count; } else { delete c.positions; c.count ??= 2; } app.touch(); }} />
-						</label>
-						<label class="row"><span>retranqueo</span><input value={show(c.setback ?? (c.positions?.length ? 0 : 20))} onchange={(e) => setField(c, 'setback', e.currentTarget.value)} /></label>
-					{/if}
-					{#if c.type === 'doors' || c.type === 'drawers'}
-						<label class="row"><span>luz</span><input value={show(c.gap ?? 2)} onchange={(e) => setField(c, 'gap', e.currentTarget.value)} /></label>
-					{/if}
-					{#if c.type === 'drawers'}
-						<label class="row"><span>alto frente</span><input placeholder="reparto" value={show(c.frontHeight)} onchange={(e) => setField(c, 'frontHeight', e.currentTarget.value, true)} /></label>
-						<label class="row"><span>alto caja</span><input placeholder="frente − 40" value={show(c.boxHeight)} onchange={(e) => setField(c, 'boxHeight', e.currentTarget.value, true)} /></label>
-						<div class="row"><span>corredera</span>
-							<select value={c.slide.hardware[0] ?? ''} onchange={(e) => { c.slide.hardware = [e.currentTarget.value]; app.touch(); }}>
-								{#each plainSlides as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
-							</select>
-						</div>
-						<label class="row"><span>cierre suave</span><input type="checkbox" checked={!!c.softClose} onchange={(e) => { if (e.currentTarget.checked) c.softClose = true; else delete c.softClose; app.touch(); }} /></label>
-					{/if}
-					{#if c.type === 'worktop'}
-						<label class="row"><span>vuelo frente</span><input value={show(c.overhang?.front ?? 20)} onchange={(e) => { c.overhang ??= {}; c.overhang.front = numOrExpr(e.currentTarget.value); app.touch(); }} /></label>
-						<label class="row"><span>vuelo lados</span><input value={show(c.overhang?.sides ?? 0)} onchange={(e) => { c.overhang ??= {}; c.overhang.sides = numOrExpr(e.currentTarget.value); app.touch(); }} /></label>
-						<label class="row"><span>sobre</span><input placeholder="todas las carcasas" value={(c.carcasses ?? []).join(', ')} onchange={(e) => { const raw = e.currentTarget.value.trim(); if (raw) c.carcasses = raw.split(',').map((x) => x.trim()); else delete c.carcasses; app.touch(); }} /></label>
-					{/if}
-					{#if c.type === 'carcass'}
-						<label class="row"><span>colgada</span><input type="checkbox" checked={!!c.hanging} onchange={(e) => { if (e.currentTarget.checked) { c.hanging = {}; delete c.legs; } else delete c.hanging; app.touch(); }} /></label>
-					{/if}
-					{#if c.type !== 'rail' && c.type !== 'sink'}
-					<label class="row"><span>material</span>
-						<select value={c.material ?? ''} onchange={(e) => setText(c, 'material', e.currentTarget.value, true)}>
-							<option value="">— el del mueble —</option>
-							{#each materials as m (m.id)}<option value={m.id}>{m.name}</option>{/each}
-						</select>
-					</label>
-					<label class="row"><span>cantos</span>
-						<select value={c.edges ?? 'default'} onchange={(e) => setText(c, 'edges', e.currentTarget.value)}>
-							<option value="default">por defecto</option><option value="none">ninguno</option><option value="front">frente</option><option value="all">todos</option>
-						</select>
-					</label>
-					{/if}
-					{#if c.type !== 'doors' && c.type !== 'rail' && c.type !== 'worktop' && c.type !== 'sliding_doors' && c.type !== 'sink' && !(c.type === 'shelves' && c.support === 'pins')}
-						{@const hw = c.joint?.hardware ?? []}
-						<div class="row"><span>herrajes</span>
-							<span class="chips">
-								{#each fasteners as h (h.id)}
-									<label class="chip" class:on={hw.includes(h.id)}>
-										<input type="checkbox" checked={hw.includes(h.id)} onchange={() => toggleHardware(c, h.id)} />{h.name}
-									</label>
-								{/each}
-							</span>
-						</div>
-					{/if}
-					{#if c.type === 'doors'}
-						<div class="row"><span>bisagra</span>
-							<span class="inline">
-								<input type="checkbox" checked={c.hinge !== null} onchange={(e) => setOptionalJoint(c, 'hinge', e.currentTarget.checked, 'hinge_35_overlay')} />
+								<div class={ROW}><span class={LBL}>bisagra</span>
+									<span class={INLINE}>
+										<Checkbox aria-label="con bisagra" checked={c.hinge !== null} onChange={(on) => setOptionalJoint(c, 'hinge', on, 'hinge_35_overlay')} />
+										{#if c.hinge !== null}
+											<Select size="xs" class="min-w-0 flex-1" aria-label="bisagra" options={hwOpt(hingeFamilies)} value={c.hinge?.hardware[0] ?? 'hinge_35_overlay'}
+												onChange={(v) => { c.hinge = { hardware: [v] }; app.touch(); }} />
+										{/if}
+									</span>
+								</div>
 								{#if c.hinge !== null}
-									<select value={c.hinge?.hardware[0] ?? 'hinge_35_overlay'} onchange={(e) => { c.hinge = { hardware: [e.currentTarget.value] }; app.touch(); }}>
-										{#each hingeFamilies as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
-									</select>
-									<label class="inline"><input type="checkbox" checked={!!c.softClose} onchange={(e) => { if (e.currentTarget.checked) c.softClose = true; else delete c.softClose; app.touch(); }} /> cierre suave</label>
+									<div class={ROW}><span></span>
+										<Checkbox checked={!!c.softClose} onChange={(on) => { if (on) c.softClose = true; else delete c.softClose; app.touch(); }}>
+											<span class="text-xs">cierre suave</span>
+										</Checkbox>
+									</div>
 								{/if}
-							</span>
+								<div class={ROW}><span class={LBL}>cierre</span>
+									<Select size="xs" aria-label="cierre" options={withNone('— ninguno —', hwOpt(catches))} value={c.catch?.hardware?.[0] ?? NONE}
+										onChange={(s) => { const v = orNone(s); if (v) c.catch = { hardware: [v] }; else delete c.catch; app.touch(); }} />
+								</div>
+							{/if}
+							{#if c.type === 'doors' || c.type === 'drawers'}
+								<div class={ROW}><span class={LBL}>tirador</span>
+									<span class={INLINE}>
+										<Checkbox aria-label="con tirador" checked={!!c.handle} onChange={(on) => setOptionalJoint(c, 'handle', on, 'handle_bar_128')} />
+										{#if c.handle}
+											<Select size="xs" class="min-w-0 flex-1" aria-label="tirador" options={hwOpt(byKind(['handle']))} value={c.handle.hardware[0]}
+												onChange={(v) => { c.handle!.hardware = [v]; app.touch(); }} />
+										{/if}
+									</span>
+								</div>
+							{/if}
 						</div>
-						<div class="row"><span>cierre</span>
-							<select value={c.catch?.hardware?.[0] ?? ''} onchange={(e) => { const v = e.currentTarget.value; if (v) c.catch = { hardware: [v] }; else delete c.catch; app.touch(); }}>
-								<option value="">— ninguno —</option>
-								{#each catches as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
-							</select>
-						</div>
-					{/if}
-					{#if c.type === 'doors' || c.type === 'drawers'}
-						<div class="row"><span>tirador</span>
-							<span class="inline">
-								<input type="checkbox" checked={!!c.handle} onchange={(e) => setOptionalJoint(c, 'handle', e.currentTarget.checked, 'handle_bar_128')} />
-								{#if c.handle}
-									<select value={c.handle.hardware[0]} onchange={(e) => { c.handle!.hardware = [e.currentTarget.value]; app.touch(); }}>
-										{#each byKind(['handle']) as h (h.id)}<option value={h.id}>{h.name}</option>{/each}
-									</select>
-								{/if}
-							</span>
-						</div>
+						{#if findings.length}
+							<div class="flex flex-col gap-1 px-2.5 pb-2.5">
+								{#each findings as d (d.code + (d.entity ?? '') + (d.location ?? '') + d.message)}
+									<div class="rounded-md px-2 py-1.5 text-xs {WELL[d.severity]}">
+										<div class="flex items-start gap-1.5">
+											<Badge tone={TONE[d.severity]} class="bg-depth-0/70">{d.severity}</Badge>
+											<span class="pt-0.5 font-mono text-2xs text-muted-foreground">{d.code}</span>
+										</div>
+										<p class="mt-1 text-foreground">{d.message}</p>
+										{#if d.suggestion}<p class="mt-0.5 text-muted-foreground">{d.suggestion}</p>{/if}
+										{#if d.fix}<Button size="xs" class="mt-1.5" onclick={() => app.applyFix(d.fix!)}>{d.fix.label}</Button>{/if}
+									</div>
+								{/each}
+							</div>
+						{/if}
 					{/if}
 				</div>
-				{#each findings as d (d.code + (d.entity ?? '') + (d.location ?? '') + d.message)}
-					<div class="finding {d.severity}">
-						<b>{d.severity} {d.code}</b> {d.message}
-						{#if d.suggestion}<i>{d.suggestion}</i>{/if}
-						{#if d.fix}<button class="fix" onclick={() => app.applyFix(d.fix!)}>{d.fix.label}</button>{/if}
+			{/each}
+			<div class="mt-1 flex gap-1.5">
+				<Select size="sm" class="flex-1" aria-label="tipo de componente" options={NEW_TYPES} bind:value={newType} />
+				<Button variant="soft" onclick={addComponent}><Plus />Agregar</Button>
+			</div>
+		</div>
+	</Section>
+
+	<Section title="Restricciones" count={app.spec.constraints?.length ?? 0}>
+		<div class="flex flex-col gap-1.5">
+			{#each app.spec.constraints ?? [] as k, i (i)}
+				{@const finding = findingOf(k.id)}
+				<div class="rounded-md border bg-depth-0 {finding ? 'border-danger/60' : ''}">
+					<div class="flex items-center gap-1.5 px-1.5 py-1">
+						<Input size="xs" mono class="min-w-0 flex-1" aria-label="id de la restricción" value={k.id} onchange={(e) => { k.id = e.currentTarget.value; app.touch(); }} />
+						<Select size="xs" class="w-28" aria-label="severidad" options={SEVERITIES} value={k.severity ?? 'ERROR'} onChange={(v) => { k.severity = v; app.touch(); }} />
+						<Button variant="danger" size="icon-xs" title="quitar" aria-label="quitar" onclick={() => removeConstraint(i)}><X /></Button>
 					</div>
-				{/each}
-			{/if}
+					<div class="flex flex-col gap-0.5 border-t px-2.5 py-2">
+						<label class={ROW}><span class={LBL}>expresión</span><Input size="xs" mono value={k.expr} onchange={(e) => { k.expr = e.currentTarget.value; app.touch(); }} /></label>
+						<label class={ROW}><span class={LBL}>mensaje</span><Input size="xs" value={k.message ?? ''} onchange={(e) => { const v = e.currentTarget.value; if (v) k.message = v; else delete k.message; app.touch(); }} /></label>
+						{#if finding}
+							<p class="mt-1 rounded-md px-2 py-1.5 text-xs {WELL[finding.severity]}">
+								<Badge tone={TONE[finding.severity]} class="mr-1 bg-depth-0/70">{finding.severity}</Badge>{finding.message}
+							</p>
+						{/if}
+					</div>
+				</div>
+			{/each}
+			<div><Button variant="soft" onclick={addConstraint}><Plus />Restricción</Button></div>
 		</div>
-	{/each}
-	<div class="add">
-		<select bind:value={newType}>
-			<option value="carcass">carcasa</option><option value="shelves">estantes</option><option value="doors">puertas</option><option value="drawers">cajones</option><option value="rail">barral</option><option value="worktop">tapa de trabajo</option><option value="panel">lateral de apoyo</option><option value="modesty">faldón</option><option value="sliding_doors">puertas corredizas</option><option value="sink">bacha</option>
-		</select>
-		<button onclick={addComponent}>+ agregar</button>
-	</div>
+	</Section>
 
-	<h3>Restricciones</h3>
-	{#each app.spec.constraints ?? [] as k, i (i)}
-		{@const finding = findingOf(k.id)}
-		<div class="card" class:failing={!!finding}>
-			<div class="head">
-				<input class="id" value={k.id} onchange={(e) => { k.id = e.currentTarget.value; app.touch(); }} />
-				<select value={k.severity ?? 'ERROR'} onchange={(e) => { k.severity = e.currentTarget.value as typeof k.severity; app.touch(); }}>
-					<option>INFO</option><option>WARNING</option><option>ERROR</option><option>FATAL</option>
-				</select>
-				<span class="spacer"></span>
-				<button title="quitar" onclick={() => removeConstraint(i)}>✕</button>
-			</div>
-			<div class="fields">
-				<label class="row"><span>expresión</span><input class="mono" value={k.expr} onchange={(e) => { k.expr = e.currentTarget.value; app.touch(); }} /></label>
-				<label class="row"><span>mensaje</span><input value={k.message ?? ''} onchange={(e) => { const v = e.currentTarget.value; if (v) k.message = v; else delete k.message; app.touch(); }} /></label>
-				{#if finding}<div class="finding">{finding.severity}: {finding.message}</div>{/if}
-			</div>
-		</div>
-	{/each}
-	<div class="add"><button onclick={addConstraint}>+ restricción</button></div>
-
-	<h3>
-		<button class="fold" onclick={() => (libOpen = !libOpen)}>{libOpen ? '▾' : '▸'}</button>
-		Sólo para este mueble ({overrideCount} cambio{overrideCount === 1 ? '' : 's'} de biblioteca)
-	</h3>
-	{#if libOpen}
-		<p class="hint">
-			Los cambios que valen para todos los muebles van en la pestaña Biblioteca. Acá, en JSON, los de este mueble solo, por encima de esos: `materials`, `edgeMaterials`, `hardware` (listas, por id) y `profile`. Vacío = ninguno.
+	<Section title="Sólo para este mueble" count={`${overrideCount} cambio${overrideCount === 1 ? '' : 's'}`} bind:open={libOpen}>
+		<p class="mb-2 text-xs leading-relaxed text-muted-foreground">
+			Los cambios que valen para todos los muebles van en la pestaña Biblioteca. Acá, en JSON, los de este mueble solo, por encima de esos:
+			<code class="font-mono">materials</code>, <code class="font-mono">edgeMaterials</code>, <code class="font-mono">hardware</code> (listas, por id) y
+			<code class="font-mono">profile</code>. Vacío = ninguno.
 		</p>
-		<textarea class="lib" spellcheck="false" value={libText} onchange={(e) => applyLibraries(e.currentTarget.value)}
-			placeholder={'{ "hardware": [ { "id": "minifix_15", ... } ] }'}></textarea>
-		{#if libError}<div class="finding">JSON inválido: {libError}</div>{/if}
-	{/if}
+		<Textarea mono class="min-h-36" spellcheck={false} aria-label="cambios de biblioteca de este mueble" value={libText}
+			onchange={(e) => applyLibraries(e.currentTarget.value)} placeholder={'{ "hardware": [ { "id": "minifix_15", ... } ] }'} />
+		{#if libError}<p class="mt-1 rounded-md bg-danger-soft px-2 py-1 text-xs text-danger">JSON inválido: {libError}</p>{/if}
+	</Section>
 </div>
-
-<style>
-	.comps {
-		font-size: 12px;
-		overflow: auto;
-		height: 100%;
-		padding: 8px;
-	}
-	h3 {
-		font-size: 12px;
-		text-transform: uppercase;
-		letter-spacing: 0.04em;
-		color: #666;
-		margin: 10px 0 4px;
-	}
-	.card.failing {
-		border-color: #c40;
-	}
-	.card.off {
-		opacity: 0.6;
-		border-style: dashed;
-	}
-	.offtag {
-		font-size: 10px;
-		color: #6b7280;
-		border: 1px solid #d1d5db;
-		border-radius: 8px;
-		padding: 0 6px;
-	}
-	.card.warning {
-		border-color: #d9a400;
-	}
-	.finding {
-		grid-column: 1 / -1;
-		color: #c40;
-		background: #fee8e0;
-		padding: 2px 6px;
-		margin-top: 4px;
-		font-size: 12px;
-	}
-	.finding.WARNING {
-		color: #7a5b00;
-		background: #fff4d6;
-	}
-	.finding.INFO {
-		color: #345;
-		background: #e8f0f8;
-	}
-	.finding i {
-		display: block;
-		color: #666;
-		font-style: normal;
-	}
-	.finding .fix {
-		display: inline-block;
-		margin-top: 2px;
-		font: inherit;
-		font-size: 11px;
-		padding: 0 6px;
-		border: 1px solid #2a7;
-		border-radius: 3px;
-		background: #fff;
-		color: #2a7;
-		cursor: pointer;
-	}
-	.head .badge {
-		border-radius: 8px;
-		padding: 0 6px;
-		font-size: 11px;
-		font-weight: 600;
-		color: #fff;
-		border: none;
-		cursor: pointer;
-	}
-	.head .badge.ERROR,
-	.head .badge.FATAL {
-		background: #c40;
-	}
-	.head .badge.WARNING {
-		background: #d9a400;
-	}
-	.head .badge.INFO {
-		background: #6a8fb5;
-	}
-	.hint {
-		color: #666;
-		margin: 2px 0 4px;
-	}
-	.lib {
-		width: 100%;
-		min-height: 140px;
-		box-sizing: border-box;
-		font: 11px ui-monospace, monospace;
-		border: 1px solid #ddd;
-	}
-	input.mono {
-		font-family: ui-monospace, monospace;
-	}
-	.row {
-		display: grid;
-		grid-template-columns: 90px 1fr;
-		gap: 8px;
-		align-items: center;
-		padding: 2px 0;
-	}
-	.row > span:first-child {
-		color: #345;
-	}
-	input,
-	select {
-		width: 100%;
-		box-sizing: border-box;
-		font: inherit;
-		padding: 2px 4px;
-		border: 1px solid #ccc;
-		border-radius: 3px;
-	}
-	input[type='checkbox'] {
-		width: auto;
-	}
-	.short {
-		width: 70px;
-	}
-	.inline {
-		display: flex;
-		gap: 6px;
-		align-items: center;
-	}
-	.card {
-		border: 1px solid #ddd;
-		border-radius: 4px;
-		margin: 6px 0;
-		background: #fafafa;
-	}
-	.head {
-		display: flex;
-		gap: 4px;
-		align-items: center;
-		padding: 4px 6px;
-	}
-	.head button {
-		border: none;
-		background: none;
-		cursor: pointer;
-		font: inherit;
-		color: #555;
-		padding: 0 3px;
-	}
-	.type {
-		font-weight: 600;
-		color: #765;
-	}
-	.id {
-		width: 120px;
-		font-family: ui-monospace, monospace;
-	}
-	.spacer {
-		flex: 1;
-	}
-	.fields {
-		padding: 4px 8px 8px;
-		border-top: 1px solid #eee;
-	}
-	.chips {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 4px;
-	}
-	.chip {
-		border: 1px solid #ccc;
-		border-radius: 10px;
-		padding: 1px 7px;
-		font-size: 11px;
-		cursor: pointer;
-		background: #fff;
-	}
-	.chip input {
-		display: none;
-	}
-	.chip.on {
-		background: #ffe0c7;
-		border-color: #ff8c42;
-	}
-	.add {
-		display: flex;
-		gap: 6px;
-		margin-top: 8px;
-	}
-	.add button {
-		font: inherit;
-		padding: 2px 10px;
-		border: 1px solid #bbb;
-		border-radius: 4px;
-		background: #fff;
-		cursor: pointer;
-	}
-	.id-error {
-		color: #b42318;
-		font-size: 11px;
-		margin: 2px 0 0 24px;
-	}
-</style>

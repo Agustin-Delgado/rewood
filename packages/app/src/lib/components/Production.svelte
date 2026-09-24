@@ -3,8 +3,10 @@
 	 * Production tracking and QC of one order (§52): steps per part, order
 	 * steps, measurements against the plan, and the provider packages.
 	 */
+	import Ruler from '@lucide/svelte/icons/ruler';
 	import { app } from '$lib/state.svelte';
 	import type { Production, ProviderRole } from '$lib/server';
+	import { Badge, Button, Checkbox, Input, Select, recipes } from '$lib/ui';
 
 	let { orderId }: { orderId: string } = $props();
 
@@ -54,170 +56,127 @@
 		qcL = qcW = qcT = '';
 	}
 	const partIds = $derived(Object.keys(prod?.parts ?? {}));
+	const partOptions = $derived(partIds.map((id) => ({ value: id, label: id })));
 	const pct = $derived(Math.round((prod?.summary.progress ?? 0) * 100));
+	const statusTone = (s: string) =>
+		s === 'done' ? 'success' : s === 'in_progress' ? 'warning' : s === 'cancelled' ? 'danger' : 'neutral';
+
+	const t = recipes.table();
+	const link = recipes.button({ variant: 'link', class: 'text-xs' });
 </script>
 
-<div class="prod">
-	{#if error}<div class="error">{error}</div>{/if}
+<div class="mt-1 flex flex-col gap-3 rounded-lg border bg-depth-1 p-3 text-xs">
+	{#if error}<div class="rounded-md border border-danger/30 bg-danger-soft px-2.5 py-1.5 text-danger">{error}</div>{/if}
 	{#if prod}
-		<div class="head">
-			<b>{orderId}</b> · estado <span class="st {prod.status}">{prod.status}</span> ·
-			{prod.summary.cut}/{prod.summary.parts} cortadas · {prod.summary.machined} mecanizadas · {prod.summary.edged} canteadas
-			· <span class="bar"><span style="width:{pct}%"></span></span> {pct}%
-			{#if prod.summary.qcRecords}· QC {prod.summary.qcRecords} ({prod.summary.qcFailed} fuera){/if}
-			<span class="spacer"></span>
-			{#each ROLES as r (r.role)}<a href={app.server.packageUrl(orderId, r.role)}>zip {r.label}</a>{/each}
+		<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+			<span class="font-mono font-medium">{orderId}</span>
+			<Badge tone={statusTone(prod.status)}>{prod.status}</Badge>
+			<span class="num text-muted-foreground">
+				{prod.summary.cut}/{prod.summary.parts} cortadas · {prod.summary.machined} mecanizadas · {prod.summary.edged} canteadas
+			</span>
+			<span class="flex items-center gap-1.5">
+				<span class="h-1.5 w-20 overflow-hidden rounded-full bg-depth-4"><span class="block h-full bg-success" style="width:{pct}%"></span></span>
+				<span class="num">{pct}%</span>
+			</span>
+			{#if prod.summary.qcRecords}
+				<Badge tone={prod.summary.qcFailed ? 'danger' : 'neutral'}>QC {prod.summary.qcRecords} ({prod.summary.qcFailed} fuera)</Badge>
+			{/if}
+			<span class="ml-auto flex flex-wrap gap-2">
+				{#each ROLES as r (r.role)}<a class={link} href={app.server.packageUrl(orderId, r.role)}>zip {r.label}</a>{/each}
+			</span>
 		</div>
-		<div class="cols">
-			<table>
-				<thead><tr><th>Pieza</th>{#each STEPS as s (s)}<th>{LABEL[s]}</th>{/each}</tr></thead>
-				<tbody>
-					{#each partIds as id (id)}
+		<div class="grid grid-cols-[auto_1fr] items-start gap-4">
+			<div class="overflow-hidden rounded-md border bg-depth-0">
+				<table class={t.root({ class: 'w-auto' })}>
+					<thead>
 						<tr>
-							<td class="mono">{id}</td>
-							{#each STEPS as s (s)}
-								<td><input type="checkbox" checked={prod.parts[id][s]} disabled={busy} onchange={(e) => run(() => toggle(id, s, e.currentTarget.checked))} /></td>
-							{/each}
+							<th class={t.th()}>Pieza</th>
+							{#each STEPS as s (s)}<th class={t.th({ class: 'text-center' })}>{LABEL[s]}</th>{/each}
 						</tr>
-					{/each}
-					<tr>
-						<td>orden</td>
-						<td colspan="3">
-							{#each ['assembled', 'delivered'] as s (s)}
-								<label><input type="checkbox" checked={prod.orderSteps[s]} disabled={busy} onchange={(e) => run(() => toggle(undefined, s, e.currentTarget.checked))} /> {LABEL[s]}</label>
-							{/each}
-							<label>
-								<input type="checkbox" checked={prod.status === 'cancelled'} disabled={busy}
-									onchange={(e) => run(async () => { prod = await app.server.setStatus(orderId, e.currentTarget.checked ? 'cancelled' : 'planned'); })} /> cancelada
-							</label>
-						</td>
-					</tr>
-				</tbody>
-			</table>
-			<div>
-				<h4>Control de calidad</h4>
-				<form class="qc" onsubmit={(e) => { e.preventDefault(); run(qc); }}>
-					<select bind:value={qcPart}>{#each partIds as id (id)}<option value={id}>{id}</option>{/each}</select>
-					<input placeholder="largo" bind:value={qcL} required />
-					<input placeholder="ancho" bind:value={qcW} required />
-					<input placeholder="esp." bind:value={qcT} required />
-					<button type="submit" disabled={busy}>Medir</button>
+					</thead>
+					<tbody>
+						{#each partIds as id (id)}
+							<tr class={t.tr()}>
+								<td class={t.td({ class: 'font-mono text-2xs' })}>{id}</td>
+								{#each STEPS as s (s)}
+									<td class={t.td({ class: 'text-center' })}>
+										<Checkbox
+											aria-label="{id} {LABEL[s]}"
+											checked={prod.parts[id][s]}
+											disabled={busy}
+											onChange={(c) => run(() => toggle(id, s, c))}
+										/>
+									</td>
+								{/each}
+							</tr>
+						{/each}
+						<tr>
+							<td class={t.td({ class: 'font-medium' })}>orden</td>
+							<td class={t.td()} colspan="3">
+								<div class="flex flex-wrap gap-3">
+									{#each ['assembled', 'delivered'] as s (s)}
+										<Checkbox
+											checked={prod.orderSteps[s]}
+											disabled={busy}
+											onChange={(c) => run(() => toggle(undefined, s, c))}>{LABEL[s]}</Checkbox
+										>
+									{/each}
+									<Checkbox
+										checked={prod.status === 'cancelled'}
+										disabled={busy}
+										onChange={(c) =>
+											run(async () => {
+												prod = await app.server.setStatus(orderId, c ? 'cancelled' : 'planned');
+											})}>cancelada</Checkbox
+									>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="flex min-w-0 flex-col gap-2">
+				<h4 class="text-2xs font-semibold tracking-[0.06em] text-muted-foreground uppercase">Control de calidad</h4>
+				<form
+					class="flex flex-wrap items-center gap-1.5"
+					onsubmit={(e) => {
+						e.preventDefault();
+						run(qc);
+					}}
+				>
+					<Select aria-label="Pieza" bind:value={qcPart} options={partOptions} class="w-28" />
+					<Input placeholder="largo" inputmode="decimal" bind:value={qcL} required class="w-20" />
+					<Input placeholder="ancho" inputmode="decimal" bind:value={qcW} required class="w-20" />
+					<Input placeholder="esp." inputmode="decimal" bind:value={qcT} required class="w-16" />
+					<Button type="submit" disabled={busy}><Ruler />Medir</Button>
 				</form>
 				{#if prod.qc.length}
-					<table>
-						<thead><tr><th>Pieza</th><th>Medido</th><th>Desvío</th><th>±</th><th></th></tr></thead>
-						<tbody>
-							{#each prod.qc as q, i (i)}
-								<tr class:fail={!q.pass}>
-									<td class="mono">{q.part}</td>
-									<td class="num">{q.length} × {q.width} × {q.thickness}</td>
-									<td class="num">{q.deviation[0]} / {q.deviation[1]}</td>
-									<td class="num">{q.tolerance}</td>
-									<td>{q.pass ? 'ok' : 'fuera'}</td>
+					<div class="overflow-hidden rounded-md border bg-depth-0">
+						<table class={t.root()}>
+							<thead>
+								<tr>
+									<th class={t.th()}>Pieza</th><th class={t.th({ class: 'text-right' })}>Medido</th>
+									<th class={t.th({ class: 'text-right' })}>Desvío</th><th class={t.th({ class: 'text-right' })}>±</th>
+									<th class={t.th()}></th>
 								</tr>
-							{/each}
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								{#each prod.qc as q, i (i)}
+									<tr class={t.tr({ class: q.pass ? '' : 'text-danger' })}>
+										<td class={t.td({ class: 'font-mono text-2xs' })}>{q.part}</td>
+										<td class={t.td({ class: 'num text-right' })}>{q.length} × {q.width} × {q.thickness}</td>
+										<td class={t.td({ class: 'num text-right' })}>{q.deviation[0]} / {q.deviation[1]}</td>
+										<td class={t.td({ class: 'num text-right' })}>{q.tolerance}</td>
+										<td class={t.td()}><Badge tone={q.pass ? 'success' : 'danger'}>{q.pass ? 'ok' : 'fuera'}</Badge></td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
 				{/if}
 			</div>
 		</div>
 	{:else}
-		<p class="muted">cargando…</p>
+		<p class="text-muted-foreground">cargando…</p>
 	{/if}
 </div>
-
-<style>
-	.prod {
-		font-size: 12px;
-		border: 1px solid #ddd;
-		border-radius: 4px;
-		padding: 6px 8px;
-		margin: 4px 0 8px;
-	}
-	.head {
-		display: flex;
-		gap: 6px;
-		align-items: center;
-		flex-wrap: wrap;
-		margin-bottom: 6px;
-	}
-	.head a {
-		margin-left: 6px;
-	}
-	.spacer {
-		flex: 1;
-	}
-	.st.done {
-		color: #2a7;
-	}
-	.st.in_progress {
-		color: #c90;
-	}
-	.st.cancelled {
-		color: #c33;
-	}
-	.bar {
-		display: inline-block;
-		width: 80px;
-		height: 8px;
-		background: #eee;
-		border-radius: 4px;
-		overflow: hidden;
-		vertical-align: middle;
-	}
-	.bar span {
-		display: block;
-		height: 100%;
-		background: #2a7;
-	}
-	.cols {
-		display: grid;
-		grid-template-columns: auto 1fr;
-		gap: 16px;
-		align-items: start;
-	}
-	table {
-		border-collapse: collapse;
-	}
-	th,
-	td {
-		padding: 1px 8px;
-		text-align: left;
-		border-bottom: 1px solid #eee;
-		white-space: nowrap;
-	}
-	tr.fail td {
-		color: #c33;
-	}
-	.num {
-		text-align: right;
-	}
-	.mono {
-		font-family: ui-monospace, monospace;
-	}
-	h4 {
-		margin: 0 0 4px;
-		color: #666;
-		font-size: 11px;
-		text-transform: uppercase;
-	}
-	.qc {
-		display: flex;
-		gap: 4px;
-		margin-bottom: 6px;
-	}
-	.qc input {
-		width: 60px;
-	}
-	input,
-	select,
-	button {
-		font: inherit;
-	}
-	.error {
-		color: #c33;
-	}
-	.muted {
-		color: #888;
-	}
-</style>
