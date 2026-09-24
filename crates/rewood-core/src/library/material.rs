@@ -97,6 +97,12 @@ pub struct Decor {
     pub hex: String,
     /// Material ids it is sold in.
     pub materials: Vec<String>,
+    /// The sheet this design comes in when it is not the material's: a
+    /// maker's line cut to another size (Egger 1830 × 2600).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sheet_length: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub sheet_width: Option<f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -141,6 +147,17 @@ impl MaterialLibrary {
 
     pub fn decor(&self, id: &str) -> Option<&Decor> {
         self.decors.get(id)
+    }
+
+    /// The sheet a part is cut from: its material, in the size its decor
+    /// is sold in.
+    pub fn stock(&self, material: &str, decor: Option<&str>) -> Option<Material> {
+        let mut m = self.material(material)?.clone();
+        if let Some(d) = decor.and_then(|d| self.decor(d)) {
+            m.sheet_length = d.sheet_length.unwrap_or(m.sheet_length);
+            m.sheet_width = d.sheet_width.unwrap_or(m.sheet_width);
+        }
+        Some(m)
     }
 
     /// Decors sold in a material, by id.

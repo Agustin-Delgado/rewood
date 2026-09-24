@@ -56,7 +56,12 @@
 				placement,
 				strategy: 'fixed',
 				middleware: [offset(6), flip(), shift({ padding: 6 })]
-			}).then(({ x, y }) => (el.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`))
+			}).then(({ x, y }) => {
+				// left/top, not transform: the entrance animation owns transform.
+				el.style.left = `${Math.round(x)}px`;
+				el.style.top = `${Math.round(y)}px`;
+				el.dataset.placed = 'true';
+			})
 		);
 		return () => {
 			stop();

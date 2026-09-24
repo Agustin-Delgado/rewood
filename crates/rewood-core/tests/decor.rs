@@ -120,3 +120,25 @@ fn an_unknown_colour_is_an_error_and_falls_back_to_white() {
         .filter(|p| p.material == "melamine_18")
         .all(|p| p.decor.as_deref() == Some("blanco_nature")));
 }
+
+#[test]
+fn wengue_comes_in_egger_sheets_of_2600() {
+    let plan = wardrobe(Some("wengue"), None);
+    assert!(!plan.manufacturing_blocked);
+    let melamine: Vec<_> = plan
+        .nesting
+        .iter()
+        .filter(|l| l.material == "melamine_18")
+        .collect();
+    assert!(!melamine.is_empty());
+    assert!(melamine
+        .iter()
+        .all(|l| l.sheet_length == 2600.0 && l.sheet_width == 1830.0));
+    let sheet = plan
+        .bom
+        .sheets
+        .iter()
+        .find(|s| s.decor.as_deref() == Some("wengue"))
+        .unwrap();
+    assert_eq!(sheet.sheet_length, 2600.0);
+}

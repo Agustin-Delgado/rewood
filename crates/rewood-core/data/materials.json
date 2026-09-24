@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "_note": "Argentine market standards: melamine and MDF 18 mm in 1830 × 2750 sheets (Faplac, Egger), the white 3 mm fibreboard back (fibrofácil / Fibroplus) in 1830 × 2600, phenolic plywood 1220 × 2440; edge band PVC 22 × 0,45 (carcass) and 22 × 2 (fronts). maxSpan is the unsupported span (mm) past which a loaded horizontal panel sags visibly (about 50 × thickness for particle board and MDF). Glass and mirror (`outsourced`) are cut, polished and drilled by the glazier: no nesting, no banding, no CNC; the order is by area (`pricePerM2`). Float 5 mm for doors on clamp hinges (they take up to 5 mm), tempered 6 mm for shelves (about 800 mm between pins under light loads). A workshop replaces them through libraries.materials. Decors are Faplac (ARAUCO) melamine designs sold in 18 mm 1830 × 2750, with the maker's design code; Faplac sells a matching edge band for each one (faplaconline.com.ar, Línea Lisos and Línea Nature, checked 2026-09). `grain` marks wood prints, which the supplier keeps along the part's length; `hex` is an approximate colour for the 3D view only.",
+  "_note": "Argentine market standards: melamine and MDF 18 mm in 1830 × 2750 sheets (Faplac, Egger), the white 3 mm fibreboard back (fibrofácil / Fibroplus) in 1830 × 2600, phenolic plywood 1220 × 2440; edge band PVC 22 × 0,45 (carcass) and 22 × 2 (fronts). maxSpan is the unsupported span (mm) past which a loaded horizontal panel sags visibly (about 50 × thickness for particle board and MDF). Glass and mirror (`outsourced`) are cut, polished and drilled by the glazier: no nesting, no banding, no CNC; the order is by area (`pricePerM2`). Float 5 mm for doors on clamp hinges (they take up to 5 mm), tempered 6 mm for shelves (about 800 mm between pins under light loads). A workshop replaces them through libraries.materials. Decors are Faplac (ARAUCO) melamine designs sold in 18 mm 1830 × 2750, with the maker's design code; Faplac sells a matching edge band for each one (faplaconline.com.ar, Línea Lisos and Línea Nature, checked 2026-09). `grain` marks wood prints, which the supplier keeps along the part's length; `hex` is an approximate colour for the 3D view only. Wengue is not a Faplac design: in Argentina it is Egger's (the former Masisa line), sold in 1830 × 2600 sheets (tienda.maderera.com.ar, Sodimac, DAC listings, checked 2026-09); `sheetLength`/`sheetWidth` on a decor give the sheet it comes in when that differs from the material's.",
   "materials": [
     {
       "id": "melamine_18",
@@ -312,6 +312,19 @@
       "materials": [
         "melamine_18"
       ]
+    },
+    {
+      "id": "wengue",
+      "name": "Wengue",
+      "brand": "Egger",
+      "line": "ex Masisa",
+      "grain": true,
+      "hex": "#3b2a22",
+      "materials": [
+        "melamine_18"
+      ],
+      "sheetLength": 2600,
+      "sheetWidth": 1830
     }
   ]
 }

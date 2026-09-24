@@ -117,7 +117,8 @@ nuestro nesting ni G-code. Trae tres cosas:
 Los vidrios y espejos no entran: van al vidriero.
 
 **Color.** Una placa de melamina se vende en varios diseños (`decors` en
-`materials.json`: Faplac líneas Lisos y Nature, con su código). `decor` elige el
+`materials.json`: Faplac líneas Lisos y Nature con su código, y el Wengue de
+Egger, que viene en placa de 1830 × 2600 y así la usan el nesting y las compras). `decor` elige el
 del mueble y `frontDecor` el de puertas y frentes de cajón. Sin `decor` se usa el
 `defaultDecor` de la placa, Blanco Nature, y un color desconocido da `LIB-106`.
 

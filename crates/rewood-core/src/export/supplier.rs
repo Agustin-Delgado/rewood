@@ -120,7 +120,10 @@ fn decor_name(plan: &ManufacturingPlan, part: &Part) -> (String, String) {
         .as_deref()
         .and_then(|d| plan.catalog.decors.get(d))
     {
-        Some(d) => (d.name.clone(), format!("{} {}", d.brand, d.code)),
+        Some(d) => (
+            d.name.clone(),
+            format!("{} {}", d.brand, d.code).trim().to_string(),
+        ),
         None => (String::new(), String::new()),
     }
 }

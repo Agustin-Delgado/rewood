@@ -21,7 +21,11 @@ impl Rule for PartFitsSheet {
     fn check(&self, input: &RuleInput<'_>) -> Vec<Diagnostic> {
         let mut out = Vec::new();
         for part in input.parts {
-            let Some(m) = input.libs.materials.material(&part.material) else {
+            let Some(m) = input
+                .libs
+                .materials
+                .stock(&part.material, part.decor.as_deref())
+            else {
                 continue;
             };
             let (l, w) = (part.cut.length, part.cut.width);

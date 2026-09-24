@@ -478,9 +478,10 @@ pub fn nest(parts: &[Part], libs: &Libraries, rules: &NestingRules) -> Vec<Sheet
 
     let mut layouts = Vec::new();
     for (material, decor) in stocks {
-        let Some(m) = libs.materials.material(material) else {
+        let Some(m) = libs.materials.stock(material, decor) else {
             continue;
         };
+        let m = &m;
         // Cut to size by the supplier: nothing to lay out on a sheet.
         if m.outsourced {
             continue;

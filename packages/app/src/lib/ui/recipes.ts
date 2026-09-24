@@ -314,9 +314,11 @@ export const table = tv({
 
 /** A short label next to a control; dark so it reads over the 3D view too. */
 export const tooltip = tv({
-	base: `pointer-events-none fixed top-0 left-0 z-[60] max-w-64 rounded-md bg-foreground px-2 py-1
+	// Hidden until floating-ui has placed it; the entrance only starts
+	// then, so it never grows out of the page corner.
+	base: `pointer-events-none invisible fixed top-0 left-0 z-[60] max-w-64 rounded-md bg-foreground px-2 py-1
 		text-xs leading-snug text-depth-0 shadow-md
-		animate-in fade-in-0 zoom-in-95 [animation-duration:80ms]`
+		data-placed:visible data-placed:animate-in data-placed:fade-in-0 data-placed:zoom-in-95 [animation-duration:80ms]`
 });
 
 export const kbd = tv({

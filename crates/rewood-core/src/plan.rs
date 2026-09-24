@@ -610,7 +610,7 @@ pub fn bom(
     let mut total_weight = 0.0;
     let mut unpriced: Vec<String> = Vec::new();
     for part in parts {
-        let Some(m) = libs.materials.material(&part.material) else {
+        let Some(m) = libs.materials.stock(&part.material, part.decor.as_deref()) else {
             continue;
         };
         total_weight += part.dims.volume() / 1e9 * m.density;
@@ -632,7 +632,10 @@ pub fn bom(
         line.net_area_m2 += part.cut.length * part.cut.width / 1e6;
     }
     for line in sheets.values_mut() {
-        let m = libs.materials.material(&line.material).unwrap();
+        let m = libs
+            .materials
+            .stock(&line.material, line.decor.as_deref())
+            .unwrap();
         let sheet_area = m.sheet_length * m.sheet_width / 1e6;
         let nested = nesting
             .iter()
