@@ -289,24 +289,26 @@
 	const unitSphere = new THREE.SphereGeometry(1, 16, 12);
 	const unitEdges = new THREE.EdgesGeometry(unitBox);
 	// A hole reads as its mouth: a flat dark disc on the face, unlit so it
-	// is the same black from any angle, pushed towards the camera in depth
-	// so the face it lies on never shows through it (a decal; nothing sits
-	// inside a panel here, so the offset cannot pull a body through).
+	// is the same black from any angle, lifted a hair off the face and
+	// pushed a fixed step towards the camera in depth so the face never
+	// shows through it. No slope factor: a disc seen exactly edge-on has an
+	// infinite depth slope, and a slope-scaled offset pulled such discs in
+	// front of the doors as thin dashes.
 	const holeDisc = new THREE.CircleGeometry(1, 24);
 	const railCyl = new THREE.CylinderGeometry(1, 1, 1, 12);
 	const metal = new THREE.MeshStandardMaterial({ metalness: 0.5, roughness: 0.4 });
 	const holeMaterial = new THREE.MeshBasicMaterial({
 		color: '#ffffff',
 		polygonOffset: true,
-		polygonOffsetFactor: -2,
-		polygonOffsetUnits: -4
+		polygonOffsetFactor: 0,
+		polygonOffsetUnits: -2
 	});
 	// A groove the same way: a flat dark strip on its face.
 	const grooveMaterial = new THREE.MeshBasicMaterial({
 		color: '#ffffff',
 		polygonOffset: true,
-		polygonOffsetFactor: -2,
-		polygonOffsetUnits: -4
+		polygonOffsetFactor: 0,
+		polygonOffsetUnits: -2
 	});
 	// A cutout goes through the panel: a solid body, lit like one.
 	const cutoutMaterial = new THREE.MeshStandardMaterial({ color: '#3a3a3a' });
@@ -411,7 +413,7 @@
 				const n = faceNormalWorld(part.placement, op.face);
 				const r = op.diameter / 2;
 				const disc = (at: Vec3, normal: Vec3) => {
-					const lift: Vec3 = [at[0] + normal[0] * 0.05, at[1] + normal[1] * 0.05, at[2] + normal[2] * 0.05];
+					const lift: Vec3 = [at[0] + normal[0] * 0.15, at[1] + normal[1] * 0.15, at[2] + normal[2] * 0.15];
 					out.push({
 						part: part.id,
 						local: new THREE.Matrix4().compose(new THREE.Vector3(...toThree(lift)), facing(normal), new THREE.Vector3(r, r, 1)),
@@ -445,7 +447,7 @@
 					else if (d[i] > 0.001) s[i] = d[i];
 					else s[i] = op.width;
 				}
-				const c: Vec3 = [mid[0] + n[0] * 0.05, mid[1] + n[1] * 0.05, mid[2] + n[2] * 0.05];
+				const c: Vec3 = [mid[0] + n[0] * 0.15, mid[1] + n[1] * 0.15, mid[2] + n[2] * 0.15];
 				out.push({
 					part: part.id,
 					local: new THREE.Matrix4().compose(new THREE.Vector3(...toThree(c)), new THREE.Quaternion(), new THREE.Vector3(...toThree(s))),
