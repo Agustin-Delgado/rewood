@@ -72,8 +72,14 @@
 	const gridFloor = $derived(
 		(app.plan?.parts ?? []).reduce((m, p) => Math.min(m, p.aabb.min[2] + (offsets.get(p.id)?.[2] ?? 0)), floor)
 	);
-	const target = $derived<[number, number, number]>([bounds[0] / 2, (bounds[2] + floor) / 2, bounds[1] / 2]);
-	const distance = $derived(Math.max(bounds[0], bounds[2]) * 1.6 + bounds[1]);
+	// The camera reads plain numbers: a recompile that leaves the size alone
+	// (a new colour) makes a new `bounds` array with the same values, and an
+	// array would move the camera back to where it started.
+	const bx = $derived(bounds[0]);
+	const by = $derived(bounds[1]);
+	const bz = $derived(bounds[2]);
+	const target = $derived<[number, number, number]>([bx / 2, (bz + floor) / 2, by / 2]);
+	const distance = $derived(Math.max(bx, bz) * 1.6 + by);
 
 	// --- camera and views ---------------------------------------------------
 	// A perspective corner for the 3D view; the elevations look along one
@@ -223,6 +229,11 @@
 	});
 	type Placed = { sym: HardwareSymbol; prim: Prim; local: THREE.Matrix4 };
 	const UP = new THREE.Vector3(0, 1, 0);
+	const OUT = new THREE.Vector3(0, 0, 1);
+	/** Turns a flat shape's normal (+Z) to face along `axis`. */
+	function facing(axis: Vec3): THREE.Quaternion {
+		return new THREE.Quaternion().setFromUnitVectors(OUT, new THREE.Vector3(...toThree(axis)).normalize());
+	}
 	function along(axis: Vec3): THREE.Quaternion {
 		return new THREE.Quaternion().setFromUnitVectors(UP, new THREE.Vector3(...toThree(axis)).normalize());
 	}
@@ -277,11 +288,28 @@
 	const unitBox = new THREE.BoxGeometry(1, 1, 1);
 	const unitSphere = new THREE.SphereGeometry(1, 16, 12);
 	const unitEdges = new THREE.EdgesGeometry(unitBox);
-	const holeCyl = new THREE.CylinderGeometry(1, 1, 1, 16);
+	// A hole reads as its mouth: a flat dark disc on the face, unlit so it
+	// is the same black from any angle, pushed towards the camera in depth
+	// so the face it lies on never shows through it (a decal; nothing sits
+	// inside a panel here, so the offset cannot pull a body through).
+	const holeDisc = new THREE.CircleGeometry(1, 24);
 	const railCyl = new THREE.CylinderGeometry(1, 1, 1, 12);
 	const metal = new THREE.MeshStandardMaterial({ metalness: 0.5, roughness: 0.4 });
-	const holeMaterial = new THREE.MeshStandardMaterial({ color: '#2b2b2b' });
-	const grooveMaterial = new THREE.MeshStandardMaterial({ color: '#3a3a3a' });
+	const holeMaterial = new THREE.MeshBasicMaterial({
+		color: '#ffffff',
+		polygonOffset: true,
+		polygonOffsetFactor: -2,
+		polygonOffsetUnits: -4
+	});
+	// A groove the same way: a flat dark strip on its face.
+	const grooveMaterial = new THREE.MeshBasicMaterial({
+		color: '#ffffff',
+		polygonOffset: true,
+		polygonOffsetFactor: -2,
+		polygonOffsetUnits: -4
+	});
+	// A cutout goes through the panel: a solid body, lit like one.
+	const cutoutMaterial = new THREE.MeshStandardMaterial({ color: '#3a3a3a' });
 
 	/** Every leader of the exploded view in one geometry. */
 	const leaders = $derived.by(() => {
@@ -328,7 +356,8 @@
 		// The board's colour, when the person chose one (or the default).
 		const decor = part.decor ? app.libraries?.materials.decors[part.decor] : undefined;
 		if (decor) return decor.hex;
-		if (part.material.startsWith('hdf')) return '#8a6a4a';
+		// The 3 mm back is white fibreboard (fibrofácil blanco), not brown.
+		if (part.material.startsWith('hdf')) return '#e8e5de';
 		if (part.material.startsWith('mirror')) return '#c9d6dc';
 		if (part.material.startsWith('glass')) return '#bfe3ea';
 		// Fronts (doors, drawer fronts) lighter than the carcass, so the
@@ -363,7 +392,16 @@
 
 	// --- holes and grooves --------------------------------------------------------
 	// One matrix per mark on its part's assembled frame, computed per plan.
-	type Mark = { part: string; local: THREE.Matrix4 };
+	type Mark = { part: string; local: THREE.Matrix4; colour?: THREE.Color };
+	// A hole or groove mark stands out from its panel: dark on a light
+	// board, the raw chipboard core's tan on a dark one (which is what a
+	// drilled hole in black melamine shows).
+	const DARK_MARK = new THREE.Color('#1f1f1f');
+	const LIGHT_MARK = new THREE.Color('#c9ad85');
+	function markColour(part: Part): THREE.Color {
+		const c = new THREE.Color(colourOf(part));
+		return 0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b > 0.25 ? DARK_MARK : LIGHT_MARK;
+	}
 	const holes = $derived.by(() => {
 		const out: Mark[] = [];
 		if (!app.showHoles) return out;
@@ -371,19 +409,21 @@
 			for (const op of part.operations) {
 				if (op.type !== 'DRILL') continue;
 				const n = faceNormalWorld(part.placement, op.face);
-				const depth = op.depth ?? (op.face === 'front' || op.face === 'back' ? part.dims.thickness : 0);
-				const surface = faceUvToWorld(part, op.face, op.u, op.v);
-				// Sits half inside the panel; the visible half marks the hole mouth.
-				const c: Vec3 = [
-					surface[0] - (n[0] * depth) / 2 + n[0] * 0.2,
-					surface[1] - (n[1] * depth) / 2 + n[1] * 0.2,
-					surface[2] - (n[2] * depth) / 2 + n[2] * 0.2
-				];
 				const r = op.diameter / 2;
-				out.push({
-					part: part.id,
-					local: new THREE.Matrix4().compose(new THREE.Vector3(...toThree(c)), along(n), new THREE.Vector3(r, depth + 0.4, r))
-				});
+				const disc = (at: Vec3, normal: Vec3) => {
+					const lift: Vec3 = [at[0] + normal[0] * 0.05, at[1] + normal[1] * 0.05, at[2] + normal[2] * 0.05];
+					out.push({
+						part: part.id,
+						local: new THREE.Matrix4().compose(new THREE.Vector3(...toThree(lift)), facing(normal), new THREE.Vector3(r, r, 1)),
+						colour: markColour(part)
+					});
+				};
+				disc(faceUvToWorld(part, op.face, op.u, op.v), n);
+				// A through hole shows on the other face as well.
+				if (op.through && (op.face === 'front' || op.face === 'back')) {
+					const other = op.face === 'front' ? 'back' : 'front';
+					disc(faceUvToWorld(part, other, op.u, op.v), [-n[0], -n[1], -n[2]]);
+				}
 			}
 		}
 		return out;
@@ -401,16 +441,24 @@
 				const d = [Math.abs(b[0] - a[0]), Math.abs(b[1] - a[1]), Math.abs(b[2] - a[2])];
 				const s: Vec3 = [0, 0, 0];
 				for (let i = 0; i < 3; i++) {
-					if (n[i] !== 0) s[i] = op.depth;
+					if (n[i] !== 0) s[i] = 0.1;
 					else if (d[i] > 0.001) s[i] = d[i];
 					else s[i] = op.width;
 				}
-				const c: Vec3 = [mid[0] - (n[0] * op.depth) / 2 + n[0] * 0.2, mid[1] - (n[1] * op.depth) / 2 + n[1] * 0.2, mid[2] - (n[2] * op.depth) / 2 + n[2] * 0.2];
+				const c: Vec3 = [mid[0] + n[0] * 0.05, mid[1] + n[1] * 0.05, mid[2] + n[2] * 0.05];
 				out.push({
 					part: part.id,
-					local: new THREE.Matrix4().compose(new THREE.Vector3(...toThree(c)), new THREE.Quaternion(), new THREE.Vector3(...toThree(s)))
+					local: new THREE.Matrix4().compose(new THREE.Vector3(...toThree(c)), new THREE.Quaternion(), new THREE.Vector3(...toThree(s))),
+					colour: markColour(part)
 				});
 			}
+		}
+		return out;
+	});
+	const cutouts = $derived.by(() => {
+		const out: Mark[] = [];
+		if (!app.showHoles) return out;
+		for (const part of parts) {
 			// A cutout: a box through the panel, the size of the opening.
 			for (const op of part.operations) {
 				if (op.type !== 'CUTOUT') continue;
@@ -432,7 +480,10 @@
 	});
 	function fillMarks(list: Mark[]) {
 		return (mesh: THREE.InstancedMesh) => {
-			list.forEach((x, i) => mesh.setMatrixAt(i, scratch.multiplyMatrices(matrixOf(x.part), x.local)));
+			list.forEach((x, i) => {
+				mesh.setMatrixAt(i, scratch.multiplyMatrices(matrixOf(x.part), x.local));
+				if (x.colour) mesh.setColorAt(i, x.colour);
+			});
 		};
 	}
 </script>
@@ -483,8 +534,9 @@
 	</T.Group>
 {/each}
 
-<Instances geometry={holeCyl} material={holeMaterial} count={holes.length} fill={fillMarks(holes)} />
+<Instances geometry={holeDisc} material={holeMaterial} count={holes.length} fill={fillMarks(holes)} />
 <Instances geometry={unitBox} material={grooveMaterial} count={grooves.length} fill={fillMarks(grooves)} />
+<Instances geometry={unitBox} material={cutoutMaterial} count={cutouts.length} fill={fillMarks(cutouts)} />
 <Instances geometry={unitCyl} material={metal} count={placed.cyl.length} fill={fillPrims(placed.cyl)} onclick={pickPrim(placed.cyl)} />
 <Instances geometry={unitBox} material={metal} count={placed.box.length} fill={fillPrims(placed.box)} onclick={pickPrim(placed.box)} />
 <Instances geometry={unitSphere} material={metal} count={placed.sphere.length} fill={fillPrims(placed.sphere)} onclick={pickPrim(placed.sphere)} />
