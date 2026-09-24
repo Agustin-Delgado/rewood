@@ -1045,8 +1045,8 @@ impl<'a> BuildCtx<'a> {
 
     /// Two components of the same kind name their parts alike ("Puerta 1"
     /// from each door set): a cut list with two different "Puerta 1" rows
-    /// tells the workshop nothing. Suffix the component id wherever a
-    /// name is shared across components.
+    /// tells the workshop nothing. Number them apart wherever a name is
+    /// shared across components.
     fn disambiguate_names(&mut self) {
         let owners_of = |parts: &[Part]| {
             let mut owners: BTreeMap<String, std::collections::BTreeSet<String>> = BTreeMap::new();
@@ -1083,10 +1083,23 @@ impl<'a> BuildCtx<'a> {
                 }
             }
         }
+        // Any other shared name gets the number of its component among
+        // those that share it, in order: "Tapa (1)", "Tapa (2)". The
+        // component id is the spec's, often English, and not for a shop.
         let owners = owners_of(&self.parts);
-        for part in &mut self.parts {
+        let mut order: BTreeMap<String, Vec<String>> = BTreeMap::new();
+        for part in &self.parts {
             if owners[&part.name].len() > 1 {
-                part.name = format!("{} ({})", part.name, part.component);
+                let seen = order.entry(part.name.clone()).or_default();
+                if !seen.contains(&part.component) {
+                    seen.push(part.component.clone());
+                }
+            }
+        }
+        for part in &mut self.parts {
+            if let Some(seen) = order.get(&part.name) {
+                let n = seen.iter().position(|c| *c == part.component).unwrap() + 1;
+                part.name = format!("{} ({n})", part.name);
             }
         }
     }

@@ -122,6 +122,18 @@ nuestro nesting ni G-code. Trae tres cosas:
   - Tablas de perforaciones agrupadas por X o por Y, la que dé menos filas, y
     tablas de ranuras y calados.
   - Lo que no entra en la primera hoja pasa a una segunda, con el mismo rótulo.
+  - A3 cuando en A4 la pieza iría a menos de 1:10 y en A3 sale más grande (el
+    PDF mezcla hojas A4 y A3, cada una con su tamaño).
+  - Para que el proveedor no se equivoque:
+    - la nota "no medir sobre el plano";
+    - en cada plano, cómo ubicar la pieza: qué cara arriba, dónde va el
+      tapacanto y cómo dar vuelta la pieza para la cara B;
+    - un control del total de perforaciones, ranuras y calados por pieza;
+    - un aviso cuando dos piezas son simétricas (espejo) y no se pueden
+      intercambiar;
+    - etiquetas (`etiquetas.svg`) para pegar en la cara A.
+  - Cada cambio de los planos se revisa sobre los 23 muebles de ejemplo:
+    ningún texto se pisa con otro ni sale del marco.
 - `dxf/`: un DXF por pieza mecanizada, con `LEEME.txt` sobre sus capas.
 
 Los vidrios y espejos no entran: van al vidriero.

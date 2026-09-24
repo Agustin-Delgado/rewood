@@ -345,7 +345,7 @@
   "parts": [
     {
       "id": "P001",
-      "name": "Lateral izquierdo (left)",
+      "name": "Lateral izquierdo (1)",
       "component": "left",
       "role": "side_left",
       "material": "melamine_18",
@@ -591,7 +591,7 @@
     },
     {
       "id": "P002",
-      "name": "Lateral derecho (left)",
+      "name": "Lateral derecho (1)",
       "component": "left",
       "role": "side_right",
       "material": "melamine_18",
@@ -837,7 +837,7 @@
     },
     {
       "id": "P003",
-      "name": "Tapa (left)",
+      "name": "Tapa (1)",
       "component": "left",
       "role": "top",
       "material": "melamine_18",
@@ -1451,7 +1451,7 @@
     },
     {
       "id": "P004",
-      "name": "Base (left)",
+      "name": "Base (1)",
       "component": "left",
       "role": "bottom",
       "material": "melamine_18",
@@ -2481,7 +2481,7 @@
     },
     {
       "id": "P005",
-      "name": "Fondo (left)",
+      "name": "Fondo (1)",
       "component": "left",
       "role": "back",
       "material": "hdf_3",
@@ -3207,7 +3207,7 @@
     },
     {
       "id": "P008",
-      "name": "Zócalo (left)",
+      "name": "Zócalo (1)",
       "component": "left",
       "role": "plinth",
       "material": "melamine_18",
@@ -3409,7 +3409,7 @@
     },
     {
       "id": "P009",
-      "name": "Frente cajón 1 bahía 1 (left_drawers)",
+      "name": "Frente cajón 1 bahía 1 (1)",
       "component": "left_drawers",
       "role": "bay1_drawer_1_front",
       "material": "melamine_18",
@@ -3616,7 +3616,7 @@
     },
     {
       "id": "P010",
-      "name": "Lateral cajón 1 izq. bahía 1 (left_drawers)",
+      "name": "Lateral cajón 1 izq. bahía 1 (1)",
       "component": "left_drawers",
       "role": "bay1_drawer_1_side_left",
       "material": "melamine_18",
@@ -3830,7 +3830,7 @@
     },
     {
       "id": "P011",
-      "name": "Lateral cajón 1 der. bahía 1 (left_drawers)",
+      "name": "Lateral cajón 1 der. bahía 1 (1)",
       "component": "left_drawers",
       "role": "bay1_drawer_1_side_right",
       "material": "melamine_18",
@@ -4044,7 +4044,7 @@
     },
     {
       "id": "P012",
-      "name": "Frente interior cajón 1 bahía 1 (left_drawers)",
+      "name": "Frente interior cajón 1 bahía 1 (1)",
       "component": "left_drawers",
       "role": "bay1_drawer_1_box_front",
       "material": "melamine_18",
@@ -4338,7 +4338,7 @@
     },
     {
       "id": "P013",
-      "name": "Trasera cajón 1 bahía 1 (left_drawers)",
+      "name": "Trasera cajón 1 bahía 1 (1)",
       "component": "left_drawers",
       "role": "bay1_drawer_1_box_back",
       "material": "melamine_18",
@@ -4504,7 +4504,7 @@
     },
     {
       "id": "P014",
-      "name": "Fondo cajón 1 bahía 1 (left_drawers)",
+      "name": "Fondo cajón 1 bahía 1 (1)",
       "component": "left_drawers",
       "role": "bay1_drawer_1_bottom",
       "material": "hdf_3",
@@ -4550,7 +4550,7 @@
     },
     {
       "id": "P015",
-      "name": "Frente cajón 1 bahía 2 (left_drawers)",
+      "name": "Frente cajón 1 bahía 2 (1)",
       "component": "left_drawers",
       "role": "bay2_drawer_1_front",
       "material": "melamine_18",
@@ -4757,7 +4757,7 @@
     },
     {
       "id": "P016",
-      "name": "Lateral cajón 1 izq. bahía 2 (left_drawers)",
+      "name": "Lateral cajón 1 izq. bahía 2 (1)",
       "component": "left_drawers",
       "role": "bay2_drawer_1_side_left",
       "material": "melamine_18",
@@ -4971,7 +4971,7 @@
     },
     {
       "id": "P017",
-      "name": "Lateral cajón 1 der. bahía 2 (left_drawers)",
+      "name": "Lateral cajón 1 der. bahía 2 (1)",
       "component": "left_drawers",
       "role": "bay2_drawer_1_side_right",
       "material": "melamine_18",
@@ -5185,7 +5185,7 @@
     },
     {
       "id": "P018",
-      "name": "Frente interior cajón 1 bahía 2 (left_drawers)",
+      "name": "Frente interior cajón 1 bahía 2 (1)",
       "component": "left_drawers",
       "role": "bay2_drawer_1_box_front",
       "material": "melamine_18",
@@ -5479,7 +5479,7 @@
     },
     {
       "id": "P019",
-      "name": "Trasera cajón 1 bahía 2 (left_drawers)",
+      "name": "Trasera cajón 1 bahía 2 (1)",
       "component": "left_drawers",
       "role": "bay2_drawer_1_box_back",
       "material": "melamine_18",
@@ -5645,7 +5645,7 @@
     },
     {
       "id": "P020",
-      "name": "Fondo cajón 1 bahía 2 (left_drawers)",
+      "name": "Fondo cajón 1 bahía 2 (1)",
       "component": "left_drawers",
       "role": "bay2_drawer_1_bottom",
       "material": "hdf_3",
@@ -5691,7 +5691,7 @@
     },
     {
       "id": "P021",
-      "name": "Frente cajón 1 bahía 3 (left_drawers)",
+      "name": "Frente cajón 1 bahía 3 (1)",
       "component": "left_drawers",
       "role": "bay3_drawer_1_front",
       "material": "melamine_18",
@@ -5898,7 +5898,7 @@
     },
     {
       "id": "P022",
-      "name": "Lateral cajón 1 izq. bahía 3 (left_drawers)",
+      "name": "Lateral cajón 1 izq. bahía 3 (1)",
       "component": "left_drawers",
       "role": "bay3_drawer_1_side_left",
       "material": "melamine_18",
@@ -6112,7 +6112,7 @@
     },
     {
       "id": "P023",
-      "name": "Lateral cajón 1 der. bahía 3 (left_drawers)",
+      "name": "Lateral cajón 1 der. bahía 3 (1)",
       "component": "left_drawers",
       "role": "bay3_drawer_1_side_right",
       "material": "melamine_18",
@@ -6326,7 +6326,7 @@
     },
     {
       "id": "P024",
-      "name": "Frente interior cajón 1 bahía 3 (left_drawers)",
+      "name": "Frente interior cajón 1 bahía 3 (1)",
       "component": "left_drawers",
       "role": "bay3_drawer_1_box_front",
       "material": "melamine_18",
@@ -6620,7 +6620,7 @@
     },
     {
       "id": "P025",
-      "name": "Trasera cajón 1 bahía 3 (left_drawers)",
+      "name": "Trasera cajón 1 bahía 3 (1)",
       "component": "left_drawers",
       "role": "bay3_drawer_1_box_back",
       "material": "melamine_18",
@@ -6786,7 +6786,7 @@
     },
     {
       "id": "P026",
-      "name": "Fondo cajón 1 bahía 3 (left_drawers)",
+      "name": "Fondo cajón 1 bahía 3 (1)",
       "component": "left_drawers",
       "role": "bay3_drawer_1_bottom",
       "material": "hdf_3",
@@ -6832,7 +6832,7 @@
     },
     {
       "id": "P027",
-      "name": "Lateral izquierdo (right)",
+      "name": "Lateral izquierdo (2)",
       "component": "right",
       "role": "side_left",
       "material": "melamine_18",
@@ -7078,7 +7078,7 @@
     },
     {
       "id": "P028",
-      "name": "Lateral derecho (right)",
+      "name": "Lateral derecho (2)",
       "component": "right",
       "role": "side_right",
       "material": "melamine_18",
@@ -7324,7 +7324,7 @@
     },
     {
       "id": "P029",
-      "name": "Tapa (right)",
+      "name": "Tapa (2)",
       "component": "right",
       "role": "top",
       "material": "melamine_18",
@@ -7938,7 +7938,7 @@
     },
     {
       "id": "P030",
-      "name": "Base (right)",
+      "name": "Base (2)",
       "component": "right",
       "role": "bottom",
       "material": "melamine_18",
@@ -8968,7 +8968,7 @@
     },
     {
       "id": "P031",
-      "name": "Fondo (right)",
+      "name": "Fondo (2)",
       "component": "right",
       "role": "back",
       "material": "hdf_3",
@@ -9694,7 +9694,7 @@
     },
     {
       "id": "P034",
-      "name": "Zócalo (right)",
+      "name": "Zócalo (2)",
       "component": "right",
       "role": "plinth",
       "material": "melamine_18",
@@ -9896,7 +9896,7 @@
     },
     {
       "id": "P035",
-      "name": "Frente cajón 1 bahía 1 (right_drawers)",
+      "name": "Frente cajón 1 bahía 1 (2)",
       "component": "right_drawers",
       "role": "bay1_drawer_1_front",
       "material": "melamine_18",
@@ -10103,7 +10103,7 @@
     },
     {
       "id": "P036",
-      "name": "Lateral cajón 1 izq. bahía 1 (right_drawers)",
+      "name": "Lateral cajón 1 izq. bahía 1 (2)",
       "component": "right_drawers",
       "role": "bay1_drawer_1_side_left",
       "material": "melamine_18",
@@ -10317,7 +10317,7 @@
     },
     {
       "id": "P037",
-      "name": "Lateral cajón 1 der. bahía 1 (right_drawers)",
+      "name": "Lateral cajón 1 der. bahía 1 (2)",
       "component": "right_drawers",
       "role": "bay1_drawer_1_side_right",
       "material": "melamine_18",
@@ -10531,7 +10531,7 @@
     },
     {
       "id": "P038",
-      "name": "Frente interior cajón 1 bahía 1 (right_drawers)",
+      "name": "Frente interior cajón 1 bahía 1 (2)",
       "component": "right_drawers",
       "role": "bay1_drawer_1_box_front",
       "material": "melamine_18",
@@ -10825,7 +10825,7 @@
     },
     {
       "id": "P039",
-      "name": "Trasera cajón 1 bahía 1 (right_drawers)",
+      "name": "Trasera cajón 1 bahía 1 (2)",
       "component": "right_drawers",
       "role": "bay1_drawer_1_box_back",
       "material": "melamine_18",
@@ -10991,7 +10991,7 @@
     },
     {
       "id": "P040",
-      "name": "Fondo cajón 1 bahía 1 (right_drawers)",
+      "name": "Fondo cajón 1 bahía 1 (2)",
       "component": "right_drawers",
       "role": "bay1_drawer_1_bottom",
       "material": "hdf_3",
@@ -11037,7 +11037,7 @@
     },
     {
       "id": "P041",
-      "name": "Frente cajón 1 bahía 2 (right_drawers)",
+      "name": "Frente cajón 1 bahía 2 (2)",
       "component": "right_drawers",
       "role": "bay2_drawer_1_front",
       "material": "melamine_18",
@@ -11244,7 +11244,7 @@
     },
     {
       "id": "P042",
-      "name": "Lateral cajón 1 izq. bahía 2 (right_drawers)",
+      "name": "Lateral cajón 1 izq. bahía 2 (2)",
       "component": "right_drawers",
       "role": "bay2_drawer_1_side_left",
       "material": "melamine_18",
@@ -11458,7 +11458,7 @@
     },
     {
       "id": "P043",
-      "name": "Lateral cajón 1 der. bahía 2 (right_drawers)",
+      "name": "Lateral cajón 1 der. bahía 2 (2)",
       "component": "right_drawers",
       "role": "bay2_drawer_1_side_right",
       "material": "melamine_18",
@@ -11672,7 +11672,7 @@
     },
     {
       "id": "P044",
-      "name": "Frente interior cajón 1 bahía 2 (right_drawers)",
+      "name": "Frente interior cajón 1 bahía 2 (2)",
       "component": "right_drawers",
       "role": "bay2_drawer_1_box_front",
       "material": "melamine_18",
@@ -11966,7 +11966,7 @@
     },
     {
       "id": "P045",
-      "name": "Trasera cajón 1 bahía 2 (right_drawers)",
+      "name": "Trasera cajón 1 bahía 2 (2)",
       "component": "right_drawers",
       "role": "bay2_drawer_1_box_back",
       "material": "melamine_18",
@@ -12132,7 +12132,7 @@
     },
     {
       "id": "P046",
-      "name": "Fondo cajón 1 bahía 2 (right_drawers)",
+      "name": "Fondo cajón 1 bahía 2 (2)",
       "component": "right_drawers",
       "role": "bay2_drawer_1_bottom",
       "material": "hdf_3",
@@ -12178,7 +12178,7 @@
     },
     {
       "id": "P047",
-      "name": "Frente cajón 1 bahía 3 (right_drawers)",
+      "name": "Frente cajón 1 bahía 3 (2)",
       "component": "right_drawers",
       "role": "bay3_drawer_1_front",
       "material": "melamine_18",
@@ -12385,7 +12385,7 @@
     },
     {
       "id": "P048",
-      "name": "Lateral cajón 1 izq. bahía 3 (right_drawers)",
+      "name": "Lateral cajón 1 izq. bahía 3 (2)",
       "component": "right_drawers",
       "role": "bay3_drawer_1_side_left",
       "material": "melamine_18",
@@ -12599,7 +12599,7 @@
     },
     {
       "id": "P049",
-      "name": "Lateral cajón 1 der. bahía 3 (right_drawers)",
+      "name": "Lateral cajón 1 der. bahía 3 (2)",
       "component": "right_drawers",
       "role": "bay3_drawer_1_side_right",
       "material": "melamine_18",
@@ -12813,7 +12813,7 @@
     },
     {
       "id": "P050",
-      "name": "Frente interior cajón 1 bahía 3 (right_drawers)",
+      "name": "Frente interior cajón 1 bahía 3 (2)",
       "component": "right_drawers",
       "role": "bay3_drawer_1_box_front",
       "material": "melamine_18",
@@ -13107,7 +13107,7 @@
     },
     {
       "id": "P051",
-      "name": "Trasera cajón 1 bahía 3 (right_drawers)",
+      "name": "Trasera cajón 1 bahía 3 (2)",
       "component": "right_drawers",
       "role": "bay3_drawer_1_box_back",
       "material": "melamine_18",
@@ -13273,7 +13273,7 @@
     },
     {
       "id": "P052",
-      "name": "Fondo cajón 1 bahía 3 (right_drawers)",
+      "name": "Fondo cajón 1 bahía 3 (2)",
       "component": "right_drawers",
       "role": "bay3_drawer_1_bottom",
       "material": "hdf_3",
@@ -18624,7 +18624,7 @@
       "partIds": [
         "P003"
       ],
-      "name": "Tapa (left)",
+      "name": "Tapa (1)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -18941,7 +18941,7 @@
       "partIds": [
         "P029"
       ],
-      "name": "Tapa (right)",
+      "name": "Tapa (2)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",

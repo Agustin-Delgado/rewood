@@ -229,6 +229,10 @@ pub fn files(plan: &ManufacturingPlan) -> Vec<PackageFile> {
             contents: dxf::part_dxf(r.part),
         });
     }
+    files.push(PackageFile {
+        path: "proveedor/etiquetas.svg".into(),
+        contents: super::svg::labels_svg(plan),
+    });
     if rows.iter().any(|r| r.drawing.is_some()) {
         files.push(PackageFile {
             path: "proveedor/dxf/LEEME.txt".into(),
@@ -312,8 +316,9 @@ const CSS: &str = "body{font-family:Helvetica,Arial,sans-serif;font-size:12px;co
 table{border-collapse:collapse;margin:4px 0 8px}th,td{border:1px solid #bbb;padding:3px 6px;text-align:left;font-size:11px}\
 th{background:#eee}td.num,th.num{text-align:right}.tables{display:flex;flex-wrap:wrap;gap:0 18px}\
 .page{page-break-before:always}.page svg{display:block;width:100%;max-width:297mm;height:auto;margin:6mm auto;border:1px solid #ddd}\
-@page{size:A4 landscape;margin:0}\
-@media print{.page svg{width:297mm;height:210mm;margin:0;border:0}}";
+.page.a3 svg{max-width:420mm}\
+@page{size:A4 landscape;margin:0}@page a3{size:A3 landscape;margin:0}.page.a3{page:a3}\
+@media print{.page svg{width:297mm;height:210mm;margin:0;border:0}.page.a3 svg{width:420mm;height:297mm}}";
 
 fn order_html(plan: &ManufacturingPlan, rows: &[Row]) -> String {
     let f = &plan.furniture;
@@ -339,7 +344,10 @@ fn order_html(plan: &ManufacturingPlan, rows: &[Row]) -> String {
 <li>Planos según las normas de dibujo técnico (IRAM / ISO 128 y 129): rótulo, escala normalizada y cotas por coordenadas \
 desde el origen 0 de cada vista. La <b>cara A</b> es la que queda hacia adentro del mueble (en puertas y frentes de cajón, la de atrás); \
 la <b>cara B</b> se dibuja aparte, con la pieza dada vuelta. Las perforaciones de canto van centradas en el espesor y tienen su detalle en corte.</li>\
-<li>Etiquetar cada pieza con su código.</li></ul></div>";
+<li>Etiquetar cada pieza con su código (etiquetas.svg, una por pieza) <b>en la cara A</b>, junto al canto L1: \
+así la cara queda identificada para el armado.</li>\
+<li>Cada plano indica cómo ubicar la pieza y cuántas perforaciones lleva, para controlarla al terminar. \
+Las piezas simétricas (espejo) están marcadas: no son intercambiables.</li></ul></div>";
 
     // What to quote: board area and edge band, by colour.
     let mut areas: std::collections::BTreeMap<(String, String), f64> = Default::default();
@@ -442,15 +450,103 @@ la <b>cara B</b> se dibuja aparte, con la pieza dada vuelta. Las perforaciones d
         let Some(d) = r.drawing else {
             continue;
         };
-        drawing_page(&mut h, plan, r, d);
+        drawing_page(&mut h, plan, rows, r, d);
     }
     h += "</body></html>\n";
     h
 }
 
+/// A table row whose last cell lists positions, split into rows of at
+/// most ten so a long list (shelf pins every 32 mm) stays on the sheet;
+/// the continuation rows leave the key cells blank.
+fn wrap_list(values: &[f64], key: Vec<String>) -> Vec<Vec<String>> {
+    values
+        .chunks(10)
+        .enumerate()
+        .map(|(i, chunk)| {
+            let mut row = if i == 0 {
+                key.clone()
+            } else {
+                vec!["〃".to_string(); key.len()]
+            };
+            row.push(chunk.iter().map(|v| mm(*v)).collect::<Vec<_>>().join(" · "));
+            row
+        })
+        .collect()
+}
+
+/// Everything machined on a part, as comparable keys; `mirrored` reflects
+/// it across the middle of its length (left and right edges swap).
+fn machining_key(part: &Part, mirrored: bool) -> std::collections::BTreeSet<String> {
+    let l = part.dims.length;
+    let r = |v: f64| (v * 10.0).round() as i64;
+    let mut out = std::collections::BTreeSet::new();
+    for op in &part.operations {
+        let face = match (op.face, mirrored) {
+            (Face::Left, true) => Face::Right,
+            (Face::Right, true) => Face::Left,
+            (f, _) => f,
+        };
+        let x = |u: f64| if mirrored { l - u } else { u };
+        let key = match &op.geometry {
+            OpGeometry::Drill { u, v, diameter, .. } => match op.face {
+                // Along an edge the position is local Y: a mirror across the
+                // length leaves it where it is.
+                Face::Left | Face::Right => {
+                    format!("{face:?} d {} {} {}", r(*u), r(*v), r(*diameter))
+                }
+                _ => format!("{face:?} d {} {} {}", r(x(*u)), r(*v), r(*diameter)),
+            },
+            OpGeometry::Groove {
+                from, to, width, ..
+            } => {
+                let (a, b) = (
+                    r(x(from[0])).min(r(x(to[0]))),
+                    r(x(from[0])).max(r(x(to[0]))),
+                );
+                format!(
+                    "{face:?} g {a} {b} {} {} {}",
+                    r(from[1]),
+                    r(to[1]),
+                    r(*width)
+                )
+            }
+            OpGeometry::Cutout {
+                u,
+                v,
+                width,
+                height,
+                ..
+            } => {
+                format!(
+                    "{face:?} c {} {} {} {}",
+                    r(x(*u)),
+                    r(*v),
+                    r(*width),
+                    r(*height)
+                )
+            }
+            OpGeometry::EdgeBand { .. } => format!("{face:?} band"),
+        };
+        out.insert(key);
+    }
+    out
+}
+
+/// `a` is `b` mirrored: same size and material, machined the other way
+/// round, and not simply the same part.
+fn is_mirror(a: &Part, b: &Part) -> bool {
+    let same_size = (a.dims.length - b.dims.length).abs() < 0.05
+        && (a.dims.width - b.dims.width).abs() < 0.05
+        && a.material == b.material;
+    same_size
+        && machining_key(a, false) != machining_key(b, false)
+        && machining_key(a, true) == machining_key(b, false)
+}
+
 /// The sheets of one machined part: tables of every hole, groove and
 /// cutout in the frame of the face they are on, drawn by `drawing`.
-fn drawing_page(h: &mut String, plan: &ManufacturingPlan, r: &Row, number: usize) {
+fn drawing_page(h: &mut String, plan: &ManufacturingPlan, rows: &[Row], r: &Row, number: usize) {
     let p = r.part;
     let w = p.dims.width;
     let side_name = |f: Face| {
@@ -575,17 +671,8 @@ fn drawing_page(h: &mut String, plan: &ManufacturingPlan, r: &Row, number: usize
         };
         let rows: Vec<Vec<String>> = groups
             .iter()
-            .map(|(key, d, dp, others)| {
-                vec![
-                    mm(*d),
-                    dp.to_string(),
-                    mm(*key),
-                    others
-                        .iter()
-                        .map(|o| mm(*o))
-                        .collect::<Vec<_>>()
-                        .join(" · "),
-                ]
+            .flat_map(|(key, d, dp, others)| {
+                wrap_list(others, vec![mm(*d), dp.to_string(), mm(*key)])
             })
             .collect();
         let lw = list_width(&rows, 3, 12.0);
@@ -610,13 +697,8 @@ fn drawing_page(h: &mut String, plan: &ManufacturingPlan, r: &Row, number: usize
         }
         let rows: Vec<Vec<String>> = groups
             .iter()
-            .map(|(side, d, dp, ats)| {
-                vec![
-                    side.to_string(),
-                    mm(*d),
-                    dp.to_string(),
-                    ats.iter().map(|a| mm(*a)).collect::<Vec<_>>().join(" · "),
-                ]
+            .flat_map(|(side, d, dp, ats)| {
+                wrap_list(ats, vec![side.to_string(), mm(*d), dp.to_string()])
             })
             .collect();
         let aw = list_width(&rows, 3, 16.0);
@@ -679,10 +761,20 @@ fn drawing_page(h: &mut String, plan: &ManufacturingPlan, r: &Row, number: usize
             .map(|(f, e)| (*f, edge_name(plan, e)))
             .collect(),
         grain_along_x: r.sides.grain.then_some(r.sides.faces[0].1 == Face::Bottom),
+        mirror_of: rows
+            .iter()
+            .filter(|o| !std::ptr::eq(*o, r) && is_mirror(o.part, p))
+            .flat_map(|o| o.list.part_ids.iter().cloned())
+            .collect(),
     };
     let _ = write!(h, "<section class=\"plano\" data-plano=\"{number}\">");
     for sheet in drawing::part_sheets(p, &info, tables) {
-        let _ = write!(h, "<div class=\"page\">{sheet}</div>");
+        let _ = write!(
+            h,
+            "<div class=\"page {}\">{}</div>",
+            sheet.format.to_lowercase(),
+            sheet.svg
+        );
     }
     *h += "</section>";
 }
@@ -739,6 +831,52 @@ mod tests {
         let drawings = files.iter().filter(|f| f.path.ends_with(".dxf")).count();
         assert_eq!(html.matches("<section class=\"plano\"").count(), drawings);
         assert_eq!(files, super::files(&plan));
+    }
+
+    #[test]
+    fn every_drawing_says_how_to_place_the_part_and_what_to_count() {
+        let plan = plan("wardrobe_1800");
+        let files = files(&plan);
+        let html = &files
+            .iter()
+            .find(|f| f.path == "proveedor/planos.html")
+            .unwrap()
+            .contents;
+        let drawings = html.matches("<section class=\"plano\"").count();
+        assert_eq!(html.matches("Cómo ubicar la pieza").count(), drawings);
+        assert_eq!(html.matches("Control: ").count(), drawings);
+        assert!(html.matches("NO MEDIR SOBRE EL PLANO").count() >= drawings);
+        // The drawer sides are mirror images: each names the others.
+        assert!(
+            html.contains("es la simétrica (espejo) de P015, P021, P027"),
+            "mirror"
+        );
+        assert!(
+            html.contains("es la simétrica (espejo) de P014, P020, P026"),
+            "mirror"
+        );
+        // A panel that would go to 1:20 on A4 goes to A3 at 1:10.
+        assert!(html.contains("class=\"page a3\""));
+        assert!(files.iter().any(|f| f.path == "proveedor/etiquetas.svg"));
+    }
+
+    #[test]
+    fn a_part_is_not_its_own_mirror() {
+        let plan = plan("wardrobe_1800");
+        for p in &plan.parts {
+            assert!(!is_mirror(p, p), "{}", p.id);
+        }
+        let left = plan
+            .parts
+            .iter()
+            .find(|p| p.role == "drawer_1_side_left")
+            .unwrap();
+        let right = plan
+            .parts
+            .iter()
+            .find(|p| p.role == "drawer_1_side_right")
+            .unwrap();
+        assert!(is_mirror(left, right) && is_mirror(right, left));
     }
 
     #[test]

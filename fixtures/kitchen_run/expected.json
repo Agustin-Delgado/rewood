@@ -366,7 +366,7 @@
   "parts": [
     {
       "id": "P001",
-      "name": "Lateral izquierdo (m1)",
+      "name": "Lateral izquierdo (1)",
       "component": "m1",
       "role": "side_left",
       "material": "melamine_18",
@@ -692,7 +692,7 @@
     },
     {
       "id": "P002",
-      "name": "Lateral derecho (m1)",
+      "name": "Lateral derecho (1)",
       "component": "m1",
       "role": "side_right",
       "material": "melamine_18",
@@ -954,7 +954,7 @@
     },
     {
       "id": "P003",
-      "name": "Tapa (m1)",
+      "name": "Tapa (1)",
       "component": "m1",
       "role": "top",
       "material": "melamine_18",
@@ -1248,7 +1248,7 @@
     },
     {
       "id": "P004",
-      "name": "Base (m1)",
+      "name": "Base (1)",
       "component": "m1",
       "role": "bottom",
       "material": "melamine_18",
@@ -1798,7 +1798,7 @@
     },
     {
       "id": "P005",
-      "name": "Fondo (m1)",
+      "name": "Fondo (1)",
       "component": "m1",
       "role": "back",
       "material": "hdf_3",
@@ -1844,7 +1844,7 @@
     },
     {
       "id": "P006",
-      "name": "Zócalo (m1)",
+      "name": "Zócalo (1)",
       "component": "m1",
       "role": "plinth",
       "material": "melamine_18",
@@ -1950,7 +1950,7 @@
     },
     {
       "id": "P007",
-      "name": "Lateral izquierdo (m2)",
+      "name": "Lateral izquierdo (2)",
       "component": "m2",
       "role": "side_left",
       "material": "melamine_18",
@@ -2324,7 +2324,7 @@
     },
     {
       "id": "P008",
-      "name": "Lateral derecho (m2)",
+      "name": "Lateral derecho (2)",
       "component": "m2",
       "role": "side_right",
       "material": "melamine_18",
@@ -2698,7 +2698,7 @@
     },
     {
       "id": "P009",
-      "name": "Tapa (m2)",
+      "name": "Tapa (2)",
       "component": "m2",
       "role": "top",
       "material": "melamine_18",
@@ -2992,7 +2992,7 @@
     },
     {
       "id": "P010",
-      "name": "Base (m2)",
+      "name": "Base (2)",
       "component": "m2",
       "role": "bottom",
       "material": "melamine_18",
@@ -3542,7 +3542,7 @@
     },
     {
       "id": "P011",
-      "name": "Fondo (m2)",
+      "name": "Fondo (2)",
       "component": "m2",
       "role": "back",
       "material": "hdf_3",
@@ -3588,7 +3588,7 @@
     },
     {
       "id": "P012",
-      "name": "Zócalo (m2)",
+      "name": "Zócalo (2)",
       "component": "m2",
       "role": "plinth",
       "material": "melamine_18",
@@ -3694,7 +3694,7 @@
     },
     {
       "id": "P013",
-      "name": "Lateral izquierdo (m3)",
+      "name": "Lateral izquierdo (3)",
       "component": "m3",
       "role": "side_left",
       "material": "melamine_18",
@@ -3956,7 +3956,7 @@
     },
     {
       "id": "P014",
-      "name": "Lateral derecho (m3)",
+      "name": "Lateral derecho (3)",
       "component": "m3",
       "role": "side_right",
       "material": "melamine_18",
@@ -4282,7 +4282,7 @@
     },
     {
       "id": "P015",
-      "name": "Tapa (m3)",
+      "name": "Tapa (3)",
       "component": "m3",
       "role": "top",
       "material": "melamine_18",
@@ -4576,7 +4576,7 @@
     },
     {
       "id": "P016",
-      "name": "Base (m3)",
+      "name": "Base (3)",
       "component": "m3",
       "role": "bottom",
       "material": "melamine_18",
@@ -5126,7 +5126,7 @@
     },
     {
       "id": "P017",
-      "name": "Fondo (m3)",
+      "name": "Fondo (3)",
       "component": "m3",
       "role": "back",
       "material": "hdf_3",
@@ -5172,7 +5172,7 @@
     },
     {
       "id": "P018",
-      "name": "Zócalo (m3)",
+      "name": "Zócalo (3)",
       "component": "m3",
       "role": "plinth",
       "material": "melamine_18",
@@ -11880,7 +11880,7 @@
       "partIds": [
         "P001"
       ],
-      "name": "Lateral izquierdo (m1)",
+      "name": "Lateral izquierdo (1)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -11898,7 +11898,7 @@
       "partIds": [
         "P002"
       ],
-      "name": "Lateral derecho (m1)",
+      "name": "Lateral derecho (1)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -11995,7 +11995,7 @@
       "partIds": [
         "P007"
       ],
-      "name": "Lateral izquierdo (m2)",
+      "name": "Lateral izquierdo (2)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -12013,7 +12013,7 @@
       "partIds": [
         "P008"
       ],
-      "name": "Lateral derecho (m2)",
+      "name": "Lateral derecho (2)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -12031,7 +12031,7 @@
       "partIds": [
         "P013"
       ],
-      "name": "Lateral izquierdo (m3)",
+      "name": "Lateral izquierdo (3)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -12049,7 +12049,7 @@
       "partIds": [
         "P014"
       ],
-      "name": "Lateral derecho (m3)",
+      "name": "Lateral derecho (3)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",

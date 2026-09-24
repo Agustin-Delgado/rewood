@@ -10,6 +10,12 @@ use std::fmt::Write;
 use crate::geometry::Face;
 use crate::model::{OpGeometry, Part};
 
+/// One printed sheet: its SVG and its paper size ("A4", "A3").
+pub struct Sheet {
+    pub svg: String,
+    pub format: &'static str,
+}
+
 /// A table for a sheet: title, column widths (mm), header and rows.
 pub type Table = (String, Vec<f64>, Vec<String>, Vec<Vec<String>>);
 
@@ -32,17 +38,43 @@ pub struct SheetInfo {
     pub bands: Vec<(Face, String)>,
     /// The decor has a direction: `Some(true)` along the part's X.
     pub grain_along_x: Option<bool>,
+    /// Parts that are this one's mirror image: same size, holes mirrored.
+    pub mirror_of: Vec<String>,
 }
 
-// The sheet: A4 landscape, a 20 mm filing margin on the left and 10 on
-// the other sides, the title block in the lower right corner.
-const PAGE_W: f64 = 297.0;
-const PAGE_H: f64 = 210.0;
-const FRAME: (f64, f64, f64, f64) = (20.0, 10.0, 287.0, 200.0);
-const TB_X: f64 = 117.0;
-const TB_Y: f64 = 170.0;
-/// The drawing field above the title block.
-const FIELD: (f64, f64, f64, f64) = (24.0, 14.0, 283.0, 166.0);
+/// A sheet size (ISO 5457), landscape: a 20 mm filing margin on the left
+/// and 10 on the other sides, the title block in the lower right corner.
+#[derive(Clone, Copy)]
+struct Format {
+    name: &'static str,
+    w: f64,
+    h: f64,
+    /// Frame: left, top, right, bottom.
+    frame: (f64, f64, f64, f64),
+    /// Upper left corner of the title block.
+    tb: (f64, f64),
+    /// The drawing field above the title block.
+    field: (f64, f64, f64, f64),
+}
+
+const A4: Format = Format {
+    name: "A4",
+    w: 297.0,
+    h: 210.0,
+    frame: (20.0, 10.0, 287.0, 200.0),
+    tb: (117.0, 170.0),
+    field: (24.0, 14.0, 283.0, 166.0),
+};
+
+const A3: Format = Format {
+    name: "A3",
+    w: 420.0,
+    h: 297.0,
+    frame: (20.0, 10.0, 410.0, 287.0),
+    tb: (240.0, 257.0),
+    field: (24.0, 14.0, 406.0, 253.0),
+};
+
 /// ISO 5455 reduction scales, largest first.
 const SCALES: [f64; 7] = [1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0];
 
@@ -249,7 +281,7 @@ fn views(part: &Part) -> Vec<FaceView> {
     };
     // Face B turned over its X axis: the bottom edge goes to the top.
     let mut b = FaceView {
-        title: "Cara B — pieza dada vuelta de arriba hacia abajo".into(),
+        title: "Cara B (pieza dada vuelta)".into(),
         holes: Vec::new(),
         edge_holes: Vec::new(),
         grooves: Vec::new(),
@@ -609,6 +641,115 @@ fn table(
         .collect()
 }
 
+/// How to put the part on the machine so it cannot come out mirrored,
+/// and what to count when it is done.
+fn placing(part: &Part, info: &SheetInfo, face_b: bool) -> Block {
+    let banded = |f: Face| info.bands.iter().any(|(b, _)| *b == f);
+    let name = |f: Face| side_name(info, f);
+    let names: Vec<&str> = info
+        .sides
+        .iter()
+        .filter(|(_, f)| banded(*f))
+        .map(|(n, _)| *n)
+        .collect();
+    let symmetric = info
+        .sides
+        .chunks(2)
+        .all(|pair| banded(pair[0].1) == banded(pair[1].1));
+    let mut lines: Vec<String> = Vec::new();
+    if names.is_empty() {
+        lines.push(
+            "Sin tapacanto: cualquier cara puede ser la A y cualquier canto largo el L1.".into(),
+        );
+    } else if symmetric {
+        lines.push(format!(
+            "Tapacanto en {}: cantos iguales enfrentados, cualquier cara puede ser la A.",
+            names.join(", ")
+        ));
+    } else {
+        lines.push(format!(
+            "Cara A arriba y el tapacanto ({}) donde lo marca el dibujo: {} abajo, {} a la izquierda.",
+            names.join(", "),
+            name(Face::Bottom),
+            name(Face::Left)
+        ));
+    }
+    if face_b {
+        lines.push(format!(
+            "Primero la cara A. Después dar vuelta la pieza de arriba hacia abajo ({} pasa arriba) y perforar la cara B según su vista.",
+            name(Face::Bottom)
+        ));
+    }
+    let (mut a, mut b, mut e, mut g, mut c) = (0, 0, 0, 0, 0);
+    for op in &part.operations {
+        match (&op.geometry, op.face) {
+            (OpGeometry::Drill { .. }, Face::Front) => a += 1,
+            (OpGeometry::Drill { .. }, Face::Back) => b += 1,
+            (OpGeometry::Drill { .. }, _) => e += 1,
+            (OpGeometry::Groove { .. }, _) => g += 1,
+            (OpGeometry::Cutout { .. }, _) => c += 1,
+            _ => {}
+        }
+    }
+    let mut count = format!("Control: {} perforaciones (cara A {a}", a + b + e);
+    if b > 0 {
+        count += &format!(" · cara B {b}");
+    }
+    if e > 0 {
+        count += &format!(" · canto {e}");
+    }
+    count += ")";
+    if g > 0 {
+        count += &format!(", {g} ranura{}", if g > 1 { "s" } else { "" });
+    }
+    if c > 0 {
+        count += &format!(", {c} calado{}", if c > 1 { "s" } else { "" });
+    }
+    count += " por pieza.";
+    lines.push(count);
+    if !info.mirror_of.is_empty() {
+        lines.push(format!(
+            "ATENCIÓN: es la simétrica (espejo) de {}. No son intercambiables: cada una con su plano.",
+            info.mirror_of.join(", ")
+        ));
+    }
+    const W: f64 = 150.0;
+    const SIZE: f64 = 2.5;
+    // Wrap each line to the block's width.
+    let per_line = (W / (SIZE * 0.5)).floor() as usize;
+    let mut wrapped: Vec<(bool, String)> = Vec::new();
+    for l in &lines {
+        let strong = l.starts_with("ATENCIÓN");
+        let mut cur = String::new();
+        for word in l.split(' ') {
+            if !cur.is_empty() && cur.chars().count() + 1 + word.chars().count() > per_line {
+                wrapped.push((strong, std::mem::take(&mut cur)));
+            }
+            if !cur.is_empty() {
+                cur.push(' ');
+            }
+            cur += word;
+        }
+        wrapped.push((strong, cur));
+    }
+    let h = 6.0 + wrapped.len() as f64 * 3.6;
+    Block {
+        w: W,
+        h,
+        svg: Box::new(move |pen: &mut Pen, x: f64, y: f64| {
+            pen.bold(x, y + 3.0, 2.8, "start", "Cómo ubicar la pieza");
+            for (i, (strong, l)) in wrapped.iter().enumerate() {
+                let yy = y + 7.0 + i as f64 * 3.6;
+                if *strong {
+                    pen.bold(x, yy, SIZE, "start", l);
+                } else {
+                    pen.text(x, yy, SIZE, "start", l);
+                }
+            }
+        }),
+    }
+}
+
 /// Section through an edge hole, full size: the panel's thickness, the
 /// bore centred in it, its diameter and depth.
 fn edge_hole_detail(tag: String, letter: char, t: f64, d: f64, depth: f64) -> Block {
@@ -731,12 +872,18 @@ fn hatch(pen: &mut Pen, id: &str, x: f64, y: f64, w: f64, h: f64) {
     pen.s += "</g>";
 }
 
-fn title_block(pen: &mut Pen, info: &SheetInfo, k: f64, sheet: usize, sheets: usize) {
-    let (x, y) = (TB_X, TB_Y);
-    let w = FRAME.2 - x;
-    pen.rect(x, y, w, FRAME.3 - y, "fr");
+fn title_block(pen: &mut Pen, fmt: &Format, info: &SheetInfo, k: f64, sheet: usize, sheets: usize) {
+    let (x, y) = fmt.tb;
+    let w = fmt.frame.2 - x;
+    pen.rect(x, y, w, fmt.frame.3 - y, "fr");
     for r in 1..3 {
-        pen.line(x, y + 10.0 * r as f64, FRAME.2, y + 10.0 * r as f64, "tl");
+        pen.line(
+            x,
+            y + 10.0 * r as f64,
+            fmt.frame.2,
+            y + 10.0 * r as f64,
+            "tl",
+        );
     }
     let cell = |pen: &mut Pen, cx: f64, cy: f64, cw: f64, label: &str, value: &str, size: f64| {
         pen.text(cx + 1.0, cy + 2.6, 1.9, "start", label);
@@ -834,48 +981,73 @@ fn title_block(pen: &mut Pen, info: &SheetInfo, k: f64, sheet: usize, sheets: us
 }
 
 /// The notes left of the title block: conventions every sheet repeats.
-fn notes(pen: &mut Pen) {
-    let (x, y) = (FRAME.0 + 3.0, TB_Y + 4.0);
+fn notes(pen: &mut Pen, fmt: &Format) {
+    let (x, y) = (fmt.frame.0 + 3.0, fmt.tb.1 + 3.6);
     let lines = [
+        "NO MEDIR SOBRE EL PLANO: usar sólo las cotas.",
         "Medidas finales en mm, con el canto incluido.",
         "Cotas desde el origen 0: esquina inferior izquierda de cada vista.",
-        "Cara A: la que queda hacia adentro del mueble; en puertas y",
-        "frentes, la de atrás. Cara B: la opuesta.",
+        "Cara A arriba al perforar; la etiqueta de la pieza va en la cara A.",
         "Líneas (ISO 128): llena visible · trazos oculta · trazo y punto eje.",
         "▬ canto con tapacanto. Perforaciones de canto centradas en el espesor.",
     ];
     for (i, l) in lines.iter().enumerate() {
-        pen.text(
-            x,
-            y + i as f64 * 4.0,
-            2.2,
-            "start",
-            &fit(l, TB_X - x - 2.0, 2.2),
-        );
+        let t = fit(l, fmt.tb.0 - x - 2.0, 2.0);
+        if i == 0 {
+            pen.bold(x, y + i as f64 * 4.3, 2.2, "start", &t);
+        } else {
+            pen.text(x, y + i as f64 * 4.3, 2.0, "start", &t);
+        }
     }
 }
 
-fn sheet_svg(pen: Pen, info: &SheetInfo, k: f64, sheet: usize, sheets: usize) -> String {
+fn sheet_svg(
+    pen: Pen,
+    fmt: &Format,
+    info: &SheetInfo,
+    k: f64,
+    sheet: usize,
+    sheets: usize,
+) -> String {
     let mut frame = Pen::default();
-    frame.rect(FRAME.0, FRAME.1, FRAME.2 - FRAME.0, FRAME.3 - FRAME.1, "fr");
-    title_block(&mut frame, info, k, sheet, sheets);
-    notes(&mut frame);
+    let (x0, y0, x1, y1) = fmt.frame;
+    frame.rect(x0, y0, x1 - x0, y1 - y0, "fr");
+    title_block(&mut frame, fmt, info, k, sheet, sheets);
+    notes(&mut frame, fmt);
     format!(
-        "<svg class=\"iso\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 {PAGE_W} {PAGE_H}\" font-family=\"Helvetica,Arial,sans-serif\">{}{}</svg>",
-        frame.s, pen.s
+        "<svg class=\"iso\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 {} {}\" font-family=\"Helvetica,Arial,sans-serif\">{}{}</svg>",
+        fmt.w, fmt.h, frame.s, pen.s
     )
 }
 
 /// The sheets of one part, each a full A4 landscape page.
-pub fn part_sheets(part: &Part, info: &SheetInfo, tables: Vec<Table>) -> Vec<String> {
+pub fn part_sheets(part: &Part, info: &SheetInfo, tables: Vec<Table>) -> Vec<Sheet> {
     let vs = views(part);
-    let (fw, fh) = (FIELD.2 - FIELD.0, FIELD.3 - FIELD.1);
-    let k = scale_for(part, vs.len(), fw, fh);
+    // A4 unless the part would go smaller than 1:10 there and A3 draws it
+    // larger: a long panel on A4 at 1:20 leaves its holes as dots.
+    let fits = |f: &Format| {
+        let (x0, y0, x1, y1) = f.field;
+        scale_for(part, vs.len(), x1 - x0, y1 - y0)
+    };
+    let (fmt, k) = {
+        let k4 = fits(&A4);
+        let k3 = fits(&A3);
+        if k4 > 10.0 && k3 < k4 {
+            (A3, k3)
+        } else {
+            (A4, k4)
+        }
+    };
+    let field = fmt.field;
     let (l, w) = (part.dims.length, part.dims.width);
 
     let mut pen = Pen::default();
-    let view_w = VIEW_LEFT + l / k + VIEW_RIGHT;
-    let mut y = FIELD.1;
+    let title_w = vs
+        .iter()
+        .map(|v| (v.title.chars().count() + 24) as f64 * 3.2 * 0.56)
+        .fold(0.0, f64::max);
+    let view_w = (VIEW_LEFT + l / k + VIEW_RIGHT).max(VIEW_LEFT + title_w);
+    let mut y = field.1;
     for v in &vs {
         draw_view(
             &mut pen,
@@ -883,7 +1055,7 @@ pub fn part_sheets(part: &Part, info: &SheetInfo, tables: Vec<Table>) -> Vec<Str
             info,
             v,
             k,
-            FIELD.0 + VIEW_LEFT,
+            field.0 + VIEW_LEFT,
             y + VIEW_TOP,
         );
         y += VIEW_TOP + w / k + VIEW_BELOW + 3.0;
@@ -956,6 +1128,7 @@ pub fn part_sheets(part: &Part, info: &SheetInfo, tables: Vec<Table>) -> Vec<Str
         }
     }
     let details = std::mem::take(&mut blocks);
+    blocks.push(placing(part, info, vs.len() > 1));
     for (title, widths, header, rows) in tables {
         blocks.extend(table(title, widths, header, rows));
     }
@@ -1011,15 +1184,15 @@ pub fn part_sheets(part: &Part, info: &SheetInfo, tables: Vec<Table>) -> Vec<Str
     }
     let mut sheets: Vec<Pen> = Vec::new();
     let mut regions: Vec<Region> = Vec::new();
-    let right = FIELD.0 + view_w + 8.0;
-    let has_right = FIELD.2 - right >= 45.0;
+    let right = field.0 + view_w + 8.0;
+    let has_right = field.2 - right >= 45.0;
     if has_right {
-        regions.push(Region::new(right, FIELD.1, FIELD.2, FIELD.3));
+        regions.push(Region::new(right, field.1, field.2, field.3));
     }
-    if FIELD.3 - views_bottom >= 20.0 {
+    if field.3 - views_bottom >= 20.0 {
         // Under the views only: the column on the right is its own region.
-        let x1 = if has_right { right - 4.0 } else { FIELD.2 };
-        regions.push(Region::new(FIELD.0, views_bottom + 2.0, x1, FIELD.3));
+        let x1 = if has_right { right - 4.0 } else { field.2 };
+        regions.push(Region::new(field.0, views_bottom + 2.0, x1, field.3));
     }
     for b in blocks {
         let spot = regions.iter_mut().find_map(|r| r.take(b.w, b.h));
@@ -1029,8 +1202,11 @@ pub fn part_sheets(part: &Part, info: &SheetInfo, tables: Vec<Table>) -> Vec<Str
                 // A new sheet: the whole field is free. What does not fit
                 // an empty sheet is drawn anyway.
                 sheets.push(std::mem::take(&mut pen));
-                regions = vec![Region::new(FIELD.0, FIELD.1, FIELD.2, FIELD.3)];
-                regions[0].take(b.w, b.h).unwrap_or((FIELD.0, FIELD.1))
+                regions = vec![Region::new(field.0, field.1, field.2, field.3)];
+                regions[0].take(b.w, b.h).unwrap_or_else(|| {
+                    regions[0].placed.push((field.0, field.1, b.w, b.h));
+                    (field.0, field.1)
+                })
             }
         };
         (b.svg)(&mut pen, x, y);
@@ -1040,7 +1216,10 @@ pub fn part_sheets(part: &Part, info: &SheetInfo, tables: Vec<Table>) -> Vec<Str
     sheets
         .into_iter()
         .enumerate()
-        .map(|(i, p)| sheet_svg(p, info, k, i + 1, n))
+        .map(|(i, p)| Sheet {
+            svg: sheet_svg(p, &fmt, info, k, i + 1, n),
+            format: fmt.name,
+        })
         .collect()
 }
 

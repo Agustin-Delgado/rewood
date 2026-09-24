@@ -444,7 +444,7 @@
   "parts": [
     {
       "id": "P001",
-      "name": "Lateral izquierdo (corner)",
+      "name": "Lateral izquierdo (1)",
       "component": "corner",
       "role": "side_left",
       "material": "melamine_18",
@@ -754,7 +754,7 @@
     },
     {
       "id": "P002",
-      "name": "Lateral derecho (corner)",
+      "name": "Lateral derecho (1)",
       "component": "corner",
       "role": "side_right",
       "material": "melamine_18",
@@ -1016,7 +1016,7 @@
     },
     {
       "id": "P003",
-      "name": "Tapa (corner)",
+      "name": "Tapa (1)",
       "component": "corner",
       "role": "top",
       "material": "melamine_18",
@@ -1438,7 +1438,7 @@
     },
     {
       "id": "P004",
-      "name": "Base (corner)",
+      "name": "Base (1)",
       "component": "corner",
       "role": "bottom",
       "material": "melamine_18",
@@ -2244,7 +2244,7 @@
     },
     {
       "id": "P005",
-      "name": "Fondo (corner)",
+      "name": "Fondo (1)",
       "component": "corner",
       "role": "back",
       "material": "hdf_3",
@@ -2694,7 +2694,7 @@
     },
     {
       "id": "P007",
-      "name": "Zócalo (corner)",
+      "name": "Zócalo (1)",
       "component": "corner",
       "role": "plinth",
       "material": "melamine_18",
@@ -3494,7 +3494,7 @@
     },
     {
       "id": "P012",
-      "name": "Lateral izquierdo (a1)",
+      "name": "Lateral izquierdo (2)",
       "component": "a1",
       "role": "side_left",
       "material": "melamine_18",
@@ -3868,7 +3868,7 @@
     },
     {
       "id": "P013",
-      "name": "Lateral derecho (a1)",
+      "name": "Lateral derecho (2)",
       "component": "a1",
       "role": "side_right",
       "material": "melamine_18",
@@ -4242,7 +4242,7 @@
     },
     {
       "id": "P014",
-      "name": "Tapa (a1)",
+      "name": "Tapa (2)",
       "component": "a1",
       "role": "top",
       "material": "melamine_18",
@@ -4536,7 +4536,7 @@
     },
     {
       "id": "P015",
-      "name": "Base (a1)",
+      "name": "Base (2)",
       "component": "a1",
       "role": "bottom",
       "material": "melamine_18",
@@ -5086,7 +5086,7 @@
     },
     {
       "id": "P016",
-      "name": "Fondo (a1)",
+      "name": "Fondo (2)",
       "component": "a1",
       "role": "back",
       "material": "hdf_3",
@@ -5132,7 +5132,7 @@
     },
     {
       "id": "P017",
-      "name": "Zócalo (a1)",
+      "name": "Zócalo (2)",
       "component": "a1",
       "role": "plinth",
       "material": "melamine_18",
@@ -8277,7 +8277,7 @@
     },
     {
       "id": "P036",
-      "name": "Lateral izquierdo (a2)",
+      "name": "Lateral izquierdo (3)",
       "component": "a2",
       "role": "side_left",
       "material": "melamine_18",
@@ -8539,7 +8539,7 @@
     },
     {
       "id": "P037",
-      "name": "Lateral derecho (a2)",
+      "name": "Lateral derecho (3)",
       "component": "a2",
       "role": "side_right",
       "material": "melamine_18",
@@ -8865,7 +8865,7 @@
     },
     {
       "id": "P038",
-      "name": "Tapa (a2)",
+      "name": "Tapa (3)",
       "component": "a2",
       "role": "top",
       "material": "melamine_18",
@@ -9159,7 +9159,7 @@
     },
     {
       "id": "P039",
-      "name": "Base (a2)",
+      "name": "Base (3)",
       "component": "a2",
       "role": "bottom",
       "material": "melamine_18",
@@ -9709,7 +9709,7 @@
     },
     {
       "id": "P040",
-      "name": "Fondo (a2)",
+      "name": "Fondo (3)",
       "component": "a2",
       "role": "back",
       "material": "hdf_3",
@@ -9755,7 +9755,7 @@
     },
     {
       "id": "P041",
-      "name": "Zócalo (a2)",
+      "name": "Zócalo (3)",
       "component": "a2",
       "role": "plinth",
       "material": "melamine_18",
@@ -10184,7 +10184,7 @@
     },
     {
       "id": "P044",
-      "name": "Lateral izquierdo (b1)",
+      "name": "Lateral izquierdo (4)",
       "component": "b1",
       "role": "side_left",
       "material": "melamine_18",
@@ -10510,7 +10510,7 @@
     },
     {
       "id": "P045",
-      "name": "Lateral derecho (b1)",
+      "name": "Lateral derecho (4)",
       "component": "b1",
       "role": "side_right",
       "material": "melamine_18",
@@ -10772,7 +10772,7 @@
     },
     {
       "id": "P046",
-      "name": "Tapa (b1)",
+      "name": "Tapa (4)",
       "component": "b1",
       "role": "top",
       "material": "melamine_18",
@@ -11066,7 +11066,7 @@
     },
     {
       "id": "P047",
-      "name": "Base (b1)",
+      "name": "Base (4)",
       "component": "b1",
       "role": "bottom",
       "material": "melamine_18",
@@ -11616,7 +11616,7 @@
     },
     {
       "id": "P048",
-      "name": "Fondo (b1)",
+      "name": "Fondo (4)",
       "component": "b1",
       "role": "back",
       "material": "hdf_3",
@@ -11662,7 +11662,7 @@
     },
     {
       "id": "P049",
-      "name": "Zócalo (b1)",
+      "name": "Zócalo (4)",
       "component": "b1",
       "role": "plinth",
       "material": "melamine_18",
@@ -16169,7 +16169,7 @@
       "partIds": [
         "P001"
       ],
-      "name": "Lateral izquierdo (corner)",
+      "name": "Lateral izquierdo (1)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -16206,7 +16206,7 @@
       "partIds": [
         "P003"
       ],
-      "name": "Tapa (corner)",
+      "name": "Tapa (1)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -16224,7 +16224,7 @@
       "partIds": [
         "P004"
       ],
-      "name": "Base (corner)",
+      "name": "Base (1)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -16242,7 +16242,7 @@
       "partIds": [
         "P005"
       ],
-      "name": "Fondo (corner)",
+      "name": "Fondo (1)",
       "quantity": 1,
       "material": "hdf_3",
       "cutLength": 1029.0,
@@ -16277,7 +16277,7 @@
       "partIds": [
         "P007"
       ],
-      "name": "Zócalo (corner)",
+      "name": "Zócalo (1)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -16367,7 +16367,7 @@
       "partIds": [
         "P012"
       ],
-      "name": "Lateral izquierdo (a1)",
+      "name": "Lateral izquierdo (2)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -16385,7 +16385,7 @@
       "partIds": [
         "P013"
       ],
-      "name": "Lateral derecho (a1)",
+      "name": "Lateral derecho (2)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -16601,7 +16601,7 @@
       "partIds": [
         "P036"
       ],
-      "name": "Lateral izquierdo (a2)",
+      "name": "Lateral izquierdo (3)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -16619,7 +16619,7 @@
       "partIds": [
         "P037"
       ],
-      "name": "Lateral derecho (a2)",
+      "name": "Lateral derecho (3)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",
@@ -16674,7 +16674,7 @@
       "partIds": [
         "P044"
       ],
-      "name": "Lateral izquierdo (b1)",
+      "name": "Lateral izquierdo (4)",
       "quantity": 1,
       "material": "melamine_18",
       "decor": "blanco_nature",

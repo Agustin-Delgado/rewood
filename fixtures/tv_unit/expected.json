@@ -3157,7 +3157,7 @@
     },
     {
       "id": "P009",
-      "name": "Lateral cajón 1 izq. (drawers_left)",
+      "name": "Lateral cajón 1 izq. (1)",
       "component": "drawers_left",
       "role": "drawer_1_side_left",
       "material": "melamine_18",
@@ -3403,7 +3403,7 @@
     },
     {
       "id": "P010",
-      "name": "Lateral cajón 1 der. (drawers_left)",
+      "name": "Lateral cajón 1 der. (1)",
       "component": "drawers_left",
       "role": "drawer_1_side_right",
       "material": "melamine_18",
@@ -4478,7 +4478,7 @@
     },
     {
       "id": "P016",
-      "name": "Lateral cajón 1 izq. (drawers_right)",
+      "name": "Lateral cajón 1 izq. (2)",
       "component": "drawers_right",
       "role": "drawer_1_side_left",
       "material": "melamine_18",
@@ -4724,7 +4724,7 @@
     },
     {
       "id": "P017",
-      "name": "Lateral cajón 1 der. (drawers_right)",
+      "name": "Lateral cajón 1 der. (2)",
       "component": "drawers_right",
       "role": "drawer_1_side_right",
       "material": "melamine_18",
