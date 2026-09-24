@@ -1,0 +1,18 @@
+﻿Código;Pieza;Cantidad;Material;Color;Código de color;Espesor;Largo;Ancho;Veta;Canto L1;Canto L2;Canto A1;Canto A2;Mecanizado;Plano
+P001;Lateral izquierdo;1;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;2100;500;No;PVC 22 × 0,45 mm;;;;22 perf. cara A, ranura;1
+P002;Lateral derecho;1;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;2100;500;No;;PVC 22 × 0,45 mm;;;8 perf. cara A, ranura;2
+P003;Tapa;1;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;1764;500;No;PVC 22 × 0,45 mm;;;;12 perf. cara A, 8 perf. de canto, ranura;3
+P004;Base;1;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;1764;500;No;;PVC 22 × 0,45 mm;;;12 perf. cara A, 32 perf. cara B, 8 perf. de canto, ranura;4
+P005;Fondo;1;Fondo fibrofácil blanco 3 mm;;;3;2079;1779;No;;;;;;
+P006;Divisor 1;1;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;2064;486,8;No;PVC 22 × 0,45 mm;;;;23 perf. cara A, 4 perf. cara B, 8 perf. de canto;5
+P007;Divisor 2;1;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;2064;486,8;No;PVC 22 × 0,45 mm;;;;4 perf. cara A, 13 perf. cara B, 8 perf. de canto;6
+P008;Zócalo;1;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;1764;100;No;;;;;8 perf. cara A;7
+P009 P010 P011 P012;Estante;4;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;576;466,8;No;;PVC 22 × 0,45 mm;;;4 perf. de canto;8
+P013 P019 P025;Frente cajón;3;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;590;264,3;No;PVC 22 × 0,45 mm;PVC 22 × 0,45 mm;PVC 22 × 0,45 mm;PVC 22 × 0,45 mm;8 perf. cara A;9
+P014 P020 P026;Lateral cajón izq.;3;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;450;224,3;No;;PVC 22 × 0,45 mm;;;3 perf. cara A, 4 perf. cara B, ranura;10
+P015 P021 P027;Lateral cajón der.;3;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;450;224,3;No;;PVC 22 × 0,45 mm;;;3 perf. cara A, 4 perf. cara B, ranura;11
+P016 P022 P028;Frente interior cajón;3;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;514,6;224,3;No;;PVC 22 × 0,45 mm;;;8 perf. cara B, 4 perf. de canto, ranura;12
+P017 P023 P029;Trasera cajón;3;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;514,6;224,3;No;;PVC 22 × 0,45 mm;;;4 perf. de canto, ranura;13
+P018 P024 P030;Fondo cajón;3;Fondo fibrofácil blanco 3 mm;;;3;529,6;429;No;;;;;;
+P031;Puerta 1;1;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;2096;599;No;PVC 22 × 0,45 mm;PVC 22 × 0,45 mm;PVC 22 × 0,45 mm;PVC 22 × 0,45 mm;17 perf. cara A;14
+P032;Puerta 2;1;Melamina 18 mm;Blanco Nature;Faplac 135NAT;18;1297;590;No;PVC 22 × 0,45 mm;PVC 22 × 0,45 mm;PVC 22 × 0,45 mm;PVC 22 × 0,45 mm;11 perf. cara A;15
