@@ -16,7 +16,7 @@
 
 use std::fmt::Write;
 
-use super::{dxf, html_esc, PackageFile};
+use super::{drawing, dxf, html_esc, PackageFile};
 use crate::geometry::Face;
 use crate::library::material::GrainKind;
 use crate::model::{Grain, OpGeometry, Part};
@@ -306,21 +306,23 @@ fn cut_list_csv(plan: &ManufacturingPlan, rows: &[Row]) -> String {
     out
 }
 
-const CSS: &str = "body{font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#111;margin:24px}\
-h1{font-size:20px;margin:0 0 2px}h2{font-size:15px;margin:18px 0 6px}h3{font-size:12px;margin:10px 0 4px}\
+const CSS: &str = "body{font-family:Helvetica,Arial,sans-serif;font-size:12px;color:#111;margin:0}\
+.cover{padding:10mm 12mm}h1{font-size:20px;margin:0 0 2px}h2{font-size:15px;margin:18px 0 6px}\
 .muted{color:#555}.box{border:1px solid #999;padding:8px 12px;margin:10px 0}.box li{margin:3px 0}\
 table{border-collapse:collapse;margin:4px 0 8px}th,td{border:1px solid #bbb;padding:3px 6px;text-align:left;font-size:11px}\
 th{background:#eee}td.num,th.num{text-align:right}.tables{display:flex;flex-wrap:wrap;gap:0 18px}\
-.sheet{page-break-before:always}svg{width:100%;height:auto;max-height:120mm}\
-@page{size:A4 landscape;margin:10mm}@media print{body{margin:0}}";
+.page{page-break-before:always}.page svg{display:block;width:100%;max-width:297mm;height:auto;margin:6mm auto;border:1px solid #ddd}\
+@page{size:A4 landscape;margin:0}\
+@media print{.page svg{width:297mm;height:210mm;margin:0;border:0}}";
 
 fn order_html(plan: &ManufacturingPlan, rows: &[Row]) -> String {
     let f = &plan.furniture;
     let mut h = String::new();
     let _ = write!(
         h,
-        "<!DOCTYPE html><html lang=\"es\"><head><meta charset=\"utf-8\"><title>Pedido de placas — {}</title><style>{CSS}</style></head><body>",
-        html_esc(&f.name)
+        "<!DOCTYPE html><html lang=\"es\"><head><meta charset=\"utf-8\"><title>Pedido de placas — {}</title><style>{CSS}{}</style></head><body><div class=\"cover\">",
+        html_esc(&f.name),
+        drawing::CSS
     );
     let _ = write!(
         h,
@@ -334,9 +336,9 @@ fn order_html(plan: &ManufacturingPlan, rows: &[Row]) -> String {
 <li><b>Medidas finales en mm, con el canto incluido</b>: al cortar se descuenta el espesor del canto.</li>\
 <li>Los cantos van en el mismo color que la placa. L1 y L2 son los lados largos, A1 y A2 los cortos.</li>\
 <li>Veta «Sí»: el largo de la pieza va a lo largo de la veta de la placa. «No»: la pieza se puede girar.</li>\
-<li>Las perforaciones se miden desde la esquina 0,0 de cada plano, mirando la <b>cara A</b>: la de los mecanizados principales, \
-la que queda hacia adentro del mueble (en puertas y frentes de cajón, la de atrás). La cara B es la opuesta. \
-Las perforaciones de canto van centradas en el espesor.</li>\
+<li>Planos según las normas de dibujo técnico (IRAM / ISO 128 y 129): rótulo, escala normalizada y cotas por coordenadas \
+desde el origen 0 de cada vista. La <b>cara A</b> es la que queda hacia adentro del mueble (en puertas y frentes de cajón, la de atrás); \
+la <b>cara B</b> se dibuja aparte, con la pieza dada vuelta. Las perforaciones de canto van centradas en el espesor y tienen su detalle en corte.</li>\
 <li>Etiquetar cada pieza con su código.</li></ul></div>";
 
     // What to quote: board area and edge band, by colour.
@@ -435,6 +437,7 @@ Las perforaciones de canto van centradas en el espesor.</li>\
     }
     h += "</table>";
 
+    h += "</div>";
     for r in rows {
         let Some(d) = r.drawing else {
             continue;
@@ -445,37 +448,11 @@ Las perforaciones de canto van centradas en el espesor.</li>\
     h
 }
 
+/// The sheets of one machined part: tables of every hole, groove and
+/// cutout in the frame of the face they are on, drawn by `drawing`.
 fn drawing_page(h: &mut String, plan: &ManufacturingPlan, r: &Row, number: usize) {
     let p = r.part;
-    let (color, code) = decor_name(plan, p);
-    let qty = if r.list.quantity > 1 {
-        format!(" (×{})", r.list.quantity)
-    } else {
-        String::new()
-    };
-    let _ = write!(
-        h,
-        "<section class=\"sheet\"><h2>Plano {number} · {}{qty} — {}</h2><div class=\"muted\">{} {} {}· {} × {} × {} mm · veta {}</div>",
-        html_esc(&r.list.part_ids.join(", ")),
-        html_esc(&r.list.name),
-        html_esc(&material_name(plan, &p.material)),
-        html_esc(&color),
-        if code.is_empty() { String::new() } else { format!("({}) ", html_esc(&code)) },
-        mm(r.sides.largo),
-        mm(r.sides.ancho),
-        mm(p.dims.thickness),
-        if r.sides.grain { "sí" } else { "no" },
-    );
-    *h += &drawing_svg(r);
-
-    // X, Y from the 0,0 corner seen from face A; face B holes as seen from
-    // face B after turning the part over its X axis (L1 goes up).
     let w = p.dims.width;
-    let mut face_a = Vec::new();
-    let mut face_b = Vec::new();
-    let mut edge = Vec::new();
-    let mut grooves = Vec::new();
-    let mut cutouts = Vec::new();
     let side_name = |f: Face| {
         r.sides
             .faces
@@ -483,12 +460,19 @@ fn drawing_page(h: &mut String, plan: &ManufacturingPlan, r: &Row, number: usize
             .find(|(_, x)| *x == f)
             .map_or("?", |(n, _)| *n)
     };
-    let face_name = |f: Face| match f {
-        Face::Front => "A".to_string(),
-        Face::Back => "B".to_string(),
-        other => format!("canto {}", side_name(other)),
-    };
+    let mut face_a = Vec::new();
+    let mut face_b = Vec::new();
+    let mut edge = Vec::new();
+    let mut grooves = Vec::new();
+    let mut cutouts = Vec::new();
     for op in &p.operations {
+        let face = match op.face {
+            Face::Front => "A".to_string(),
+            Face::Back => "B".to_string(),
+            other => format!("canto {}", side_name(other)),
+        };
+        // Face B in its own frame: the part turned over, its bottom edge up.
+        let y = |v: f64| if op.face == Face::Back { w - v } else { v };
         match &op.geometry {
             OpGeometry::Drill {
                 u,
@@ -514,14 +498,25 @@ fn drawing_page(h: &mut String, plan: &ManufacturingPlan, r: &Row, number: usize
                 to,
                 width,
                 depth,
-            } => grooves.push((face_name(op.face), *from, *to, *width, *depth)),
+            } => grooves.push(vec![
+                face,
+                format!("{}, {}", mm(from[0]), mm(y(from[1]))),
+                format!("{}, {}", mm(to[0]), mm(y(to[1]))),
+                mm(*width),
+                mm(*depth),
+            ]),
             OpGeometry::Cutout {
                 u,
                 v,
                 width,
                 height,
                 radius,
-            } => cutouts.push((face_name(op.face), *u, *v, *width, *height, *radius)),
+            } => cutouts.push(vec![
+                face,
+                format!("{}, {}", mm(*u), mm(y(*v))),
+                format!("{} × {}", mm(*width), mm(*height)),
+                mm(*radius),
+            ]),
             OpGeometry::EdgeBand { .. } => {}
         }
     }
@@ -532,44 +527,75 @@ fn drawing_page(h: &mut String, plan: &ManufacturingPlan, r: &Row, number: usize
     face_b.sort_by(by_xy);
     edge.sort_by(|a, b| a.0.cmp(b.0).then(a.1.total_cmp(&b.1)));
 
-    *h += "<div class=\"tables\">";
+    let mut tables: Vec<drawing::Table> = Vec::new();
+    let head = |v: &[&str]| v.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+    // A list column as wide as its longest cell.
+    let list_width = |rows: &[Vec<String>], col: usize, min: f64| {
+        (rows
+            .iter()
+            .map(|r| r[col].chars().count())
+            .max()
+            .unwrap_or(4) as f64
+            * 1.35
+            + 3.0)
+            .max(min)
+    };
     for (title, holes) in [
         ("Perforaciones cara A", &face_a),
-        (
-            "Perforaciones cara B (vistas desde la cara B, con la pieza girada sobre su largo: L1 arriba)",
-            &face_b,
-        ),
+        ("Perforaciones cara B (en la vista de la cara B)", &face_b),
     ] {
         if holes.is_empty() {
             continue;
         }
-        // One row per diameter, depth and X; the Ys of that column together.
-        let mut groups: Vec<(f64, f64, &String, Vec<f64>)> = Vec::new();
-        for (x, y, d, dp) in holes {
-            match groups
-                .iter_mut()
-                .find(|g| (g.0 - x).abs() < 0.05 && g.1 == *d && g.2 == dp)
-            {
-                Some(g) => g.3.push(*y),
-                None => groups.push((*x, *d, dp, vec![*y])),
+        // One row per diameter, depth and X with the Ys of that column,
+        // or per Y with the Xs of that row: whichever is shorter.
+        let group = |by_x: bool| {
+            let mut groups: Vec<(f64, f64, &String, Vec<f64>)> = Vec::new();
+            for (x, y, d, dp) in holes {
+                let (key, other) = if by_x { (*x, *y) } else { (*y, *x) };
+                match groups
+                    .iter_mut()
+                    .find(|g| (g.0 - key).abs() < 0.05 && g.1 == *d && g.2 == dp)
+                {
+                    Some(g) => g.3.push(other),
+                    None => groups.push((key, *d, dp, vec![other])),
+                }
             }
-        }
-        let _ = write!(
-            h,
-            "<div><h3>{title}</h3><table><tr><th class=\"num\">Ø</th><th class=\"num\">Prof.</th><th class=\"num\">X</th><th>Y</th></tr>"
-        );
-        for (x, d, dp, ys) in &groups {
-            let ys: Vec<String> = ys.iter().map(|y| mm(*y)).collect();
-            let _ = write!(
-                h,
-                "<tr><td class=\"num\">{}</td><td class=\"num\">{}</td><td class=\"num\">{}</td><td>{}</td></tr>",
-                mm(*d),
-                dp,
-                mm(*x),
-                ys.join(" · ")
-            );
-        }
-        *h += "</table></div>";
+            groups
+        };
+        let (by_x, groups) = {
+            let (gx, gy) = (group(true), group(false));
+            if gy.len() < gx.len() {
+                let mut gy = gy;
+                gy.sort_by(|a, b| a.0.total_cmp(&b.0));
+                (false, gy)
+            } else {
+                (true, gx)
+            }
+        };
+        let rows: Vec<Vec<String>> = groups
+            .iter()
+            .map(|(key, d, dp, others)| {
+                vec![
+                    mm(*d),
+                    dp.to_string(),
+                    mm(*key),
+                    others
+                        .iter()
+                        .map(|o| mm(*o))
+                        .collect::<Vec<_>>()
+                        .join(" · "),
+                ]
+            })
+            .collect();
+        let lw = list_width(&rows, 3, 12.0);
+        let (k, o) = if by_x { ("X", "Y") } else { ("Y", "X") };
+        tables.push((
+            title.to_string(),
+            vec![9.0, 13.0, 13.0, lw],
+            head(&["Ø", "Prof.", k, o]),
+            rows,
+        ));
     }
     if !edge.is_empty() {
         let mut groups: Vec<(&str, f64, &String, Vec<f64>)> = Vec::new();
@@ -582,381 +608,83 @@ fn drawing_page(h: &mut String, plan: &ManufacturingPlan, r: &Row, number: usize
                 None => groups.push((side, *d, dp, vec![*at])),
             }
         }
-        *h += "<div><h3>Perforaciones de canto (centradas en el espesor)</h3><table><tr><th>Canto</th><th class=\"num\">Ø</th><th class=\"num\">Prof.</th><th>A (desde la esquina 0,0)</th></tr>";
-        for (side, d, dp, ats) in &groups {
-            let ats: Vec<String> = ats.iter().map(|a| mm(*a)).collect();
-            let _ = write!(
-                h,
-                "<tr><td>{side}</td><td class=\"num\">{}</td><td class=\"num\">{}</td><td>{}</td></tr>",
-                mm(*d),
-                dp,
-                ats.join(" · ")
-            );
-        }
-        *h += "</table></div>";
+        let rows: Vec<Vec<String>> = groups
+            .iter()
+            .map(|(side, d, dp, ats)| {
+                vec![
+                    side.to_string(),
+                    mm(*d),
+                    dp.to_string(),
+                    ats.iter().map(|a| mm(*a)).collect::<Vec<_>>().join(" · "),
+                ]
+            })
+            .collect();
+        let aw = list_width(&rows, 3, 16.0);
+        tables.push((
+            "Perforaciones de canto (posición desde 0)".into(),
+            vec![11.0, 9.0, 11.0, aw],
+            head(&["Canto", "Ø", "Prof.", "Posición"]),
+            rows,
+        ));
     }
     if !grooves.is_empty() {
-        *h += "<div><h3>Ranuras</h3><table><tr><th>Cara</th><th>Desde (X, Y)</th><th>Hasta (X, Y)</th><th class=\"num\">Ancho</th><th class=\"num\">Prof.</th></tr>";
-        for (face, from, to, width, depth) in &grooves {
-            let _ = write!(
-                h,
-                "<tr><td>{face}</td><td>{}, {}</td><td>{}, {}</td><td class=\"num\">{}</td><td class=\"num\">{}</td></tr>",
-                mm(from[0]),
-                mm(from[1]),
-                mm(to[0]),
-                mm(to[1]),
-                mm(*width),
-                mm(*depth)
-            );
-        }
-        *h += "</table></div>";
+        tables.push((
+            "Ranuras".into(),
+            vec![16.0, 22.0, 22.0, 12.0, 11.0],
+            head(&["Cara", "Desde X, Y", "Hasta X, Y", "Ancho", "Prof."]),
+            grooves,
+        ));
     }
     if !cutouts.is_empty() {
-        *h += "<div><h3>Calados (pasantes)</h3><table><tr><th>Cara</th><th>Centro (X, Y)</th><th>Ancho × alto</th><th class=\"num\">Radio</th></tr>";
-        for (face, u, v, width, height, radius) in &cutouts {
-            let _ = write!(
-                h,
-                "<tr><td>{face}</td><td>{}, {}</td><td>{} × {}</td><td class=\"num\">{}</td></tr>",
-                mm(*u),
-                mm(*v),
-                mm(*width),
-                mm(*height),
-                mm(*radius)
-            );
-        }
-        *h += "</table></div>";
-    }
-    *h += "</div></section>";
-}
-
-/// The part seen from face A: outline, banded edges and their names,
-/// every hole (face B dashed, edge holes as a line as deep as the hole),
-/// ordinate dimensions from the 0,0 corner and the overall size.
-fn drawing_svg(r: &Row) -> String {
-    let p = r.part;
-    let (len, wid) = (p.dims.length, p.dims.width);
-    let scale = (780.0 / len).min(300.0 / wid);
-    let (pw, ph) = (len * scale, wid * scale);
-    let (ox, oy) = (130.0, 40.0);
-    let (vw, vh) = (ox + pw + 70.0, oy + ph + 130.0);
-    let x = |u: f64| ox + u * scale;
-    let y = |v: f64| oy + ph - v * scale;
-    let f = |v: f64| format!("{:.1}", v);
-    let mut s = String::new();
-    let _ = write!(
-        s,
-        "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 {} {}\" font-family=\"Helvetica,Arial,sans-serif\">",
-        f(vw),
-        f(vh)
-    );
-    let _ = write!(
-        s,
-        "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"#fff\" stroke=\"#111\" stroke-width=\"1.2\"/>",
-        f(ox),
-        f(oy),
-        f(pw),
-        f(ph)
-    );
-
-    // Edges: a thick line where there is band, the supplier's name outside.
-    for (name, face) in &r.sides.faces {
-        let banded = p.edges.contains_key(face);
-        let (x0, y0, x1, y1) = match face {
-            Face::Bottom => (ox, oy + ph, ox + pw, oy + ph),
-            Face::Top => (ox, oy, ox + pw, oy),
-            Face::Left => (ox, oy, ox, oy + ph),
-            _ => (ox + pw, oy, ox + pw, oy + ph),
-        };
-        if banded {
-            let _ = write!(
-                s,
-                "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke=\"#0a7d2c\" stroke-width=\"4\"/>",
-                f(x0),
-                f(y0),
-                f(x1),
-                f(y1)
-            );
-        }
-        let label = format!(
-            "{name} · {}",
-            if banded { "con canto" } else { "sin canto" }
-        );
-        let colour = if banded { "#0a7d2c" } else { "#666" };
-        let _ = match face {
-            Face::Bottom => write!(
-                s,
-                "<text x=\"{}\" y=\"{}\" font-size=\"12\" text-anchor=\"middle\" fill=\"{colour}\" font-weight=\"bold\">{label}</text>",
-                f(ox + pw / 2.0),
-                f(oy + ph + 100.0)
-            ),
-            Face::Top => write!(
-                s,
-                "<text x=\"{}\" y=\"{}\" font-size=\"12\" text-anchor=\"middle\" fill=\"{colour}\" font-weight=\"bold\">{label}</text>",
-                f(ox + pw / 2.0),
-                f(oy - 10.0)
-            ),
-            Face::Left => write!(
-                s,
-                "<text transform=\"translate({} {}) rotate(-90)\" font-size=\"12\" text-anchor=\"middle\" fill=\"{colour}\" font-weight=\"bold\">{label}</text>",
-                f(ox - 112.0),
-                f(oy + ph / 2.0)
-            ),
-            _ => write!(
-                s,
-                "<text transform=\"translate({} {}) rotate(90)\" font-size=\"12\" text-anchor=\"middle\" fill=\"{colour}\" font-weight=\"bold\">{label}</text>",
-                f(ox + pw + 16.0),
-                f(oy + ph / 2.0)
-            ),
-        };
+        tables.push((
+            "Calados (pasantes)".into(),
+            vec![16.0, 24.0, 24.0, 12.0],
+            head(&["Cara", "Centro X, Y", "Ancho × alto", "Radio"]),
+            cutouts,
+        ));
     }
 
-    // Features, and the coordinates worth a dimension.
-    let mut xs: Vec<f64> = Vec::new();
-    let mut ys: Vec<f64> = Vec::new();
-    for op in &p.operations {
-        match &op.geometry {
-            OpGeometry::Drill {
-                u,
-                v,
-                diameter,
-                depth,
-                ..
-            } => {
-                let rr = (diameter / 2.0 * scale).max(2.0);
-                match op.face {
-                    Face::Front | Face::Back => {
-                        let dash = if op.face == Face::Back {
-                            " stroke-dasharray=\"3 2\""
-                        } else {
-                            ""
-                        };
-                        let colour = if op.face == Face::Back {
-                            "#0659b5"
-                        } else {
-                            "#c00"
-                        };
-                        let _ = write!(
-                            s,
-                            "<circle cx=\"{}\" cy=\"{}\" r=\"{}\" fill=\"none\" stroke=\"{colour}\" stroke-width=\"1\"{dash}/>",
-                            f(x(*u)),
-                            f(y(*v)),
-                            f(rr)
-                        );
-                        xs.push(*u);
-                        ys.push(*v);
-                    }
-                    edge_face => {
-                        let dp = depth.unwrap_or(0.0) * scale;
-                        let (x0, y0, x1, y1) = match edge_face {
-                            Face::Left => (x(0.0), y(*u), x(0.0) + dp, y(*u)),
-                            Face::Right => (x(len), y(*u), x(len) - dp, y(*u)),
-                            Face::Bottom => (x(*u), y(0.0), x(*u), y(0.0) - dp),
-                            _ => (x(*u), y(wid), x(*u), y(wid) + dp),
-                        };
-                        let _ = write!(
-                            s,
-                            "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke=\"#c00\" stroke-width=\"{}\"/>",
-                            f(x0),
-                            f(y0),
-                            f(x1),
-                            f(y1),
-                            f((diameter * scale).max(1.5))
-                        );
-                        match edge_face {
-                            Face::Left | Face::Right => ys.push(*u),
-                            _ => xs.push(*u),
-                        }
-                    }
-                }
-            }
-            OpGeometry::Groove {
-                from, to, width, ..
-            } if matches!(op.face, Face::Front | Face::Back) => {
-                let hw = width / 2.0;
-                let (u0, u1) = (from[0].min(to[0]), from[0].max(to[0]));
-                let (v0, v1) = (from[1].min(to[1]), from[1].max(to[1]));
-                let (u0, u1, v0, v1) = if (v1 - v0).abs() < (u1 - u0).abs() {
-                    (u0, u1, v0 - hw, v1 + hw)
-                } else {
-                    (u0 - hw, u1 + hw, v0, v1)
-                };
-                let _ = write!(
-                    s,
-                    "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"#f6d9ea\" stroke=\"#a0336b\" stroke-width=\"0.8\"/>",
-                    f(x(u0)),
-                    f(y(v1)),
-                    f((u1 - u0) * scale),
-                    f((v1 - v0) * scale)
-                );
-                for u in [from[0], to[0]] {
-                    if u > 0.05 && u < len - 0.05 {
-                        xs.push(u);
-                    }
-                }
-                for v in [from[1], to[1]] {
-                    if v > 0.05 && v < wid - 0.05 {
-                        ys.push(v);
-                    }
-                }
-            }
-            OpGeometry::Cutout {
-                u,
-                v,
-                width,
-                height,
-                radius,
-            } => {
-                let _ = write!(
-                    s,
-                    "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" rx=\"{}\" fill=\"#eee\" stroke=\"#a0336b\" stroke-width=\"1\" stroke-dasharray=\"4 2\"/>",
-                    f(x(u - width / 2.0)),
-                    f(y(v + height / 2.0)),
-                    f(width * scale),
-                    f(height * scale),
-                    f(radius * scale)
-                );
-                xs.push(*u);
-                ys.push(*v);
-            }
-            _ => {}
-        }
+    let (color, code) = decor_name(plan, p);
+    let mut material = material_name(plan, &p.material);
+    if !color.is_empty() {
+        material = format!("{material} · {color}");
     }
-
-    // Ordinate dimensions: a tick per distinct coordinate and its value;
-    // values too close to read apart move aside on a leader line.
-    let distinct = |mut v: Vec<f64>| {
-        v.iter_mut().for_each(|a| *a = (*a * 10.0).round() / 10.0);
-        v.sort_by(f64::total_cmp);
-        v.dedup_by(|a, b| (*a - *b).abs() < 0.05);
-        v
-    };
-    let xs = distinct(xs);
-    let at: Vec<f64> = xs.iter().map(|u| x(*u)).collect();
-    for ((u, px), lx) in xs.iter().zip(&at).zip(spread(&at, 10.0)) {
-        let (b0, b1) = (oy + ph, oy + ph + 16.0);
-        let _ = write!(
-            s,
-            "<polyline points=\"{},{} {},{} {},{} {},{}\" fill=\"none\" stroke=\"#888\" stroke-width=\"0.6\"/><text transform=\"translate({} {}) rotate(-90)\" font-size=\"9\" text-anchor=\"end\">{}</text>",
-            f(*px),
-            f(b0),
-            f(*px),
-            f(b0 + 5.0),
-            f(lx),
-            f(b1 - 3.0),
-            f(lx),
-            f(b1),
-            f(lx + 3.0),
-            f(b1 + 2.0),
-            mm(*u)
-        );
+    if !code.is_empty() {
+        material = format!("{material} ({code})");
     }
-    // Y grows downwards on the page: spread upwards from the lowest value.
-    let ys = distinct(ys);
-    let at: Vec<f64> = ys.iter().map(|v| -y(*v)).collect();
-    for ((v, py), ly) in ys.iter().zip(&at).zip(spread(&at, 11.0)) {
-        let (py, ly) = (-py, -ly);
-        let (b0, b1) = (ox, ox - 16.0);
-        let _ = write!(
-            s,
-            "<polyline points=\"{},{} {},{} {},{} {},{}\" fill=\"none\" stroke=\"#888\" stroke-width=\"0.6\"/><text x=\"{}\" y=\"{}\" font-size=\"9\" text-anchor=\"end\">{}</text>",
-            f(b0),
-            f(py),
-            f(b0 - 5.0),
-            f(py),
-            f(b1 + 3.0),
-            f(ly),
-            f(b1),
-            f(ly),
-            f(b1 - 2.0),
-            f(ly + 3.0),
-            mm(*v)
-        );
-    }
-
-    // Overall size and the origin.
-    let _ = write!(
-        s,
-        "<line x1=\"{0}\" y1=\"{2}\" x2=\"{1}\" y2=\"{2}\" stroke=\"#111\" stroke-width=\"0.8\"/>\
-<text x=\"{3}\" y=\"{4}\" font-size=\"13\" text-anchor=\"middle\" font-weight=\"bold\">{5}</text>",
-        f(ox),
-        f(ox + pw),
-        f(oy + ph + 70.0),
-        f(ox + pw / 2.0),
-        f(oy + ph + 84.0),
-        mm(len)
-    );
-    let _ = write!(
-        s,
-        "<line x1=\"{0}\" y1=\"{1}\" x2=\"{0}\" y2=\"{2}\" stroke=\"#111\" stroke-width=\"0.8\"/>\
-<text transform=\"translate({3} {4}) rotate(-90)\" font-size=\"13\" text-anchor=\"middle\" font-weight=\"bold\">{5}</text>",
-        f(ox - 75.0),
-        f(oy),
-        f(oy + ph),
-        f(ox - 82.0),
-        f(oy + ph / 2.0),
-        mm(wid)
-    );
-    let _ = write!(
-        s,
-        "<circle cx=\"{}\" cy=\"{}\" r=\"3.5\" fill=\"#111\"/><text x=\"{}\" y=\"{}\" font-size=\"11\" font-weight=\"bold\">0,0</text>",
-        f(ox),
-        f(oy + ph),
-        f(ox - 28.0),
-        f(oy + ph + 22.0)
-    );
-    // Legend under the drawing, the grain beside the L2 name.
-    let _ = write!(
-        s,
-        "<text x=\"{}\" y=\"{}\" font-size=\"11\" fill=\"#444\">Vista desde la cara A (X →, Y ↑). <tspan fill=\"#c00\">○ perforación cara A</tspan> · <tspan fill=\"#0659b5\">◌ cara B (vista a través)</tspan> · <tspan fill=\"#c00\">▬ perforación de canto</tspan> · <tspan fill=\"#a0336b\">▭ ranura</tspan></text>",
-        f(8.0),
-        f(vh - 6.0)
-    );
     if r.sides.grain {
-        let arrow = if r.sides.faces[0].1 == Face::Bottom {
-            "veta ⟷"
-        } else {
-            "veta ↕"
-        };
-        let _ = write!(
-            s,
-            "<text x=\"{}\" y=\"{}\" font-size=\"11\" fill=\"#8a5a2b\" text-anchor=\"end\">{arrow}</text>",
-            f(ox + pw),
-            f(oy - 10.0)
-        );
+        material += " · con veta";
     }
-    s += "</svg>";
-    s
-}
-
-/// Label positions for sorted `targets`, at least `gap` apart, each as
-/// close to its target as the others let it be: pushed forward where
-/// they crowd, then pulled back so the group stays centred on its
-/// targets instead of drifting one way.
-fn spread(targets: &[f64], gap: f64) -> Vec<f64> {
-    let mut p: Vec<f64> = targets.to_vec();
-    for i in 1..p.len() {
-        p[i] = p[i].max(p[i - 1] + gap);
+    let t = &plan.profile.tolerances;
+    let info = drawing::SheetInfo {
+        number,
+        ids: r.list.part_ids.join(", "),
+        name: r.list.name.clone(),
+        quantity: r.list.quantity,
+        material,
+        furniture: format!(
+            "{} · {}-v{}",
+            plan.furniture.name, plan.furniture.id, plan.furniture.version
+        ),
+        tolerances: format!(
+            "medidas ±{} · posición de agujeros ±{} · Ø ±{}",
+            mm(t.length),
+            mm(t.hole_position),
+            mm(t.hole_diameter)
+        ),
+        sides: r.sides.faces,
+        bands: p
+            .edges
+            .iter()
+            .map(|(f, e)| (*f, edge_name(plan, e)))
+            .collect(),
+        grain_along_x: r.sides.grain.then_some(r.sides.faces[0].1 == Face::Bottom),
+    };
+    let _ = write!(h, "<section class=\"plano\" data-plano=\"{number}\">");
+    for sheet in drawing::part_sheets(p, &info, tables) {
+        let _ = write!(h, "<div class=\"page\">{sheet}</div>");
     }
-    // Clusters that were pushed move back by half of how far they went.
-    let mut i = 0;
-    while i < p.len() {
-        let mut j = i;
-        while j + 1 < p.len() && p[j + 1] - p[j] <= gap + 1e-9 {
-            j += 1;
-        }
-        let shift = (i..=j).map(|k| p[k] - targets[k]).sum::<f64>() / (j - i + 1) as f64;
-        let floor = if i == 0 {
-            f64::NEG_INFINITY
-        } else {
-            p[i - 1] + gap
-        };
-        let shift = shift.min(p[i] - floor);
-        for q in &mut p[i..=j] {
-            *q -= shift;
-        }
-        i = j + 1;
-    }
-    p
+    *h += "</section>";
 }
 
 #[cfg(test)]
@@ -1009,7 +737,7 @@ mod tests {
         assert!(files.iter().all(|f| !f.path.ends_with(".nc")));
         // One drawing per machined row.
         let drawings = files.iter().filter(|f| f.path.ends_with(".dxf")).count();
-        assert_eq!(html.matches("<section class=\"sheet\">").count(), drawings);
+        assert_eq!(html.matches("<section class=\"plano\"").count(), drawings);
         assert_eq!(files, super::files(&plan));
     }
 

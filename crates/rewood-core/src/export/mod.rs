@@ -24,6 +24,7 @@
 //! ```
 
 pub mod assembly;
+pub mod drawing;
 pub mod dxf;
 pub mod explode;
 pub mod supplier;

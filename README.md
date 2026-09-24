@@ -105,13 +105,23 @@ nuestro nesting ni G-code. Trae tres cosas:
 - `planos.html`: las convenciones, un resumen de m² por placa y color y de metros
   de canto, el despiece, y un plano por pieza mecanizada. Se imprime a PDF, A4
   apaisado.
-  - Cada plano va visto desde la cara A (la que queda hacia adentro; en puertas y
-    frentes, la de atrás), con los cantos nombrados y marcados, cotas por
-    coordenadas desde la esquina 0,0 y el tamaño total.
-  - Las perforaciones van agrupadas por Ø, profundidad y X. Las de la cara B van
-    en el sistema de coordenadas de la cara B, con la pieza girada sobre su largo.
-  - Las perforaciones de canto van a lo largo del canto; también figuran ranuras y
-    calados.
+  - Los planos siguen las normas de dibujo técnico (IRAM, que sigue a ISO), en
+    hojas A4 apaisadas con marco y rótulo: pieza, cantidad, número de plano y
+    hoja, material y color, escala, unidades, mueble y tolerancias generales
+    (las del perfil).
+  - Escala normalizada (ISO 5455: 1:1, 1:2, 1:5, 1:10, 1:20…), la mayor en la
+    que entran las vistas.
+  - Líneas de ISO 128 en negro, para que se lean impresas en blanco y negro:
+    llena para lo visible, trazos para lo oculto y trazo y punto para los ejes.
+  - Una vista de la cara A (la que queda hacia adentro; en puertas y frentes,
+    la de atrás) y, si tiene mecanizados, otra de la cara B con la pieza dada
+    vuelta. Cada vista lleva cotas por coordenadas desde el origen 0 (ISO 129),
+    la medida total con flechas, los cantos nombrados y el tapacanto marcado.
+  - Detalles en corte, a escala 1:1 y rayados, de cada tipo de perforación de
+    canto y de cada ranura.
+  - Tablas de perforaciones agrupadas por X o por Y, la que dé menos filas, y
+    tablas de ranuras y calados.
+  - Lo que no entra en la primera hoja pasa a una segunda, con el mismo rótulo.
 - `dxf/`: un DXF por pieza mecanizada, con `LEEME.txt` sobre sus capas.
 
 Los vidrios y espejos no entran: van al vidriero.
