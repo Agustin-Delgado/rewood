@@ -312,6 +312,13 @@ export const table = tv({
 	}
 });
 
+/** A short label next to a control; dark so it reads over the 3D view too. */
+export const tooltip = tv({
+	base: `pointer-events-none fixed top-0 left-0 z-[60] max-w-64 rounded-md bg-foreground px-2 py-1
+		text-xs leading-snug text-depth-0 shadow-md
+		animate-in fade-in-0 zoom-in-95 [animation-duration:80ms]`
+});
+
 export const kbd = tv({
 	base: 'inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-sm border border-b-2 bg-depth-0 px-1 font-mono text-2xs text-muted-foreground'
 });

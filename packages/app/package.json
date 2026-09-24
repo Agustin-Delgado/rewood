@@ -25,6 +25,7 @@
 		"vite": "^8.0.16"
 	},
 	"dependencies": {
+		"@floating-ui/dom": "^1.8.0",
 		"@fontsource-variable/geist": "^5.3.0",
 		"@fontsource-variable/geist-mono": "^5.3.0",
 		"@human-kit/ui": "1.0.0-beta.8",

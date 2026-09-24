@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { Canvas } from '@threlte/core';
 	import BoxIcon from '@lucide/svelte/icons/box';
+	import Bolt from '@lucide/svelte/icons/bolt';
+	import DoorClosed from '@lucide/svelte/icons/door-closed';
 	import DoorOpen from '@lucide/svelte/icons/door-open';
+	import Drill from '@lucide/svelte/icons/drill';
 	import Scene from './Scene.svelte';
 	import { app, VIEWS } from '$lib/state.svelte';
-	import { Segmented, Slider, Toggle } from '$lib/ui';
+	import { Segmented, Slider, Toggle, Tooltip } from '$lib/ui';
 
 	const viewOptions = $derived(VIEWS.map((v) => ({ value: v.id, label: v.name, title: v.title })));
 </script>
@@ -17,17 +20,27 @@
 		class="absolute top-2.5 left-2.5 flex max-w-[calc(100%-1.25rem)] flex-wrap items-center gap-2 rounded-lg border bg-depth-0/95 p-1 shadow-sm backdrop-blur-sm"
 	>
 		<div class="flex items-center gap-0.5">
-			<Toggle size="xs" bind:selected={app.showHoles} title="Mostrar perforaciones">perforaciones</Toggle>
-			<Toggle size="xs" bind:selected={app.showHardware} title="Mostrar herrajes">herrajes</Toggle>
-			<Toggle
-				size="xs"
-				class="open"
-				selected={app.openAll}
-				onChange={(open) => app.setOpenAll(open)}
-				title="Abrir o cerrar puertas y cajones (doble clic en uno lo abre solo a él)"
+			<Tooltip text={app.showHoles ? 'Ocultar perforaciones' : 'Mostrar perforaciones'}>
+				<Toggle size="icon-xs" bind:selected={app.showHoles} aria-label="Perforaciones"><Drill /></Toggle>
+			</Tooltip>
+			<Tooltip text={app.showHardware ? 'Ocultar herrajes' : 'Mostrar herrajes'}>
+				<Toggle size="icon-xs" bind:selected={app.showHardware} aria-label="Herrajes"><Bolt /></Toggle>
+			</Tooltip>
+			<Tooltip
+				text={app.openAll
+					? 'Cerrar puertas y cajones'
+					: 'Abrir puertas y cajones (doble clic en uno lo abre solo a él)'}
 			>
-				<DoorOpen />{app.openAll ? 'cerrar' : 'abrir'}
-			</Toggle>
+				<Toggle
+					size="icon-xs"
+					class="open"
+					selected={app.openAll}
+					onChange={(open) => app.setOpenAll(open)}
+					aria-label="Abrir puertas y cajones"
+				>
+					{#if app.openAll}<DoorOpen />{:else}<DoorClosed />{/if}
+				</Toggle>
+			</Tooltip>
 		</div>
 		<span class="h-4 w-px bg-border"></span>
 		<label class="flex items-center gap-2 pl-1 text-xs text-muted-foreground" title="Vista explotada">

@@ -6,6 +6,7 @@
 	import Plus from '@lucide/svelte/icons/plus';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import Ellipsis from '@lucide/svelte/icons/ellipsis';
+	import Drill from '@lucide/svelte/icons/drill';
 	import {
 		Badge,
 		Button,
@@ -28,6 +29,7 @@
 		TabsTab,
 		Textarea,
 		Toggle,
+		Tooltip,
 		recipes
 	} from '$lib/ui';
 
@@ -124,6 +126,10 @@
 			<Button size="icon" aria-label="Más"><Ellipsis /></Button>
 			<Toggle bind:selected={holes}>perforaciones</Toggle>
 			<Toggle bind:selected={hardware} variant="secondary">herrajes</Toggle>
+			<Tooltip text="Mostrar perforaciones">
+				<Toggle size="icon-sm" bind:selected={holes} aria-label="Perforaciones"><Drill /></Toggle>
+			</Tooltip>
+			<span class="text-2xs text-subtle-foreground">← botón de ícono con Tooltip (hover o Tab)</span>
 		</div>
 	</div>
 
