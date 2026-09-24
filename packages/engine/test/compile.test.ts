@@ -53,7 +53,9 @@ describe('@rewood/engine', () => {
     expect(plan).toEqual(JSON.parse(fixture('drawer_unit', 'expected.json')));
     expect(plan.joints.filter((j) => j.kind === 'slide')).toHaveLength(6);
     const files = packageFiles(spec);
-    expect(files.filter((f) => f.path.endsWith('.dxf'))).toHaveLength(plan.parts.length);
+    expect(files.filter((f) => f.path.startsWith('parts/') && f.path.endsWith('.dxf'))).toHaveLength(plan.parts.length);
+    // The board supplier's order rides along: cut list, drawings, DXF of the machined parts.
+    expect(files.find((f) => f.path === 'proveedor/despiece.csv')?.contents).toContain('Canto L1');
     expect(files.find((f) => f.path === 'manifest.json')).toBeDefined();
     expect(files.find((f) => f.path === 'documentation/report.html')?.contents).toContain('<h2>Despiece</h2>');
     expect(files.filter((f) => f.path.startsWith('documentation/parts/'))).toHaveLength(plan.parts.length);

@@ -88,7 +88,7 @@ export interface Production {
 	};
 }
 
-export type ProviderRole = 'all' | 'cnc' | 'cutting' | 'assembly' | 'purchasing';
+export type ProviderRole = 'all' | 'cnc' | 'cutting' | 'assembly' | 'purchasing' | 'supplier';
 
 const STORAGE_KEY = 'rewood.server';
 

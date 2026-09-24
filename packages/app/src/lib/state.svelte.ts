@@ -5,6 +5,7 @@
  */
 import {
 	loadEngine,
+	type Decor,
 	type Diagnostic,
 	type Engine,
 	type Fastener,
@@ -253,7 +254,12 @@ class AppState {
 	loadVariant(id: string) {
 		const found = findVariant(id);
 		if (!found) return;
+		// The colour is the person's choice, not the template's: it stays
+		// when they switch to another piece.
+		const { decor, frontDecor } = this.spec;
 		this.spec = variantSpec(found.variant);
+		if (decor) this.spec.decor = decor;
+		if (frontDecor) this.spec.frontDecor = frontDecor;
 		this.variant = id;
 		this.catalogOpen = false;
 		this.specText = JSON.stringify(this.spec, null, 2);
@@ -271,6 +277,19 @@ class AppState {
 		this.specText = JSON.stringify(this.spec, null, 2);
 		this.dirty = true;
 		this.recompile();
+	}
+
+	/** The furniture's colour, or its fronts' (`null` = the same as the body's / the default). */
+	setDecor(field: 'decor' | 'frontDecor', id: string | null) {
+		if (id) this.spec[field] = id;
+		else delete this.spec[field];
+		this.touch();
+	}
+
+	/** Decors the library sells in a material, by name. */
+	decorsFor(material: string): Decor[] {
+		const all = Object.values(this.libraries?.materials.decors ?? {});
+		return all.filter((d) => d.materials.includes(material));
 	}
 
 	/** After a form edited `spec` in place: refresh the JSON view and recompile. */

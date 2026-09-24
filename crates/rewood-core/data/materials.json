@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "_note": "Argentine market standards: melamine and MDF 18 mm in 1830 × 2750 sheets (Faplac, Egger), the white 3 mm fibreboard back (fibrofácil / Fibroplus) in 1830 × 2600, phenolic plywood 1220 × 2440; edge band PVC 22 × 0,45 (carcass) and 22 × 2 (fronts). maxSpan is the unsupported span (mm) past which a loaded horizontal panel sags visibly (about 50 × thickness for particle board and MDF). Glass and mirror (`outsourced`) are cut, polished and drilled by the glazier: no nesting, no banding, no CNC; the order is by area (`pricePerM2`). Float 5 mm for doors on clamp hinges (they take up to 5 mm), tempered 6 mm for shelves (about 800 mm between pins under light loads). A workshop replaces them through libraries.materials.",
+  "_note": "Argentine market standards: melamine and MDF 18 mm in 1830 × 2750 sheets (Faplac, Egger), the white 3 mm fibreboard back (fibrofácil / Fibroplus) in 1830 × 2600, phenolic plywood 1220 × 2440; edge band PVC 22 × 0,45 (carcass) and 22 × 2 (fronts). maxSpan is the unsupported span (mm) past which a loaded horizontal panel sags visibly (about 50 × thickness for particle board and MDF). Glass and mirror (`outsourced`) are cut, polished and drilled by the glazier: no nesting, no banding, no CNC; the order is by area (`pricePerM2`). Float 5 mm for doors on clamp hinges (they take up to 5 mm), tempered 6 mm for shelves (about 800 mm between pins under light loads). A workshop replaces them through libraries.materials. Decors are Faplac (ARAUCO) melamine designs sold in 18 mm 1830 × 2750, with the maker's design code; Faplac sells a matching edge band for each one (faplaconline.com.ar, Línea Lisos and Línea Nature, checked 2026-09). `grain` marks wood prints, which the supplier keeps along the part's length; `hex` is an approximate colour for the 3D view only.",
   "materials": [
     {
       "id": "melamine_18",
@@ -13,7 +13,8 @@
       "density": 650,
       "wasteFactor": 1.15,
       "maxSpan": 900,
-      "supplier": "boards_supplier"
+      "supplier": "boards_supplier",
+      "defaultDecor": "blanco_nature"
     },
     {
       "id": "mdf_18",
@@ -117,6 +118,200 @@
       "name": "Tapacanto PVC 22 × 2 mm",
       "thickness": 2.0,
       "supplier": "boards_supplier"
+    }
+  ],
+  "decors": [
+    {
+      "id": "blanco_nature",
+      "name": "Blanco Nature",
+      "brand": "Faplac",
+      "line": "Nature",
+      "code": "135NAT",
+      "grain": false,
+      "hex": "#f2f1ec",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "blanco_tundra",
+      "name": "Blanco Tundra",
+      "brand": "Faplac",
+      "line": "Lisos",
+      "code": "135TXT",
+      "grain": false,
+      "hex": "#eeede8",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "almendra",
+      "name": "Almendra",
+      "brand": "Faplac",
+      "line": "Lisos",
+      "code": "180TXT",
+      "grain": false,
+      "hex": "#e3d7c1",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "ceniza",
+      "name": "Ceniza",
+      "brand": "Faplac",
+      "line": "Lisos",
+      "code": "105TXT",
+      "grain": false,
+      "hex": "#b9b6ae",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "aluminio",
+      "name": "Aluminio",
+      "brand": "Faplac",
+      "line": "Lisos",
+      "code": "202TXT",
+      "grain": false,
+      "hex": "#a9abaa",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "gris_humo",
+      "name": "Gris Humo",
+      "brand": "Faplac",
+      "line": "Lisos",
+      "code": "108TXT",
+      "grain": false,
+      "hex": "#8d8c88",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "grafito",
+      "name": "Grafito",
+      "brand": "Faplac",
+      "line": "Lisos",
+      "code": "107TXT",
+      "grain": false,
+      "hex": "#4a4b4d",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "negro_profundo",
+      "name": "Negro Profundo",
+      "brand": "Faplac",
+      "line": "Lisos",
+      "code": "303TXT",
+      "grain": false,
+      "hex": "#1f1f20",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "mont_blanc",
+      "name": "Mont Blanc",
+      "brand": "Faplac",
+      "line": "Nature",
+      "code": "072NAT",
+      "grain": true,
+      "hex": "#e4ddd0",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "teka_artico",
+      "name": "Teka Ártico",
+      "brand": "Faplac",
+      "line": "Nature",
+      "code": "047NAT",
+      "grain": true,
+      "hex": "#c9b79a",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "caju",
+      "name": "Cajú",
+      "brand": "Faplac",
+      "line": "Nature",
+      "code": "065NAT",
+      "grain": true,
+      "hex": "#b88a5c",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "carvalho_mezzo",
+      "name": "Carvalho Mezzo",
+      "brand": "Faplac",
+      "line": "Nature",
+      "code": "042NAT",
+      "grain": true,
+      "hex": "#a8804f",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "gaudi",
+      "name": "Gaudí",
+      "brand": "Faplac",
+      "line": "Nature",
+      "code": "027NAT",
+      "grain": true,
+      "hex": "#9c7650",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "venezia",
+      "name": "Venezia",
+      "brand": "Faplac",
+      "line": "Nature",
+      "code": "160NAT",
+      "grain": true,
+      "hex": "#8a6a4a",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "nogal_terracota",
+      "name": "Nogal Terracota",
+      "brand": "Faplac",
+      "line": "Nature",
+      "code": "046NAT",
+      "grain": true,
+      "hex": "#6f4a30",
+      "materials": [
+        "melamine_18"
+      ]
+    },
+    {
+      "id": "nocce_milano",
+      "name": "Nocce Milano",
+      "brand": "Faplac",
+      "line": "Nature",
+      "code": "041NAT",
+      "grain": true,
+      "hex": "#5a3e2b",
+      "materials": [
+        "melamine_18"
+      ]
     }
   ]
 }

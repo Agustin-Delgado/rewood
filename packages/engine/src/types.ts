@@ -383,6 +383,24 @@ export interface Material {
   grain: GrainKind;
   density: number;
   wasteFactor?: number;
+  /** Decor a part of this material gets when the spec names none. */
+  defaultDecor?: string;
+}
+
+/** A design a sheet is sold in (Faplac "Blanco Nature"): colour, not geometry. */
+export interface Decor {
+  id: string;
+  name: string;
+  brand: string;
+  line?: string;
+  /** The maker's design code. */
+  code?: string;
+  /** A wood print: the supplier keeps it along the part's length. */
+  grain?: boolean;
+  /** Approximate colour for the 3D view, `#rrggbb`. */
+  hex: string;
+  /** Material ids it is sold in. */
+  materials: string[];
 }
 
 export interface EdgeMaterial {
@@ -508,7 +526,12 @@ export interface ManufacturingProfile {
 
 /** The engine's default libraries, as `libraries()` returns them. */
 export interface LibrariesSnapshot {
-  materials: { version: string; materials: Record<string, Material>; edgeMaterials: Record<string, EdgeMaterial> };
+  materials: {
+    version: string;
+    materials: Record<string, Material>;
+    edgeMaterials: Record<string, EdgeMaterial>;
+    decors: Record<string, Decor>;
+  };
   hardware: { version: string; items: Record<string, HardwareDef> };
   profile: ManufacturingProfile;
   suppliers: { version: string; suppliers: Record<string, Supplier> };
@@ -536,6 +559,10 @@ export interface FurnitureSpec {
   parameters?: Record<string, NumOrExpr>;
   material: string;
   edgeMaterial?: string;
+  /** Colour of the furniture (a decor id); absent = the material's default. */
+  decor?: string;
+  /** Colour of doors and drawer fronts; absent = the same as `decor`. */
+  frontDecor?: string;
   components: ComponentSpec[];
   constraints?: ConstraintSpec[];
   libraries?: LibraryOverrides;
@@ -629,6 +656,8 @@ export interface Part {
   component: string;
   role: string;
   material: string;
+  /** Decor id, for materials sold in several. */
+  decor?: string;
   dims: Dims;
   cut: { length: number; width: number };
   grain: Grain;
@@ -705,6 +734,7 @@ export interface PartListRow {
   name: string;
   quantity: number;
   material: string;
+  decor?: string;
   cutLength: number;
   cutWidth: number;
   finishedLength: number;
@@ -719,6 +749,8 @@ export interface PartListRow {
 export interface Bom {
   sheets: {
     material: string;
+    decor?: string;
+    /** The material's name, with the decor's. */
     name: string;
     parts: number;
     netAreaM2: number;
@@ -737,7 +769,7 @@ export interface Bom {
     items: { name: string; quantity: number; cost: number }[];
     cost: number;
   }[];
-  consumables: { material: string; name: string; lengthM: number; cost: number }[];
+  consumables: { material: string; decor?: string; name: string; lengthM: number; cost: number }[];
   totalWeightKg: number;
   /** Costs come from prices in the libraries; 0 = no price, never free. */
   materialsCost: number;
@@ -778,7 +810,9 @@ export interface SawCut {
 
 export interface SheetLayout {
   material: string;
-  /** 1-based, per material. */
+  /** Parts of another decor never share the sheet. */
+  decor?: string;
+  /** 1-based, per material and decor. */
   index: number;
   sheetLength: number;
   sheetWidth: number;
@@ -812,6 +846,12 @@ export interface ManufacturingPlan {
   machining: Machining;
   /** The BOM split by supplier (§52). */
   purchasing: PurchaseOrder[];
+  /** The library entries the parts use, so a frozen plan still names them. */
+  catalog?: {
+    materials: Record<string, Material>;
+    edgeMaterials: Record<string, EdgeMaterial>;
+    decors?: Record<string, Decor>;
+  };
   diagnostics: { items: Diagnostic[] };
 }
 

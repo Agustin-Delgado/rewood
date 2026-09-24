@@ -22,6 +22,7 @@
 		Segmented,
 		Select,
 		Slider,
+		Swatches,
 		Switch,
 		Tabs,
 		TabsList,
@@ -57,6 +58,7 @@
 	let view = $state<'3d' | 'front' | 'top'>('3d');
 	let bays = $state<'2' | '3' | '4'>('3');
 	let material = $state('mel18');
+	let decor = $state('blanco_nature');
 	let holes = $state(true);
 	let hardware = $state(false);
 	let open = $state(false);
@@ -136,6 +138,18 @@
 	<h2 class="mb-3 text-sm font-semibold">Selección</h2>
 	<div class="mb-10 grid grid-cols-2 gap-4">
 		<div class="space-y-3 rounded-lg border bg-depth-0 p-4">
+			<Swatches
+				aria-label="Color"
+				value={decor}
+				onChange={(v) => (decor = v)}
+				options={[
+					{ value: 'blanco_nature', label: 'Blanco Nature', hex: '#f2f1ec', hint: 'Faplac 135NAT' },
+					{ value: 'gris_humo', label: 'Gris Humo', hex: '#8d8c88', hint: 'Faplac 108TXT' },
+					{ value: 'grafito', label: 'Grafito', hex: '#4a4b4d', hint: 'Faplac 107TXT' },
+					{ value: 'carvalho_mezzo', label: 'Carvalho Mezzo', hex: '#a8804f', hint: 'Faplac 042NAT', grain: true },
+					{ value: 'nogal_terracota', label: 'Nogal Terracota', hex: '#6f4a30', hint: 'Faplac 046NAT', grain: true }
+				]}
+			/>
 			<Segmented
 				aria-label="Vista"
 				bind:value={view}

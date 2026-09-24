@@ -349,6 +349,7 @@
       "component": "left",
       "role": "side_left",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 300.0,
         "width": 500.0,
@@ -594,6 +595,7 @@
       "component": "left",
       "role": "side_right",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 300.0,
         "width": 500.0,
@@ -839,6 +841,7 @@
       "component": "left",
       "role": "top",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 1864.0,
         "width": 500.0,
@@ -1452,6 +1455,7 @@
       "component": "left",
       "role": "bottom",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 1864.0,
         "width": 500.0,
@@ -2523,10 +2527,11 @@
     },
     {
       "id": "P006",
-      "name": "Divisor 1 (left)",
+      "name": "Divisor 1",
       "component": "left",
       "role": "divider_1",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 264.0,
         "width": 486.8,
@@ -2862,10 +2867,11 @@
     },
     {
       "id": "P007",
-      "name": "Divisor 2 (left)",
+      "name": "Divisor 2",
       "component": "left",
       "role": "divider_2",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 264.0,
         "width": 486.8,
@@ -3205,6 +3211,7 @@
       "component": "left",
       "role": "plinth",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 1864.0,
         "width": 100.0,
@@ -3406,6 +3413,7 @@
       "component": "left_drawers",
       "role": "bay1_drawer_1_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 632.333,
         "width": 296.0,
@@ -3612,6 +3620,7 @@
       "component": "left_drawers",
       "role": "bay1_drawer_1_side_left",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -3825,6 +3834,7 @@
       "component": "left_drawers",
       "role": "bay1_drawer_1_side_right",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -4038,6 +4048,7 @@
       "component": "left_drawers",
       "role": "bay1_drawer_1_box_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -4331,6 +4342,7 @@
       "component": "left_drawers",
       "role": "bay1_drawer_1_box_back",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -4542,6 +4554,7 @@
       "component": "left_drawers",
       "role": "bay2_drawer_1_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 623.333,
         "width": 296.0,
@@ -4748,6 +4761,7 @@
       "component": "left_drawers",
       "role": "bay2_drawer_1_side_left",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -4961,6 +4975,7 @@
       "component": "left_drawers",
       "role": "bay2_drawer_1_side_right",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -5174,6 +5189,7 @@
       "component": "left_drawers",
       "role": "bay2_drawer_1_box_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -5467,6 +5483,7 @@
       "component": "left_drawers",
       "role": "bay2_drawer_1_box_back",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -5678,6 +5695,7 @@
       "component": "left_drawers",
       "role": "bay3_drawer_1_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 632.333,
         "width": 296.0,
@@ -5884,6 +5902,7 @@
       "component": "left_drawers",
       "role": "bay3_drawer_1_side_left",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -6097,6 +6116,7 @@
       "component": "left_drawers",
       "role": "bay3_drawer_1_side_right",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -6310,6 +6330,7 @@
       "component": "left_drawers",
       "role": "bay3_drawer_1_box_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -6603,6 +6624,7 @@
       "component": "left_drawers",
       "role": "bay3_drawer_1_box_back",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -6814,6 +6836,7 @@
       "component": "right",
       "role": "side_left",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 300.0,
         "width": 500.0,
@@ -7059,6 +7082,7 @@
       "component": "right",
       "role": "side_right",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 300.0,
         "width": 500.0,
@@ -7304,6 +7328,7 @@
       "component": "right",
       "role": "top",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 1864.0,
         "width": 500.0,
@@ -7917,6 +7942,7 @@
       "component": "right",
       "role": "bottom",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 1864.0,
         "width": 500.0,
@@ -8988,10 +9014,11 @@
     },
     {
       "id": "P032",
-      "name": "Divisor 1 (right)",
+      "name": "Divisor 3",
       "component": "right",
       "role": "divider_1",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 264.0,
         "width": 486.8,
@@ -9327,10 +9354,11 @@
     },
     {
       "id": "P033",
-      "name": "Divisor 2 (right)",
+      "name": "Divisor 4",
       "component": "right",
       "role": "divider_2",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 264.0,
         "width": 486.8,
@@ -9670,6 +9698,7 @@
       "component": "right",
       "role": "plinth",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 1864.0,
         "width": 100.0,
@@ -9871,6 +9900,7 @@
       "component": "right_drawers",
       "role": "bay1_drawer_1_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 632.333,
         "width": 296.0,
@@ -10077,6 +10107,7 @@
       "component": "right_drawers",
       "role": "bay1_drawer_1_side_left",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -10290,6 +10321,7 @@
       "component": "right_drawers",
       "role": "bay1_drawer_1_side_right",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -10503,6 +10535,7 @@
       "component": "right_drawers",
       "role": "bay1_drawer_1_box_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -10796,6 +10829,7 @@
       "component": "right_drawers",
       "role": "bay1_drawer_1_box_back",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -11007,6 +11041,7 @@
       "component": "right_drawers",
       "role": "bay2_drawer_1_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 623.333,
         "width": 296.0,
@@ -11213,6 +11248,7 @@
       "component": "right_drawers",
       "role": "bay2_drawer_1_side_left",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -11426,6 +11462,7 @@
       "component": "right_drawers",
       "role": "bay2_drawer_1_side_right",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -11639,6 +11676,7 @@
       "component": "right_drawers",
       "role": "bay2_drawer_1_box_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -11932,6 +11970,7 @@
       "component": "right_drawers",
       "role": "bay2_drawer_1_box_back",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -12143,6 +12182,7 @@
       "component": "right_drawers",
       "role": "bay3_drawer_1_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 632.333,
         "width": 296.0,
@@ -12349,6 +12389,7 @@
       "component": "right_drawers",
       "role": "bay3_drawer_1_side_left",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -12562,6 +12603,7 @@
       "component": "right_drawers",
       "role": "bay3_drawer_1_side_right",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 450.0,
         "width": 256.0,
@@ -12775,6 +12817,7 @@
       "component": "right_drawers",
       "role": "bay3_drawer_1_box_front",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -13068,6 +13111,7 @@
       "component": "right_drawers",
       "role": "bay3_drawer_1_box_back",
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "dims": {
         "length": 547.933,
         "width": 256.0,
@@ -18546,6 +18590,7 @@
       "name": "Lateral izquierdo",
       "quantity": 2,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 300.0,
       "cutWidth": 499.55,
       "finishedLength": 300.0,
@@ -18564,6 +18609,7 @@
       "name": "Lateral derecho",
       "quantity": 2,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 300.0,
       "cutWidth": 499.55,
       "finishedLength": 300.0,
@@ -18581,6 +18627,7 @@
       "name": "Tapa (left)",
       "quantity": 1,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 1864.0,
       "cutWidth": 499.55,
       "finishedLength": 1864.0,
@@ -18599,6 +18646,7 @@
       "name": "Base",
       "quantity": 2,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 1864.0,
       "cutWidth": 499.55,
       "finishedLength": 1864.0,
@@ -18637,6 +18685,7 @@
       "name": "Divisor",
       "quantity": 4,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 264.0,
       "cutWidth": 486.35,
       "finishedLength": 264.0,
@@ -18655,6 +18704,7 @@
       "name": "Zócalo",
       "quantity": 2,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 1864.0,
       "cutWidth": 100.0,
       "finishedLength": 1864.0,
@@ -18673,6 +18723,7 @@
       "name": "Frente cajón 1 bahía 1",
       "quantity": 2,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 631.433,
       "cutWidth": 295.1,
       "finishedLength": 632.333,
@@ -18691,6 +18742,7 @@
       "name": "Lateral cajón 1 izq. bahía 1",
       "quantity": 2,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 450.0,
       "cutWidth": 255.55,
       "finishedLength": 450.0,
@@ -18713,6 +18765,7 @@
       "name": "Lateral cajón 1 der. bahía",
       "quantity": 6,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 450.0,
       "cutWidth": 255.55,
       "finishedLength": 450.0,
@@ -18731,6 +18784,7 @@
       "name": "Frente interior cajón 1 bahía 1",
       "quantity": 2,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 547.933,
       "cutWidth": 255.55,
       "finishedLength": 547.933,
@@ -18753,6 +18807,7 @@
       "name": "Trasera cajón 1 bahía",
       "quantity": 6,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 547.933,
       "cutWidth": 255.55,
       "finishedLength": 547.933,
@@ -18793,6 +18848,7 @@
       "name": "Frente cajón 1 bahía 2",
       "quantity": 2,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 622.433,
       "cutWidth": 295.1,
       "finishedLength": 623.333,
@@ -18813,6 +18869,7 @@
       "name": "Lateral cajón 1 izq. bahía",
       "quantity": 4,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 450.0,
       "cutWidth": 255.55,
       "finishedLength": 450.0,
@@ -18831,6 +18888,7 @@
       "name": "Frente interior cajón 1 bahía 2",
       "quantity": 2,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 547.933,
       "cutWidth": 255.55,
       "finishedLength": 547.933,
@@ -18849,6 +18907,7 @@
       "name": "Frente cajón 1 bahía 3",
       "quantity": 2,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 631.433,
       "cutWidth": 295.1,
       "finishedLength": 632.333,
@@ -18867,6 +18926,7 @@
       "name": "Frente interior cajón 1 bahía 3",
       "quantity": 2,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 547.933,
       "cutWidth": 255.55,
       "finishedLength": 547.933,
@@ -18884,6 +18944,7 @@
       "name": "Tapa (right)",
       "quantity": 1,
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "cutLength": 1864.0,
       "cutWidth": 499.55,
       "finishedLength": 1864.0,
@@ -18938,7 +18999,8 @@
       },
       {
         "material": "melamine_18",
-        "name": "Melamina 18 mm (1,83 × 2,75)",
+        "decor": "blanco_nature",
+        "name": "Melamina 18 mm (1,83 × 2,75) · Blanco Nature",
         "parts": 44,
         "netAreaM2": 9.383,
         "sheetLength": 2750.0,
@@ -19070,7 +19132,14 @@
       {
         "material": "pvc_0_45mm",
         "name": "Tapacanto PVC 22 × 0,45 mm",
-        "lengthM": 37.991,
+        "lengthM": 5.2,
+        "cost": 0.0
+      },
+      {
+        "material": "pvc_0_45mm",
+        "decor": "blanco_nature",
+        "name": "Tapacanto PVC 22 × 0,45 mm · Blanco Nature",
+        "lengthM": 32.791,
         "cost": 0.0
       }
     ],
@@ -19188,6 +19257,7 @@
     },
     {
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "index": 1,
       "sheetLength": 2750.0,
       "sheetWidth": 1830.0,
@@ -19286,6 +19356,7 @@
     },
     {
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "index": 2,
       "sheetLength": 2750.0,
       "sheetWidth": 1830.0,
@@ -19504,6 +19575,7 @@
     },
     {
       "material": "melamine_18",
+      "decor": "blanco_nature",
       "index": 3,
       "sheetLength": 2750.0,
       "sheetWidth": 1830.0,
@@ -20296,7 +20368,16 @@
           "kind": "edge_band",
           "id": "pvc_0_45mm",
           "name": "Tapacanto PVC 22 × 0,45 mm",
-          "quantity": 37.991,
+          "quantity": 5.2,
+          "unit": "m",
+          "unitPrice": 0.0,
+          "cost": 0.0
+        },
+        {
+          "kind": "edge_band",
+          "id": "pvc_0_45mm",
+          "name": "Tapacanto PVC 22 × 0,45 mm · Blanco Nature",
+          "quantity": 32.791,
           "unit": "m",
           "unitPrice": 0.0,
           "cost": 0.0
@@ -20322,7 +20403,7 @@
         {
           "kind": "sheet",
           "id": "melamine_18",
-          "name": "Melamina 18 mm (1,83 × 2,75) (2750×1830)",
+          "name": "Melamina 18 mm (1,83 × 2,75) · Blanco Nature (2750×1830)",
           "quantity": 3.0,
           "unit": "placas",
           "unitPrice": 0.0,
@@ -20439,6 +20520,72 @@
       "cost": 0.0
     }
   ],
+  "catalog": {
+    "materials": {
+      "hdf_3": {
+        "id": "hdf_3",
+        "name": "Fondo fibrofácil blanco 3 mm (1,83 × 2,60)",
+        "nominalThickness": 3.0,
+        "actualThickness": 3.0,
+        "sheetLength": 2600.0,
+        "sheetWidth": 1830.0,
+        "grain": "none",
+        "density": 850.0,
+        "wasteFactor": 1.1,
+        "supplier": "boards_supplier",
+        "maxSpan": 300.0
+      },
+      "mdf_18": {
+        "id": "mdf_18",
+        "name": "MDF 18 mm (1,83 × 2,75)",
+        "nominalThickness": 18.0,
+        "actualThickness": 18.0,
+        "sheetLength": 2750.0,
+        "sheetWidth": 1830.0,
+        "grain": "none",
+        "density": 750.0,
+        "wasteFactor": 1.15,
+        "supplier": "boards_supplier",
+        "maxSpan": 900.0
+      },
+      "melamine_18": {
+        "id": "melamine_18",
+        "name": "Melamina 18 mm (1,83 × 2,75)",
+        "nominalThickness": 18.0,
+        "actualThickness": 17.8,
+        "sheetLength": 2750.0,
+        "sheetWidth": 1830.0,
+        "grain": "directional",
+        "density": 650.0,
+        "wasteFactor": 1.15,
+        "supplier": "boards_supplier",
+        "maxSpan": 900.0,
+        "defaultDecor": "blanco_nature"
+      }
+    },
+    "edgeMaterials": {
+      "pvc_0_45mm": {
+        "id": "pvc_0_45mm",
+        "name": "Tapacanto PVC 22 × 0,45 mm",
+        "thickness": 0.45,
+        "supplier": "boards_supplier"
+      }
+    },
+    "decors": {
+      "blanco_nature": {
+        "id": "blanco_nature",
+        "name": "Blanco Nature",
+        "brand": "Faplac",
+        "line": "Nature",
+        "code": "135NAT",
+        "grain": false,
+        "hex": "#f2f1ec",
+        "materials": [
+          "melamine_18"
+        ]
+      }
+    }
+  },
   "diagnostics": {
     "items": []
   }

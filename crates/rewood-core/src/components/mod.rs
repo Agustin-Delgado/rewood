@@ -562,6 +562,7 @@ impl<'a> BuildCtx<'a> {
             operations: Vec::new(),
             outsourced: material.outsourced,
             overlap_exempt: Vec::new(),
+            decor: None,
         });
         id
     }
@@ -1047,13 +1048,42 @@ impl<'a> BuildCtx<'a> {
     /// tells the workshop nothing. Suffix the component id wherever a
     /// name is shared across components.
     fn disambiguate_names(&mut self) {
-        let mut owners: BTreeMap<String, std::collections::BTreeSet<String>> = BTreeMap::new();
-        for part in &self.parts {
+        let owners_of = |parts: &[Part]| {
+            let mut owners: BTreeMap<String, std::collections::BTreeSet<String>> = BTreeMap::new();
+            for part in parts {
+                owners
+                    .entry(part.name.clone())
+                    .or_default()
+                    .insert(part.component.clone());
+            }
             owners
-                .entry(part.name.clone())
-                .or_default()
-                .insert(part.component.clone());
+        };
+        // Numbered names ("Puerta 1" of two door sets) are numbered again
+        // across the furniture, "Puerta 1", "Puerta 2", when each one is a
+        // single part: that reads better than a component id.
+        let owners = owners_of(&self.parts);
+        let mut bases: Vec<String> = owners
+            .iter()
+            .filter(|(_, o)| o.len() > 1)
+            .filter_map(|(name, _)| numbered(name).map(|(base, _)| base.to_string()))
+            .collect();
+        bases.sort();
+        bases.dedup();
+        for base in bases {
+            let idx: Vec<usize> = (0..self.parts.len())
+                .filter(|&i| numbered(&self.parts[i].name).is_some_and(|(b, _)| b == base))
+                .collect();
+            let mut seen = std::collections::BTreeSet::new();
+            let single = idx.iter().all(|&i| {
+                seen.insert((self.parts[i].name.clone(), self.parts[i].component.clone()))
+            });
+            if single {
+                for (k, &i) in idx.iter().enumerate() {
+                    self.parts[i].name = format!("{base} {}", k + 1);
+                }
+            }
         }
+        let owners = owners_of(&self.parts);
         for part in &mut self.parts {
             if owners[&part.name].len() > 1 {
                 part.name = format!("{} ({})", part.name, part.component);
@@ -1186,4 +1216,14 @@ impl Scope for BuildCtx<'_> {
     fn lookup(&self, name: &str) -> Option<Value> {
         self.scope().lookup(name)
     }
+}
+
+/// "Puerta 12" → ("Puerta", 12). Only a plain counter: in "Frente
+/// cajón 1 bahía 2" the last number is a bay, not a count to redo.
+fn numbered(name: &str) -> Option<(&str, u32)> {
+    let (base, num) = name.rsplit_once(' ')?;
+    if base.chars().any(|c| c.is_ascii_digit()) {
+        return None;
+    }
+    Some((base, num.parse().ok()?))
 }

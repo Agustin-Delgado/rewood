@@ -18,7 +18,7 @@
 //! POST /manufacturing-orders              { furnitureId }      → ManufacturingOrder (frozen)
 //! GET  /manufacturing-orders                                   → [order summary]
 //! GET  /manufacturing-orders/:id                               → ManufacturingOrder
-//! GET  /manufacturing-orders/:id/package[?role=cnc|cutting|assembly|purchasing] → application/zip
+//! GET  /manufacturing-orders/:id/package[?role=cnc|cutting|assembly|purchasing|supplier] → application/zip
 //! GET  /manufacturing-orders/:id/package/{*path}               → one frozen file
 //! GET  /manufacturing-orders/:id/production                    → tracking record + summary
 //! POST /manufacturing-orders/:id/production/steps { part?, step, done } → same

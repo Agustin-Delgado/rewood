@@ -52,6 +52,8 @@ pub struct PartListRow {
     pub name: String,
     pub quantity: usize,
     pub material: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decor: Option<String>,
     pub cut_length: f64,
     pub cut_width: f64,
     pub finished_length: f64,
@@ -68,6 +70,9 @@ pub struct PartListRow {
 #[serde(rename_all = "camelCase")]
 pub struct SheetLine {
     pub material: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decor: Option<String>,
+    /// The material's name, with the decor's when it has one.
     pub name: String,
     pub parts: usize,
     pub net_area_m2: f64,
@@ -108,6 +113,9 @@ pub struct BomItemLine {
 #[serde(rename_all = "camelCase")]
 pub struct ConsumableLine {
     pub material: String,
+    /// Edge band in the design of the parts it goes on.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decor: Option<String>,
     pub name: String,
     pub length_m: f64,
     #[serde(default)]
@@ -359,7 +367,41 @@ pub struct ManufacturingPlan {
     /// The BOM split by supplier (§52).
     #[serde(default)]
     pub purchasing: Vec<PurchaseOrder>,
+    /// The library entries the parts use (sheet, edge band, decor), so a
+    /// package regenerated from a frozen plan still names them.
+    #[serde(default)]
+    pub catalog: Catalog,
     pub diagnostics: Diagnostics,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Catalog {
+    pub materials: BTreeMap<String, crate::library::Material>,
+    pub edge_materials: BTreeMap<String, crate::library::EdgeMaterial>,
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub decors: BTreeMap<String, crate::library::Decor>,
+}
+
+impl Catalog {
+    /// What `parts` use, taken from the libraries.
+    pub fn of(parts: &[Part], libs: &Libraries) -> Catalog {
+        let mut c = Catalog::default();
+        for part in parts {
+            if let Some(m) = libs.materials.material(&part.material) {
+                c.materials.insert(m.id.clone(), m.clone());
+            }
+            if let Some(d) = part.decor.as_deref().and_then(|d| libs.materials.decor(d)) {
+                c.decors.insert(d.id.clone(), d.clone());
+            }
+            for e in part.edges.values() {
+                if let Some(e) = libs.materials.edge(e) {
+                    c.edge_materials.insert(e.id.clone(), e.clone());
+                }
+            }
+        }
+        c
+    }
 }
 
 impl Serialize for Value {
@@ -446,8 +488,9 @@ fn part_key(part: &Part) -> String {
         })
         .collect();
     format!(
-        "{}|{}|{}|{:?}|{}|{}",
+        "{}|{}|{}|{}|{:?}|{}|{}",
         part.material,
+        part.decor.as_deref().unwrap_or(""),
         round3(part.cut.length),
         round3(part.cut.width),
         part.grain,
@@ -490,6 +533,18 @@ fn common_name(names: &[String]) -> String {
     }
 }
 
+/// "Melamina 18 mm (1,83 × 2,75) · Nogal Terracota": a material or edge
+/// band name with the design it is ordered in.
+pub fn with_decor(name: &str, decor: Option<&str>, libs: &Libraries) -> String {
+    match decor {
+        Some(id) => {
+            let d = libs.materials.decor(id).map_or(id, |d| d.name.as_str());
+            format!("{name} · {d}")
+        }
+        None => name.to_string(),
+    }
+}
+
 pub fn part_list(parts: &[Part], libs: &Libraries) -> Vec<PartListRow> {
     let mut rows: Vec<(String, PartListRow)> = Vec::new();
     for part in parts {
@@ -512,6 +567,7 @@ pub fn part_list(parts: &[Part], libs: &Libraries) -> Vec<PartListRow> {
                 name: part.name.clone(),
                 quantity: 1,
                 material: part.material.clone(),
+                decor: part.decor.clone(),
                 cut_length: part.cut.length,
                 cut_width: part.cut.width,
                 finished_length: part.dims.length,
@@ -550,7 +606,7 @@ pub fn bom(
     libs: &Libraries,
     extra: &[crate::components::ExtraBom],
 ) -> Bom {
-    let mut sheets: BTreeMap<String, SheetLine> = BTreeMap::new();
+    let mut sheets: BTreeMap<(String, Option<String>), SheetLine> = BTreeMap::new();
     let mut total_weight = 0.0;
     let mut unpriced: Vec<String> = Vec::new();
     for part in parts {
@@ -559,10 +615,11 @@ pub fn bom(
         };
         total_weight += part.dims.volume() / 1e9 * m.density;
         let line = sheets
-            .entry(part.material.clone())
+            .entry((part.material.clone(), part.decor.clone()))
             .or_insert_with(|| SheetLine {
                 material: part.material.clone(),
-                name: m.name.clone(),
+                decor: part.decor.clone(),
+                name: with_decor(&m.name, part.decor.as_deref(), libs),
                 parts: 0,
                 net_area_m2: 0.0,
                 sheet_length: m.sheet_length,
@@ -579,7 +636,7 @@ pub fn bom(
         let sheet_area = m.sheet_length * m.sheet_width / 1e6;
         let nested = nesting
             .iter()
-            .filter(|l| l.material == line.material)
+            .filter(|l| l.material == line.material && l.decor == line.decor)
             .count();
         if m.outsourced {
             // Bought cut to size: by the square metre, no sheets.
@@ -723,27 +780,31 @@ pub fn bom(
     }
     hardware.sort_by(|a, b| a.hardware.cmp(&b.hardware));
 
-    let mut consumables: BTreeMap<String, f64> = BTreeMap::new();
+    let mut consumables: BTreeMap<(String, Option<String>), f64> = BTreeMap::new();
     for part in parts {
         for op in &part.operations {
             if let OpGeometry::EdgeBand {
                 material, length, ..
             } = &op.geometry
             {
-                *consumables.entry(material.clone()).or_default() += length;
+                *consumables
+                    .entry((material.clone(), part.decor.clone()))
+                    .or_default() += length;
             }
         }
     }
     let consumables: Vec<ConsumableLine> = consumables
         .into_iter()
-        .map(|(id, mm)| {
+        .map(|((id, decor), mm)| {
             let edge = libs.materials.edge(&id);
             let price = edge.map(|e| e.price_per_metre).unwrap_or(0.0);
             if price == 0.0 {
                 unpriced.push(id.clone());
             }
+            let name = edge.map(|e| e.name.clone()).unwrap_or_else(|| id.clone());
             ConsumableLine {
-                name: edge.map(|e| e.name.clone()).unwrap_or_else(|| id.clone()),
+                name: with_decor(&name, decor.as_deref(), libs),
+                decor,
                 material: id,
                 length_m: mm / 1000.0,
                 cost: mm / 1000.0 * price,

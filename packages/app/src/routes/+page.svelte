@@ -8,9 +8,12 @@
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import OctagonAlert from '@lucide/svelte/icons/octagon-alert';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
+	import ChevronDown from '@lucide/svelte/icons/chevron-down';
+	import Printer from '@lucide/svelte/icons/printer';
+	import Truck from '@lucide/svelte/icons/truck';
 	import { app } from '$lib/state.svelte';
 	import { findVariant } from '$lib/catalog';
-	import { Badge, Button, Tabs, TabsList, TabsPanel, TabsTab } from '$lib/ui';
+	import { Badge, Button, Menu, Tabs, TabsList, TabsPanel, TabsTab } from '$lib/ui';
 	import Viewer from '$lib/components/Viewer.svelte';
 	import Tree from '$lib/components/Tree.svelte';
 	import Properties from '$lib/components/Properties.svelte';
@@ -37,15 +40,39 @@
 
 	async function downloadPackage() {
 		if (!app.engine) return;
-		const files = app.engine.packageFiles(app.effectiveSpec());
+		await downloadZip(app.engine.packageFiles(app.effectiveSpec()), `${app.spec.id}-v${app.spec.version ?? '1.0'}.zip`);
+	}
+
+	async function downloadZip(files: { path: string; contents: string }[], name: string) {
 		const zip = new JSZip();
 		for (const f of files) zip.file(f.path, f.contents);
 		const blob = await zip.generateAsync({ type: 'blob' });
 		const a = document.createElement('a');
 		a.href = URL.createObjectURL(blob);
-		a.download = `${app.spec.id}-v${app.spec.version ?? '1.0'}.zip`;
+		a.download = name;
 		a.click();
 		URL.revokeObjectURL(a.href);
+	}
+
+	/** What goes to the board supplier: its cut list, drawings and DXF, nothing else. */
+	function supplierFiles() {
+		if (!app.engine) return [];
+		return app.engine
+			.packageFiles(app.effectiveSpec())
+			.filter((f) => f.path.startsWith('proveedor/'))
+			.map((f) => ({ ...f, path: f.path.slice('proveedor/'.length) }));
+	}
+
+	async function downloadOrder() {
+		await downloadZip(supplierFiles(), `${app.spec.id}-v${app.spec.version ?? '1.0'}-pedido.zip`);
+	}
+
+	/** The drawings open in a tab and ask to print: "Guardar como PDF" is the file to send. */
+	function printOrder() {
+		const page = supplierFiles().find((f) => f.path === 'planos.html');
+		if (!page) return;
+		const html = page.contents.replace('</body>', '<script>addEventListener("load",()=>print())<' + '/script></body>');
+		window.open(URL.createObjectURL(new Blob([html], { type: 'text/html' })), '_blank');
 	}
 
 	function openReport() {
@@ -107,6 +134,20 @@
 				<OctagonAlert />Fabricación bloqueada
 			</Button>
 		{:else}
+			<Menu
+				variant="secondary"
+				class="order-btn"
+				disabled={loading}
+				title="Lo que necesita quien corta, cantea y agujerea las placas: sin herrajes ni precios"
+				placement="bottom-end"
+				items={[
+					{ heading: 'Pedido de placas' },
+					{ label: 'Descargar pedido (.zip)', hint: 'planilla, planos y DXF', icon: Download, onSelect: downloadOrder },
+					{ label: 'Imprimir planos (PDF)', icon: Printer, onSelect: printOrder }
+				]}
+			>
+				{#snippet trigger()}<Truck />Pedido al proveedor<ChevronDown class="-mr-1 text-subtle-foreground" />{/snippet}
+			</Menu>
 			<Button variant="primary" onclick={downloadPackage} disabled={loading}><Download />Descargar paquete (.zip)</Button>
 		{/if}
 		{#if app.engine}

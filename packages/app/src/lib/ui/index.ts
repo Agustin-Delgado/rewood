@@ -17,6 +17,7 @@ export { default as Section } from './Section.svelte';
 export { default as Segmented, type SegmentedOption } from './Segmented.svelte';
 export { default as Select, type SelectOption } from './Select.svelte';
 export { default as Slider } from './Slider.svelte';
+export { default as Swatches, type SwatchOption } from './Swatches.svelte';
 export { default as Switch } from './Switch.svelte';
 export { default as TabsList } from './TabsList.svelte';
 export { default as TabsPanel } from './TabsPanel.svelte';

@@ -322,6 +322,9 @@ pub fn files_for_role(role: &str, path: &str) -> Option<bool> {
                 || path.starts_with("labels/")
         }
         "purchasing" => path.starts_with("purchasing/") || path.starts_with("bom/"),
+        // The board supplier cuts, bands and drills: its order and nothing
+        // else (no hardware, no prices, no NC for a machine it may not have).
+        "supplier" => path.starts_with("proveedor/"),
         "all" => true,
         _ => return None,
     };
@@ -432,6 +435,12 @@ mod tests {
             files_for_role("purchasing", "purchasing/boards_supplier.csv"),
             Some(true)
         );
+        assert_eq!(
+            files_for_role("supplier", "proveedor/planos.html"),
+            Some(true)
+        );
+        assert_eq!(files_for_role("supplier", "bom/hardware.csv"), Some(false));
+        assert_eq!(files_for_role("supplier", "cnc/P001_A.nc"), Some(false));
         assert_eq!(files_for_role("all", "manifest.json"), Some(true));
         assert_eq!(files_for_role("painter", "manifest.json"), None);
     }

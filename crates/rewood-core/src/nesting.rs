@@ -86,7 +86,10 @@ pub struct NestedPart {
 #[serde(rename_all = "camelCase")]
 pub struct SheetLayout {
     pub material: String,
-    /// 1-based, per material.
+    /// Colour of the sheet: parts of another decor never share it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decor: Option<String>,
+    /// 1-based, per material and decor.
     pub index: usize,
     pub sheet_length: f64,
     pub sheet_width: f64,
@@ -466,12 +469,15 @@ fn saw_cuts(sheet: &SawSheet, rules: &NestingRules) -> Vec<SawCut> {
 }
 
 pub fn nest(parts: &[Part], libs: &Libraries, rules: &NestingRules) -> Vec<SheetLayout> {
-    let mut materials: Vec<&str> = parts.iter().map(|p| p.material.as_str()).collect();
-    materials.sort();
-    materials.dedup();
+    let mut stocks: Vec<(&str, Option<&str>)> = parts
+        .iter()
+        .map(|p| (p.material.as_str(), p.decor.as_deref()))
+        .collect();
+    stocks.sort();
+    stocks.dedup();
 
     let mut layouts = Vec::new();
-    for material in materials {
+    for (material, decor) in stocks {
         let Some(m) = libs.materials.material(material) else {
             continue;
         };
@@ -479,7 +485,10 @@ pub fn nest(parts: &[Part], libs: &Libraries, rules: &NestingRules) -> Vec<Sheet
         if m.outsourced {
             continue;
         }
-        let mut queue: Vec<&Part> = parts.iter().filter(|p| p.material == material).collect();
+        let mut queue: Vec<&Part> = parts
+            .iter()
+            .filter(|p| p.material == material && p.decor.as_deref() == decor)
+            .collect();
         // Largest first; ties by id so the result never depends on input order.
         queue.sort_by(|a, b| {
             let area = |p: &Part| p.cut.length * p.cut.width;
@@ -497,6 +506,7 @@ pub fn nest(parts: &[Part], libs: &Libraries, rules: &NestingRules) -> Vec<Sheet
                 let total = sheet.length * sheet.width / 1e6;
                 layouts.push(SheetLayout {
                     material: material.to_string(),
+                    decor: decor.map(str::to_string),
                     index: k + 1,
                     sheet_length: sheet.length,
                     sheet_width: sheet.width,
@@ -540,6 +550,7 @@ pub fn nest(parts: &[Part], libs: &Libraries, rules: &NestingRules) -> Vec<Sheet
             let total = sheet.length * sheet.width / 1e6;
             layouts.push(SheetLayout {
                 material: material.to_string(),
+                decor: decor.map(str::to_string),
                 index: k + 1,
                 sheet_length: sheet.length,
                 sheet_width: sheet.width,

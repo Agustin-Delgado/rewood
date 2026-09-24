@@ -325,6 +325,9 @@
 		const level = app.severityOfPart(part.id);
 		if (level === 'ERROR' || level === 'FATAL') return '#d95f4b';
 		if (level === 'WARNING') return '#e3c25c';
+		// The board's colour, when the person chose one (or the default).
+		const decor = part.decor ? app.libraries?.materials.decors[part.decor] : undefined;
+		if (decor) return decor.hex;
 		if (part.material.startsWith('hdf')) return '#8a6a4a';
 		if (part.material.startsWith('mirror')) return '#c9d6dc';
 		if (part.material.startsWith('glass')) return '#bfe3ea';

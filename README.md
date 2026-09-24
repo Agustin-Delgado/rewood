@@ -92,6 +92,41 @@ verificado decodificando con OpenCV), `bom/*.csv`, `documentation/cutlist.txt`,
 abriéndolos con ezdxf y renderizándolos; las capas nombran cara, diámetro y
 profundidad (`DRILL_FRONT_D35_L12_5`, `DRILL_EDGE_LEFT_D8_L34`, `GROOVE_FRONT_W3_2_L8`; R12 no admite punto en el nombre de capa, así que el decimal va con guion bajo).
 
+**Pedido al proveedor de placas** (`proveedor/`, también suelto desde el botón
+*Pedido al proveedor* de la UI y como `?role=supplier` en el servidor): lo que
+necesita quien corta, cantea y agujerea, y nada más. No lleva herrajes, precios,
+nuestro nesting ni G-code. Trae tres cosas:
+
+- `despiece.csv`: planilla para Excel en es-AR (`;`, coma decimal, BOM), con
+  código, pieza, cantidad, material, color con su código Faplac, espesor, largo y
+  ancho **finales con el canto incluido** (al décimo de mm), veta y canto de L1/L2
+  (lados largos) y A1/A2 (lados cortos). Cierra con un resumen de mecanizado y el
+  número de plano.
+- `planos.html`: las convenciones, un resumen de m² por placa y color y de metros
+  de canto, el despiece, y un plano por pieza mecanizada. Se imprime a PDF, A4
+  apaisado.
+  - Cada plano va visto desde la cara A (la que queda hacia adentro; en puertas y
+    frentes, la de atrás), con los cantos nombrados y marcados, cotas por
+    coordenadas desde la esquina 0,0 y el tamaño total.
+  - Las perforaciones van agrupadas por Ø, profundidad y X. Las de la cara B van
+    en el sistema de coordenadas de la cara B, con la pieza girada sobre su largo.
+  - Las perforaciones de canto van a lo largo del canto; también figuran ranuras y
+    calados.
+- `dxf/`: un DXF por pieza mecanizada, con `LEEME.txt` sobre sus capas.
+
+Los vidrios y espejos no entran: van al vidriero.
+
+**Color.** Una placa de melamina se vende en varios diseños (`decors` en
+`materials.json`: Faplac líneas Lisos y Nature, con su código). `decor` elige el
+del mueble y `frontDecor` el de puertas y frentes de cajón. Sin `decor` se usa el
+`defaultDecor` de la placa, Blanco Nature, y un color desconocido da `LIB-106`.
+
+- El color va en la pieza, no cambia la geometría. Dos colores nunca comparten una
+  placa en el nesting, y el BOM y las compras los separan, canto incluido: el canto
+  se compra en el color de la pieza.
+- Los diseños de madera llevan veta; un liso se puede girar al cortar.
+- El 3D pinta cada pieza con el color que eligió la persona.
+
 Servicio (§39–41):
 
 ```bash

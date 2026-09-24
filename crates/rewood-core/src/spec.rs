@@ -30,6 +30,14 @@ pub struct FurnitureSpec {
     /// Default edge band material; `None` = no banding anywhere.
     #[serde(default)]
     pub edge_material: Option<String>,
+    /// Colour of the furniture (`libraries.materials` decors): every part
+    /// of a material sold in that design. `None` = the material's default.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decor: Option<String>,
+    /// Colour of doors and drawer fronts when it differs from the body.
+    /// `None` = the same as `decor`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub front_decor: Option<String>,
     pub components: Vec<ComponentSpec>,
     #[serde(default)]
     pub constraints: Vec<ConstraintSpec>,

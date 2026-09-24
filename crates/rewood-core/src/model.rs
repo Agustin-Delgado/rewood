@@ -184,6 +184,10 @@ pub struct Part {
     pub component: String,
     pub role: String,
     pub material: String,
+    /// Decor (colour) of the sheet, for materials sold in several; its
+    /// edge band is ordered in the same design.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub decor: Option<String>,
     /// Finished dimensions (after edge banding).
     pub dims: Dims,
     /// Raw dimensions the panel is cut to, before banding.

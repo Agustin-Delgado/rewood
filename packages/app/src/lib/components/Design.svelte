@@ -8,7 +8,7 @@
 	import type { Diagnostic, PlanOption } from '@rewood/engine/browser';
 	import { app } from '$lib/state.svelte';
 	import { findVariant, overall } from '$lib/catalog';
-	import { Badge, Button, EmptyState, NumberField, Section, Segmented, Slider, Switch, recipes } from '$lib/ui';
+	import { Badge, Button, EmptyState, NumberField, Section, Segmented, Slider, Swatches, Switch, recipes } from '$lib/ui';
 	import Minus from '@lucide/svelte/icons/minus';
 	import Plus from '@lucide/svelte/icons/plus';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
@@ -79,6 +79,22 @@
 		return Array.from({ length: Math.round((o.max! - o.min!) / stepOf(o)) + 1 }, (_, i) => o.min! + i * stepOf(o));
 	}
 	const tick = (o: PlanOption) => ticks(o).find((v) => Math.abs(num(o) - v) < 1e-6);
+	// Colour: the decors the body's board is sold in. Fronts follow the
+	// body unless the person gives them their own.
+	const decors = $derived(
+		[...app.decorsFor(app.spec.material)].sort((a, b) => Number(!!a.grain) - Number(!!b.grain) || lightness(b.hex) - lightness(a.hex))
+	);
+	/** Plain colours first, then wood; each from light to dark. */
+	function lightness(hex: string) {
+		const n = parseInt(hex.slice(1), 16);
+		return 0.2126 * (n >> 16) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255);
+	}
+	const decorOptions = $derived(
+		decors.map((d) => ({ value: d.id, label: d.name, hex: d.hex, grain: d.grain, hint: `${d.brand} ${d.code ?? ''}`.trim() }))
+	);
+	const bodyDecor = $derived(app.spec.decor ?? app.libraries?.materials.materials[app.spec.material]?.defaultDecor ?? null);
+	const nameOf = (id: string | null | undefined) => decors.find((d) => d.id === id)?.name ?? '';
+
 	function reset() {
 		if (app.variant) app.loadVariant(app.variant);
 	}
@@ -121,6 +137,44 @@
 			</div>
 		</div>
 	</div>
+
+	{#if decors.length}
+		<div class="border-t">
+			<Section title="Color" bodyClass="grid gap-3 px-3 pb-3">
+				<div class="grid gap-1.5">
+					<div class="flex items-baseline justify-between gap-2">
+						<span class="text-sm font-medium">Cuerpo</span>
+						<span class="text-xs text-muted-foreground">{nameOf(bodyDecor)}</span>
+					</div>
+					<Swatches aria-label="Color del cuerpo" options={decorOptions} value={bodyDecor} onChange={(id) => app.setDecor('decor', id)} />
+				</div>
+				<div class="grid gap-1.5">
+					<div class="flex min-h-7 items-center justify-between gap-2">
+						<span class="text-sm font-medium">Puertas y frentes de otro color</span>
+						<Switch
+							aria-label="Puertas y frentes de otro color"
+							checked={!!app.spec.frontDecor}
+							onChange={(on) => app.setDecor('frontDecor', on ? (bodyDecor === 'nogal_terracota' ? 'blanco_nature' : 'nogal_terracota') : null)}
+						/>
+					</div>
+					{#if app.spec.frontDecor}
+						<div class="flex items-baseline justify-end">
+							<span class="text-xs text-muted-foreground">{nameOf(app.spec.frontDecor)}</span>
+						</div>
+						<Swatches
+							aria-label="Color de puertas y frentes"
+							options={decorOptions}
+							value={app.spec.frontDecor}
+							onChange={(id) => app.setDecor('frontDecor', id)}
+						/>
+					{/if}
+				</div>
+				<p class="text-xs leading-snug text-subtle-foreground">
+					Melaminas Faplac de 18 mm; el canto va en el mismo color. Las de madera llevan veta y se cortan a lo largo.
+				</p>
+			</Section>
+		</div>
+	{/if}
 
 	{#if options.length === 0}
 		<EmptyState

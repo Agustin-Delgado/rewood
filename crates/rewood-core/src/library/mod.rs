@@ -8,7 +8,7 @@ pub mod profile;
 pub mod supplier;
 
 pub use hardware::{HardwareDef, HardwareLibrary, HoleLocation, HoleSpec, JointSide};
-pub use material::{EdgeMaterial, Material, MaterialLibrary};
+pub use material::{Decor, EdgeMaterial, Material, MaterialLibrary};
 pub use profile::ManufacturingProfile;
 pub use supplier::{Supplier, SupplierLibrary};
 

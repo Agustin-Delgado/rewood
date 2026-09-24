@@ -322,3 +322,18 @@ export const tooltip = tv({
 export const kbd = tv({
 	base: 'inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-sm border border-b-2 bg-depth-0 px-1 font-mono text-2xs text-muted-foreground'
 });
+
+/** A row of colour samples to pick one: a board decor, a finish. */
+export const swatches = tv({
+	slots: {
+		root: 'flex flex-wrap items-center gap-1.5',
+		item: `relative size-6 shrink-0 rounded-full border border-border-strong shadow-xs outline-none
+			transition-[box-shadow,transform] duration-100 hover:scale-110
+			data-selected:ring-2 data-selected:ring-primary data-selected:ring-offset-2 data-selected:ring-offset-depth-0
+			data-focus-visible:ring-2 data-focus-visible:ring-ring/60 data-focus-visible:ring-offset-2 data-focus-visible:ring-offset-depth-0
+			data-disabled:pointer-events-none data-disabled:opacity-40`,
+		/** A print with a direction (wood): faint stripes over the colour. */
+		grain: `pointer-events-none absolute inset-0 rounded-full opacity-35
+			bg-[repeating-linear-gradient(100deg,transparent_0_3px,rgb(0_0_0/0.35)_3px_4px)]`
+	}
+});

@@ -166,6 +166,37 @@ pub fn compile(spec: &FurnitureSpec) -> ManufacturingPlan {
     }
 }
 
+/// Give every part of a material sold in several designs its colour:
+/// fronts (doors, drawer fronts) take `frontDecor`, the rest `decor`, and
+/// a colour the material is not sold in falls back to its default.
+fn assign_decors(parts: &mut [model::Part], spec: &FurnitureSpec, libs: &Libraries) {
+    for part in parts {
+        let Some(material) = libs.materials.material(&part.material) else {
+            continue;
+        };
+        let wanted = if is_front_role(&part.role) {
+            spec.front_decor.as_ref().or(spec.decor.as_ref())
+        } else {
+            spec.decor.as_ref()
+        };
+        let sold = |id: &String| {
+            libs.materials
+                .decor(id)
+                .is_some_and(|d| d.materials.contains(&part.material))
+        };
+        part.decor = wanted
+            .filter(|id| sold(id))
+            .or(material.default_decor.as_ref().filter(|id| sold(id)))
+            .cloned();
+    }
+}
+
+/// What the person sees from outside and may want in another colour: a
+/// door, a flap, a drawer front, a fixed front. Not a drawer box's front.
+pub fn is_front_role(role: &str) -> bool {
+    role.contains("door") || (role.contains("front") && !role.contains("box_front"))
+}
+
 /// Parse and compile JSON in one go; a malformed spec is reported as a
 /// FATAL diagnostic inside an otherwise empty plan, never as a panic.
 pub fn compile_json(json: &str) -> ManufacturingPlan {
@@ -228,6 +259,20 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
                 Severity::Fatal,
                 format!("material de canto desconocido '{edge}'"),
             ));
+        }
+    }
+    for (field, decor) in [("decor", &spec.decor), ("frontDecor", &spec.front_decor)] {
+        if let Some(id) = decor {
+            if libs.materials.decor(id).is_none() {
+                diags.push(
+                    Diagnostic::new(
+                        "LIB-106",
+                        Severity::Error,
+                        format!("color desconocido '{id}' en {field}: se usa el de la placa por defecto"),
+                    )
+                    .suggestion("Elegí un color de la biblioteca (libraries.materials, decors)."),
+                );
+            }
         }
     }
     if diags.has_fatal() {
@@ -294,6 +339,7 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
         inactive,
     } = built;
     diags.extend(built_diags);
+    assign_decors(&mut parts, spec, libs);
 
     // 3. Constraints over parameters and derived values.
     let scope = Chain(&derived, &params);
@@ -442,6 +488,7 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
         &extra_bom,
     );
     let purchasing = plan::purchasing(&bom, libs);
+    let catalog = plan::Catalog::of(&parts, libs);
 
     diags.sort();
     let (status, blocked) = ManufacturingPlan::status_from(&diags);
@@ -463,6 +510,7 @@ pub fn compile_with(spec: &FurnitureSpec, libs: &Libraries) -> ManufacturingPlan
         nesting,
         machining,
         purchasing,
+        catalog,
         diagnostics: diags,
     }
 }
@@ -513,6 +561,7 @@ fn empty_plan(
         nesting: Vec::new(),
         machining: plan::Machining::default(),
         purchasing: Vec::new(),
+        catalog: plan::Catalog::default(),
         diagnostics: diags,
     }
 }

@@ -18,6 +18,7 @@
 //! ├── documentation/cutlist.txt
 //! ├── documentation/operations.csv   every hole and groove, one row each
 //! ├── labels/labels.svg       one label with QR per part
+//! ├── proveedor/…             the order for the board supplier (see `supplier`)
 //! ├── plan.json               the full plan, canonical JSON
 //! └── manifest.json           versions, status, file list
 //! ```
@@ -25,6 +26,7 @@
 pub mod assembly;
 pub mod dxf;
 pub mod explode;
+pub mod supplier;
 pub mod svg;
 
 use std::fmt::Write;
@@ -393,7 +395,7 @@ pub fn cutlist_txt(plan: &ManufacturingPlan) -> String {
     s
 }
 
-const DXF_README: &str = "\
+pub(crate) const DXF_README: &str = "\
 Convenciones de los DXF de piezas
 =================================
 
@@ -916,6 +918,7 @@ pub fn package(plan: &ManufacturingPlan) -> Vec<PackageFile> {
         path: "documentation/operations.csv".into(),
         contents: operations_csv(plan),
     });
+    files.extend(supplier::files(plan));
     files.push(PackageFile {
         path: "plan.json".into(),
         contents: plan.to_json_pretty() + "\n",
@@ -976,7 +979,10 @@ mod tests {
         let spec = include_str!("../../../../fixtures/basic_cabinet/input.json");
         let plan = crate::compile_json(spec);
         let files = package(&plan);
-        let dxfs = files.iter().filter(|f| f.path.ends_with(".dxf")).count();
+        let dxfs = files
+            .iter()
+            .filter(|f| f.path.starts_with("parts/") && f.path.ends_with(".dxf"))
+            .count();
         assert_eq!(dxfs, plan.parts.len());
         let svgs = files
             .iter()

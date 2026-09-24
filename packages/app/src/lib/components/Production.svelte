@@ -25,7 +25,8 @@
 		{ role: 'cnc', label: 'CNC' },
 		{ role: 'cutting', label: 'seccionadora' },
 		{ role: 'assembly', label: 'armado' },
-		{ role: 'purchasing', label: 'compras' }
+		{ role: 'purchasing', label: 'compras' },
+		{ role: 'supplier', label: 'proveedor de placas' }
 	];
 
 	async function run(action: () => Promise<Production | unknown>) {
