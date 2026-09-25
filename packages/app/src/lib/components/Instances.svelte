@@ -17,19 +17,23 @@
 		material,
 		count,
 		fill,
-		onclick
+		onclick,
+		tag
 	}: {
 		geometry: THREE.BufferGeometry;
 		material: THREE.Material;
 		count: number;
 		fill: (mesh: THREE.InstancedMesh) => void;
 		onclick?: (instance: number) => void;
+		/** What the copies are, for whoever reads the scene (the photo). */
+		tag?: string;
 	} = $props();
 
 	const mesh = $derived.by(() => {
 		const m = new THREE.InstancedMesh(geometry, material, Math.max(count, 1));
 		m.count = count;
 		m.frustumCulled = false;
+		if (tag) m.userData.tag = tag;
 		return m;
 	});
 	// InstancedMesh.dispose frees the instance buffers, not the shared

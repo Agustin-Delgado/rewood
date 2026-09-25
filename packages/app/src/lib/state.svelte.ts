@@ -65,6 +65,9 @@ class AppState {
 	/** Component the editor should unfold and scroll to (from a finding). */
 	focusComponent: string | null = $state(null);
 	hiddenComponents: Set<string> = $state(new Set());
+	/** The live 3D scene, for the realistic photo (set by the viewer). */
+	photoSource: (() => import('./photo').PhotoSource) | null = null;
+	photoOpen = $state(false);
 	showHoles: boolean = $state(true);
 	/** Fasteners (dowels, minifix, hinges…) drawn where the joints put them. */
 	showHardware: boolean = $state(true);

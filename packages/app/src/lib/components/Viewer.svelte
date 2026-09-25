@@ -1,13 +1,15 @@
 <script lang="ts">
 	import { Canvas } from '@threlte/core';
 	import BoxIcon from '@lucide/svelte/icons/box';
+	import Camera from '@lucide/svelte/icons/camera';
 	import Bolt from '@lucide/svelte/icons/bolt';
 	import DoorClosed from '@lucide/svelte/icons/door-closed';
 	import DoorOpen from '@lucide/svelte/icons/door-open';
 	import Drill from '@lucide/svelte/icons/drill';
 	import Scene from './Scene.svelte';
+	import PhotoDialog from './PhotoDialog.svelte';
 	import { app, VIEWS } from '$lib/state.svelte';
-	import { Segmented, Slider, Toggle, Tooltip } from '$lib/ui';
+	import { Button, Segmented, Slider, Toggle, Tooltip } from '$lib/ui';
 
 	const viewOptions = $derived(VIEWS.map((v) => ({ value: v.id, label: v.name, title: v.title })));
 </script>
@@ -49,7 +51,12 @@
 		</label>
 		<span class="h-4 w-px bg-border"></span>
 		<Segmented aria-label="Vista" size="xs" options={viewOptions} value={app.view} onChange={(v) => app.setView(v)} />
+		<span class="h-4 w-px bg-border"></span>
+		<Tooltip text="Foto realista del mueble como está en pantalla">
+			<Button size="xs" variant="soft" onclick={() => (app.photoOpen = true)}><Camera />Foto</Button>
+		</Tooltip>
 	</div>
+	<PhotoDialog />
 	{#if app.selected || app.fastener}
 		<div
 			class="overlay absolute bottom-2.5 left-2.5 flex max-w-[calc(100%-1.25rem)] items-center gap-2 rounded-lg border bg-depth-0/95 px-2.5 py-1.5 text-xs shadow-sm backdrop-blur-sm"

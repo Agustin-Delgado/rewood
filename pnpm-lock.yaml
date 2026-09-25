@@ -46,6 +46,12 @@ importers:
       three:
         specifier: ^0.186.0
         version: 0.186.0
+      three-gpu-pathtracer:
+        specifier: ^0.0.24
+        version: 0.0.24(three-mesh-bvh@0.9.15(three@0.186.0))(three@0.186.0)(xatlas-web@0.1.0)
+      three-mesh-bvh:
+        specifier: ^0.9.15
+        version: 0.9.15(three@0.186.0)
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
@@ -1227,6 +1233,13 @@ packages:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
 
+  three-gpu-pathtracer@0.0.24:
+    resolution: {integrity: sha512-fHQ7g7ywvSwRAQywhsfech2/kspQKinfFNOcNDTJS2Q34CzcF1kpESlOVvJH8kX/bGlCnxMI+Qo16kWGAy7zCA==}
+    peerDependencies:
+      three: '>=0.180.0'
+      three-mesh-bvh: '>=0.7.4'
+      xatlas-web: ^0.1.0
+
   three-instanced-uniforms-mesh@0.52.5:
     resolution: {integrity: sha512-6HrT4tNoSSw83yVAxqPmBZDLg9T7blWsZCqfHjPu7MKxHLt3pV4RMA+NxEwLokbqh7qFGDadhfYwjL0aLhb5fw==}
     peerDependencies:
@@ -1442,6 +1455,9 @@ packages:
     resolution: {integrity: sha512-hUrmaWBdVDcxvYqnyh09zunKzROWjbZTiNy8dBEjkS7ehEDQibXJ7XvlmtbwuTclUiIyN+CyXQD4Vmko8fNm8w==}
     engines: {node: '>=8'}
     hasBin: true
+
+  xatlas-web@0.1.0:
+    resolution: {integrity: sha512-PprVfuXbaIskxLTLBUQRaWfgSy9xUQqAMIRooOw0P6NYqwgh6T0voeer6+Z5M7AFt5SGXUybuww/uDGs1yw8vQ==}
 
   zimmerframe@1.1.5:
     resolution: {integrity: sha512-msJxIvYDYcoNL+PJsu+7qmpDWsYmAxTY+2TNYXXF0hzBzBk0BMecOqDOG/EckUoKCuKwObfbugIl8QpqHDXeFA==}
@@ -2342,6 +2358,12 @@ snapshots:
 
   tapable@2.3.3: {}
 
+  three-gpu-pathtracer@0.0.24(three-mesh-bvh@0.9.15(three@0.186.0))(three@0.186.0)(xatlas-web@0.1.0):
+    dependencies:
+      three: 0.186.0
+      three-mesh-bvh: 0.9.15(three@0.186.0)
+      xatlas-web: 0.1.0
+
   three-instanced-uniforms-mesh@0.52.5(three@0.186.0):
     dependencies:
       three: 0.186.0
@@ -2505,5 +2527,7 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
+
+  xatlas-web@0.1.0: {}
 
   zimmerframe@1.1.5: {}

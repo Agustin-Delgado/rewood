@@ -1,0 +1,4 @@
+Recursos de la foto realista. Todos CC0 (dominio público), de Poly Haven:
+- loft.hdr   photo_studio_loft_hall (HDRI 1k)  https://polyhaven.com/a/photo_studio_loft_hall
+- wood.jpg   oak_veneer_01 (albedo 1k), en escala de grises y teñida con el color del decor  https://polyhaven.com/a/oak_veneer_01
+- floor.jpg  laminate_floor_02 (albedo 1k)     https://polyhaven.com/a/laminate_floor_02

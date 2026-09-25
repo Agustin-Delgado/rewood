@@ -18,7 +18,13 @@
 	import Instances from './Instances.svelte';
 
 	interactivity();
-	const { size, dom } = useThrelte();
+	const { size, dom, scene: threeScene, camera: threeCamera } = useThrelte();
+	// The realistic photo reads the scene as it is drawn: open doors,
+	// colours, hardware.
+	$effect(() => {
+		app.photoSource = () => ({ scene: threeScene, camera: threeCamera.current });
+		return () => (app.photoSource = null);
+	});
 
 	// Selection: a click picks a part, a click on it again drops it (not
 	// the second click of a double click, which opens the front), and a
@@ -508,7 +514,7 @@
 
 {#each rails as r (r.id)}
 	{@const at = railPose(r)}
-	<T.Mesh position={at.pos} quaternion={at.quat} scale={[12, at.len, 12]} geometry={railCyl}>
+	<T.Mesh position={at.pos} quaternion={at.quat} scale={[12, at.len, 12]} geometry={railCyl} userData={{ tag: 'rail' }}>
 		<T.MeshStandardMaterial color="#9aa0a6" metalness={0.6} roughness={0.35} />
 	</T.Mesh>
 {/each}
@@ -518,7 +524,7 @@
 {#each parts as part (part.id)}
 	{@const at = pose(part.id)}
 	<T.Group position={at.position} quaternion={at.quaternion}>
-		<T.Mesh position={centre(part)} scale={size3(part)} geometry={unitBox} onclick={(e: { stopPropagation: () => void; nativeEvent: MouseEvent }) => { e.stopPropagation(); hit = true; pickPart(part.id, e.nativeEvent); }} ondblclick={(e: { stopPropagation: () => void }) => toggleFront(part, e)}>
+		<T.Mesh position={centre(part)} scale={size3(part)} geometry={unitBox} userData={{ part: part.id }} onclick={(e: { stopPropagation: () => void; nativeEvent: MouseEvent }) => { e.stopPropagation(); hit = true; pickPart(part.id, e.nativeEvent); }} ondblclick={(e: { stopPropagation: () => void }) => toggleFront(part, e)}>
 			{#if part.outsourced && part.material.startsWith('glass')}
 				<!-- Glass: seen through, so the shelves behind the doors read. -->
 				<T.MeshStandardMaterial color={colourOf(part)} roughness={0.1} metalness={0.1} transparent opacity={0.35} depthWrite={false} />
@@ -539,9 +545,9 @@
 <Instances geometry={holeDisc} material={holeMaterial} count={holes.length} fill={fillMarks(holes)} />
 <Instances geometry={unitBox} material={grooveMaterial} count={grooves.length} fill={fillMarks(grooves)} />
 <Instances geometry={unitBox} material={cutoutMaterial} count={cutouts.length} fill={fillMarks(cutouts)} />
-<Instances geometry={unitCyl} material={metal} count={placed.cyl.length} fill={fillPrims(placed.cyl)} onclick={pickPrim(placed.cyl)} />
-<Instances geometry={unitBox} material={metal} count={placed.box.length} fill={fillPrims(placed.box)} onclick={pickPrim(placed.box)} />
-<Instances geometry={unitSphere} material={metal} count={placed.sphere.length} fill={fillPrims(placed.sphere)} onclick={pickPrim(placed.sphere)} />
+<Instances tag="hardware" geometry={unitCyl} material={metal} count={placed.cyl.length} fill={fillPrims(placed.cyl)} onclick={pickPrim(placed.cyl)} />
+<Instances tag="hardware" geometry={unitBox} material={metal} count={placed.box.length} fill={fillPrims(placed.box)} onclick={pickPrim(placed.box)} />
+<Instances tag="hardware" geometry={unitSphere} material={metal} count={placed.sphere.length} fill={fillPrims(placed.sphere)} onclick={pickPrim(placed.sphere)} />
 
 {#if app.explode > 0}
 	<T.LineSegments geometry={leaders}>

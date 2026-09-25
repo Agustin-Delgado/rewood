@@ -150,6 +150,19 @@ del mueble y `frontDecor` el de puertas y frentes de cajón. Sin `decor` se usa 
 - Los diseños de madera llevan veta; un liso se puede girar al cortar.
 - El 3D pinta cada pieza con el color que eligió la persona.
 
+**Foto realista** (botón *Foto* del visor): el mueble tal como está en pantalla,
+con las mismas piezas, puertas abiertas o cerradas, colores y herrajes. Se arma
+de nuevo con materiales físicos: melamina satinada, veta de madera teñida con el
+color del decor, vidrio, espejo, metal y fibrofácil mate. Queda en un ambiente
+simple (piso laminado, pared con zócalo, luz de estudio y una ventana) y se
+renderiza por trazado de rayos en el navegador (`three-gpu-pathtracer`).
+
+- La imagen se aclara pasada a pasada hasta 300 y se descarga en PNG.
+- En una placa de video de gama media tarda unos 40 segundos con la pestaña al
+  frente. Chrome frena el render si la ventana queda tapada.
+- No usa IA generativa: la foto es exactamente lo que se fabrica.
+- La luz de ambiente y las texturas son CC0 de Poly Haven (`static/render/LEEME.txt`).
+
 Servicio (§39–41):
 
 ```bash
