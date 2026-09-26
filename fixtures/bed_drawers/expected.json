@@ -20533,7 +20533,13 @@
         "density": 850.0,
         "wasteFactor": 1.1,
         "supplier": "boards_supplier",
-        "maxSpan": 300.0
+        "maxSpan": 300.0,
+        "base": "MDF",
+        "listing": {
+          "brand": "FAPLAC",
+          "line": "OTROS.FAP",
+          "colour": "BLANCO 1C"
+        }
       },
       "mdf_18": {
         "id": "mdf_18",
@@ -20546,7 +20552,8 @@
         "density": 750.0,
         "wasteFactor": 1.15,
         "supplier": "boards_supplier",
-        "maxSpan": 900.0
+        "maxSpan": 900.0,
+        "base": "MDF"
       },
       "melamine_18": {
         "id": "melamine_18",
@@ -20560,7 +20567,8 @@
         "wasteFactor": 1.15,
         "supplier": "boards_supplier",
         "maxSpan": 900.0,
-        "defaultDecor": "blanco_nature"
+        "defaultDecor": "blanco_nature",
+        "base": "AGL"
       }
     },
     "edgeMaterials": {

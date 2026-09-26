@@ -50,6 +50,24 @@ pub struct Material {
     /// sheets sold in several designs (melamine) have one.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub default_decor: Option<String>,
+    /// The board's core as Argentine distributors' order sheets write it
+    /// ("AGL" particle board, "MDF", "TERCI" plywood).
+    #[serde(default, skip_serializing_if = "String::is_empty")]
+    pub base: String,
+    /// How order sheets list a board sold in a single finish (the white
+    /// back), which has no decor to name it.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub listing: Option<Listing>,
+}
+
+/// Maker, line and colour the way a distributor's order sheet lists a
+/// board, in its own words ("FAPLAC", "LISOS", "BLANCO").
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Listing {
+    pub brand: String,
+    pub line: String,
+    pub colour: String,
 }
 
 pub(crate) fn is_zero(v: &f64) -> bool {
@@ -103,6 +121,37 @@ pub struct Decor {
     pub sheet_length: Option<f64>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub sheet_width: Option<f64>,
+    /// How order sheets list it when that is not the maker's brand, line
+    /// and name in capitals.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub listing: Option<Listing>,
+}
+
+impl Decor {
+    /// Brand, line and name as an order sheet lists them.
+    pub fn listing(&self) -> Listing {
+        self.listing.clone().unwrap_or_else(|| Listing {
+            brand: plain_caps(&self.brand),
+            line: plain_caps(&self.line),
+            colour: plain_caps(&self.name),
+        })
+    }
+}
+
+/// "Teka Ártico" → "TEKA ARTICO": order sheets write names in capitals
+/// without accents.
+fn plain_caps(s: &str) -> String {
+    s.chars()
+        .map(|c| match c {
+            'á' | 'Á' => 'A',
+            'é' | 'É' => 'E',
+            'í' | 'Í' => 'I',
+            'ó' | 'Ó' => 'O',
+            'ú' | 'Ú' | 'ü' | 'Ü' => 'U',
+            'ñ' => 'Ñ',
+            c => c.to_ascii_uppercase(),
+        })
+        .collect()
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

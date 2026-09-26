@@ -8,6 +8,8 @@
 //! proveedor/planos.html    conventions, cut list and one dimensioned drawing
 //!                          per machined part; printed to PDF from a browser
 //! proveedor/dxf/P001.dxf … one per machined part, for a CAM that imports DXF
+//! proveedor/ot-lista.csv   the same list in the OT-LISTA order sheet that
+//!                          distributors use: cut sizes, bands per side
 //! ```
 //!
 //! The supplier's terms: sizes are finished (band included) in mm, the
@@ -222,6 +224,10 @@ pub fn files(plan: &ManufacturingPlan) -> Vec<PackageFile> {
             path: "proveedor/planos.html".into(),
             contents: order_html(plan, &rows),
         },
+        PackageFile {
+            path: "proveedor/ot-lista.csv".into(),
+            contents: ot_lista_csv(plan, &rows),
+        },
     ];
     for r in rows.iter().filter(|r| r.drawing.is_some()) {
         files.push(PackageFile {
@@ -304,6 +310,120 @@ fn cut_list_csv(plan: &ManufacturingPlan, rows: &[Row]) -> String {
         cells.extend(edge_cells(plan, r));
         cells.push(machining_summary(r.part));
         cells.push(r.drawing.map(|d| d.to_string()).unwrap_or_default());
+        out += &cells.iter().map(|c| cell(c)).collect::<Vec<_>>().join(";");
+        out += "\n";
+    }
+    out
+}
+
+/// Order sheets write the band as its thickness: "045", "1MM", "2MM".
+fn band_code(thickness: f64) -> String {
+    if (thickness - 0.45).abs() < 1e-6 {
+        "045".into()
+    } else {
+        format!("{}MM", mm(thickness))
+    }
+}
+
+/// Bands on a pair of opposite sides, the OT-LISTA way: how many ("1L",
+/// "2C") and how thick. Two different bands on the pair can't be said in
+/// one cell; the thicker one is written and the note points to the drawing.
+fn band_pair(bands: &[f64], letter: &str, note: &mut String) -> (String, String) {
+    let Some(&first) = bands.first() else {
+        return (String::new(), String::new());
+    };
+    if bands.iter().any(|b| (b - first).abs() > 1e-6) {
+        *note = "cantos distintos: ver plano".into();
+    }
+    let thickest = bands.iter().copied().fold(0.0, f64::max);
+    (format!("{}{letter}", bands.len()), band_code(thickest))
+}
+
+/// The cut list in the columns of the OT-LISTA order sheet that Argentine
+/// distributors use (Tableros Argentinos V3.1, sheet PEDIDO, columns A to
+/// Q), ready to paste into it. Its conventions differ from ours: sizes are
+/// cut sizes, band thickness already taken off; VETA is the size along the
+/// grain and CVETA across it; bands are counted on the longer ("L") and the
+/// shorter ("C") sides of the part, "4L" meaning the same band all round.
+fn ot_lista_csv(plan: &ManufacturingPlan, rows: &[Row]) -> String {
+    let cell = |s: &str| {
+        if s.contains([';', '"', '\n']) {
+            format!("\"{}\"", s.replace('"', "\"\""))
+        } else {
+            s.to_string()
+        }
+    };
+    let mut out = String::from("\u{feff}");
+    out += "ORDEN;CÓDIGO;CANT;VETA;CVETA;LARGO;ESP.;CORTO;ESP.;COLOR FILO;PERFORADO/PANTOGRAFO;CANT. PERF.;BASE;FABRICANTE;LÍNEA;COLOR;ESP.\n";
+    for (i, r) in rows.iter().enumerate() {
+        let p = r.part;
+        let band = |f: Face| {
+            p.edges
+                .get(&f)
+                .and_then(|e| plan.catalog.edge_materials.get(e))
+                .map(|e| e.thickness)
+        };
+        // The plan's cut size: finished less the band on each side.
+        let (cut_x, cut_y) = (r.list.cut_length, r.list.cut_width);
+        let (veta, cveta) = if r.sides.faces[0].1 == Face::Bottom {
+            (cut_x, cut_y)
+        } else {
+            (cut_y, cut_x)
+        };
+        // The edges of the longer side run along it.
+        let (long, short) = if p.dims.length >= p.dims.width {
+            ([Face::Bottom, Face::Top], [Face::Left, Face::Right])
+        } else {
+            ([Face::Left, Face::Right], [Face::Bottom, Face::Top])
+        };
+        let banded = |faces: [Face; 2]| faces.into_iter().filter_map(band).collect::<Vec<_>>();
+        let (l, c) = (banded(long), banded(short));
+        let mut note = String::new();
+        let (mut fl, gl) = band_pair(&l, "L", &mut note);
+        let (mut fc, mut gc) = band_pair(&c, "C", &mut note);
+        if l.len() == 2 && c.len() == 2 && gl == gc && note.is_empty() {
+            fl = "4L".into();
+            fc.clear();
+            gc.clear();
+        }
+        let drills = p
+            .operations
+            .iter()
+            .filter(|op| matches!(op.geometry, OpGeometry::Drill { .. }))
+            .count();
+        let material = plan.catalog.materials.get(&p.material);
+        let listing = p
+            .decor
+            .as_deref()
+            .and_then(|d| plan.catalog.decors.get(d))
+            .map(|d| d.listing())
+            .or_else(|| material.and_then(|m| m.listing.clone()));
+        let (brand, line, colour) = listing
+            .map(|l| (l.brand, l.line, l.colour))
+            .unwrap_or_default();
+        let cells = [
+            (i + 1).to_string(),
+            format!("{} {}", r.list.part_ids.join(" "), r.list.name),
+            r.list.quantity.to_string(),
+            mm(veta),
+            mm(cveta),
+            fl,
+            gl,
+            fc,
+            gc,
+            note,
+            if r.drawing.is_some() { "MECA" } else { "" }.into(),
+            if drills > 0 {
+                drills.to_string()
+            } else {
+                String::new()
+            },
+            material.map(|m| m.base.clone()).unwrap_or_default(),
+            brand,
+            line,
+            colour,
+            material.map_or(String::new(), |m| mm(m.nominal_thickness)),
+        ];
         out += &cells.iter().map(|c| cell(c)).collect::<Vec<_>>().join(";");
         out += "\n";
     }
@@ -901,5 +1021,50 @@ mod tests {
         let s = sides(side, &plan);
         assert_eq!(s.faces[0], ("L1", Face::Bottom));
         assert!(!s.grain, "Blanco Nature has no direction");
+    }
+
+    #[test]
+    fn the_ot_lista_takes_the_band_off_and_counts_it_per_side() {
+        let plan = plan("wardrobe_1800");
+        let csv = files(&plan)
+            .into_iter()
+            .find(|f| f.path == "proveedor/ot-lista.csv")
+            .unwrap()
+            .contents;
+        assert_eq!(csv.lines().count(), plan.part_list.len() + 1);
+        assert!(csv.starts_with("\u{feff}ORDEN;CÓDIGO;CANT;VETA;CVETA;LARGO;"));
+        // A side 2100 × 500 banded on one long edge: 0,45 off the width.
+        assert!(
+            csv.contains(
+                "\n1;P001 Lateral izquierdo;1;2100;499,6;1L;045;;;;MECA;22;AGL;FAPLAC;NATURE;BLANCO NATURE;18\n"
+            ),
+            "{csv}"
+        );
+        // A drawer front banded all round: 590 × 264,3 finished, "4L".
+        assert!(csv.contains(";3;589,1;263,4;4L;045;;;;MECA;"), "{csv}");
+        // The white back has no decor: the sheet lists it by itself.
+        assert!(
+            csv.contains("Fondo;1;2079;1779;;;;;;;;MDF;FAPLAC;OTROS.FAP;BLANCO 1C;3\n"),
+            "{csv}"
+        );
+    }
+
+    #[test]
+    fn order_sheets_list_a_decor_in_capitals_without_accents() {
+        let libs = crate::library::MaterialLibrary::defaults();
+        let caju = libs.decor("caju").unwrap().listing();
+        assert_eq!(
+            (
+                caju.brand.as_str(),
+                caju.line.as_str(),
+                caju.colour.as_str()
+            ),
+            ("FAPLAC", "NATURE", "CAJU")
+        );
+        assert_eq!(libs.decor("wengue").unwrap().listing().brand, "MASISA");
+        assert_eq!(
+            libs.decor("blanco_tundra").unwrap().listing().colour,
+            "BLANCO"
+        );
     }
 }

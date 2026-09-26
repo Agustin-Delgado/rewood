@@ -385,6 +385,17 @@ export interface Material {
   wasteFactor?: number;
   /** Decor a part of this material gets when the spec names none. */
   defaultDecor?: string;
+  /** Core as distributors' order sheets write it: "AGL", "MDF", "TERCI". */
+  base?: string;
+  /** How order sheets list a board sold in a single finish. */
+  listing?: Listing;
+}
+
+/** Maker, line and colour as a distributor's order sheet lists them. */
+export interface Listing {
+  brand: string;
+  line: string;
+  colour: string;
 }
 
 /** A design a sheet is sold in (Faplac "Blanco Nature"): colour, not geometry. */
@@ -401,6 +412,11 @@ export interface Decor {
   hex: string;
   /** Material ids it is sold in. */
   materials: string[];
+  /** Sheet size when the design comes in another one. */
+  sheetLength?: number;
+  sheetWidth?: number;
+  /** How order sheets list it, when not brand / line / name in capitals. */
+  listing?: Listing;
 }
 
 export interface EdgeMaterial {

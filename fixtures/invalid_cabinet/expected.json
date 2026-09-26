@@ -1957,7 +1957,8 @@
         "wasteFactor": 1.15,
         "supplier": "boards_supplier",
         "maxSpan": 900.0,
-        "defaultDecor": "blanco_nature"
+        "defaultDecor": "blanco_nature",
+        "base": "AGL"
       }
     },
     "edgeMaterials": {

@@ -95,13 +95,20 @@ profundidad (`DRILL_FRONT_D35_L12_5`, `DRILL_EDGE_LEFT_D8_L34`, `GROOVE_FRONT_W3
 **Pedido al proveedor de placas** (`proveedor/`, también suelto desde el botón
 *Pedido al proveedor* de la UI y como `?role=supplier` en el servidor): lo que
 necesita quien corta, cantea y agujerea, y nada más. No lleva herrajes, precios,
-nuestro nesting ni G-code. Trae tres cosas:
+nuestro nesting ni G-code. Trae:
 
 - `despiece.csv`: planilla para Excel en es-AR (`;`, coma decimal, BOM), con
   código, pieza, cantidad, material, color con su código Faplac, espesor, largo y
   ancho **finales con el canto incluido** (al décimo de mm), veta y canto de L1/L2
   (lados largos) y A1/A2 (lados cortos). Cierra con un resumen de mecanizado y el
   número de plano.
+- `ot-lista.csv`: el mismo despiece en las columnas A–Q de la planilla OT-LISTA
+  que usan los distribuidores (Tableros Argentinos V3.1, hoja PEDIDO), para
+  pegar en ella. Sigue sus convenciones: **medidas de corte, con el espesor del
+  canto ya descontado**; VETA/CVETA, cantos contados por lado largo y corto
+  (`1L`, `2C`, `4L`) con su espesor (`045`, `2MM`), `MECA` y cantidad de
+  perforaciones, y base, fabricante, línea y color como los escriben sus
+  listas (`base` y `listing` en `materials.json`).
 - `planos.html`: las convenciones, un resumen de m² por placa y color y de metros
   de canto, el despiece, y un plano por pieza mecanizada. Se imprime a PDF, A4
   apaisado.
