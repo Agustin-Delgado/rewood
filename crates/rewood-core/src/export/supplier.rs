@@ -1044,7 +1044,7 @@ mod tests {
         assert!(csv.contains(";3;589,1;263,4;4L;045;;;;MECA;"), "{csv}");
         // The white back has no decor: the sheet lists it by itself.
         assert!(
-            csv.contains("Fondo;1;2079;1779;;;;;;;;MDF;FAPLAC;OTROS.FAP;BLANCO 1C;3\n"),
+            csv.contains("Fondo;1;2079;1779;;;;;;;;MDF;EGGER;UNICOLORES;BLANCO ST14;3\n"),
             "{csv}"
         );
     }
